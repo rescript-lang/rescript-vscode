@@ -1,362 +1,5 @@
 open SharedTypes
-
-module PositionContext = struct
-  type t = {
-    offset: int;  (** The offset *)
-    cursor: Pos.t;  (** The actual position of the cursor *)
-    beforeCursor: Pos.t;  (** The position just before the cursor *)
-    noWhitespace: Pos.t;
-        (** The position of the cursor, removing any whitespace _before_ it *)
-    charBeforeNoWhitespace: char option;
-        (** The first character before the cursor, excluding any whitespace *)
-    charBeforeCursor: char option;
-        (** The char before the cursor, not excluding whitespace *)
-    whitespaceAfterCursor: char option;
-        (** The type of whitespace after the cursor, if any *)
-    locHasPos: Location.t -> bool;
-        (** A helper for checking whether a loc has the cursor (beforeCursor). 
-            This is the most natural position to check when figuring out if the user has the cursor in something. *)
-  }
-
-  let make ~offset ~posCursor text =
-    let offsetNoWhite = Utils.skipWhite text (offset - 1) in
-    let posNoWhite =
-      let line, col = posCursor in
-      (line, max 0 col - offset + offsetNoWhite)
-    in
-    let firstCharBeforeCursorNoWhite =
-      if offsetNoWhite < String.length text && offsetNoWhite >= 0 then
-        Some text.[offsetNoWhite]
-      else None
-    in
-    let posBeforeCursor = Pos.posBeforeCursor posCursor in
-    let charBeforeCursor, whitespaceAfterCursor =
-      match Pos.positionToOffset text posCursor with
-      | Some offset when offset > 0 -> (
-        let charBeforeCursor = text.[offset - 1] in
-        let charAtCursor =
-          if offset < String.length text then text.[offset] else '\n'
-        in
-        match charAtCursor with
-        | ' ' | '\t' | '\r' | '\n' ->
-          (Some charBeforeCursor, Some charBeforeCursor)
-        | _ -> (Some charBeforeCursor, None))
-      | _ -> (None, None)
-    in
-    let locHasPos loc =
-      loc |> CursorPosition.locHasCursor ~pos:posBeforeCursor
-    in
-    {
-      offset;
-      beforeCursor = posBeforeCursor;
-      noWhitespace = posNoWhite;
-      charBeforeNoWhitespace = firstCharBeforeCursorNoWhite;
-      cursor = posCursor;
-      charBeforeCursor;
-      whitespaceAfterCursor;
-      locHasPos;
-    }
-end
-
-type completionCategory = Type | Value | Module | Field
-
-type argumentLabel =
-  | Unlabelled of {argumentPosition: int}
-  | Labelled of string
-  | Optional of string
-
-type ctxPath =
-  | CUnknown  (** Something that cannot be resolved right now *)
-  | CId of string list * completionCategory
-      (** A regular id of an expected category. `let fff = thisIsAnId<com>` and `let fff = SomePath.alsoAnId<com>` *)
-  | CVariantPayload of {itemNum: int}
-      (** A variant payload. `Some(<com>)` = itemNum 0, `Whatever(true, f<com>)` = itemNum 1 *)
-  | CTupleItem of {itemNum: int}
-      (** A tuple item. `(true, false, <com>)` = itemNum 2 *)
-  | CRecordField of {seenFields: string list; prefix: string}
-      (** A record field. `let f = {on: true, s<com>}` seenFields = [on], prefix = "s",*)
-  | COption of ctxPath  (** An option with an inner type. *)
-  | CArray of ctxPath option  (** An array with an inner type. *)
-  | CTuple of ctxPath list  (** A tuple. *)
-  | CBool
-  | CString
-  | CInt
-  | CFloat
-  | CAwait of ctxPath  (** Awaiting a function call. *)
-  | CFunction of {returnType: ctxPath}  (** A function *)
-  | CField of ctxPath * string
-      (** Field access. `whateverVariable.fieldName`. The ctxPath points to the value of `whateverVariable`, 
-          and the string is the name of the field we're accessing. *)
-  | CObj of ctxPath * string
-      (** Object property access. `whateverVariable["fieldName"]`. The ctxPath points to the value of `whateverVariable`, 
-          and the string is the name of the property we're accessing. *)
-  | CApply of ctxPath * Asttypes.arg_label list
-      (** Function application. `someFunction(someVar, ~otherLabel="hello")`. The ctxPath points to the function. *)
-  | CFunctionArgument of {
-      functionContextPath: ctxPath;
-      argumentLabel: argumentLabel;
-    }  (** A function argument, either labelled or unlabelled.*)
-  | CPipe of {
-      ctxPath: ctxPath;  (** Context path to the function being called. *)
-      id: string;
-      lhsLoc: Location.t;  (** Location of the left hand side. *)
-    }  (** Piped call. `foo->someFn`. *)
-  | CJsxPropValue of {
-      pathToComponent: string list;
-          (** The path to the component this property is from. *)
-      propName: string;  (** The prop name we're going through. *)
-    }  (** A JSX property. *)
-
-let rec ctxPathToString (ctxPath : ctxPath) =
-  match ctxPath with
-  | CUnknown -> "CUnknown"
-  | CBool -> "bool"
-  | CFloat -> "float"
-  | CInt -> "int"
-  | CString -> "string"
-  | CJsxPropValue {pathToComponent; propName} ->
-    "CJsxPropValue " ^ (pathToComponent |> list) ^ " " ^ propName
-  | CAwait ctxPath -> Printf.sprintf "await %s" (ctxPathToString ctxPath)
-  | CApply (ctxPath, args) ->
-    Printf.sprintf "%s(%s)" (ctxPathToString ctxPath)
-      (args
-      |> List.map (function
-           | Asttypes.Nolabel -> "Nolabel"
-           | Labelled s -> "~" ^ s
-           | Optional s -> "?" ^ s)
-      |> String.concat ", ")
-  | CField (ctxPath, fieldName) ->
-    Printf.sprintf "(%s).%s" (ctxPathToString ctxPath) fieldName
-  | CObj (ctxPath, fieldName) ->
-    Printf.sprintf "(%s)[\"%s\"]" (ctxPathToString ctxPath) fieldName
-  | CFunction {returnType} ->
-    Printf.sprintf "CFunction () -> %s" (ctxPathToString returnType)
-  | CTuple ctxPaths ->
-    Printf.sprintf "CTuple(%s)"
-      (ctxPaths |> List.map ctxPathToString |> String.concat ", ")
-  | CId (prefix, typ) ->
-    Printf.sprintf "CId(%s)=%s"
-      (match typ with
-      | Value -> "Value"
-      | Type -> "Type"
-      | Module -> "Module"
-      | Field -> "Field")
-      (ident prefix)
-  | CVariantPayload {itemNum} -> Printf.sprintf "CVariantPayload($%i)" itemNum
-  | CTupleItem {itemNum} -> Printf.sprintf "CTupleItem($%i)" itemNum
-  | CRecordField {prefix} -> Printf.sprintf "CRecordField=%s" prefix
-  | COption ctxPath -> Printf.sprintf "COption<%s>" (ctxPathToString ctxPath)
-  | CArray ctxPath ->
-    Printf.sprintf "array%s"
-      (match ctxPath with
-      | None -> ""
-      | Some ctxPath -> "<" ^ ctxPathToString ctxPath ^ ">")
-  | CFunctionArgument {functionContextPath; argumentLabel} ->
-    "CFunctionArgument "
-    ^ (functionContextPath |> ctxPathToString)
-    ^ "("
-    ^ (match argumentLabel with
-      | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition
-      | Labelled name -> "~" ^ name
-      | Optional name -> "~" ^ name ^ "=?")
-    ^ ")"
-  | CPipe {ctxPath; id} -> "(" ^ ctxPathToString ctxPath ^ ")->" ^ id
-
-type currentlyExpecting =
-  | Unit  (** Unit, (). Is what we reset to. *)
-  | Type of ctxPath  (** A type at a context path. *)
-  | TypeAtLoc of Location.t  (** A type at a location. *)
-  | FunctionReturnType of ctxPath
-      (** An instruction to resolve the return type of the type at the 
-      provided context path, if it's a function (it should always be, 
-      but you know...) *)
-
-let currentlyExpectingToString (c : currentlyExpecting) =
-  match c with
-  | Unit -> "Unit"
-  | Type ctxPath -> Printf.sprintf "Type<%s>" (ctxPathToString ctxPath)
-  | TypeAtLoc loc -> Printf.sprintf "TypeAtLoc: %s" (Loc.toString loc)
-  | FunctionReturnType ctxPath ->
-    Printf.sprintf "FunctionReturnType<%s>" (ctxPathToString ctxPath)
-
-module CompletionContext = struct
-  type t = {
-    positionContext: PositionContext.t;
-    scope: Scope.t;
-    currentlyExpecting: currentlyExpecting;
-    ctxPath: ctxPath list;
-  }
-
-  let make positionContext =
-    {
-      positionContext;
-      scope = Scope.create ();
-      currentlyExpecting = Unit;
-      ctxPath = [];
-    }
-
-  let resetCtx completionContext =
-    {completionContext with currentlyExpecting = Unit; ctxPath = []}
-
-  let withScope scope completionContext = {completionContext with scope}
-
-  let setCurrentlyExpecting currentlyExpecting completionContext =
-    {completionContext with currentlyExpecting}
-
-  let currentlyExpectingOrReset currentlyExpecting completionContext =
-    match currentlyExpecting with
-    | None -> {completionContext with currentlyExpecting = Unit}
-    | Some currentlyExpecting -> {completionContext with currentlyExpecting}
-
-  let currentlyExpectingOrTypeAtLoc ~loc currentlyExpecting completionContext =
-    match currentlyExpecting with
-    | None -> {completionContext with currentlyExpecting = TypeAtLoc loc}
-    | Some currentlyExpecting -> {completionContext with currentlyExpecting}
-
-  let withResetCurrentlyExpecting completionContext =
-    {completionContext with currentlyExpecting = Unit}
-
-  let addCtxPathItem ctxPath completionContext =
-    {completionContext with ctxPath = ctxPath :: completionContext.ctxPath}
-end
-
-module CompletionInstruction = struct
-  (** This is the completion instruction, that's responsible for resolving something at 
-      context path X *)
-  type t =
-    | CtxPath of ctxPath list
-    | Cpattern of {
-        ctxPath: ctxPath list;
-            (** This is the context path inside of the pattern itself. 
-              Used to walk up to the type we're looking to complete. *)
-        rootType: currentlyExpecting;
-            (** This is the an instruction to find where completion starts 
-              from. If we're completing inside of a record, it should resolve 
-              to the record itself. *)
-        prefix: string;
-      }  (** Completing inside of a pattern. *)
-    | Cexpression of {
-        ctxPath: ctxPath list;
-            (** This is the context path inside of the expression itself. 
-              Used to walk up to the type we're looking to complete. *)
-        rootType: currentlyExpecting;
-            (** This is the an instruction to find where completion starts 
-              from. If we're completing inside of a record, it should resolve 
-              to the record itself. *)
-        prefix: string;
-      }  (** Completing inside of an expression. *)
-    | CnamedArg of {
-        ctxPath: ctxPath;
-            (** Context path to the function with the argument. *)
-        seenLabels: string list;
-            (** All the already seen labels in the function call. *)
-        prefix: string;  (** The text the user has written so far.*)
-      }
-    | Cjsx of {
-        pathToComponent: string list;
-            (** The path to the component: `["M", "Comp"]`. *)
-        prefix: string;  (** What the user has already written. `"id"`. *)
-        seenProps: string list;
-            (** A list of all of the props that has already been entered.*)
-      }
-    | ChtmlElement of {prefix: string  (** What the user has written so far. *)}
-        (** Completing for a regular HTML element. *)
-
-  let ctxPath ctxPath = CtxPath ctxPath
-
-  let pattern ~(completionContext : CompletionContext.t) ~prefix =
-    Cpattern
-      {
-        prefix;
-        rootType = completionContext.currentlyExpecting;
-        ctxPath = completionContext.ctxPath;
-      }
-
-  let expression ~(completionContext : CompletionContext.t) ~prefix =
-    Cexpression
-      {
-        prefix;
-        rootType = completionContext.currentlyExpecting;
-        ctxPath = completionContext.ctxPath;
-      }
-
-  let namedArg ~prefix ~functionContextPath ~seenLabels =
-    CnamedArg {prefix; ctxPath = functionContextPath; seenLabels}
-
-  let jsx ~prefix ~pathToComponent ~seenProps =
-    Cjsx {prefix; pathToComponent; seenProps}
-
-  let htmlElement ~prefix = ChtmlElement {prefix}
-
-  let toString (c : t) =
-    match c with
-    | CtxPath ctxPath ->
-      Printf.sprintf "CtxPath: %s"
-        (ctxPath |> List.rev |> List.map ctxPathToString |> String.concat "->")
-    | Cpattern {ctxPath; prefix; rootType} ->
-      Printf.sprintf "Cpattern: ctxPath: %s, rootType: %s%s"
-        (ctxPath |> List.rev |> List.map ctxPathToString |> String.concat "->")
-        (currentlyExpectingToString rootType)
-        (match prefix with
-        | "" -> ""
-        | prefix -> Printf.sprintf ", prefix: \"%s\"" prefix)
-    | Cexpression {ctxPath; prefix; rootType} ->
-      Printf.sprintf "Cexpression: ctxPath: %s, rootType: %s%s"
-        (ctxPath |> List.rev |> List.map ctxPathToString |> String.concat "->")
-        (currentlyExpectingToString rootType)
-        (match prefix with
-        | "" -> ""
-        | prefix -> Printf.sprintf ", prefix: \"%s\"" prefix)
-    | CnamedArg {prefix; ctxPath; seenLabels} ->
-      "CnamedArg("
-      ^ (ctxPath |> ctxPathToString)
-      ^ ", " ^ str prefix ^ ", " ^ (seenLabels |> list) ^ ")"
-    | Cjsx {prefix; pathToComponent; seenProps} ->
-      "Cjsx(" ^ (pathToComponent |> ident) ^ ", " ^ str prefix ^ ", "
-      ^ (seenProps |> list) ^ ")"
-    | ChtmlElement {prefix} -> "ChtmlElement <" ^ prefix ^ " />"
-end
-
-module CompletionResult = struct
-  type t = (CompletionInstruction.t * CompletionContext.t) option
-
-  let make (instruction : CompletionInstruction.t)
-      (context : CompletionContext.t) =
-    Some (instruction, context)
-
-  let ctxPath (ctxPath : ctxPath) (completionContext : CompletionContext.t) =
-    let completionContext =
-      completionContext |> CompletionContext.addCtxPathItem ctxPath
-    in
-    make
-      (CompletionInstruction.ctxPath completionContext.ctxPath)
-      completionContext
-
-  let pattern ~(completionContext : CompletionContext.t) ~prefix =
-    make
-      (CompletionInstruction.pattern ~completionContext ~prefix)
-      completionContext
-
-  let expression ~(completionContext : CompletionContext.t) ~prefix =
-    make
-      (CompletionInstruction.expression ~completionContext ~prefix)
-      completionContext
-
-  let namedArg ~(completionContext : CompletionContext.t) ~prefix ~seenLabels
-      ~functionContextPath =
-    make
-      (CompletionInstruction.namedArg ~functionContextPath ~prefix ~seenLabels)
-      completionContext
-
-  let jsx ~(completionContext : CompletionContext.t) ~prefix ~pathToComponent
-      ~seenProps =
-    make
-      (CompletionInstruction.jsx ~prefix ~pathToComponent ~seenProps)
-      completionContext
-
-  let htmlElement ~(completionContext : CompletionContext.t) ~prefix =
-    make (CompletionInstruction.htmlElement ~prefix) completionContext
-end
+open CompletionNewTypes
 
 let flattenLidCheckDot ?(jsx = true) ~(completionContext : CompletionContext.t)
     (lid : Longident.t Location.loc) =
@@ -373,6 +16,9 @@ let flattenLidCheckDot ?(jsx = true) ~(completionContext : CompletionContext.t)
     | _ -> None
   in
   Utils.flattenLongIdent ~cutAtOffset ~jsx lid.txt
+
+let ctxPathFromCompletionContext (completionContext : CompletionContext.t) =
+  completionContext.ctxPath
 
 (** This is for when you want a context path for an expression, without necessarily wanting 
     to do completion in that expression. For instance when completing patterns 
@@ -394,15 +40,22 @@ let rec exprToContextPathInner (e : Parsetree.expression) =
   | Pexp_ident {txt} -> Some (CId (Utils.flattenLongIdent txt, Value))
   | Pexp_field (e1, {txt = Lident name}) -> (
     match exprToContextPath e1 with
-    | Some contextPath -> Some (CField (contextPath, name))
+    | Some contextPath ->
+      Some (CRecordFieldAccess {recordCtxPath = contextPath; fieldName = name})
     | _ -> None)
   | Pexp_field (_, {txt = Ldot (lid, name)}) ->
     (* Case x.M.field ignore the x part *)
-    Some (CField (CId (Utils.flattenLongIdent lid, Module), name))
+    Some
+      (CRecordFieldAccess
+         {
+           recordCtxPath = CId (Utils.flattenLongIdent lid, Module);
+           fieldName = name;
+         })
   | Pexp_send (e1, {txt}) -> (
     match exprToContextPath e1 with
     | None -> None
-    | Some contexPath -> Some (CObj (contexPath, txt)))
+    | Some contexPath ->
+      Some (CObj {objectCtxPath = contexPath; propertyName = txt}))
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
         [
@@ -433,7 +86,8 @@ let rec exprToContextPathInner (e : Parsetree.expression) =
   | Pexp_apply (e1, args) -> (
     match exprToContextPath e1 with
     | None -> None
-    | Some contexPath -> Some (CApply (contexPath, args |> List.map fst)))
+    | Some contexPath ->
+      Some (CApply {functionCtxPath = contexPath; args = args |> List.map fst}))
   | Pexp_tuple exprs ->
     let exprsAsContextPaths = exprs |> List.filter_map exprToContextPath in
     if List.length exprs = List.length exprsAsContextPaths then
@@ -489,20 +143,8 @@ let rec ctxPathFromCoreType ~completionContext (coreType : Parsetree.core_type)
 let findCurrentlyLookingForInPattern ~completionContext
     (pat : Parsetree.pattern) =
   match pat.ppat_desc with
-  | Ppat_constraint (_pat, typ) -> (
-    match ctxPathFromCoreType ~completionContext typ with
-    | None -> None
-    | Some ctxPath -> Some (Type ctxPath))
+  | Ppat_constraint (_pat, typ) -> ctxPathFromCoreType ~completionContext typ
   | _ -> None
-
-let mergeCurrentlyLookingFor (currentlyExpecting : currentlyExpecting option)
-    list =
-  match currentlyExpecting with
-  | None -> list
-  | Some currentlyExpecting -> currentlyExpecting :: list
-
-let contextWithNewScope scope (context : CompletionContext.t) =
-  {context with scope}
 
 (* An expression with that's an expr hole and that has an empty cursor. TODO Explain *)
 let checkIfExprHoleEmptyCursor ~(completionContext : CompletionContext.t)
@@ -544,10 +186,11 @@ let completePipeChain (exp : Parsetree.expression) =
 
 let completePipe ~id (lhs : Parsetree.expression) =
   match completePipeChain lhs with
-  | Some (pipe, lhsLoc) -> Some (CPipe {ctxPath = pipe; id; lhsLoc})
+  | Some (pipe, lhsLoc) -> Some (CPipe {functionCtxPath = pipe; id; lhsLoc})
   | None -> (
     match exprToContextPath lhs with
-    | Some pipe -> Some (CPipe {ctxPath = pipe; id; lhsLoc = lhs.pexp_loc})
+    | Some pipe ->
+      Some (CPipe {functionCtxPath = pipe; id; lhsLoc = lhs.pexp_loc})
     | None -> None)
 
 (** Scopes *)
@@ -671,9 +314,7 @@ and completeValueBinding ~(completionContext : CompletionContext.t)
        Ensure the context carries the root type of `someRecordVariable`. *)
     let completionContext =
       CompletionContext.currentlyExpectingOrTypeAtLoc ~loc:vb.pvb_expr.pexp_loc
-        (match exprToContextPath vb.pvb_expr with
-        | None -> None
-        | Some ctxPath -> Some (Type ctxPath))
+        (exprToContextPath vb.pvb_expr)
         completionContext
     in
     completePattern ~completionContext vb.pvb_pat
@@ -715,10 +356,7 @@ and completeValueBinding ~(completionContext : CompletionContext.t)
       else if patHole then
         let completionContext =
           CompletionContext.currentlyExpectingOrTypeAtLoc
-            ~loc:vb.pvb_expr.pexp_loc
-            (match exprCtxPath with
-            | None -> None
-            | Some ctxPath -> Some (Type ctxPath))
+            ~loc:vb.pvb_expr.pexp_loc exprCtxPath
             completionContextForExprCompletion
         in
         CompletionResult.pattern ~prefix:"" ~completionContext
@@ -746,7 +384,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
   let locHasPos = completionContext.positionContext.locHasPos in
   match expr.pexp_desc with
   (* == VARIANTS == *)
-  | Pexp_construct (_id, Some {pexp_desc = Pexp_tuple args; pexp_loc})
+  | Pexp_construct (id, Some {pexp_desc = Pexp_tuple args; pexp_loc})
     when pexp_loc |> locHasPos ->
     (* A constructor with multiple payloads, like: `Co(true, false)` or `Somepath.Co(false, true)` *)
     args
@@ -756,17 +394,29 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
                {
                  completionContext with
                  ctxPath =
-                   CVariantPayload {itemNum} :: completionContext.ctxPath;
+                   CVariantPayload
+                     {
+                       itemNum;
+                       variantCtxPath =
+                         ctxPathFromCompletionContext completionContext;
+                       constructorName = Longident.last id.txt;
+                     };
                }
              e)
-  | Pexp_construct (_id, Some payloadExpr)
-    when payloadExpr.pexp_loc |> locHasPos ->
+  | Pexp_construct (id, Some payloadExpr) when payloadExpr.pexp_loc |> locHasPos
+    ->
     (* A constructor with a single payload, like: `Co(true)` or `Somepath.Co(false)` *)
     completeExpr
       ~completionContext:
         {
           completionContext with
-          ctxPath = CVariantPayload {itemNum = 0} :: completionContext.ctxPath;
+          ctxPath =
+            CVariantPayload
+              {
+                itemNum = 0;
+                variantCtxPath = ctxPathFromCompletionContext completionContext;
+                constructorName = Longident.last id.txt;
+              };
         }
       payloadExpr
   | Pexp_construct ({txt = Lident txt; loc}, _) when loc |> locHasPos ->
@@ -789,7 +439,12 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     let completionContext =
       completionContext
       |> CompletionContext.addCtxPathItem
-           (CRecordField {prefix; seenFields = []})
+           (CRecordField
+              {
+                prefix;
+                seenFields = [];
+                recordCtxPath = ctxPathFromCompletionContext completionContext;
+              })
     in
     CompletionResult.expression ~completionContext ~prefix
   | Pexp_record ([], _) when expr.pexp_loc |> locHasPos ->
@@ -797,7 +452,12 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     let completionContext =
       completionContext
       |> CompletionContext.addCtxPathItem
-           (CRecordField {prefix = ""; seenFields = []})
+           (CRecordField
+              {
+                prefix = "";
+                seenFields = [];
+                recordCtxPath = ctxPathFromCompletionContext completionContext;
+              })
     in
     CompletionResult.expression ~completionContext ~prefix:""
   | Pexp_record (fields, _) when expr.pexp_loc |> locHasPos -> (
@@ -819,7 +479,13 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
                match fieldName with
                | {txt = Lident prefix} ->
                  CompletionResult.ctxPath
-                   (CRecordField {prefix; seenFields})
+                   (CRecordField
+                      {
+                        prefix;
+                        seenFields;
+                        recordCtxPath =
+                          ctxPathFromCompletionContext completionContext;
+                      })
                    completionContext
                | fieldName ->
                  CompletionResult.ctxPath
@@ -830,7 +496,12 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
                  ~completionContext:
                    (CompletionContext.addCtxPathItem
                       (CRecordField
-                         {prefix = fieldName.txt |> Longident.last; seenFields})
+                         {
+                           prefix = fieldName.txt |> Longident.last;
+                           seenFields;
+                           recordCtxPath =
+                             ctxPathFromCompletionContext completionContext;
+                         })
                       completionContext)
                  fieldExpr)
     in
@@ -855,14 +526,26 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
         let completionContext =
           completionContext
           |> CompletionContext.addCtxPathItem
-               (CRecordField {prefix = fieldName; seenFields})
+               (CRecordField
+                  {
+                    prefix = fieldName;
+                    seenFields;
+                    recordCtxPath =
+                      ctxPathFromCompletionContext completionContext;
+                  })
         in
         CompletionResult.expression ~completionContext ~prefix:""
       | None, Some ',' ->
         let completionContext =
           completionContext
           |> CompletionContext.addCtxPathItem
-               (CRecordField {prefix = ""; seenFields})
+               (CRecordField
+                  {
+                    prefix = "";
+                    seenFields;
+                    recordCtxPath =
+                      ctxPathFromCompletionContext completionContext;
+                  })
         in
         CompletionResult.expression ~completionContext ~prefix:""
       | _ -> None)
@@ -1013,14 +696,12 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
           let completionContext =
             completionContext
             |> CompletionContext.setCurrentlyExpecting
-                 (Type
-                    (CJsxPropValue
-                       {
-                         propName = prop.name;
-                         pathToComponent =
-                           Utils.flattenLongIdent ~jsx:true
-                             jsxProps.compName.txt;
-                       }))
+                 (CJsxPropValue
+                    {
+                      propName = prop.name;
+                      pathToComponent =
+                        Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                    })
           in
           completeExpr ~completionContext prop.exp
         else if
@@ -1031,14 +712,12 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
           let completionContext =
             completionContext
             |> CompletionContext.setCurrentlyExpecting
-                 (Type
-                    (CJsxPropValue
-                       {
-                         propName = prop.name;
-                         pathToComponent =
-                           Utils.flattenLongIdent ~jsx:true
-                             jsxProps.compName.txt;
-                       }))
+                 (CJsxPropValue
+                    {
+                      propName = prop.name;
+                      pathToComponent =
+                        Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                    })
           in
           CompletionResult.expression ~completionContext ~prefix:""
         else loop rest
@@ -1104,8 +783,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
           ~functionContextPath =
         completionContext |> CompletionContext.resetCtx
         |> CompletionContext.currentlyExpectingOrReset
-             (Some
-                (Type (CFunctionArgument {functionContextPath; argumentLabel})))
+             (Some (CFunctionArgument {functionContextPath; argumentLabel}))
       in
       (* Piped expressions always have an initial unlabelled argument. *)
       let unlabelledCount = ref (if isPipedExpr then 1 else 0) in
@@ -1215,18 +893,15 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
     (* Set the expected type correctly for the expr body *)
     let completionContext =
       match fnReturnConstraint with
-      | None -> (
-        match completionContext.currentlyExpecting with
-        | Type ctxPath ->
-          (* Having a Type here already means the binding itself had a constraint on it. Since we're now moving into the function body,
-             we'll need to ensure it's the function return type we use for completion, not the function type itself *)
-          completionContext
-          |> CompletionContext.setCurrentlyExpecting
-               (FunctionReturnType ctxPath)
-        | _ -> completionContext)
-      | Some ctxPath ->
+      | None ->
+        (* Having a Type here already means the binding itself had a constraint on it. Since we're now moving into the function body,
+           we'll need to ensure it's the function return type we use for completion, not the function type itself *)
         completionContext
-        |> CompletionContext.setCurrentlyExpecting (Type ctxPath)
+        |> CompletionContext.setCurrentlyExpecting
+             (CFunctionReturnType
+                {functionCtxPath = completionContext.currentlyExpecting})
+      | Some ctxPath ->
+        completionContext |> CompletionContext.setCurrentlyExpecting ctxPath
     in
     if locHasPos expr.pexp_loc then completeExpr ~completionContext expr
     else if checkIfExprHoleEmptyCursor ~completionContext expr then
@@ -1300,7 +975,12 @@ and completePattern ~(completionContext : CompletionContext.t)
     if locHasPos pat.ppat_loc then
       let completionContext =
         CompletionContext.addCtxPathItem
-          (CRecordField {seenFields = []; prefix = ""})
+          (CRecordField
+             {
+               seenFields = [];
+               prefix = "";
+               recordCtxPath = ctxPathFromCompletionContext completionContext;
+             })
           completionContext
       in
       CompletionResult.pattern ~completionContext ~prefix:""
@@ -1334,14 +1014,24 @@ and completePattern ~(completionContext : CompletionContext.t)
       CompletionResult.pattern ~prefix
         ~completionContext:
           (CompletionContext.addCtxPathItem
-             (CRecordField {seenFields; prefix})
+             (CRecordField
+                {
+                  seenFields;
+                  prefix;
+                  recordCtxPath = ctxPathFromCompletionContext completionContext;
+                })
              completionContext)
     | None, Some (fieldName, fieldPattern) ->
       (* {someFieldName: someOtherPattern<com>} *)
       let prefix = Longident.last fieldName.txt in
       let completionContext =
         CompletionContext.addCtxPathItem
-          (CRecordField {seenFields; prefix})
+          (CRecordField
+             {
+               seenFields;
+               prefix;
+               recordCtxPath = ctxPathFromCompletionContext completionContext;
+             })
           completionContext
       in
       completePattern ~completionContext fieldPattern
@@ -1362,7 +1052,12 @@ and completePattern ~(completionContext : CompletionContext.t)
     | Some (itemNum, tupleItem) ->
       let completionContext =
         completionContext
-        |> CompletionContext.addCtxPathItem (CTupleItem {itemNum})
+        |> CompletionContext.addCtxPathItem
+             (CTupleItem
+                {
+                  itemNum;
+                  tupleCtxPath = ctxPathFromCompletionContext completionContext;
+                })
       in
       completePattern ~completionContext tupleItem
     | None ->
@@ -1384,7 +1079,12 @@ and completePattern ~(completionContext : CompletionContext.t)
             let completionContext =
               completionContext
               |> CompletionContext.addCtxPathItem
-                   (CTupleItem {itemNum = !itemNum + 1})
+                   (CTupleItem
+                      {
+                        itemNum = !itemNum + 1;
+                        tupleCtxPath =
+                          ctxPathFromCompletionContext completionContext;
+                      })
             in
             CompletionResult.pattern ~completionContext ~prefix:""
           else None
@@ -1394,7 +1094,13 @@ and completePattern ~(completionContext : CompletionContext.t)
              could work too. *)
           let completionContext =
             completionContext
-            |> CompletionContext.addCtxPathItem (CTupleItem {itemNum = 0})
+            |> CompletionContext.addCtxPathItem
+                 (CTupleItem
+                    {
+                      itemNum = 0;
+                      tupleCtxPath =
+                        ctxPathFromCompletionContext completionContext;
+                    })
           in
           CompletionResult.pattern ~completionContext ~prefix:""
         | _ -> None

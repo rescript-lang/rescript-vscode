@@ -1,197 +1,197 @@
 Complete2 src/CompletionNew.res 2:17
-Result: Cexpression: ctxPath: CId(Value)=m, rootType: TypeAtLoc: [2:7->2:13]
+Result: Cexpression: ctxPath: CId(Value)=m, rootType: CTypeAtLoc: [2:7->2:13]
 Scope: 1 items
-Looking for type: TypeAtLoc: [2:7->2:13]
+Looking for type: CTypeAtLoc: [2:7->2:13]
 
 Complete2 src/CompletionNew.res 7:30
-Result: Cexpression: ctxPath: CId(Module)=O, rootType: Type<CId(Type)=someVariant>, prefix: "O"
+Result: Cexpression: ctxPath: CId(Module)=O, rootType: CId(Type)=someVariant, prefix: "O"
 Scope: 1 items
-Looking for type: Type<CId(Type)=someVariant>
+Looking for type: CId(Type)=someVariant
 
 Complete2 src/CompletionNew.res 10:36
-Result: Cexpression: ctxPath: CVariantPayload($0)->CId(Value)=t, rootType: Type<CId(Type)=someVariant>
+Result: Cexpression: ctxPath: CId(Value)=t, rootType: CId(Type)=someVariant
 Scope: 1 items
-Looking for type: Type<CId(Type)=someVariant>
+Looking for type: CId(Type)=someVariant
 
 Complete2 src/CompletionNew.res 13:42
-Result: Cexpression: ctxPath: CVariantPayload($1)->CId(Module)=S, rootType: Type<CId(Type)=someVariant>, prefix: "S"
+Result: Cexpression: ctxPath: CId(Module)=S, rootType: CId(Type)=someVariant, prefix: "S"
 Scope: 1 items
-Looking for type: Type<CId(Type)=someVariant>
+Looking for type: CId(Type)=someVariant
 
 Complete2 src/CompletionNew.res 16:47
-Result: Cexpression: ctxPath: CVariantPayload($1)->CVariantPayload($0)->CId(Module)=O, rootType: Type<CId(Type)=someVariant>, prefix: "O"
+Result: Cexpression: ctxPath: CId(Module)=O, rootType: CId(Type)=someVariant, prefix: "O"
 Scope: 1 items
-Looking for type: Type<CId(Type)=someVariant>
+Looking for type: CId(Type)=someVariant
 
 Complete2 src/CompletionNew.res 27:29
-Result: Cexpression: ctxPath: CRecordField=, rootType: Type<CId(Type)=someRecord>
+Result: Cexpression: ctxPath: CRecordField (CUnknown)=, rootType: CId(Type)=someRecord
 Scope: 1 items
-Looking for type: Type<CId(Type)=someRecord>
+Looking for type: CId(Type)=someRecord
 
 Complete2 src/CompletionNew.res 30:30
-Result: Cexpression: ctxPath: CRecordField=n, rootType: Type<CId(Type)=someRecord>, prefix: "n"
+Result: Cexpression: ctxPath: CRecordField (CUnknown)=n, rootType: CId(Type)=someRecord, prefix: "n"
 Scope: 1 items
-Looking for type: Type<CId(Type)=someRecord>
+Looking for type: CId(Type)=someRecord
 
 Complete2 src/CompletionNew.res 33:39
-Result: Cexpression: ctxPath: CRecordField=variant->CId(Module)=O, rootType: Type<CId(Type)=someRecord>, prefix: "O"
+Result: Cexpression: ctxPath: CId(Module)=O, rootType: CId(Type)=someRecord, prefix: "O"
 Scope: 1 items
-Looking for type: Type<CId(Type)=someRecord>
+Looking for type: CId(Type)=someRecord
 
 Complete2 src/CompletionNew.res 36:66
-Result: Cexpression: ctxPath: CRecordField=nested->CRecordField=maybeVariant->CVariantPayload($1)->CId(Value)=t, rootType: Type<CId(Type)=someRecord>
+Result: Cexpression: ctxPath: CId(Value)=t, rootType: CId(Type)=someRecord
 Scope: 1 items
-Looking for type: Type<CId(Type)=someRecord>
+Looking for type: CId(Type)=someRecord
 
 Complete2 src/CompletionNew.res 39:66
-Result: Cexpression: ctxPath: CRecordField=variant, rootType: Type<CId(Type)=someRecord>
+Result: Cexpression: ctxPath: CRecordField (CUnknown)=variant, rootType: CId(Type)=someRecord
 Scope: 1 items
-Looking for type: Type<CId(Type)=someRecord>
+Looking for type: CId(Type)=someRecord
 
 Complete2 src/CompletionNew.res 42:56
-Result: Cexpression: ctxPath: CRecordField=nested->CRecordField=, rootType: Type<CId(Type)=someRecord>
+Result: Cexpression: ctxPath: CRecordField (CRecordField (CUnknown)=nested)=, rootType: CId(Type)=someRecord
 Scope: 1 items
-Looking for type: Type<CId(Type)=someRecord>
+Looking for type: CId(Type)=someRecord
 
 Complete2 src/CompletionNew.res 45:57
-Result: Cexpression: ctxPath: CRecordField=, rootType: Type<CId(Type)=someRecord>
+Result: Cexpression: ctxPath: CRecordField (CUnknown)=, rootType: CId(Type)=someRecord
 Scope: 1 items
-Looking for type: Type<CId(Type)=someRecord>
+Looking for type: CId(Type)=someRecord
 
 Complete2 src/CompletionNew.res 49:71
-Result: Cexpression: ctxPath: CId(Value)=x, rootType: Unit
+Result: Cexpression: ctxPath: CId(Value)=x, rootType: CUnknown
 Scope: 2 items
-Looking for type: Unit
+Looking for type: CUnknown
 
 Complete2 src/CompletionNew.res 53:73
-Result: Cexpression: ctxPath: CRecordField=nested->CRecordField=maybeVariant->CId(Value)=, rootType: Type<CId(Type)=someRecord>
+Result: Cexpression: ctxPath: CId(Value)=, rootType: CId(Type)=someRecord
 Scope: 2 items
-Looking for type: Type<CId(Type)=someRecord>
+Looking for type: CId(Type)=someRecord
 
 Complete2 src/CompletionNew.res 57:85
-Result: Cexpression: ctxPath: CRecordField=nested->CRecordField=maybeVariant->CId(Value)=v, rootType: Type<CId(Type)=someRecord>
+Result: Cexpression: ctxPath: CId(Value)=v, rootType: CId(Type)=someRecord
 Scope: 2 items
-Looking for type: Type<CId(Type)=someRecord>
+Looking for type: CId(Type)=someRecord
 
 Complete2 src/CompletionNew.res 61:58
-Result: Cexpression: ctxPath: CId(Value)=doStuff, rootType: Unit
+Result: Cexpression: ctxPath: CId(Value)=doStuff, rootType: CUnknown
 Scope: 1 items
-Looking for type: Unit
+Looking for type: CUnknown
 
 Complete2 src/CompletionNew.res 66:32
-Result: Cexpression: ctxPath: CId(Value)=, rootType: Type<bool>
+Result: Cexpression: ctxPath: CId(Value)=, rootType: bool
 Scope: 2 items
-Looking for type: Type<bool>
+Looking for type: bool
 
 Complete2 src/CompletionNew.res 69:38
-Result: Cexpression: ctxPath: CRecordField=, rootType: FunctionReturnType<CId(Type)=fn>
+Result: Cexpression: ctxPath: CRecordField (CUnknown)=, rootType: CFunctionReturnType CId(Type)=fn
 Scope: 3 items
-Looking for type: FunctionReturnType<CId(Type)=fn>
+Looking for type: CFunctionReturnType CId(Type)=fn
 
 Complete2 src/CompletionNew.res 72:72
-Result: Cexpression: ctxPath: CId(Value)=, rootType: FunctionReturnType<CId(Type)=fn>
+Result: Cexpression: ctxPath: CId(Value)=, rootType: CFunctionReturnType CId(Type)=fn
 Scope: 4 items
-Looking for type: FunctionReturnType<CId(Type)=fn>
+Looking for type: CFunctionReturnType CId(Type)=fn
 
 Complete2 src/CompletionNew.res 76:60
-Result: Cexpression: ctxPath: CId(Value)=t, rootType: Type<bool>
+Result: Cexpression: ctxPath: CId(Value)=t, rootType: bool
 Scope: 3 items
-Looking for type: Type<bool>
+Looking for type: bool
 
 Complete2 src/CompletionNew.res 80:54
-Result: Cexpression: ctxPath: CId(Value)=t, rootType: TypeAtLoc: [80:42->80:50]
+Result: Cexpression: ctxPath: CId(Value)=t, rootType: CTypeAtLoc: [80:42->80:50]
 Scope: 3 items
-Looking for type: TypeAtLoc: [80:42->80:50]
+Looking for type: CTypeAtLoc: [80:42->80:50]
 
 Complete2 src/CompletionNew.res 84:22
 Result: CtxPath: CId(Value)=
 Scope: 1 items
-Looking for type: Type<bool>
+Looking for type: bool
 
 Complete2 src/CompletionNew.res 87:20
-Result: Cpattern: ctxPath: CRecordField=someField, rootType: Type<CId(Value)=someRecordVar>, prefix: "s"
+Result: Cpattern: ctxPath: CRecordField (CUnknown)=someField, rootType: CId(Value)=someRecordVar, prefix: "s"
 Scope: 1 items
-Looking for type: Type<CId(Value)=someRecordVar>
+Looking for type: CId(Value)=someRecordVar
 
 Complete2 src/CompletionNew.res 91:13
-Result: Cpattern: ctxPath: CTupleItem($1), rootType: Type<CId(Value)=someRecordVar>
+Result: Cpattern: ctxPath: CTupleItem CUnknown ($1), rootType: CId(Value)=someRecordVar
 Scope: 1 items
-Looking for type: Type<CId(Value)=someRecordVar>
+Looking for type: CId(Value)=someRecordVar
 
 Complete2 src/CompletionNew.res 94:20
-Result: Cpattern: ctxPath: CTupleItem($2), rootType: Type<CId(Value)=someRecordVar>
+Result: Cpattern: ctxPath: CTupleItem CUnknown ($2), rootType: CId(Value)=someRecordVar
 Scope: 1 items
-Looking for type: Type<CId(Value)=someRecordVar>
+Looking for type: CId(Value)=someRecordVar
 
 Complete2 src/CompletionNew.res 98:9
-Result: Cpattern: ctxPath: array, rootType: Type<CId(Value)=someArr>
+Result: Cpattern: ctxPath: array, rootType: CId(Value)=someArr
 Scope: 1 items
-Looking for type: Type<CId(Value)=someArr>
+Looking for type: CId(Value)=someArr
 
 Complete2 src/CompletionNew.res 101:22
-Result: Cpattern: ctxPath: array->CTupleItem($1)->array, rootType: Type<CId(Value)=someArr>
+Result: Cpattern: ctxPath: array, rootType: CId(Value)=someArr
 Scope: 1 items
-Looking for type: Type<CId(Value)=someArr>
+Looking for type: CId(Value)=someArr
 
 Complete2 src/CompletionNew.res 104:24
-Result: Cpattern: ctxPath: array->CTupleItem($1)->array, rootType: Type<CId(Value)=someArr>, prefix: "f"
+Result: Cpattern: ctxPath: array, rootType: CId(Value)=someArr, prefix: "f"
 Scope: 1 items
-Looking for type: Type<CId(Value)=someArr>
+Looking for type: CId(Value)=someArr
 
 Complete2 src/CompletionNew.res 108:23
-Result: Cexpression: ctxPath: CId(Value)=f, rootType: Type<CFunctionArgument CId(Value)=&&($1)>
+Result: Cexpression: ctxPath: CId(Value)=f, rootType: CFunctionArgument CId(Value)=&&($1)
 Scope: 1 items
-Looking for type: Type<CFunctionArgument CId(Value)=&&($1)>
+Looking for type: CFunctionArgument CId(Value)=&&($1)
 
 Complete2 src/CompletionNew.res 111:42
-Result: Cexpression: ctxPath: CId(Value)=f, rootType: FunctionReturnType<CFunctionArgument CId(Value)=someFunc($0)>
+Result: Cexpression: ctxPath: CId(Value)=f, rootType: CFunctionReturnType CFunctionArgument CId(Value)=someFunc($0)
 Scope: 2 items
-Looking for type: FunctionReturnType<CFunctionArgument CId(Value)=someFunc($0)>
+Looking for type: CFunctionReturnType CFunctionArgument CId(Value)=someFunc($0)
 
 Complete2 src/CompletionNew.res 114:34
-Result: Cexpression: ctxPath: CId(Value)=f, rootType: Type<CFunctionArgument CId(Value)=someFunc(~labelledArg)>
+Result: Cexpression: ctxPath: CId(Value)=f, rootType: CFunctionArgument CId(Value)=someFunc(~labelledArg)
 Scope: 1 items
-Looking for type: Type<CFunctionArgument CId(Value)=someFunc(~labelledArg)>
+Looking for type: CFunctionArgument CId(Value)=someFunc(~labelledArg)
 
 Complete2 src/CompletionNew.res 117:33
-Result: Cexpression: ctxPath: , rootType: Type<CFunctionArgument CId(Value)=someFunc(~labelledArg)>
+Result: Cexpression: ctxPath: CUnknown, rootType: CFunctionArgument CId(Value)=someFunc(~labelledArg)
 Scope: 1 items
-Looking for type: Type<CFunctionArgument CId(Value)=someFunc(~labelledArg)>
+Looking for type: CFunctionArgument CId(Value)=someFunc(~labelledArg)
 
 Complete2 src/CompletionNew.res 121:17
 Result: CtxPath: (CId(Value)=foo)->id
 Scope: 1 items
-Looking for type: Unit
+Looking for type: CUnknown
 
 Complete2 src/CompletionNew.res 124:16
 Result: CtxPath: (CId(Value)=foo)->
 Scope: 1 items
-Looking for type: Unit
+Looking for type: CUnknown
 
 Complete2 src/CompletionNew.res 127:17
-Result: Cexpression: ctxPath: CId(Module)=M, rootType: Unit, prefix: "M"
+Result: Cexpression: ctxPath: CId(Module)=M, rootType: CUnknown, prefix: "M"
 Scope: 1 items
-Looking for type: Unit
+Looking for type: CUnknown
 
 Complete2 src/CompletionNew.res 136:36
 Result: CnamedArg(CId(Value)=someFun, f, [secondLabel, f])
 Scope: 2 items
-Looking for type: TypeAtLoc: [136:7->136:9]
+Looking for type: CTypeAtLoc: [136:7->136:9]
 
 Complete2 src/CompletionNew.res 139:37
-Result: Cexpression: ctxPath: , rootType: Type<CFunctionArgument CId(Value)=someFun($0)>
+Result: Cexpression: ctxPath: CUnknown, rootType: CFunctionArgument CId(Value)=someFun($0)
 Scope: 2 items
-Looking for type: Type<CFunctionArgument CId(Value)=someFun($0)>
+Looking for type: CFunctionArgument CId(Value)=someFun($0)
 
 Complete2 src/CompletionNew.res 143:21
 Result: CtxPath: CId(Module)=SomeCom
 Scope: 2 items
-Looking for type: Unit
+Looking for type: CUnknown
 
 Complete2 src/CompletionNew.res 146:26
 Result: CtxPath: CId(Module)=SomeModule.S
 Scope: 2 items
-Looking for type: Unit
+Looking for type: CUnknown
 
 Complete2 src/CompletionNew.res 149:24
 No completions
@@ -199,20 +199,20 @@ No completions
 Complete2 src/CompletionNew.res 152:25
 Result: Cjsx(Component, a, [a])
 Scope: 2 items
-Looking for type: TypeAtLoc: [152:7->152:10]
+Looking for type: CTypeAtLoc: [152:7->152:10]
 
 Complete2 src/CompletionNew.res 155:30
-Result: Cexpression: ctxPath: , rootType: Type<CJsxPropValue [Component] aProp>
+Result: Cexpression: ctxPath: CUnknown, rootType: CJsxPropValue [Component] aProp
 Scope: 2 items
-Looking for type: Type<CJsxPropValue [Component] aProp>
+Looking for type: CJsxPropValue [Component] aProp
 
 Complete2 src/CompletionNew.res 158:40
-Result: Cexpression: ctxPath: CId(Value)=, rootType: Type<CJsxPropValue [Component] aProp>
+Result: Cexpression: ctxPath: CId(Value)=, rootType: CJsxPropValue [Component] aProp
 Scope: 2 items
-Looking for type: Type<CJsxPropValue [Component] aProp>
+Looking for type: CJsxPropValue [Component] aProp
 
 Complete2 src/CompletionNew.res 161:35
-Result: Cexpression: ctxPath: CId(Module)=Stuff, rootType: Type<CJsxPropValue [Component] aProp>, prefix: "Stuff"
+Result: Cexpression: ctxPath: CId(Module)=Stuff, rootType: CJsxPropValue [Component] aProp, prefix: "Stuff"
 Scope: 2 items
-Looking for type: Type<CJsxPropValue [Component] aProp>
+Looking for type: CJsxPropValue [Component] aProp
 
