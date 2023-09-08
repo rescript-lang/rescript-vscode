@@ -4,6 +4,8 @@ open CompletionsNewTypesCtxPath
 
 (* TODO: Unify and clean these up once we have tests *)
 
+let debugTypeLookups = true
+
 let getCompletionsForPath = CompletionBackEnd.getCompletionsForPath
 let getOpens = CompletionBackEnd.getOpens
 let getComplementaryCompletionsForTypedValue =
@@ -74,6 +76,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
   let package = full.package in
   match contextPath with
   | CString ->
+    if debugTypeLookups then Printf.printf "CString: returning string\n";
     [
       Completion.create "dummy" ~env
         ~kind:
@@ -81,6 +84,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
              (Ctype.newconstr (Path.Pident (Ident.create "string")) []));
     ]
   | CBool ->
+    if debugTypeLookups then Printf.printf "CBool: returning bool\n";
     [
       Completion.create "dummy" ~env
         ~kind:
@@ -88,6 +92,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
              (Ctype.newconstr (Path.Pident (Ident.create "bool")) []));
     ]
   | CInt ->
+    if debugTypeLookups then Printf.printf "CInt: returning int\n";
     [
       Completion.create "dummy" ~env
         ~kind:
@@ -95,6 +100,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
              (Ctype.newconstr (Path.Pident (Ident.create "int")) []));
     ]
   | CFloat ->
+    if debugTypeLookups then Printf.printf "CFloat: returning float\n";
     [
       Completion.create "dummy" ~env
         ~kind:
@@ -102,6 +108,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
              (Ctype.newconstr (Path.Pident (Ident.create "float")) []));
     ]
   | CArray None ->
+    if debugTypeLookups then Printf.printf "CArray: array with no payload\n";
     [
       Completion.create "array" ~env
         ~kind:
@@ -115,8 +122,14 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
            ~exact:true ~scope
       |> completionsGetCompletionType ~full
     with
-    | None -> []
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CArray (with payload): could not look up payload\n";
+      []
     | Some (typ, env) ->
+      if debugTypeLookups then
+        Printf.printf "CArray (with payload): returning array with payload %s\n"
+          (TypeUtils.extractedTypeToString typ);
       [
         Completion.create "dummy" ~env
           ~kind:
@@ -129,8 +142,14 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
            ~exact:true ~scope
       |> completionsGetCompletionType ~full
     with
-    | None -> []
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "COption: could not look up payload\n";
+      []
     | Some (typ, env) ->
+      if debugTypeLookups then
+        Printf.printf "COption: returning option with payload %s\n"
+          (TypeUtils.extractedTypeToString typ);
       [
         Completion.create "dummy" ~env
           ~kind:
@@ -144,8 +163,20 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
       |> completionsGetCompletionType ~full
     with
     | Some (Tpromise (env, typ), _env) ->
+      if debugTypeLookups then
+        Printf.printf "CAwait: found type to unwrap in promise: %s\n"
+          (Shared.typeToString typ);
       [Completion.create "dummy" ~env ~kind:(Completion.Value typ)]
-    | _ -> [])
+    | Some (typ, _) ->
+      if debugTypeLookups then
+        Printf.printf
+          "CAwait: found something other than a promise at await ctx path: %s\n"
+          (TypeUtils.extractedTypeToString typ);
+      []
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CAwait: found no type at await ctx path\n";
+      [])
   | CId (path, completionContext) ->
     path
     |> getCompletionsForPath ~debug ~package ~opens ~full ~pos ~exact
@@ -194,9 +225,19 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
       | args, tRet when args <> [] ->
         let args = processApply args labels in
         let retType = reconstructFunctionType args tRet in
+        if debugTypeLookups then
+          Printf.printf "CApply: returning apply return type %s\n"
+            (Shared.typeToString typ);
         [Completion.create "dummy" ~env ~kind:(Completion.Value retType)]
-      | _ -> [])
-    | _ -> [])
+      | _ ->
+        if debugTypeLookups then
+          Printf.printf "CApply: could not extract function type from %s\n"
+            (Shared.typeToString typ);
+        [])
+    | _ ->
+      if debugTypeLookups then
+        Printf.printf "CApply: looked for a function but found something else\n";
+      [])
   | CRecordFieldAccess {recordCtxPath = CId (path, Module); fieldName} ->
     (* M.field *)
     path @ [fieldName]
@@ -230,8 +271,14 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
       | None -> None
     in
     match extracted with
-    | None -> []
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CRecordFieldAccess: found type is not a record\n";
+      []
     | Some (env, fields, recordAsString) ->
+      if debugTypeLookups then
+        Printf.printf
+          "CRecordFieldAccess: found record and now filtering fields\n";
       fields
       |> Utils.filterMap (fun field ->
              if Utils.checkName field.fname.txt ~prefix:fieldName ~exact then
@@ -266,8 +313,16 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
                  Some
                    (Completion.create field ~env ~kind:(Completion.ObjLabel typ))
                else None)
-      | None -> [])
-    | None -> [])
+      | None ->
+        if debugTypeLookups then
+          Printf.printf
+            "CObj: looked for an object but found something else: %s\n"
+            (Shared.typeToString typ);
+        [])
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CObj: could not look up type at ctx path\n";
+      [])
   | CPipe {functionCtxPath = cp; id = funNamePrefix; lhsLoc} -> (
     match
       cp
@@ -275,7 +330,10 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
            ~exact:true ~scope
       |> completionsGetTypeEnv ~debug ~full ~opens ~rawOpens ~pos ~scope
     with
-    | None -> []
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CPipe: could not look up type at pipe fn ctx path\n";
+      []
     | Some (typ, envFromCompletionItem) -> (
       let env, typ =
         typ
@@ -429,12 +487,18 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
              | {Completion.kind = Value typ} :: _ -> Some typ
              | _ -> None)
     in
-    if List.length ctxPaths = List.length typeExrps then
+    if List.length ctxPaths = List.length typeExrps then (
+      if debugTypeLookups then
+        Printf.printf "CTuple: found tuple, returning it\n";
       [
         Completion.create "dummy" ~env
           ~kind:(Completion.Value (Ctype.newty (Ttuple typeExrps)));
-      ]
-    else []
+      ])
+    else (
+      if debugTypeLookups then
+        Printf.printf
+          "CTuple: extracted tuple and target tuple length does not match\n";
+      [])
   | CJsxPropValue {pathToComponent; propName} -> (
     let findTypeOfValue path =
       path
@@ -474,8 +538,14 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
         |> List.find_opt (fun (label, _, _) -> label = propName)
     in
     match targetLabel with
-    | None -> []
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CJsxPropValue: did not find target label\n";
+      []
     | Some (_, typ, env) ->
+      if debugTypeLookups then
+        Printf.printf "CJsxPropValue: found type: %s\n"
+          (Shared.typeToString typ);
       [
         Completion.create "dummy" ~env
           ~kind:(Completion.Value (Utils.unwrapIfOption typ));
@@ -491,7 +561,12 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
       with
       | Some ((TypeExpr typ | ExtractedType (Tfunction {typ})), env) ->
         (typ |> TypeUtils.getArgs ~full ~env, env)
-      | _ -> ([], env)
+      | _ ->
+        if debugTypeLookups then
+          Printf.printf
+            "CFunctionArgument: did not find fn type, or found type was \
+             something other than a function\n";
+        ([], env)
     in
     let targetLabel =
       labels
@@ -511,8 +586,14 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
       | Some (Optional _, _) -> true
     in
     match targetLabel with
-    | None -> []
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CFunctionArgument: did not find target label\n";
+      []
     | Some (_, typ) ->
+      if debugTypeLookups then
+        Printf.printf "CFunctionArgument: found type: %s\n"
+          (Shared.typeToString typ);
       [
         Completion.create "dummy" ~env
           ~kind:
@@ -558,10 +639,33 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
                  else None)
         in
         match targetType with
-        | None -> []
-        | Some t -> [Completion.create "dummy" ~env ~kind:(Completion.Value t)])
-      | _ -> [])
-    | _ -> [])
+        | None ->
+          if debugTypeLookups then
+            Printf.printf
+              "CVariantPayload: could not find target payload type in variant \
+               type\n";
+          []
+        | Some t ->
+          if debugTypeLookups then
+            Printf.printf "CVariantPayload: found payload type: %s\n"
+              (Shared.typeToString t);
+          [Completion.create "dummy" ~env ~kind:(Completion.Value t)])
+      | Some t ->
+        if debugTypeLookups then
+          Printf.printf
+            "CVariantPayload(constructorName: %s, itemNum: %i): some other \
+             type than a variant found at variant ctx path: %s\n"
+            constructorName itemNum
+            (TypeUtils.extractedTypeToString t);
+        []
+      | None ->
+        if debugTypeLookups then
+          Printf.printf "CVariantPayload: no type found at variant ctx path\n";
+        [])
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CVariantPayload: did not find type at variant ctx path\n";
+      [])
   | CTupleItem {tupleCtxPath; itemNum} -> (
     match
       tupleCtxPath
@@ -578,12 +682,30 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
       match typ with
       | Some (Tuple (env, items, _)) -> (
         match List.nth_opt items itemNum with
-        | None -> []
+        | None ->
+          if debugTypeLookups then
+            Printf.printf
+              "CTupleItem: found tuple, but not the target item num\n";
+          []
         | Some tupleItemType ->
+          if debugTypeLookups then
+            Printf.printf "CTupleItem: found tuple and item: %s\n"
+              (Shared.typeToString tupleItemType);
           [Completion.create "dummy" ~env ~kind:(Value tupleItemType)])
-      | _ -> [])
-    | _ -> [])
-  | CRecordField {recordCtxPath; prefix} when true -> (
+      | Some t ->
+        if debugTypeLookups then
+          Printf.printf "CTupleItem: type, but it's not a tuple: %s\n"
+            (TypeUtils.extractedTypeToString t);
+        []
+      | None ->
+        if debugTypeLookups then
+          Printf.printf "CTupleItem: no type extracted at tuple ctx path\n";
+        [])
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CTupleItem: no type found at tuple ctx path\n";
+      [])
+  | CRecordField {recordCtxPath} when true -> (
     let completionsForCtxPath =
       recordCtxPath
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
@@ -601,8 +723,21 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
     in
     match extracted with
     | Some (Trecord _ as typ) ->
+      if debugTypeLookups then
+        Printf.printf "CRecordField: found record: %s\n"
+          (TypeUtils.extractedTypeToString typ);
       [Completion.create "dummy" ~env ~kind:(ExtractedType (typ, `Value))]
-    | _ -> [])
+    | Some t ->
+      if debugTypeLookups then
+        Printf.printf
+          "CRecordField: found something that's not a record at the record ctx \
+           path: %s\n"
+          (TypeUtils.extractedTypeToString t);
+      []
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CRecordField: found no type at record ctx path\n";
+      [])
   | CRecordField {recordCtxPath; prefix; seenFields} -> (
     let completionsForCtxPath =
       recordCtxPath
@@ -669,17 +804,32 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
             ( env,
               fields,
               typDecl.item.decl |> Shared.declToString typDecl.name.txt )
-        | None -> None)
+        | None ->
+          if debugTypeLookups then
+            Printf.printf
+              "CRecordBody: found type at ctx path, but it's not a record: %s\n"
+              (Shared.typeToString typ);
+          None)
       | Some (ExtractedType typ, env) -> (
         match typ with
         | Trecord {fields} ->
           Some (env, fields, typ |> TypeUtils.extractedTypeToString)
-        | _ -> None)
-      | None -> None
+        | t ->
+          if debugTypeLookups then
+            Printf.printf
+              "CRecordBody: found something that's not a record at ctx path: %s\n"
+              (TypeUtils.extractedTypeToString t);
+          None)
+      | None ->
+        if debugTypeLookups then
+          Printf.printf "CRecordBody: found no type at record ctx path\n";
+        None
     in
     match extracted with
     | None -> []
     | Some (env, fields, recordAsString) ->
+      if debugTypeLookups then
+        Printf.printf "CRecordBody: found record type, now returning fields\n";
       let fields =
         fields
         |> Utils.filterMap (fun field ->
@@ -712,21 +862,57 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
         match
           fields
           |> Utils.findMap (fun (field : field) ->
-                 if field.fname.txt = fieldName then Some field.typ else None)
+                 if field.fname.txt = fieldName then
+                   Some
+                     (if field.optional then Utils.unwrapIfOption field.typ
+                     else field.typ)
+                 else None)
         with
-        | None -> []
+        | None ->
+          if debugTypeLookups then
+            Printf.printf
+              "CRecordFieldFollow: could not find the field to follow\n";
+          []
         | Some fieldType ->
+          if debugTypeLookups then
+            Printf.printf
+              "CRecordFieldFollow: type of field (\"%s\") to follow: %s\n"
+              fieldName
+              (Shared.typeToString fieldType);
           [Completion.create "dummy" ~env ~kind:(Value fieldType)])
-      | _ -> [])
-    | _ -> [])
+      | Some t ->
+        if debugTypeLookups then
+          Printf.printf
+            "CRecordFieldFollow: found type at record ctx path, but it's not a \
+             record: %s\n"
+            (TypeUtils.extractedTypeToString t);
+        []
+      | None ->
+        if debugTypeLookups then
+          Printf.printf "CRecordFieldFollow: found no type at record ctx path\n";
+        [])
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CRecordFieldFollow: found no type at record ctx path\n";
+      [])
   | CTypeAtLoc loc -> (
     match
       References.getLocItem ~full ~pos:(Pos.ofLexing loc.loc_start) ~debug
     with
-    | None -> []
+    | None ->
+      if debugTypeLookups then
+        Printf.printf "CTypeAtLoc: found no type at loc\n";
+      []
     | Some {locType = Typed (_, typExpr, _)} ->
+      if debugTypeLookups then
+        Printf.printf "CTypeAtLoc: found type at loc: %s\n"
+          (Shared.typeToString typExpr);
       [Completion.create "dummy" ~env ~kind:(Value typExpr)]
-    | _ -> [])
+    | Some _ ->
+      if debugTypeLookups then
+        Printf.printf
+          "CTypeAtLoc: found type at loc, but it's not something we can extract\n";
+      [])
   | CFunctionReturnType {functionCtxPath} -> (
     match functionCtxPath with
     | CFunction {returnType} ->
@@ -743,7 +929,23 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
       with
       | Some (ExtractedType (Tfunction {returnType}), env) ->
         [Completion.create "dummy" ~env ~kind:(Completion.Value returnType)]
-      | _ -> []))
+      | Some (TypeExpr t, _) ->
+        if debugTypeLookups then
+          Printf.printf
+            "CFunctionReturnType: found type at fn ctx path, but it's not a \
+             function: %s\n"
+            (Shared.typeToString t);
+        []
+      | Some (ExtractedType t, _) ->
+        if debugTypeLookups then
+          Printf.printf
+            "CFunctionReturnType: found type at fn ctx path, but it's not a \
+             function: %s\n"
+            (TypeUtils.extractedTypeToString t);
+        []
+      | None ->
+        Printf.printf "CFunctionReturnType: found no type at fn ctx path\n";
+        []))
 
 type completionMode = Pattern of Completable.patternMode | Expression
 
@@ -1155,54 +1357,64 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       ctxPath
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
            ~exact:true ~scope
-      |> completionsGetCompletionType ~full
+      |> completionsGetCompletionType2 ~full ~debug ~opens ~rawOpens ~pos ~scope
     with
     | None -> regularCompletions
     | Some (typ, _env) -> (
-      (* TODO: We can get rid of the completion context and only use the ctx path *)
-      let completionContext =
-        match ctxPath with
-        | CRecordBody {seenFields} | CRecordField {seenFields} ->
-          Some (Completable.RecordField {seenFields})
-        | CRecordFieldFollow {fieldName} -> Some (CameFromRecordField fieldName)
-        | _ -> None
+      let extractedType =
+        match typ with
+        | ExtractedType t -> Some t
+        | TypeExpr t -> TypeUtils.extractType t ~env ~package:full.package
       in
-      let wrapInsertTextInBraces =
-        if List.length [] > 0 then false
-        else
+      match extractedType with
+      | None -> regularCompletions
+      | Some typ -> (
+        (* TODO: We can get rid of the completion context and only use the ctx path *)
+        let completionContext =
           match ctxPath with
-          | CJsxPropValue _ -> true
-          | _ -> false
-      in
-      let items =
-        typ
-        |> completeTypedValue ~mode:Expression ~full ~prefix ~completionContext
-        |> List.map (fun (c : Completion.t) ->
-               if wrapInsertTextInBraces then
-                 {
-                   c with
-                   insertText =
-                     (match c.insertText with
-                     | None -> None
-                     | Some text -> Some ("{" ^ text ^ "}"));
-                 }
-               else c)
-      in
-      match (prefix, completionContext) with
-      | "", _ -> items
-      | _, None ->
-        let items =
-          if List.length regularCompletions > 0 then
-            (* The client will occasionally sort the list of completions alphabetically, disregarding the order
-               in which we send it. This fixes that by providing a sort text making the typed completions
-               guaranteed to end up on top. *)
-            items
-            |> List.map (fun (c : Completion.t) ->
-                   {c with sortText = Some ("A" ^ " " ^ c.name)})
-          else items
+          | CRecordBody {seenFields} | CRecordField {seenFields} ->
+            Some (Completable.RecordField {seenFields})
+          | CRecordFieldFollow {fieldName} ->
+            Some (CameFromRecordField fieldName)
+          | _ -> None
         in
-        items @ regularCompletions
-      | _ -> items))
+        let wrapInsertTextInBraces =
+          if List.length [] > 0 then false
+          else
+            match ctxPath with
+            | CJsxPropValue _ -> true
+            | _ -> false
+        in
+        let items =
+          typ
+          |> completeTypedValue ~mode:Expression ~full ~prefix
+               ~completionContext
+          |> List.map (fun (c : Completion.t) ->
+                 if wrapInsertTextInBraces then
+                   {
+                     c with
+                     insertText =
+                       (match c.insertText with
+                       | None -> None
+                       | Some text -> Some ("{" ^ text ^ "}"));
+                   }
+                 else c)
+        in
+        match (prefix, completionContext) with
+        | "", _ -> items
+        | _, None ->
+          let items =
+            if List.length regularCompletions > 0 then
+              (* The client will occasionally sort the list of completions alphabetically, disregarding the order
+                 in which we send it. This fixes that by providing a sort text making the typed completions
+                 guaranteed to end up on top. *)
+              items
+              |> List.map (fun (c : Completion.t) ->
+                     {c with sortText = Some ("A" ^ " " ^ c.name)})
+            else items
+          in
+          items @ regularCompletions
+        | _ -> items)))
   (*| CexhaustiveSwitch {contextPath; exprLoc} ->
     let range = Utils.rangeOfLoc exprLoc in
     let printFailwithStr num =

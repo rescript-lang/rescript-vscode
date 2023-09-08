@@ -34,17 +34,17 @@ type someRecord = {nested: option<nestedRecord>, variant: someVariant, someStrin
 // let myFunc: someRecord = {variant: O}
 //                                     ^co2
 
-// let myFunc: someRecord = {nested: {maybeVariant: Three(false, S)}}
-//                                                                ^co2
+// let myFunc: someRecord = {nested: Some({maybeVariant: Three(false, So)})}
+//                                                                      ^co2
 
-// let myFunc: someRecord = {nested: {maybeVariant: One}, variant: }
-//                                                                ^co2
+// let myFunc: someRecord = {nested: Some({maybeVariant: One}), variant: }
+//                                                                      ^co2
 
-// let myFunc: someRecord = {nested: {maybeVariant: One, }}
-//                                                      ^co2
+// let myFunc: someRecord = {nested: Some({maybeVariant: One, })}
+//                                                           ^co2
 
-// let myFunc: someRecord = {nested: {maybeVariant: One}, }
-//                                                       ^co2
+// let myFunc: someRecord = {nested: Some({maybeVariant: One}), }
+//                                                             ^co2
 
 // This should reset the context, meaning it should just complete for the identifier
 // let myFunc: someRecord = {nested: {maybeVariant: {let x = true; if x {}}}, }

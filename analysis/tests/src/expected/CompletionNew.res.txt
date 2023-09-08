@@ -3,6 +3,7 @@ Scope: 1 items
 Completable: Cexpression: ctxPath: CTypeAtLoc: [2:7->2:13] , prefix: "m"
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CTypeAtLoc: found no type at loc
 [{
     "label": "myVar",
     "kind": 12,
@@ -46,6 +47,7 @@ Completable: Cexpression: ctxPath: (Type(prefix=someVariant))->variantPayload(Th
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someVariant
+CVariantPayload: found payload type: bool
 [{
     "label": "true",
     "kind": 4,
@@ -60,6 +62,7 @@ Completable: Cexpression: ctxPath: (Type(prefix=someVariant))->variantPayload(Th
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someVariant
+CVariantPayload: found payload type: option<someVariant>
 [{
     "label": "Some(_)",
     "kind": 12,
@@ -83,6 +86,7 @@ Completable: Cexpression: ctxPath: ((Type(prefix=someVariant))->variantPayload(T
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someVariant
+CVariantPayload: found payload type: option<someVariant>
 [{
     "label": "One",
     "kind": 4,
@@ -112,6 +116,7 @@ Completable: Cexpression: ctxPath: Type(prefix=someRecord)->recordField("", [])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someRecord
+CRecordField: found record: type someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}
 [{
     "label": "nested",
     "kind": 5,
@@ -138,6 +143,7 @@ Completable: Cexpression: ctxPath: Type(prefix=someRecord)->recordField("n", [])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someRecord
+CRecordField: found record: type someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}
 [{
     "label": "nested",
     "kind": 5,
@@ -152,6 +158,7 @@ Completable: Cexpression: ctxPath: (Type(prefix=someRecord))->followRecordField{
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someRecord
+CRecordFieldFollow: type of field ("variant") to follow: someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -162,80 +169,39 @@ Path someRecord
     "insertTextFormat": 2
   }]
 
-Complete2 src/CompletionNew.res 36:66
+Complete2 src/CompletionNew.res 36:72
 Scope: 105 items
-Completable: Cexpression: ctxPath: (((Type(prefix=someRecord))->followRecordField{nested})->followRecordField{maybeVariant})->variantPayload(Three<$1>) , prefix: "S"
+Completable: Cexpression: ctxPath: ((((Type(prefix=someRecord))->followRecordField{nested})->variantPayload(Some<$0>))->followRecordField{maybeVariant})->variantPayload(Three<$1>) , prefix: "So"
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someRecord
+CRecordFieldFollow: type of field ("nested") to follow: option<nestedRecord>
+CRecordFieldFollow: type of field ("maybeVariant") to follow: someVariant
+CVariantPayload: found payload type: option<someVariant>
 [{
-    "label": "Set",
-    "kind": 9,
+    "label": "Some(_)",
+    "kind": 12,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "SetLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "SignatureHelp",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "someVariant",
+    "documentation": null,
+    "sortText": "A Some(_)",
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
   }, {
     "label": "Sort",
     "kind": 9,
     "tags": [],
     "detail": "file module",
     "documentation": null
-  }, {
-    "label": "Stack",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "StdLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Stream",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "String",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "StringLabels",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
-  }, {
-    "label": "Sys",
-    "kind": 9,
-    "tags": [],
-    "detail": "file module",
-    "documentation": null
   }]
 
-Complete2 src/CompletionNew.res 39:66
+Complete2 src/CompletionNew.res 39:72
 Scope: 105 items
 Completable: Cexpression: ctxPath: (Type(prefix=someRecord))->followRecordField{variant} 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someRecord
+CRecordFieldFollow: type of field ("variant") to follow: someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -262,20 +228,35 @@ Path someRecord
     "insertTextFormat": 2
   }]
 
-Complete2 src/CompletionNew.res 42:56
+Complete2 src/CompletionNew.res 42:61
 Scope: 105 items
-Completable: Cexpression: ctxPath: (Type(prefix=someRecord))->followRecordField{nested}->recordField("", [maybeVariant]) 
+Completable: Cexpression: ctxPath: ((Type(prefix=someRecord))->followRecordField{nested})->variantPayload(Some<$0>)->recordField("", [maybeVariant]) 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someRecord
-[]
+CRecordFieldFollow: type of field ("nested") to follow: option<nestedRecord>
+CRecordField: found record: nestedRecord
+[{
+    "label": "on",
+    "kind": 5,
+    "tags": [],
+    "detail": "on: bool\n\nnestedRecord",
+    "documentation": null
+  }, {
+    "label": "off",
+    "kind": 5,
+    "tags": [],
+    "detail": "off?: bool\n\nnestedRecord",
+    "documentation": null
+  }]
 
-Complete2 src/CompletionNew.res 45:57
+Complete2 src/CompletionNew.res 45:63
 Scope: 105 items
 Completable: Cexpression: ctxPath: Type(prefix=someRecord)->recordField("", [nested]) 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someRecord
+CRecordField: found record: type someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}
 [{
     "label": "variant",
     "kind": 5,
@@ -317,6 +298,8 @@ Completable: Cexpression: ctxPath: ((Type(prefix=someRecord))->followRecordField
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someRecord
+CRecordFieldFollow: type of field ("nested") to follow: option<nestedRecord>
+CRecordFieldFollow: found type at record ctx path, but it's not a record: option<nestedRecord>
 []
 
 Complete2 src/CompletionNew.res 61:58
@@ -340,6 +323,7 @@ Completable: Cexpression: ctxPath: Type(prefix=fn)->recordField("", [])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path fn
+CRecordField: found something that's not a record at the record ctx path: (~name: string=?, string) => bool
 []
 
 Complete2 src/CompletionNew.res 72:72
@@ -355,6 +339,7 @@ Scope: 108 items
 Completable: Cexpression: ctxPath: bool , prefix: "t"
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CBool: returning bool
 [{
     "label": "true",
     "kind": 4,
@@ -368,6 +353,7 @@ Scope: 108 items
 Completable: Cexpression: ctxPath: CTypeAtLoc: [80:42->80:50] , prefix: "t"
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CTypeAtLoc: found no type at loc
 []
 
 Complete2 src/CompletionNew.res 84:22
@@ -383,6 +369,7 @@ Scope: 106 items
 Completable: Cpattern: ctxPath: CUnknown->recordField("someField", [someField]), , prefix: "s"
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CRecordField: found no type at record ctx path
 []
 
 Complete2 src/CompletionNew.res 91:13
@@ -390,6 +377,7 @@ Scope: 106 items
 Completable: Cpattern: ctxPath: CUnknown->tupleItem($1), 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CTupleItem: no type found at tuple ctx path
 []
 
 Complete2 src/CompletionNew.res 94:20
@@ -397,6 +385,7 @@ Scope: 106 items
 Completable: Cpattern: ctxPath: CUnknown->tupleItem($2), 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CTupleItem: no type found at tuple ctx path
 []
 
 Complete2 src/CompletionNew.res 98:9
@@ -404,6 +393,7 @@ Scope: 106 items
 Completable: Cpattern: ctxPath: array, 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CArray: array with no payload
 []
 
 Complete2 src/CompletionNew.res 101:22
@@ -411,6 +401,7 @@ Scope: 106 items
 Completable: Cpattern: ctxPath: array, 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CArray: array with no payload
 []
 
 Complete2 src/CompletionNew.res 104:24
@@ -418,6 +409,7 @@ Scope: 106 items
 Completable: Cpattern: ctxPath: array, , prefix: "f"
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CArray: array with no payload
 []
 
 Complete2 src/CompletionNew.res 108:23
@@ -454,6 +446,7 @@ Completable: CtxPath: pipe(Value(prefix=foo))->id
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path foo
+CPipe: could not look up type at pipe fn ctx path
 []
 
 Complete2 src/CompletionNew.res 124:16
@@ -462,6 +455,7 @@ Completable: CtxPath: pipe(Value(prefix=foo))->
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path foo
+CPipe: could not look up type at pipe fn ctx path
 []
 
 Complete2 src/CompletionNew.res 127:17
@@ -548,6 +542,7 @@ Scope: 107 items
 Completable: Cexpression: ctxPath: CTypeAtLoc: [155:7->155:10] 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CTypeAtLoc: found no type at loc
 []
 
 Complete2 src/CompletionNew.res 158:40
@@ -563,5 +558,6 @@ Scope: 107 items
 Completable: Cexpression: ctxPath: CTypeAtLoc: [161:7->161:10] , prefix: "Stuff"
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+CTypeAtLoc: found no type at loc
 []
 
