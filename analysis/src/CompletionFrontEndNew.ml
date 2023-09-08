@@ -1,5 +1,6 @@
 open SharedTypes
 open CompletionNewTypes
+open CompletionsNewTypesCtxPath
 
 let flattenLidCheckDot ?(jsx = true) ~(completionContext : CompletionContext.t)
     (lid : Longident.t Location.loc) =
@@ -262,11 +263,31 @@ let scopeTypeDeclaration ~scope (td : Parsetree.type_declaration) =
   in
   scopeTypeKind ~scope td.ptype_kind
 
+let scopeTypeDeclarations ~scope
+    (typeDeclarations : Parsetree.type_declaration list) =
+  let newScope = ref scope in
+  typeDeclarations
+  |> List.iter (fun (td : Parsetree.type_declaration) ->
+         newScope := scopeTypeDeclaration td ~scope:!newScope);
+  !newScope
+
 let scopeModuleBinding ~scope (mb : Parsetree.module_binding) =
   scope |> Scope.addModule ~name:mb.pmb_name.txt ~loc:mb.pmb_name.loc
 
 let scopeModuleDeclaration ~scope (md : Parsetree.module_declaration) =
   scope |> Scope.addModule ~name:md.pmd_name.txt ~loc:md.pmd_name.loc
+
+let scopeValueDescription ~scope (vd : Parsetree.value_description) =
+  scope |> Scope.addValue ~name:vd.pval_name.txt ~loc:vd.pval_name.loc
+
+let scopeStructureItem ~scope (item : Parsetree.structure_item) =
+  match item.pstr_desc with
+  | Pstr_value (_, valueBindings) -> scopeValueBindings ~scope valueBindings
+  | Pstr_type (_, typeDeclarations) ->
+    scopeTypeDeclarations ~scope typeDeclarations
+  | Pstr_open {popen_lid} -> scope |> Scope.addOpen ~lid:popen_lid.txt
+  | Pstr_primitive vd -> scopeValueDescription ~scope vd
+  | _ -> scope
 
 let rec completeFromStructure ~(completionContext : CompletionContext.t)
     (structure : Parsetree.structure) : CompletionResult.t =
@@ -279,10 +300,7 @@ let rec completeFromStructure ~(completionContext : CompletionContext.t)
                (CompletionContext.withScope !scope completionContext)
              item
          in
-         (match item.pstr_desc with
-         | Pstr_value (_, valueBindings) ->
-           scope := scopeValueBindings ~scope:!scope valueBindings
-         | _ -> ());
+         scope := scopeStructureItem ~scope:!scope item;
          res)
 
 and completeStructureItem ~(completionContext : CompletionContext.t)
@@ -324,7 +342,7 @@ and completeValueBinding ~(completionContext : CompletionContext.t)
        or an inferred constraint (if it has been compiled), or no constraint. *)
     let completionContextForExprCompletion =
       completionContext
-      |> CompletionContext.currentlyExpectingOrTypeAtLoc
+      |> CompletionContext.currentlyExpectingOrTypeAtLoc2
            ~loc:vb.pvb_pat.ppat_loc bindingConstraint
     in
     let completedExpression =
@@ -421,10 +439,6 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
       payloadExpr
   | Pexp_construct ({txt = Lident txt; loc}, _) when loc |> locHasPos ->
     (* A constructor, like: `Co` *)
-    let completionContext =
-      completionContext
-      |> CompletionContext.addCtxPathItem (CId ([txt], Module))
-    in
     CompletionResult.expression ~completionContext ~prefix:txt
   | Pexp_construct (id, _) when id.loc |> locHasPos ->
     (* A path, like: `Something.Co` *)
@@ -495,10 +509,9 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
                completeExpr
                  ~completionContext:
                    (CompletionContext.addCtxPathItem
-                      (CRecordField
+                      (CRecordFieldFollow
                          {
-                           prefix = fieldName.txt |> Longident.last;
-                           seenFields;
+                           fieldName = fieldName.txt |> Longident.last;
                            recordCtxPath =
                              ctxPathFromCompletionContext completionContext;
                          })
@@ -526,10 +539,9 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
         let completionContext =
           completionContext
           |> CompletionContext.addCtxPathItem
-               (CRecordField
+               (CRecordFieldFollow
                   {
-                    prefix = fieldName;
-                    seenFields;
+                    fieldName;
                     recordCtxPath =
                       ctxPathFromCompletionContext completionContext;
                   })
@@ -553,13 +565,15 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
   (* == IDENTS == *)
   | Pexp_ident lid ->
     (* An identifier, like `aaa` *)
+    (* TODO(1) idents vs modules, etc *)
     let lidPath = flattenLidCheckDot lid ~completionContext in
+    let last = Longident.last lid.txt in
     if lid.loc |> locHasPos then
-      let completionContext =
-        completionContext
-        |> CompletionContext.addCtxPathItem (CId (lidPath, Value))
-      in
-      CompletionResult.expression ~completionContext ~prefix:""
+      (*let completionContext =
+          completionContext
+          |> CompletionContext.addCtxPathItem (CId (lidPath, Value))
+        in*)
+      CompletionResult.expression ~completionContext ~prefix:last
     else None
   | Pexp_let (recFlag, valueBindings, nextExpr) ->
     (* A let binding. `let a = b` *)

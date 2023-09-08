@@ -12,6 +12,20 @@ let completion ~debug ~path ~pos ~currentFile =
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array)
 
+let completionNew ~debug ~path ~pos ~currentFile =
+  let completions =
+    match
+      Completions.getCompletions2 ~debug ~path ~pos ~currentFile ~forHover:false
+    with
+    | None -> []
+    | Some (completions, _, _) -> completions
+  in
+  print_endline
+    (completions
+    |> List.map CompletionBackEnd.completionToItem
+    |> List.map Protocol.stringifyCompletionItem
+    |> Protocol.array)
+
 let inlayhint ~path ~pos ~maxLength ~debug =
   let result =
     match Hint.inlay ~path ~pos ~maxLength ~debug with
@@ -321,8 +335,7 @@ let test ~path =
               ("Complete2 " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             let currentFile = createCurrentFile () in
-            Completions.getCompletions2 ~forHover:false ~debug:true ~path
-              ~pos:(line, col) ~currentFile;
+            completionNew ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
           | "dce" ->
             print_endline ("DCE " ^ path);

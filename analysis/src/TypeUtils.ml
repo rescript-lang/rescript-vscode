@@ -125,8 +125,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | Tconstr (Pident {name = "function$"}, [t; _], _) -> (
     (* Uncurried functions. *)
     match extractFunctionType t ~env ~package with
-    | args, _tRet when args <> [] ->
-      Some (Tfunction {env; args; typ = t; uncurried = true})
+    | args, tRet when args <> [] ->
+      Some (Tfunction {env; args; typ = t; returnType = tRet; uncurried = true})
     | _args, _tRet -> None)
   | Tconstr (path, typeArgs, _) -> (
     match References.digConstructor ~env ~package path with
@@ -168,8 +168,9 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     Some (Tpolyvariant {env; constructors; typeExpr = t})
   | Tarrow _ -> (
     match extractFunctionType t ~env ~package with
-    | args, _tRet when args <> [] ->
-      Some (Tfunction {env; args; typ = t; uncurried = false})
+    | args, tRet when args <> [] ->
+      Some
+        (Tfunction {env; args; typ = t; uncurried = false; returnType = tRet})
     | _args, _tRet -> None)
   | _ -> None
 

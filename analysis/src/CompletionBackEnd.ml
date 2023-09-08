@@ -286,7 +286,10 @@ let processLocalValue name loc contextPath ~prefix ~exact ~env
         Completion.create name ~env
           ~kind:
             (match contextPath with
-            | Some contextPath -> FollowContextPath contextPath
+            | Some (Scope.Completable contextPath) ->
+              FollowContextPath (`Completable contextPath)
+            | Some (Scope.New contextPath) ->
+              FollowContextPath (`New contextPath)
             | None ->
               Value
                 (Ctype.newconstr
@@ -628,7 +631,7 @@ let rec completionsGetCompletionType2 ~debug ~full ~opens ~rawOpens ~pos ~scope
   | {Completion.kind = ObjLabel typ; env} :: _
   | {Completion.kind = Field ({typ}, _); env} :: _ ->
     Some (TypeExpr typ, env)
-  | {Completion.kind = FollowContextPath ctxPath; env} :: _ ->
+  | {Completion.kind = FollowContextPath (`Completable ctxPath); env} :: _ ->
     ctxPath
     |> getCompletionsForContextPath ~debug ~full ~env ~exact:true ~opens
          ~rawOpens ~pos ~scope
@@ -647,7 +650,7 @@ and completionsGetTypeEnv2 ~debug (completions : Completion.t list) ~full ~opens
   | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
   | {Completion.kind = ObjLabel typ; env} :: _ -> Some (typ, env)
   | {Completion.kind = Field ({typ}, _); env} :: _ -> Some (typ, env)
-  | {Completion.kind = FollowContextPath ctxPath; env} :: _ ->
+  | {Completion.kind = FollowContextPath (`Completable ctxPath); env} :: _ ->
     ctxPath
     |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
          ~exact:true ~scope

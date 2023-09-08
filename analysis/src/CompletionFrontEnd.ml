@@ -316,11 +316,13 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
       (pat : Parsetree.pattern) =
     let contextPathToSave =
       match (contextPath, patternPath) with
-      | maybeContextPath, [] -> maybeContextPath
+      | Some ctxPath, [] -> Some (Scope.Completable ctxPath)
+      | None, [] -> None
       | Some contextPath, patternPath ->
         Some
-          (Completable.CPatternPath
-             {rootCtxPath = contextPath; nested = List.rev patternPath})
+          (Completable
+             (Completable.CPatternPath
+                {rootCtxPath = contextPath; nested = List.rev patternPath}))
       | _ -> None
     in
     match pat.ppat_desc with
@@ -334,7 +336,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
         if contextPathToSave = None then
           match p with
           | {ppat_desc = Ppat_var {txt}} ->
-            Some (Completable.CPId ([txt], Value))
+            Some (Scope.Completable (Completable.CPId ([txt], Value)))
           | _ -> None
         else None
       in

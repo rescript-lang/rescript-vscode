@@ -1,218 +1,567 @@
 Complete2 src/CompletionNew.res 2:17
-Result: Cexpression: ctxPath: CId(Value)=m, rootType: CTypeAtLoc: [2:7->2:13]
 Scope: 1 items
-Looking for type: CTypeAtLoc: [2:7->2:13]
+Completable: Cexpression: ctxPath: CTypeAtLoc: [2:7->2:13] , prefix: "m"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "myVar",
+    "kind": 12,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 7:30
-Result: Cexpression: ctxPath: CId(Module)=O, rootType: CId(Type)=someVariant, prefix: "O"
-Scope: 1 items
-Looking for type: CId(Type)=someVariant
+Scope: 9 items
+Completable: Cexpression: ctxPath: Type(prefix=someVariant) , prefix: "O"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant =\n  | One\n  | Two\n  | Three(bool, option<someVariant>)",
+    "documentation": null,
+    "sortText": "A One",
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Obj",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Objects",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 10:36
-Result: Cexpression: ctxPath: CId(Value)=t, rootType: CId(Type)=someVariant
-Scope: 1 items
-Looking for type: CId(Type)=someVariant
+Scope: 9 items
+Completable: Cexpression: ctxPath: (Type(prefix=someVariant))->variantPayload(Three<$0>) , prefix: "t"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someVariant
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
 
-Complete2 src/CompletionNew.res 13:42
-Result: Cexpression: ctxPath: CId(Module)=S, rootType: CId(Type)=someVariant, prefix: "S"
-Scope: 1 items
-Looking for type: CId(Type)=someVariant
+Complete2 src/CompletionNew.res 13:43
+Scope: 9 items
+Completable: Cexpression: ctxPath: (Type(prefix=someVariant))->variantPayload(Three<$1>) , prefix: "So"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someVariant
+[{
+    "label": "Some(_)",
+    "kind": 12,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null,
+    "sortText": "A Some(_)",
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Sort",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 16:47
-Result: Cexpression: ctxPath: CId(Module)=O, rootType: CId(Type)=someVariant, prefix: "O"
-Scope: 1 items
-Looking for type: CId(Type)=someVariant
+Scope: 9 items
+Completable: Cexpression: ctxPath: ((Type(prefix=someVariant))->variantPayload(Three<$1>))->variantPayload(Some<$0>) , prefix: "O"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someVariant
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant =\n  | One\n  | Two\n  | Three(bool, option<someVariant>)",
+    "documentation": null,
+    "sortText": "A One",
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Obj",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Objects",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 27:29
-Result: Cexpression: ctxPath: CRecordField (CUnknown)=, rootType: CId(Type)=someRecord
-Scope: 1 items
-Looking for type: CId(Type)=someRecord
+Scope: 105 items
+Completable: Cexpression: ctxPath: Type(prefix=someRecord)->recordField("", []) 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someRecord
+[{
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: option<nestedRecord>\n\ntype someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}",
+    "documentation": null
+  }, {
+    "label": "variant",
+    "kind": 5,
+    "tags": [],
+    "detail": "variant: someVariant\n\ntype someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}",
+    "documentation": null
+  }, {
+    "label": "someString",
+    "kind": 5,
+    "tags": [],
+    "detail": "someString: string\n\ntype someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 30:30
-Result: Cexpression: ctxPath: CRecordField (CUnknown)=n, rootType: CId(Type)=someRecord, prefix: "n"
-Scope: 1 items
-Looking for type: CId(Type)=someRecord
+Scope: 105 items
+Completable: Cexpression: ctxPath: Type(prefix=someRecord)->recordField("n", []) , prefix: "n"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someRecord
+[{
+    "label": "nested",
+    "kind": 5,
+    "tags": [],
+    "detail": "nested: option<nestedRecord>\n\ntype someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 33:39
-Result: Cexpression: ctxPath: CId(Module)=O, rootType: CId(Type)=someRecord, prefix: "O"
-Scope: 1 items
-Looking for type: CId(Type)=someRecord
+Scope: 105 items
+Completable: Cexpression: ctxPath: (Type(prefix=someRecord))->followRecordField{variant} , prefix: "O"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someRecord
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant =\n  | One\n  | Two\n  | Three(bool, option<someVariant>)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }]
 
 Complete2 src/CompletionNew.res 36:66
-Result: Cexpression: ctxPath: CId(Value)=t, rootType: CId(Type)=someRecord
-Scope: 1 items
-Looking for type: CId(Type)=someRecord
+Scope: 105 items
+Completable: Cexpression: ctxPath: (((Type(prefix=someRecord))->followRecordField{nested})->followRecordField{maybeVariant})->variantPayload(Three<$1>) , prefix: "S"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someRecord
+[{
+    "label": "Set",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "SetLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "SignatureHelp",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Sort",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Stack",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "StdLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Stream",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "String",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "StringLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "Sys",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 39:66
-Result: Cexpression: ctxPath: CRecordField (CUnknown)=variant, rootType: CId(Type)=someRecord
-Scope: 1 items
-Looking for type: CId(Type)=someRecord
+Scope: 105 items
+Completable: Cexpression: ctxPath: (Type(prefix=someRecord))->followRecordField{variant} 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someRecord
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant =\n  | One\n  | Two\n  | Three(bool, option<someVariant>)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\ntype someVariant =\n  | One\n  | Two\n  | Three(bool, option<someVariant>)",
+    "documentation": null,
+    "insertText": "Two",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(bool, option<someVariant>)\n\ntype someVariant =\n  | One\n  | Two\n  | Three(bool, option<someVariant>)",
+    "documentation": null,
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
 
 Complete2 src/CompletionNew.res 42:56
-Result: Cexpression: ctxPath: CRecordField (CRecordField (CUnknown)=nested)=, rootType: CId(Type)=someRecord
-Scope: 1 items
-Looking for type: CId(Type)=someRecord
+Scope: 105 items
+Completable: Cexpression: ctxPath: (Type(prefix=someRecord))->followRecordField{nested}->recordField("", [maybeVariant]) 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someRecord
+[]
 
 Complete2 src/CompletionNew.res 45:57
-Result: Cexpression: ctxPath: CRecordField (CUnknown)=, rootType: CId(Type)=someRecord
-Scope: 1 items
-Looking for type: CId(Type)=someRecord
+Scope: 105 items
+Completable: Cexpression: ctxPath: Type(prefix=someRecord)->recordField("", [nested]) 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someRecord
+[{
+    "label": "variant",
+    "kind": 5,
+    "tags": [],
+    "detail": "variant: someVariant\n\ntype someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}",
+    "documentation": null
+  }, {
+    "label": "someString",
+    "kind": 5,
+    "tags": [],
+    "detail": "someString: string\n\ntype someRecord = {nested: option<nestedRecord>, variant: someVariant, someString: string}",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 49:71
-Result: Cexpression: ctxPath: CId(Value)=x, rootType: CUnknown
-Scope: 2 items
-Looking for type: CUnknown
+Scope: 106 items
+Completable: Cexpression: ctxPath: CUnknown , prefix: "x"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "x",
+    "kind": 12,
+    "tags": [],
+    "detail": "\\\"Type Not Known\"",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 53:73
-Result: Cexpression: ctxPath: CId(Value)=, rootType: CId(Type)=someRecord
-Scope: 2 items
-Looking for type: CId(Type)=someRecord
+Scope: 106 items
+Completable: Cexpression: ctxPath: Value(prefix=) 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path 
+[]
 
 Complete2 src/CompletionNew.res 57:85
-Result: Cexpression: ctxPath: CId(Value)=v, rootType: CId(Type)=someRecord
-Scope: 2 items
-Looking for type: CId(Type)=someRecord
+Scope: 106 items
+Completable: Cexpression: ctxPath: ((Type(prefix=someRecord))->followRecordField{nested})->followRecordField{maybeVariant} , prefix: "v"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someRecord
+[]
 
 Complete2 src/CompletionNew.res 61:58
-Result: Cexpression: ctxPath: CId(Value)=doStuff, rootType: CUnknown
-Scope: 1 items
-Looking for type: CUnknown
+Scope: 105 items
+Completable: Cexpression: ctxPath: CUnknown , prefix: "doStuff"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 66:32
-Result: Cexpression: ctxPath: CId(Value)=, rootType: bool
-Scope: 2 items
-Looking for type: bool
+Scope: 107 items
+Completable: Cexpression: ctxPath: Value(prefix=) 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path 
+[]
 
 Complete2 src/CompletionNew.res 69:38
-Result: Cexpression: ctxPath: CRecordField (CUnknown)=, rootType: CFunctionReturnType CId(Type)=fn
-Scope: 3 items
-Looking for type: CFunctionReturnType CId(Type)=fn
+Scope: 108 items
+Completable: Cexpression: ctxPath: Type(prefix=fn)->recordField("", []) 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path fn
+[]
 
 Complete2 src/CompletionNew.res 72:72
-Result: Cexpression: ctxPath: CId(Value)=, rootType: CFunctionReturnType CId(Type)=fn
-Scope: 4 items
-Looking for type: CFunctionReturnType CId(Type)=fn
+Scope: 109 items
+Completable: Cexpression: ctxPath: Value(prefix=) 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path 
+[]
 
 Complete2 src/CompletionNew.res 76:60
-Result: Cexpression: ctxPath: CId(Value)=t, rootType: bool
-Scope: 3 items
-Looking for type: bool
+Scope: 108 items
+Completable: Cexpression: ctxPath: bool , prefix: "t"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 80:54
-Result: Cexpression: ctxPath: CId(Value)=t, rootType: CTypeAtLoc: [80:42->80:50]
-Scope: 3 items
-Looking for type: CTypeAtLoc: [80:42->80:50]
+Scope: 108 items
+Completable: Cexpression: ctxPath: CTypeAtLoc: [80:42->80:50] , prefix: "t"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 84:22
-Result: CtxPath: CId(Value)=
-Scope: 1 items
-Looking for type: bool
+Scope: 106 items
+Completable: CtxPath: Value(prefix=)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path 
+[]
 
 Complete2 src/CompletionNew.res 87:20
-Result: Cpattern: ctxPath: CRecordField (CUnknown)=someField, rootType: CId(Value)=someRecordVar, prefix: "s"
-Scope: 1 items
-Looking for type: CId(Value)=someRecordVar
+Scope: 106 items
+Completable: Cpattern: ctxPath: CUnknown->recordField("someField", [someField]), , prefix: "s"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 91:13
-Result: Cpattern: ctxPath: CTupleItem CUnknown ($1), rootType: CId(Value)=someRecordVar
-Scope: 1 items
-Looking for type: CId(Value)=someRecordVar
+Scope: 106 items
+Completable: Cpattern: ctxPath: CUnknown->tupleItem($1), 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 94:20
-Result: Cpattern: ctxPath: CTupleItem CUnknown ($2), rootType: CId(Value)=someRecordVar
-Scope: 1 items
-Looking for type: CId(Value)=someRecordVar
+Scope: 106 items
+Completable: Cpattern: ctxPath: CUnknown->tupleItem($2), 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 98:9
-Result: Cpattern: ctxPath: array, rootType: CId(Value)=someArr
-Scope: 1 items
-Looking for type: CId(Value)=someArr
+Scope: 106 items
+Completable: Cpattern: ctxPath: array, 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 101:22
-Result: Cpattern: ctxPath: array, rootType: CId(Value)=someArr
-Scope: 1 items
-Looking for type: CId(Value)=someArr
+Scope: 106 items
+Completable: Cpattern: ctxPath: array, 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 104:24
-Result: Cpattern: ctxPath: array, rootType: CId(Value)=someArr, prefix: "f"
-Scope: 1 items
-Looking for type: CId(Value)=someArr
+Scope: 106 items
+Completable: Cpattern: ctxPath: array, , prefix: "f"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 108:23
-Result: Cexpression: ctxPath: CId(Value)=f, rootType: CFunctionArgument CId(Value)=&&($1)
-Scope: 1 items
-Looking for type: CFunctionArgument CId(Value)=&&($1)
+Scope: 106 items
+Completable: Cexpression: ctxPath: CUnknown , prefix: "f"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 111:42
-Result: Cexpression: ctxPath: CId(Value)=f, rootType: CFunctionReturnType CFunctionArgument CId(Value)=someFunc($0)
-Scope: 2 items
-Looking for type: CFunctionReturnType CFunctionArgument CId(Value)=someFunc($0)
+Scope: 107 items
+Completable: Cexpression: ctxPath: CUnknown , prefix: "f"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 114:34
-Result: Cexpression: ctxPath: CId(Value)=f, rootType: CFunctionArgument CId(Value)=someFunc(~labelledArg)
-Scope: 1 items
-Looking for type: CFunctionArgument CId(Value)=someFunc(~labelledArg)
+Scope: 106 items
+Completable: Cexpression: ctxPath: CUnknown , prefix: "f"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 117:33
-Result: Cexpression: ctxPath: CUnknown, rootType: CFunctionArgument CId(Value)=someFunc(~labelledArg)
-Scope: 1 items
-Looking for type: CFunctionArgument CId(Value)=someFunc(~labelledArg)
+Scope: 106 items
+Completable: Cexpression: ctxPath: CUnknown 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 121:17
-Result: CtxPath: (CId(Value)=foo)->id
-Scope: 1 items
-Looking for type: CUnknown
+Scope: 106 items
+Completable: CtxPath: pipe(Value(prefix=foo))->id
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path foo
+[]
 
 Complete2 src/CompletionNew.res 124:16
-Result: CtxPath: (CId(Value)=foo)->
-Scope: 1 items
-Looking for type: CUnknown
+Scope: 106 items
+Completable: CtxPath: pipe(Value(prefix=foo))->
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path foo
+[]
 
 Complete2 src/CompletionNew.res 127:17
-Result: Cexpression: ctxPath: CId(Module)=M, rootType: CUnknown, prefix: "M"
-Scope: 1 items
-Looking for type: CUnknown
+Scope: 106 items
+Completable: Cexpression: ctxPath: CUnknown , prefix: "M"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "Map",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "MapLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }, {
+    "label": "MoreLabels",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 136:36
-Result: CnamedArg(CId(Value)=someFun, f, [secondLabel, f])
-Scope: 2 items
-Looking for type: CTypeAtLoc: [136:7->136:9]
+Scope: 107 items
+Completable: CnamedArg(Value(prefix=someFun), f, [secondLabel, f])
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someFun
+Found type for function (
+  ~firstLabel: string,
+  ~secondLabel: string=?,
+  someRecord,
+) => string
+[{
+    "label": "firstLabel",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 139:37
-Result: Cexpression: ctxPath: CUnknown, rootType: CFunctionArgument CId(Value)=someFun($0)
-Scope: 2 items
-Looking for type: CFunctionArgument CId(Value)=someFun($0)
+Scope: 107 items
+Completable: Cexpression: ctxPath: CUnknown 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 143:21
-Result: CtxPath: CId(Module)=SomeCom
-Scope: 2 items
-Looking for type: CUnknown
+Scope: 107 items
+Completable: CtxPath: Module(prefix=SomeCom)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path SomeCom
+[]
 
 Complete2 src/CompletionNew.res 146:26
-Result: CtxPath: CId(Module)=SomeModule.S
-Scope: 2 items
-Looking for type: CUnknown
+Scope: 107 items
+Completable: CtxPath: Module(prefix=SomeModule.S)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path SomeModule.S
+[]
 
 Complete2 src/CompletionNew.res 149:24
 No completions
+[]
 
 Complete2 src/CompletionNew.res 152:25
-Result: Cjsx(Component, a, [a])
-Scope: 2 items
-Looking for type: CTypeAtLoc: [152:7->152:10]
+Scope: 107 items
+Completable: Cjsx(Component, a, [a])
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path Component.make
+[]
 
 Complete2 src/CompletionNew.res 155:30
-Result: Cexpression: ctxPath: CUnknown, rootType: CJsxPropValue [Component] aProp
-Scope: 2 items
-Looking for type: CJsxPropValue [Component] aProp
+Scope: 107 items
+Completable: Cexpression: ctxPath: CTypeAtLoc: [155:7->155:10] 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 
 Complete2 src/CompletionNew.res 158:40
-Result: Cexpression: ctxPath: CId(Value)=, rootType: CJsxPropValue [Component] aProp
-Scope: 2 items
-Looking for type: CJsxPropValue [Component] aProp
+Scope: 107 items
+Completable: Cexpression: ctxPath: Value(prefix=) 
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path 
+[]
 
 Complete2 src/CompletionNew.res 161:35
-Result: Cexpression: ctxPath: CId(Module)=Stuff, rootType: CJsxPropValue [Component] aProp, prefix: "Stuff"
-Scope: 2 items
-Looking for type: CJsxPropValue [Component] aProp
+Scope: 107 items
+Completable: Cexpression: ctxPath: CTypeAtLoc: [161:7->161:10] , prefix: "Stuff"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[]
 

@@ -1,10 +1,14 @@
+type ctxPathType =
+  | Completable of SharedTypes.Completable.contextPath
+  | New of CompletionsNewTypesCtxPath.ctxPath
+
 type item =
   | Constructor of string * Location.t
   | Field of string * Location.t
   | Module of string * Location.t
   | Open of string list
   | Type of string * Location.t
-  | Value of string * Location.t * SharedTypes.Completable.contextPath option
+  | Value of string * Location.t * ctxPathType option
 
 type t = item list
 
@@ -30,10 +34,14 @@ let addValue ~name ~loc ?contextPath x =
   (if showDebug then
    match contextPath with
    | None -> Printf.printf "adding value '%s', no ctxPath\n" name
-   | Some contextPath ->
+   | Some (Completable contextPath) ->
      if showDebug then
        Printf.printf "adding value '%s' with ctxPath: %s\n" name
-         (SharedTypes.Completable.contextPathToString contextPath));
+         (SharedTypes.Completable.contextPathToString contextPath)
+   | Some (New contextPath) ->
+     if showDebug then
+       Printf.printf "adding value '%s' with ctxPath: %s\n" name
+         (CompletionsNewTypesCtxPath.ctxPathToString contextPath));
   Value (name, loc, contextPath) :: x
 let addType ~name ~loc x = Type (name, loc) :: x
 

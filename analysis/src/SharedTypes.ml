@@ -342,6 +342,7 @@ and completionType =
       env: QueryEnv.t;
       args: typedFnArg list;
       typ: Types.type_expr;
+      returnType: Types.type_expr;
       uncurried: bool;
     }
 
@@ -732,7 +733,9 @@ module Completion = struct
     | FileModule of string
     | Snippet of string
     | ExtractedType of completionType * [`Value | `Type]
-    | FollowContextPath of Completable.contextPath
+    | FollowContextPath of
+        [ `Completable of Completable.contextPath
+        | `New of CompletionsNewTypesCtxPath.ctxPath ]
 
   type t = {
     name: string;
