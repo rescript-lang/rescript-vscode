@@ -50,13 +50,13 @@ type someRecord = {nested: option<nestedRecord>, variant: someVariant, someStrin
 // let myFunc: someRecord = {nested: {maybeVariant: {let x = true; if x {}}}, }
 //                                                                     ^co2
 
-// This is the last expression
+// This is the last expression - NOTE: This should work but it's doing a follow
 // let myFunc: someRecord = {nested: {maybeVariant: {let x = true; if x {}}}, }
 //                                                                       ^co2
 
-// Complete as the last expression (looking for the record field type)
-// let myFunc: someRecord = {nested: {maybeVariant: {doStuff(); let x = true; if x {v}}}, }
-//                                                                                   ^co2
+// Complete as the last expression (looking for the record field type) - NOTE: This should work but it's doing a follow
+// let myFunc: someRecord = {nested: {maybeVariant: {doStuff(); let x = true; if x {So}}}, }
+//                                                                                    ^co2
 
 // Complete on the identifier, no context
 // let myFunc: someRecord = {nested: {maybeVariant: {doStuff(); let x = true; if x {v}}}, }

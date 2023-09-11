@@ -506,17 +506,8 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
                    (CId (flattenLidCheckDot ~completionContext fieldName, Value))
                    completionContext
              else
-               completeExpr
-                 ~completionContext:
-                   (CompletionContext.addCtxPathItem
-                      (CRecordFieldFollow
-                         {
-                           fieldName = fieldName.txt |> Longident.last;
-                           recordCtxPath =
-                             ctxPathFromCompletionContext completionContext;
-                         })
-                      completionContext)
-                 fieldExpr)
+               (* TODO: Only follow if we can follow, otherwise set context appropriately. *)
+               completeExpr ~completionContext fieldExpr)
     in
     match fieldToComplete with
     | None -> (
@@ -598,7 +589,12 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
       completeExpr
         ~completionContext:(CompletionContext.resetCtx completionContext)
         condition
-    else if locHasPos then_.pexp_loc then completeExpr ~completionContext then_
+    else if locHasPos then_.pexp_loc then
+      completeExpr
+        ~completionContext:
+          (completionContext
+          |> CompletionContext.setCurrentlyExpecting completionContext.ctxPath)
+        then_
     else
       match maybeElse with
       | Some else_ ->
@@ -615,7 +611,7 @@ and completeExpr ~completionContext (expr : Parsetree.expression) :
         if checkIfExprHoleEmptyCursor ~completionContext then_ then
           let completionContext =
             completionContext
-            |> CompletionContext.addCtxPathItem (CId ([], Value))
+            |> CompletionContext.setCurrentlyExpecting completionContext.ctxPath
           in
           CompletionResult.expression ~completionContext ~prefix:""
         else None)

@@ -286,21 +286,29 @@ Resolved opens 1 pervasives
 
 Complete2 src/CompletionNew.res 53:73
 Scope: 106 items
-Completable: Cexpression: ctxPath: Value(prefix=) 
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-Path 
-[]
-
-Complete2 src/CompletionNew.res 57:85
-Scope: 106 items
-Completable: Cexpression: ctxPath: ((Type(prefix=someRecord))->followRecordField{nested})->followRecordField{maybeVariant} , prefix: "v"
+Completable: Cexpression: ctxPath: ((Type(prefix=someRecord))->followRecordField{nested})->followRecordField{maybeVariant} 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path someRecord
 CRecordFieldFollow: type of field ("nested") to follow: option<nestedRecord>
 CRecordFieldFollow: found type at record ctx path, but it's not a record: option<nestedRecord>
 []
+
+Complete2 src/CompletionNew.res 57:86
+Scope: 106 items
+Completable: Cexpression: ctxPath: ((Type(prefix=someRecord))->followRecordField{nested})->followRecordField{maybeVariant} , prefix: "So"
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path someRecord
+CRecordFieldFollow: type of field ("nested") to follow: option<nestedRecord>
+CRecordFieldFollow: found type at record ctx path, but it's not a record: option<nestedRecord>
+[{
+    "label": "Sort",
+    "kind": 9,
+    "tags": [],
+    "detail": "file module",
+    "documentation": null
+  }]
 
 Complete2 src/CompletionNew.res 61:58
 Scope: 105 items
@@ -328,11 +336,20 @@ CRecordField: found something that's not a record at the record ctx path: (~name
 
 Complete2 src/CompletionNew.res 72:72
 Scope: 109 items
-Completable: Cexpression: ctxPath: Value(prefix=) 
+Completable: Cexpression: ctxPath: Type(prefix=fn) 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
-Path 
-[]
+Path fn
+[{
+    "label": "(~name=?, v1) => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "(~name: string=?, string) => bool",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "(~name=?, ${1:v1}) => {$0}",
+    "insertTextFormat": 2
+  }]
 
 Complete2 src/CompletionNew.res 76:60
 Scope: 108 items
@@ -547,10 +564,10 @@ CTypeAtLoc: found no type at loc
 
 Complete2 src/CompletionNew.res 158:40
 Scope: 107 items
-Completable: Cexpression: ctxPath: Value(prefix=) 
+Completable: Cexpression: ctxPath: CTypeAtLoc: [158:7->158:10] 
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
-Path 
+CTypeAtLoc: found no type at loc
 []
 
 Complete2 src/CompletionNew.res 161:35
