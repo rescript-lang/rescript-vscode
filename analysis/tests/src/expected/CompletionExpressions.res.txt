@@ -1094,3 +1094,22 @@ Path fnTakingAsyncCallback
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionExpressions.res 262:23
+posCursor:[262:23] posNoWhite:[262:22] Found expr:[262:3->262:24]
+Completable: Cexpression CArgument Value[Belt, Array, map]($1)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[Belt, Array, map]($1)
+ContextPath Value[Belt, Array, map]
+Path Belt.Array.map
+[{
+    "label": "v => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "'a => 'b",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:v} => {$0}",
+    "insertTextFormat": 2
+  }]
+
