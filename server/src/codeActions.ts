@@ -152,7 +152,8 @@ export let findCodeActionsInDiagnosticsMessage = ({
     let codeActionEtractors = [
       simpleTypeMismatches,
       didYouMeanAction,
-      addUndefinedRecordFields,
+      addUndefinedRecordFieldsV10,
+      addUndefinedRecordFieldsV11,
       simpleConversion,
       applyUncurried,
       simpleAddMissingCases,
@@ -310,11 +311,107 @@ let wrapInSome: codeActionExtractor = ({
   return false;
 };
 
+let handleUndefinedRecordFieldsAction = ({
+  recordFieldNames,
+  codeActions,
+  file,
+  range,
+  diagnostic,
+}: {
+  recordFieldNames: string[];
+  codeActions: filesCodeActions;
+  file: string;
+  range: p.Range;
+  diagnostic: p.Diagnostic;
+}) => {
+  if (recordFieldNames != null) {
+    codeActions[file] = codeActions[file] || [];
+
+    // The formatter outputs trailing commas automatically if the record
+    // definition is on multiple lines, and no trailing comma if it's on a
+    // single line. We need to adapt to this so we don't accidentally
+    // insert an invalid comma.
+    let multilineRecordDefinitionBody = range.start.line !== range.end.line;
+
+    // Let's build up the text we're going to insert.
+    let newText = "";
+
+    if (multilineRecordDefinitionBody) {
+      // If it's a multiline body, we know it looks like this:
+      // ```
+      // let someRecord = {
+      //   atLeastOneExistingField: string,
+      // }
+      // ```
+      // We can figure out the formatting from the range the code action
+      // gives us. We'll insert to the direct left of the ending brace.
+
+      // The end char is the closing brace, and it's always going to be 2
+      // characters back from the record fields.
+      let paddingCharacters = multilineRecordDefinitionBody
+        ? range.end.character + 2
+        : 0;
+      let paddingContentRecordField = Array.from({
+        length: paddingCharacters,
+      }).join(" ");
+      let paddingContentEndBrace = Array.from({
+        length: range.end.character,
+      }).join(" ");
+
+      recordFieldNames.forEach((fieldName, index) => {
+        if (index === 0) {
+          // This adds spacing from the ending brace up to the equivalent
+          // of the last record field name, needed for the first inserted
+          // record field name.
+          newText += "  ";
+        } else {
+          // The rest of the new record field names will start from a new
+          // line, so they need left padding all the way to the same level
+          // as the rest of the record fields.
+          newText += paddingContentRecordField;
+        }
+
+        newText += `${fieldName}: failwith("TODO"),\n`;
+      });
+
+      // Let's put the end brace back where it was (we still have it to the direct right of us).
+      newText += `${paddingContentEndBrace}`;
+    } else {
+      // A single line record definition body is a bit easier - we'll just add the new fields on the same line.
+      newText += ", ";
+      newText += recordFieldNames
+        .map((fieldName) => `${fieldName}: failwith("TODO")`)
+        .join(", ");
+    }
+
+    let codeAction: p.CodeAction = {
+      title: `Add missing record fields`,
+      edit: {
+        changes: {
+          [file]: insertBeforeEndingChar(range, newText),
+        },
+      },
+      diagnostics: [diagnostic],
+      kind: p.CodeActionKind.QuickFix,
+      isPreferred: true,
+    };
+
+    codeActions[file].push({
+      range,
+      codeAction,
+    });
+
+    return true;
+  }
+
+  return false;
+};
+
 // This action handles when the compiler errors on certain fields of a record
 // being undefined. We then offers an action that inserts all of the record
 // fields, with an `assert false` dummy value. `assert false` is so applying the
 // code action actually compiles.
-let addUndefinedRecordFields: codeActionExtractor = ({
+let addUndefinedRecordFieldsV10: codeActionExtractor = ({
   array,
   codeActions,
   diagnostic,
@@ -335,85 +432,53 @@ let addUndefinedRecordFields: codeActionExtractor = ({
       recordFieldNames.push(...line.trim().split(" "));
     });
 
-    if (recordFieldNames != null) {
-      codeActions[file] = codeActions[file] || [];
+    return handleUndefinedRecordFieldsAction({
+      recordFieldNames,
+      codeActions,
+      diagnostic,
+      file,
+      range,
+    });
+  }
 
-      // The formatter outputs trailing commas automatically if the record
-      // definition is on multiple lines, and no trailing comma if it's on a
-      // single line. We need to adapt to this so we don't accidentally
-      // insert an invalid comma.
-      let multilineRecordDefinitionBody = range.start.line !== range.end.line;
+  return false;
+};
 
-      // Let's build up the text we're going to insert.
-      let newText = "";
+let addUndefinedRecordFieldsV11: codeActionExtractor = ({
+  array,
+  codeActions,
+  diagnostic,
+  file,
+  index,
+  line,
+  range,
+}) => {
+  if (line.startsWith("Some required record fields are missing:")) {
+    let recordFieldNames = line
+      .trim()
+      .split("Some required record fields are missing: ")[1]
+      ?.split(" ");
 
-      if (multilineRecordDefinitionBody) {
-        // If it's a multiline body, we know it looks like this:
-        // ```
-        // let someRecord = {
-        //   atLeastOneExistingField: string,
-        // }
-        // ```
-        // We can figure out the formatting from the range the code action
-        // gives us. We'll insert to the direct left of the ending brace.
+    // This collects the rest of the fields if fields are printed on
+    // multiple lines.
+    let stop = false;
+    array.slice(index + 1).forEach((line) => {
+      if (stop) return;
 
-        // The end char is the closing brace, and it's always going to be 2
-        // characters back from the record fields.
-        let paddingCharacters = multilineRecordDefinitionBody
-          ? range.end.character + 2
-          : 0;
-        let paddingContentRecordField = Array.from({
-          length: paddingCharacters,
-        }).join(" ");
-        let paddingContentEndBrace = Array.from({
-          length: range.end.character,
-        }).join(" ");
+      recordFieldNames.push(...line.trim().split(".")[0].split(" "));
 
-        recordFieldNames.forEach((fieldName, index) => {
-          if (index === 0) {
-            // This adds spacing from the ending brace up to the equivalent
-            // of the last record field name, needed for the first inserted
-            // record field name.
-            newText += "  ";
-          } else {
-            // The rest of the new record field names will start from a new
-            // line, so they need left padding all the way to the same level
-            // as the rest of the record fields.
-            newText += paddingContentRecordField;
-          }
-
-          newText += `${fieldName}: assert false,\n`;
-        });
-
-        // Let's put the end brace back where it was (we still have it to the direct right of us).
-        newText += `${paddingContentEndBrace}`;
-      } else {
-        // A single line record definition body is a bit easier - we'll just add the new fields on the same line.
-        newText += ", ";
-        newText += recordFieldNames
-          .map((fieldName) => `${fieldName}: assert false`)
-          .join(", ");
+      if (line.includes(".")) {
+        stop = true;
       }
+    });
 
-      let codeAction: p.CodeAction = {
-        title: `Add missing record fields`,
-        edit: {
-          changes: {
-            [file]: insertBeforeEndingChar(range, newText),
-          },
-        },
-        diagnostics: [diagnostic],
-        kind: p.CodeActionKind.QuickFix,
-        isPreferred: true,
-      };
-
-      codeActions[file].push({
-        range,
-        codeAction,
-      });
-
-      return true;
-    }
+    return handleUndefinedRecordFieldsAction({
+      recordFieldNames,
+      codeActions,
+      diagnostic,
+      file,
+      range,
+    });
   }
 
   return false;
