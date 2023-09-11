@@ -24,6 +24,7 @@
 
 - Revamp "Insert missing cases" code action to make it apply in more cases and be much more robust. https://github.com/rescript-lang/rescript-vscode/pull/804
 - Make the completion engine understand async/await. https://github.com/rescript-lang/rescript-vscode/pull/813
+- Comments are now automatically closed and indented. https://github.com/rescript-lang/rescript-vscode/pull/815
 
 #### :bug: Bug Fix
 
