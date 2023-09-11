@@ -12,17 +12,22 @@
 
 ## master
 
+## 1.20.0
+
 #### :rocket: New Feature
 
 - Add support for syntax highlighting in `%raw` and `%ffi` extension points. https://github.com/rescript-lang/rescript-vscode/pull/774
 - Add completion to top level decorators. https://github.com/rescript-lang/rescript-vscode/pull/799
 - Add code action for wrapping patterns where option is expected with `Some`. https://github.com/rescript-lang/rescript-vscode/pull/806
 - Better completion from identifiers with inferred types. https://github.com/rescript-lang/rescript-vscode/pull/808
+- Make suggested template functions async when the target function returns a promise. https://github.com/rescript-lang/rescript-vscode/pull/816
+- Fix code action for inserting undefined record fields in ReScript v11. https://github.com/rescript-lang/rescript-vscode/pull/817
 
 #### :nail_care: Polish
 
 - Revamp "Insert missing cases" code action to make it apply in more cases and be much more robust. https://github.com/rescript-lang/rescript-vscode/pull/804
 - Make the completion engine understand async/await. https://github.com/rescript-lang/rescript-vscode/pull/813
+- Comments are now automatically closed and indented. https://github.com/rescript-lang/rescript-vscode/pull/815
 
 #### :bug: Bug Fix
 
@@ -33,6 +38,7 @@
 - Fix signature help in uncurried mode. https://github.com/rescript-lang/rescript-vscode/pull/809
 - Fix various issues in uncurried mode. https://github.com/rescript-lang/rescript-vscode/pull/810
 - Fixes a bug in pattern completion where for example `result` wouldn't complete, due to type variables getting lost/not being instantiated. https://github.com/rescript-lang/rescript-vscode/pull/814
+- Fix bug where pipes would not be considered in certain cases when completing for single unlabelled function arguments. https://github.com/rescript-lang/rescript-vscode/pull/818
 
 ## 1.18.0
 
