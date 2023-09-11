@@ -343,6 +343,7 @@ and completionType =
       args: typedFnArg list;
       typ: Types.type_expr;
       uncurried: bool;
+      returnType: Types.type_expr;
     }
 
 module Env = struct

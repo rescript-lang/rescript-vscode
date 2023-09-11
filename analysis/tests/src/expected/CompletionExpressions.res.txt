@@ -1074,3 +1074,23 @@ Path commitLocalUpdate
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionExpressions.res 257:25
+posCursor:[257:25] posNoWhite:[257:24] Found expr:[257:3->257:26]
+Pexp_apply ...[257:3->257:24] (...[257:25->257:26])
+Completable: Cexpression CArgument Value[fnTakingAsyncCallback]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingAsyncCallback]($0)
+ContextPath Value[fnTakingAsyncCallback]
+Path fnTakingAsyncCallback
+[{
+    "label": "async () => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => promise<unit>",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "async () => {$0}",
+    "insertTextFormat": 2
+  }]
+

@@ -250,3 +250,10 @@ external commitLocalUpdate: (~updater: RecordSourceSelectorProxy.t => unit) => u
 
 // commitLocalUpdate(~updater=)
 //                            ^com
+
+let fnTakingAsyncCallback = (cb: unit => promise<unit>) => {
+  let _ = cb
+}
+
+// fnTakingAsyncCallback()
+//                       ^com

@@ -1382,8 +1382,8 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
           ~env ();
       ]
     else []
-  | Tfunction {env; typ; args; uncurried} when prefix = "" && mode = Expression
-    ->
+  | Tfunction {env; typ; args; uncurried; returnType}
+    when prefix = "" && mode = Expression ->
     let shouldPrintAsUncurried = uncurried && !Config.uncurried <> Uncurried in
     let mkFnArgs ~asSnippet =
       match args with
@@ -1419,11 +1419,18 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
         in
         "(" ^ if shouldPrintAsUncurried then ". " else "" ^ argsText ^ ")"
     in
+    let isAsync =
+      match TypeUtils.extractType ~env ~package:full.package returnType with
+      | Some (Tpromise _) -> true
+      | _ -> false
+    in
+    let asyncPrefix = if isAsync then "async " else "" in
     [
       Completion.createWithSnippet
-        ~name:(mkFnArgs ~asSnippet:false ^ " => {}")
+        ~name:(asyncPrefix ^ mkFnArgs ~asSnippet:false ^ " => {}")
         ~insertText:
-          (mkFnArgs ~asSnippet:!Cfg.supportsSnippets
+          (asyncPrefix
+          ^ mkFnArgs ~asSnippet:!Cfg.supportsSnippets
           ^ " => "
           ^ if !Cfg.supportsSnippets then "{$0}" else "{}")
         ~sortText:"A" ~kind:(Value typ) ~env ();
