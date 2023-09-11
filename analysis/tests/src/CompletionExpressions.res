@@ -257,3 +257,8 @@ let fnTakingAsyncCallback = (cb: unit => promise<unit>) => {
 
 // fnTakingAsyncCallback()
 //                       ^com
+
+let arr = ["hello"]
+
+// arr->Belt.Array.map()
+//                     ^com

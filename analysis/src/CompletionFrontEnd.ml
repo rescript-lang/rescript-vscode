@@ -129,7 +129,9 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
              CArgument
                {
                  functionContextPath = contextPath;
-                 argumentLabel = Unlabelled {argumentPosition = 0};
+                 argumentLabel =
+                   Unlabelled
+                     {argumentPosition = (if isPipedExpr then 1 else 0)};
                };
            prefix = "";
            nested = [];
