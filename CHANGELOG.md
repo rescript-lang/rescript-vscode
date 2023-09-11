@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.20.0
+
 #### :rocket: New Feature
 
 - Add support for syntax highlighting in `%raw` and `%ffi` extension points. https://github.com/rescript-lang/rescript-vscode/pull/774
