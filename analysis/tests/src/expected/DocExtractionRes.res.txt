@@ -41,6 +41,7 @@ extracting docs for src/DocExtractionRes.res
   }, 
   {
     "id": "SomeInnerModule.DocExtractionRes",
+    "name": "SomeInnerModule",
     "kind": "module",
     "item": 
     {
@@ -92,6 +93,7 @@ extracting docs for src/DocExtractionRes.res
   }, 
   {
     "id": "AnotherModule.DocExtractionRes",
+    "name": "AnotherModule",
     "kind": "module",
     "item": 
     {
@@ -101,6 +103,7 @@ extracting docs for src/DocExtractionRes.res
       {
         "id": "DocExtractionRes.AnotherModule.SomeInnerModule",
         "kind": "moduleAlias",
+        "name": "LinkedModule",
         "docstrings": ["This links another module. Neat."],
         "signature": "module LinkedModule = SomeInnerModule"
       }, 
@@ -146,6 +149,7 @@ extracting docs for src/DocExtractionRes.res
   }, 
   {
     "id": "ModuleWithThingsThatShouldNotBeExported.DocExtractionRes",
+    "name": "ModuleWithThingsThatShouldNotBeExported",
     "kind": "module",
     "item": 
     {
