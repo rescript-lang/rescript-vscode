@@ -22,6 +22,7 @@ preferring found resi file for impl: src/DocExtraction2.resi
   }, 
   {
     "id": "InnerModule.DocExtraction2",
+    "name": "InnerModule",
     "kind": "module",
     "item": 
     {

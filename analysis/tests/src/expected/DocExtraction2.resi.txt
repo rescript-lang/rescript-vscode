@@ -21,6 +21,7 @@ extracting docs for src/DocExtraction2.resi
   }, 
   {
     "id": "InnerModule.DocExtraction2",
+    "name": "InnerModule",
     "kind": "module",
     "item": 
     {
