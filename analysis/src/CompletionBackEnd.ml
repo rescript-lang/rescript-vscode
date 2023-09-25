@@ -373,6 +373,26 @@ let getItemsFromOpens ~opens ~localTables ~prefix ~exact ~completionContext =
          completionsFromThisOpen @ results)
        []
 
+let builtinTypes =
+  [
+    ("string", "string");
+    ("int", "int");
+    ("float", "float");
+    ("bool", "bool");
+    ("option", "option<${1:_}>");
+    ("array", "array<${1:_}>");
+    ("promise", "promise<${1:_}>");
+    ("result", "result<${1:_}, ${2:_}>");
+  ]
+
+let getTypesFromBuiltins ~env ~prefix ~exact =
+  builtinTypes
+  |> List.filter (fun (typeName, _) ->
+         if exact then typeName == prefix else Utils.startsWith typeName prefix)
+  |> List.map (fun (typeName, template) ->
+         Completion.createWithSnippet ~name:typeName ~insertText:template ~env
+           ~kind:(Completion.Label typeName) ())
+
 let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
     ~env ~prefix ~exact ~opens ~scope =
   localTables |> LocalTables.populateValues ~env;
@@ -442,6 +462,7 @@ let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
   let valuesFromOpens =
     getItemsFromOpens ~opens ~localTables ~prefix ~exact ~completionContext:Type
   in
+  let typesFromBuiltins = getTypesFromBuiltins ~env ~prefix ~exact in
 
   scope
   |> Scope.iterTypesAfterFirstOpen
@@ -449,7 +470,7 @@ let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
   scope
   |> Scope.iterModulesAfterFirstOpen
        (processLocalModule ~prefix ~exact ~env ~localTables);
-  List.rev_append localTables.resultRev valuesFromOpens
+  List.rev_append localTables.resultRev (valuesFromOpens @ typesFromBuiltins)
 
 let findLocalCompletionsForModules ~(localTables : LocalTables.t) ~env ~prefix
     ~exact ~opens ~scope =
@@ -745,6 +766,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     | Some (Tpromise (env, typ), _env) ->
       [Completion.create "dummy" ~env ~kind:(Completion.Value typ)]
     | _ -> [])
+  | CPId ([], Type) -> getTypesFromBuiltins ~env ~prefix:"" ~exact
   | CPId (path, completionContext) ->
     path
     |> getCompletionsForPath ~debug ~package ~opens ~full ~pos ~exact

@@ -216,3 +216,8 @@ let rec lastElements list =
 let lowercaseFirstChar s =
   if String.length s = 0 then s
   else String.mapi (fun i c -> if i = 0 then Char.lowercase_ascii c else c) s
+
+let isTypeHole typ =
+  match typ.Parsetree.ptyp_desc with
+  | Ptyp_extension ({txt = "rescript.typehole"}, _) -> true
+  | _ -> false

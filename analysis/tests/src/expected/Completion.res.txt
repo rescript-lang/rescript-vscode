@@ -1323,6 +1323,14 @@ Path s
     "tags": [],
     "detail": "type someLocalVariant = SomeLocalVariantItem",
     "documentation": null
+  }, {
+    "label": "string",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "insertText": "string",
+    "insertTextFormat": 2
   }]
 
 Complete src/Completion.res 291:30
@@ -1950,8 +1958,8 @@ Path red
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->465:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->465:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->471:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->471:0])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
@@ -2203,6 +2211,99 @@ Path withUncurried
     "documentation": null,
     "sortText": "A",
     "insertText": "(. ${1:v}) => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/Completion.res 465:19
+XXX Not found!
+Completable: Cpath Type[]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 3 Completion.res Completion.res pervasives
+ContextPath Type[]
+[{
+    "label": "string",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "insertText": "string",
+    "insertTextFormat": 2
+  }, {
+    "label": "int",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null,
+    "insertText": "int",
+    "insertTextFormat": 2
+  }, {
+    "label": "float",
+    "kind": 4,
+    "tags": [],
+    "detail": "float",
+    "documentation": null,
+    "insertText": "float",
+    "insertTextFormat": 2
+  }, {
+    "label": "bool",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "bool",
+    "insertTextFormat": 2
+  }, {
+    "label": "option",
+    "kind": 4,
+    "tags": [],
+    "detail": "option",
+    "documentation": null,
+    "insertText": "option<${1:_}>",
+    "insertTextFormat": 2
+  }, {
+    "label": "array",
+    "kind": 4,
+    "tags": [],
+    "detail": "array",
+    "documentation": null,
+    "insertText": "array<${1:_}>",
+    "insertTextFormat": 2
+  }, {
+    "label": "promise",
+    "kind": 4,
+    "tags": [],
+    "detail": "promise",
+    "documentation": null,
+    "insertText": "promise<${1:_}>",
+    "insertTextFormat": 2
+  }, {
+    "label": "result",
+    "kind": 4,
+    "tags": [],
+    "detail": "result",
+    "documentation": null,
+    "insertText": "result<${1:_}, ${2:_}>",
+    "insertTextFormat": 2
+  }]
+
+Complete src/Completion.res 468:22
+posCursor:[468:22] posNoWhite:[468:21] Found expr:[468:12->468:22]
+posCursor:[468:22] posNoWhite:[468:21] Found type:[468:19->468:22]
+Ptyp_constr boo:[468:19->468:22]
+Completable: Cpath Type[boo]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 3 Completion.res Completion.res pervasives
+ContextPath Type[boo]
+Path boo
+[{
+    "label": "bool",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "insertText": "bool",
     "insertTextFormat": 2
   }]
 

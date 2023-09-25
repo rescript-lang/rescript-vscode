@@ -462,3 +462,9 @@ type withUncurried = {
 
 // let f: withUncurried = {fn: }
 //                            ^com
+
+// let a = (fff :> )
+//                 ^com
+
+// let a = (fff :> boo)
+//                    ^com

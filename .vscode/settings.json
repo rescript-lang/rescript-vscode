@@ -1,13 +1,13 @@
 {
-	"editor.insertSpaces": false,
-	"tslint.enable": true,
-	"typescript.tsc.autoDetect": "off",
-	"typescript.preferences.quoteStyle": "single",
-	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": true
-	},
-	"ocaml.sandbox": {
-		"kind": "opam",
-		"switch": "${workspaceFolder:rescript-vscode}/analysis"
-	}
+  "editor.insertSpaces": false,
+  "tslint.enable": true,
+  "typescript.tsc.autoDetect": "off",
+  "typescript.preferences.quoteStyle": "single",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "ocaml.sandbox": {
+    "kind": "opam",
+    "switch": "4.14.0"
+  }
 }

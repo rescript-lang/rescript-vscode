@@ -819,6 +819,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
     in
     typedCompletionExpr expr;
     match expr.pexp_desc with
+    | Pexp_coerce (_e, _, typ)
+      when expr.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor
+           && Utils.isTypeHole typ ->
+      setResult (Cpath (CPId ([], Type)))
     | Pexp_match (expr, cases) when cases <> [] ->
       let ctxPath = exprToContextPath expr in
       let oldCtxPath = !currentCtxPath in
