@@ -260,3 +260,6 @@ let coolVariant = CoolVariant
 
 // switch x { | {someField} => someField }
 //                               ^hov
+
+module Arr = Belt.Array
+//      ^hov
