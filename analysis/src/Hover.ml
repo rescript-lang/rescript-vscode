@@ -27,7 +27,7 @@ let showModuleTopLevel ~docstring ~isType ~name (topLevel : Module.item list) =
   in
   Some (doc ^ full)
 
-let rec showModule ~docstring ~(file : File.t) ~name
+let rec showModule ~docstring ~(file : File.t) ~package ~name
     (declared : Module.t Declared.t option) =
   match declared with
   | None ->
@@ -41,10 +41,12 @@ let rec showModule ~docstring ~(file : File.t) ~name
     showModuleTopLevel ~docstring ~isType ~name items
   | Some ({item = Constraint (_moduleItem, moduleTypeItem)} as declared) ->
     (* show the interface *)
-    showModule ~docstring ~file ~name
+    showModule ~docstring ~file ~name ~package
       (Some {declared with item = moduleTypeItem})
-  | Some {item = Ident path} ->
-    Some ("Unable to resolve module reference " ^ Path.name path)
+  | Some ({item = Ident path} as declared) -> (
+    match References.resolveModuleReference ~file ~package declared with
+    | None -> Some ("Unable to resolve module reference " ^ Path.name path)
+    | Some (_, declared) -> showModule ~docstring ~file ~name ~package declared)
 
 type extractedType = {
   name: string;
@@ -179,7 +181,7 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
           | Some d -> (d.name.txt, d.docstring)
           | None -> (file.moduleName, file.structure.docstring)
         in
-        showModule ~docstring ~name ~file declared))
+        showModule ~docstring ~name ~file declared ~package))
   | LModule (GlobalReference (moduleName, path, tip)) -> (
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
@@ -199,14 +201,14 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
               | Some d -> (d.name.txt, d.docstring)
               | None -> (file.moduleName, file.structure.docstring)
             in
-            showModule ~docstring ~name ~file declared))))
+            showModule ~docstring ~name ~file ~package declared))))
   | LModule NotFound -> None
   | TopLevelModule name -> (
     match ProcessCmt.fileForModule ~package name with
     | None -> None
     | Some file ->
       showModule ~docstring:file.structure.docstring ~name:file.moduleName ~file
-        None)
+        ~package None)
   | Typed (_, _, Definition (_, (Field _ | Constructor _))) -> None
   | Constant t ->
     Some
