@@ -158,8 +158,10 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("kind", Some (wrapInQuotes "module"));
         ( "items",
           Some
-            (stringifyDocsForModule ~originalEnv ~indentation:(indentation + 1)
-               m) );
+            (m.items
+            |> List.map
+                 (stringifyDocItem ~originalEnv ~indentation:(indentation + 1))
+            |> array) );
       ]
   | ModuleAlias m ->
     stringifyObject ~startOnNewline:true ~indentation
