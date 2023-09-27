@@ -122,13 +122,19 @@ module Module = struct
     | Type of Type.t * Types.rec_status
     | Module of t
 
-  and item = {kind: kind; name: string; docstring: string list}
+  and item = {
+    kind: kind;
+    name: string;
+    docstring: string list;
+    deprecated: string option;
+  }
 
   and structure = {
     name: string;
     docstring: string list;
     exported: Exported.t;
     items: item list;
+    deprecated: string option
   }
 
   and t = Ident of Path.t | Structure of structure | Constraint of t * t
@@ -253,6 +259,7 @@ module File = struct
           docstring = [];
           exported = Exported.init ();
           items = [];
+          deprecated = None
         };
     }
 end

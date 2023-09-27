@@ -16,10 +16,12 @@ extracting docs for src/DocExtractionRes.res
       "kind": "record",
       "fieldDocs": [{
         "fieldName": "name",
+        "optional": false,
         "docstrings": ["The name of the stuff."],
         "signature": "string"
       }, {
         "fieldName": "online",
+        "optional": false,
         "docstrings": ["Whether stuff is online."],
         "signature": "bool"
       }]
@@ -41,132 +43,121 @@ extracting docs for src/DocExtractionRes.res
   }, 
   {
     "id": "SomeInnerModule.DocExtractionRes",
+    "name": "SomeInnerModule",
     "kind": "module",
-    "item": 
+    "items": [
     {
-      "name": "SomeInnerModule",
-      "docstrings": ["Another module level docstring here."],
-      "items": [
+      "id": "DocExtractionRes.SomeInnerModule.status",
+      "kind": "type",
+      "name": "status",
+      "signature": "type status = Started(t) | Stopped | Idle",
+      "docstrings": [],
+      "detail": 
       {
-        "id": "DocExtractionRes.SomeInnerModule.status",
-        "kind": "type",
-        "name": "status",
-        "signature": "type status = Started(t) | Stopped | Idle",
-        "docstrings": [],
-        "detail": 
+        "kind": "variant",
+        "constructorDocs": [
         {
-          "kind": "variant",
-          "constructorDocs": [
-          {
-            "constructorName": "Started",
-            "docstrings": ["If this is started or not"],
-            "signature": "Started(t)"
-          }, 
-          {
-            "constructorName": "Stopped",
-            "docstrings": ["Stopped?"],
-            "signature": "Stopped"
-          }, 
-          {
-            "constructorName": "Idle",
-            "docstrings": ["Now idle."],
-            "signature": "Idle"
-          }]
-        }
-      }, 
-      {
-        "id": "DocExtractionRes.SomeInnerModule.validInputs",
-        "kind": "type",
-        "name": "validInputs",
-        "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #status(status)\\n  | #withPayload(int)\\n]",
-        "docstrings": ["These are all the valid inputs."]
-      }, 
-      {
-        "id": "DocExtractionRes.SomeInnerModule.callback",
-        "kind": "type",
-        "name": "callback",
-        "signature": "type callback = (t, ~status: status) => unit",
-        "docstrings": []
-      }]
-    }
+          "constructorName": "Started",
+          "docstrings": ["If this is started or not"],
+          "signature": "Started(t)"
+        }, 
+        {
+          "constructorName": "Stopped",
+          "docstrings": ["Stopped?"],
+          "signature": "Stopped"
+        }, 
+        {
+          "constructorName": "Idle",
+          "docstrings": ["Now idle."],
+          "signature": "Idle"
+        }]
+      }
+    }, 
+    {
+      "id": "DocExtractionRes.SomeInnerModule.validInputs",
+      "kind": "type",
+      "name": "validInputs",
+      "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #status(status)\\n  | #withPayload(int)\\n]",
+      "docstrings": ["These are all the valid inputs."]
+    }, 
+    {
+      "id": "DocExtractionRes.SomeInnerModule.callback",
+      "kind": "type",
+      "name": "callback",
+      "signature": "type callback = (t, ~status: status) => unit",
+      "docstrings": []
+    }]
   }, 
   {
     "id": "AnotherModule.DocExtractionRes",
+    "name": "AnotherModule",
     "kind": "module",
-    "item": 
+    "items": [
     {
-      "name": "AnotherModule",
-      "docstrings": ["Mighty fine module here too!"],
-      "items": [
+      "id": "DocExtractionRes.AnotherModule.SomeInnerModule",
+      "kind": "moduleAlias",
+      "name": "LinkedModule",
+      "docstrings": ["This links another module. Neat."],
+      "signature": "module LinkedModule = SomeInnerModule"
+    }, 
+    {
+      "id": "DocExtractionRes.AnotherModule.callback",
+      "kind": "type",
+      "name": "callback",
+      "signature": "type callback = SomeInnerModule.status => unit",
+      "docstrings": ["Testing what this looks like."]
+    }, 
+    {
+      "id": "DocExtractionRes.AnotherModule.isGoodStatus",
+      "kind": "value",
+      "name": "isGoodStatus",
+      "signature": "let isGoodStatus: SomeInnerModule.status => bool",
+      "docstrings": []
+    }, 
+    {
+      "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
+      "kind": "type",
+      "name": "someVariantWithInlineRecords",
+      "signature": "type someVariantWithInlineRecords = SomeStuff({offline: bool})",
+      "docstrings": ["Trying how it looks with an inline record in a variant."],
+      "detail": 
       {
-        "id": "DocExtractionRes.AnotherModule.SomeInnerModule",
-        "kind": "moduleAlias",
-        "docstrings": ["This links another module. Neat."],
-        "signature": "module LinkedModule = SomeInnerModule"
-      }, 
-      {
-        "id": "DocExtractionRes.AnotherModule.callback",
-        "kind": "type",
-        "name": "callback",
-        "signature": "type callback = SomeInnerModule.status => unit",
-        "docstrings": ["Testing what this looks like."]
-      }, 
-      {
-        "id": "DocExtractionRes.AnotherModule.isGoodStatus",
-        "kind": "value",
-        "name": "isGoodStatus",
-        "signature": "let isGoodStatus: SomeInnerModule.status => bool",
-        "docstrings": []
-      }, 
-      {
-        "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
-        "kind": "type",
-        "name": "someVariantWithInlineRecords",
-        "signature": "type someVariantWithInlineRecords = SomeStuff({offline: bool})",
-        "docstrings": ["Trying how it looks with an inline record in a variant."],
-        "detail": 
+        "kind": "variant",
+        "constructorDocs": [
         {
-          "kind": "variant",
-          "constructorDocs": [
-          {
-            "constructorName": "SomeStuff",
-            "docstrings": ["This has inline records..."],
-            "signature": "SomeStuff"
-          }]
-        }
-      }, 
-      {
-        "id": "DocExtractionRes.AnotherModule.domRoot",
-        "kind": "type",
-        "name": "domRoot",
-        "signature": "type domRoot = unit => ReactDOM.Client.Root.t",
-        "docstrings": ["Callback to get the DOM root..."]
-      }]
-    }
+          "constructorName": "SomeStuff",
+          "docstrings": ["This has inline records..."],
+          "signature": "SomeStuff"
+        }]
+      }
+    }, 
+    {
+      "id": "DocExtractionRes.AnotherModule.domRoot",
+      "kind": "type",
+      "name": "domRoot",
+      "signature": "type domRoot = unit => ReactDOM.Client.Root.t",
+      "docstrings": ["Callback to get the DOM root..."]
+    }]
   }, 
   {
     "id": "ModuleWithThingsThatShouldNotBeExported.DocExtractionRes",
+    "name": "ModuleWithThingsThatShouldNotBeExported",
     "kind": "module",
-    "item": 
+    "items": [
     {
-      "name": "ModuleWithThingsThatShouldNotBeExported",
-      "docstrings": [],
-      "items": [
-      {
-        "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.t",
-        "kind": "type",
-        "name": "t",
-        "signature": "type t",
-        "docstrings": ["The type t is stuff."]
-      }, 
-      {
-        "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.make",
-        "kind": "value",
-        "name": "make",
-        "signature": "let make: unit => t",
-        "docstrings": ["The maker of stuff!"]
-      }]
-    }
+      "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.t",
+      "kind": "type",
+      "name": "t",
+      "signature": "type t",
+      "docstrings": ["The type t is stuff."]
+    }, 
+    {
+      "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.make",
+      "kind": "value",
+      "name": "make",
+      "signature": "let make: unit => t",
+      "docstrings": ["The maker of stuff!"]
+    }]
   }]
 }
 

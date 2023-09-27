@@ -1,9 +1,16 @@
-type fieldDoc = {fieldName: string; docstrings: string list; signature: string}
+type fieldDoc = {
+  fieldName: string;
+  docstrings: string list;
+  signature: string;
+  optional: bool;
+  deprecated: string option;
+}
 
 type constructorDoc = {
   constructorName: string;
   docstrings: string list;
   signature: string;
+  deprecated: string option;
 }
 
 type docItemDetail =
@@ -15,12 +22,14 @@ type docItem =
       docstring: string list;
       signature: string;
       name: string;
+      deprecated: string option;
     }
   | Type of {
       id: string;
       docstring: string list;
       signature: string;
       name: string;
+      deprecated: string option;
       detail: docItemDetail option;
           (** Additional documentation for constructors and record fields, if available. *)
     }
@@ -34,6 +43,7 @@ type docItem =
 and docsForModule = {
   id: string;
   docstring: string list;
+  deprecated: string option;
   name: string;
   items: docItem list;
 }
@@ -67,6 +77,11 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                    stringifyObject ~indentation:(indentation + 1)
                      [
                        ("fieldName", Some (wrapInQuotes fieldDoc.fieldName));
+                       ( "deprecated",
+                         match fieldDoc.deprecated with
+                         | Some d -> Some (wrapInQuotes d)
+                         | None -> None );
+                       ("optional", Some (string_of_bool fieldDoc.optional));
                        ( "docstrings",
                          Some (stringifyDocstrings fieldDoc.docstrings) );
                        ("signature", Some (wrapInQuotes fieldDoc.signature));
@@ -86,6 +101,10 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                      [
                        ( "constructorName",
                          Some (wrapInQuotes constructorDoc.constructorName) );
+                       ( "deprecated",
+                         match constructorDoc.deprecated with
+                         | Some d -> Some (wrapInQuotes d)
+                         | None -> None );
                        ( "docstrings",
                          Some (stringifyDocstrings constructorDoc.docstrings) );
                        ( "signature",
@@ -97,22 +116,30 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
 let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
   let open Protocol in
   match item with
-  | Value {id; docstring; signature; name} ->
+  | Value {id; docstring; signature; name; deprecated} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes id));
         ("kind", Some (wrapInQuotes "value"));
         ("name", Some (name |> Json.escape |> wrapInQuotes));
+        ( "deprecated",
+          match deprecated with
+          | Some d -> Some (wrapInQuotes d)
+          | None -> None );
         ( "signature",
           Some (signature |> String.trim |> Json.escape |> wrapInQuotes) );
         ("docstrings", Some (stringifyDocstrings docstring));
       ]
-  | Type {id; docstring; signature; name; detail} ->
+  | Type {id; docstring; signature; name; deprecated; detail} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes id));
         ("kind", Some (wrapInQuotes "type"));
         ("name", Some (name |> Json.escape |> wrapInQuotes));
+        ( "deprecated",
+          match deprecated with
+          | Some d -> Some (wrapInQuotes d)
+          | None -> None );
         ("signature", Some (signature |> Json.escape |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
         ( "detail",
@@ -125,11 +152,14 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes m.id));
+        ("name", Some (wrapInQuotes m.name));
         ("kind", Some (wrapInQuotes "module"));
-        ( "item",
+        ( "items",
           Some
-            (stringifyDocsForModule ~originalEnv ~indentation:(indentation + 1)
-               m) );
+            (m.items
+            |> List.map
+                 (stringifyDocItem ~originalEnv ~indentation:(indentation + 1))
+            |> array) );
       ]
   | ModuleAlias m ->
     stringifyObject ~startOnNewline:true ~indentation
@@ -137,6 +167,7 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("id", Some (wrapInQuotes m.id));
         ("name", Some (wrapInQuotes m.name));
         ("kind", Some (wrapInQuotes "moduleAlias"));
+        ("name", Some (wrapInQuotes m.name));
         ("docstrings", Some (stringifyDocstrings m.docstring));
         ( "items",
           Some
@@ -151,6 +182,10 @@ and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
   stringifyObject ~startOnNewline:true ~indentation
     [
       ("name", Some (wrapInQuotes d.name));
+      ( "deprecated",
+        match d.deprecated with
+        | Some d -> Some (wrapInQuotes d)
+        | None -> None );
       ("docstrings", Some (stringifyDocstrings d.docstring));
       ( "items",
         Some
@@ -173,7 +208,9 @@ let typeDetail typ ~env ~full =
                     {
                       fieldName = field.fname.txt;
                       docstrings = field.docstring;
+                      optional = field.optional;
                       signature = Shared.typeToString field.typ;
+                      deprecated = field.deprecated;
                     });
          })
   | Some (Tvariant {constructors}) ->
@@ -187,6 +224,7 @@ let typeDetail typ ~env ~full =
                       constructorName = c.cname.txt;
                       docstrings = c.docstring;
                       signature = CompletionBackEnd.showConstructor c;
+                      deprecated = c.deprecated;
                     });
          })
   | _ -> None
@@ -229,6 +267,7 @@ let extractDocs ~path ~debug =
         id = modulePath |> ident;
         docstring = structure.docstring |> List.map String.trim;
         name = structure.name;
+        deprecated = structure.deprecated;
         items =
           structure.items
           |> List.filter_map (fun (item : Module.item) ->
@@ -243,6 +282,7 @@ let extractDocs ~path ~debug =
                             "let " ^ item.name ^ ": " ^ Shared.typeToString typ
                             |> formatCode;
                           name = item.name;
+                          deprecated = item.deprecated;
                         })
                  | Type (typ, _) ->
                    Some
@@ -255,6 +295,7 @@ let extractDocs ~path ~debug =
                             |> Shared.declToString item.name
                             |> formatCode;
                           name = item.name;
+                          deprecated = item.deprecated;
                           detail = typeDetail typ ~full ~env;
                         })
                  | Module (Ident p) ->

@@ -59,6 +59,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         Module.kind = Module.Value declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
+        deprecated = declared.deprecated;
       };
     ]
   | Sig_type
@@ -132,6 +133,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         Module.kind = Type (declared.item, recStatus);
         name = declared.name.txt;
         docstring = declared.docstring;
+        deprecated = declared.deprecated;
       };
     ]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
@@ -149,6 +151,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         Module.kind = Module declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
+        deprecated = declared.deprecated;
       };
     ]
   | _ -> []
@@ -160,7 +163,7 @@ and forTypeSignature ~name ~env signature =
       (fun item items -> forTypeSignatureItem ~env ~exported item @ items)
       signature []
   in
-  {Module.name; docstring = []; exported; items}
+  {Module.name; docstring = []; exported; items; deprecated = None}
 
 and forTypeModule ~name ~env moduleType =
   match moduleType with
@@ -312,6 +315,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
     Module.kind = Module.Type (declared.item, recStatus);
     name = declared.name.txt;
     docstring = declared.docstring;
+    deprecated = declared.deprecated;
   }
 
 let rec forSignatureItem ~env ~(exported : Exported.t)
@@ -330,6 +334,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         Module.kind = Module.Value declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
+        deprecated = declared.deprecated;
       };
     ]
   | Tsig_type (recFlag, decls) ->
@@ -360,6 +365,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         Module.kind = Module declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
+        deprecated = declared.deprecated;
       };
     ]
   | Tsig_recmodule modDecls ->
@@ -395,7 +401,8 @@ let forSignature ~name ~env sigItems =
     | _ -> []
   in
   let docstring = attrsToDocstring attributes in
-  {Module.name; docstring; exported; items}
+  let deprecated = ProcessAttributes.findDeprecatedAttribute attributes in
+  {Module.name; docstring; exported; items; deprecated}
 
 let forTreeModuleType ~name ~env {Typedtree.mty_desc} =
   match mty_desc with
@@ -435,6 +442,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
             Module.kind = Module.Value declared.item;
             name = declared.name.txt;
             docstring = declared.docstring;
+            deprecated = declared.deprecated;
           }
           :: !items
       | Tpat_tuple pats | Tpat_array pats | Tpat_construct (_, _, pats) ->
@@ -469,6 +477,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         Module.kind = Module declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
+        deprecated = declared.deprecated;
       };
     ]
   | Tstr_recmodule modDecls ->
@@ -499,6 +508,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         Module.kind = Module modTypeItem;
         name = declared.name.txt;
         docstring = declared.docstring;
+        deprecated = declared.deprecated;
       };
     ]
   | Tstr_include {incl_mod; incl_type} ->
@@ -527,6 +537,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         Module.kind = Value declared.item;
         name = declared.name.txt;
         docstring = declared.docstring;
+        deprecated = declared.deprecated;
       };
     ]
   | Tstr_type (recFlag, decls) ->
@@ -587,7 +598,8 @@ and forStructure ~name ~env strItems =
     | _ -> []
   in
   let docstring = attrsToDocstring attributes in
-  {Module.name; docstring; exported; items}
+  let deprecated = ProcessAttributes.findDeprecatedAttribute attributes in
+  {Module.name; docstring; exported; items; deprecated}
 
 let fileForCmtInfos ~moduleName ~uri
     ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =

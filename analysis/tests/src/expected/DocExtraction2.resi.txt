@@ -21,27 +21,23 @@ extracting docs for src/DocExtraction2.resi
   }, 
   {
     "id": "InnerModule.DocExtraction2",
+    "name": "InnerModule",
     "kind": "module",
-    "item": 
+    "items": [
     {
-      "name": "InnerModule",
-      "docstrings": [],
-      "items": [
-      {
-        "id": "DocExtraction2.InnerModule.t",
-        "kind": "type",
-        "name": "t",
-        "signature": "type t",
-        "docstrings": ["This type is also t."]
-      }, 
-      {
-        "id": "DocExtraction2.InnerModule.make",
-        "kind": "value",
-        "name": "make",
-        "signature": "let make: unit => t",
-        "docstrings": ["Maker of tea."]
-      }]
-    }
+      "id": "DocExtraction2.InnerModule.t",
+      "kind": "type",
+      "name": "t",
+      "signature": "type t",
+      "docstrings": ["This type is also t."]
+    }, 
+    {
+      "id": "DocExtraction2.InnerModule.make",
+      "kind": "value",
+      "name": "make",
+      "signature": "let make: unit => t",
+      "docstrings": ["Maker of tea."]
+    }]
   }]
 }
 
