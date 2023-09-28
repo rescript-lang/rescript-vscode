@@ -229,8 +229,6 @@ let typeDetail typ ~env ~full =
          })
   | _ -> None
 
-exception Invalid_file_type
-
 let makeId modulePath ~identifier =
   identifier :: modulePath |> List.rev |> SharedTypes.ident
 
@@ -239,7 +237,10 @@ let extractDocs ~path ~debug =
   if
     FindFiles.isImplementation path = false
     && FindFiles.isInterface path = false
-  then raise Invalid_file_type;
+  then (
+    Printf.printf "error: failed to read %s, expected an .res or .resi file\n"
+      path;
+    exit 1);
   let path =
     if FindFiles.isImplementation path then
       let pathAsResi =
@@ -255,7 +256,10 @@ let extractDocs ~path ~debug =
     else path
   in
   match Cmt.loadFullCmtFromPath ~path with
-  | None -> ()
+  | None ->
+    Printf.printf
+      "error: failed to generate doc for %s, try to build the project\n" path;
+    exit 1
   | Some full ->
     let file = full.file in
     let structure = file.structure in
