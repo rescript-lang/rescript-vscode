@@ -70,13 +70,13 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("kind", Some (wrapInQuotes "record"));
-        ( "fieldDocs",
+        ( "items",
           Some
             (fieldDocs
             |> List.map (fun fieldDoc ->
                    stringifyObject ~indentation:(indentation + 1)
                      [
-                       ("fieldName", Some (wrapInQuotes fieldDoc.fieldName));
+                       ("name", Some (wrapInQuotes fieldDoc.fieldName));
                        ( "deprecated",
                          match fieldDoc.deprecated with
                          | Some d -> Some (wrapInQuotes d)
@@ -92,14 +92,14 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("kind", Some (wrapInQuotes "variant"));
-        ( "constructorDocs",
+        ( "items",
           Some
             (constructorDocs
             |> List.map (fun constructorDoc ->
                    stringifyObject ~startOnNewline:true
                      ~indentation:(indentation + 1)
                      [
-                       ( "constructorName",
+                       ( "name",
                          Some (wrapInQuotes constructorDoc.constructorName) );
                        ( "deprecated",
                          match constructorDoc.deprecated with
