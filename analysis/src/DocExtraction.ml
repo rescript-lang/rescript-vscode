@@ -165,7 +165,6 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes m.id));
-        ("name", Some (wrapInQuotes m.name));
         ("kind", Some (wrapInQuotes "moduleAlias"));
         ("name", Some (wrapInQuotes m.name));
         ("docstrings", Some (stringifyDocstrings m.docstring));
