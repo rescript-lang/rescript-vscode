@@ -267,7 +267,7 @@ let extractDocs ~path ~debug =
     let rec extractDocsForModule ?(modulePath = [env.file.moduleName])
         (structure : Module.structure) =
       {
-        id = modulePath |> ident;
+        id = modulePath |> List.rev |> ident;
         docstring = structure.docstring |> List.map String.trim;
         name = structure.name;
         deprecated = structure.deprecated;
