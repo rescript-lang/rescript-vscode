@@ -42,7 +42,7 @@ extracting docs for src/DocExtractionRes.res
     "docstrings": ["Stuff goes offline."]
   }, 
   {
-    "id": "SomeInnerModule.DocExtractionRes",
+    "id": "DocExtractionRes.SomeInnerModule",
     "name": "SomeInnerModule",
     "kind": "module",
     "items": [
@@ -89,7 +89,7 @@ extracting docs for src/DocExtractionRes.res
     }]
   }, 
   {
-    "id": "AnotherModule.DocExtractionRes",
+    "id": "DocExtractionRes.AnotherModule",
     "name": "AnotherModule",
     "kind": "module",
     "items": [
@@ -140,7 +140,7 @@ extracting docs for src/DocExtractionRes.res
     }]
   }, 
   {
-    "id": "ModuleWithThingsThatShouldNotBeExported.DocExtractionRes",
+    "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported",
     "name": "ModuleWithThingsThatShouldNotBeExported",
     "kind": "module",
     "items": [
