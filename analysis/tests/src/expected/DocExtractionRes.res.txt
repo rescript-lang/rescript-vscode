@@ -14,13 +14,13 @@ extracting docs for src/DocExtractionRes.res
     "detail": 
     {
       "kind": "record",
-      "fieldDocs": [{
-        "fieldName": "name",
+      "items": [{
+        "name": "name",
         "optional": false,
         "docstrings": ["The name of the stuff."],
         "signature": "string"
       }, {
-        "fieldName": "online",
+        "name": "online",
         "optional": false,
         "docstrings": ["Whether stuff is online."],
         "signature": "bool"
@@ -42,7 +42,7 @@ extracting docs for src/DocExtractionRes.res
     "docstrings": ["Stuff goes offline."]
   }, 
   {
-    "id": "SomeInnerModule.DocExtractionRes",
+    "id": "DocExtractionRes.SomeInnerModule",
     "name": "SomeInnerModule",
     "kind": "module",
     "items": [
@@ -55,19 +55,19 @@ extracting docs for src/DocExtractionRes.res
       "detail": 
       {
         "kind": "variant",
-        "constructorDocs": [
+        "items": [
         {
-          "constructorName": "Started",
+          "name": "Started",
           "docstrings": ["If this is started or not"],
           "signature": "Started(t)"
         }, 
         {
-          "constructorName": "Stopped",
+          "name": "Stopped",
           "docstrings": ["Stopped?"],
           "signature": "Stopped"
         }, 
         {
-          "constructorName": "Idle",
+          "name": "Idle",
           "docstrings": ["Now idle."],
           "signature": "Idle"
         }]
@@ -89,16 +89,16 @@ extracting docs for src/DocExtractionRes.res
     }]
   }, 
   {
-    "id": "AnotherModule.DocExtractionRes",
+    "id": "DocExtractionRes.AnotherModule",
     "name": "AnotherModule",
     "kind": "module",
     "items": [
     {
-      "id": "DocExtractionRes.AnotherModule.SomeInnerModule",
+      "id": "DocExtractionRes.LinkedModule",
       "kind": "moduleAlias",
       "name": "LinkedModule",
       "docstrings": ["This links another module. Neat."],
-      "signature": "module LinkedModule = SomeInnerModule"
+      "items": []
     }, 
     {
       "id": "DocExtractionRes.AnotherModule.callback",
@@ -123,9 +123,9 @@ extracting docs for src/DocExtractionRes.res
       "detail": 
       {
         "kind": "variant",
-        "constructorDocs": [
+        "items": [
         {
-          "constructorName": "SomeStuff",
+          "name": "SomeStuff",
           "docstrings": ["This has inline records..."],
           "signature": "SomeStuff"
         }]
@@ -140,7 +140,7 @@ extracting docs for src/DocExtractionRes.res
     }]
   }, 
   {
-    "id": "ModuleWithThingsThatShouldNotBeExported.DocExtractionRes",
+    "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported",
     "name": "ModuleWithThingsThatShouldNotBeExported",
     "kind": "module",
     "items": [
