@@ -21,7 +21,7 @@ preferring found resi file for impl: src/DocExtraction2.resi
     "docstrings": ["Makerz of stuffz."]
   }, 
   {
-    "id": "InnerModule.DocExtraction2",
+    "id": "DocExtraction2.InnerModule",
     "name": "InnerModule",
     "kind": "module",
     "items": [

@@ -593,9 +593,11 @@ and forStructure ~name ~env strItems =
       strItems []
   in
   let attributes =
-    match strItems with
-    | {str_desc = Tstr_attribute attribute} :: _ -> [attribute]
-    | _ -> []
+    strItems
+    |> List.filter_map (fun (struc : Typedtree.structure_item) ->
+           match struc with
+           | {str_desc = Tstr_attribute attr} -> Some attr
+           | _ -> None)
   in
   let docstring = attrsToDocstring attributes in
   let deprecated = ProcessAttributes.findDeprecatedAttribute attributes in

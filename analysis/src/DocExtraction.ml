@@ -13,13 +13,6 @@ type constructorDoc = {
   deprecated: string option;
 }
 
-type docsForModuleAlias = {
-  id: string;
-  docstring: string list;
-  name: string;
-  signature: string;
-}
-
 type docItemDetail =
   | Record of {fieldDocs: fieldDoc list}
   | Variant of {constructorDocs: constructorDoc list}
@@ -41,7 +34,12 @@ type docItem =
           (** Additional documentation for constructors and record fields, if available. *)
     }
   | Module of docsForModule
-  | ModuleAlias of docsForModuleAlias
+  | ModuleAlias of {
+      id: string;
+      docstring: string list;
+      name: string;
+      items: docItem list;
+    }
 and docsForModule = {
   id: string;
   docstring: string list;
@@ -72,13 +70,13 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("kind", Some (wrapInQuotes "record"));
-        ( "fieldDocs",
+        ( "items",
           Some
             (fieldDocs
             |> List.map (fun fieldDoc ->
                    stringifyObject ~indentation:(indentation + 1)
                      [
-                       ("fieldName", Some (wrapInQuotes fieldDoc.fieldName));
+                       ("name", Some (wrapInQuotes fieldDoc.fieldName));
                        ( "deprecated",
                          match fieldDoc.deprecated with
                          | Some d -> Some (wrapInQuotes d)
@@ -94,14 +92,14 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("kind", Some (wrapInQuotes "variant"));
-        ( "constructorDocs",
+        ( "items",
           Some
             (constructorDocs
             |> List.map (fun constructorDoc ->
                    stringifyObject ~startOnNewline:true
                      ~indentation:(indentation + 1)
                      [
-                       ( "constructorName",
+                       ( "name",
                          Some (wrapInQuotes constructorDoc.constructorName) );
                        ( "deprecated",
                          match constructorDoc.deprecated with
@@ -170,7 +168,12 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("kind", Some (wrapInQuotes "moduleAlias"));
         ("name", Some (wrapInQuotes m.name));
         ("docstrings", Some (stringifyDocstrings m.docstring));
-        ("signature", Some (m.signature |> Json.escape |> wrapInQuotes));
+        ( "items",
+          Some
+            (m.items
+            |> List.map
+                 (stringifyDocItem ~originalEnv ~indentation:(indentation + 1))
+            |> array) );
       ]
 
 and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
@@ -225,8 +228,6 @@ let typeDetail typ ~env ~full =
          })
   | _ -> None
 
-exception Invalid_file_type
-
 let makeId modulePath ~identifier =
   identifier :: modulePath |> List.rev |> SharedTypes.ident
 
@@ -235,7 +236,10 @@ let extractDocs ~path ~debug =
   if
     FindFiles.isImplementation path = false
     && FindFiles.isInterface path = false
-  then raise Invalid_file_type;
+  then (
+    Printf.printf "error: failed to read %s, expected an .res or .resi file\n"
+      path;
+    exit 1);
   let path =
     if FindFiles.isImplementation path then
       let pathAsResi =
@@ -251,7 +255,10 @@ let extractDocs ~path ~debug =
     else path
   in
   match Cmt.loadFullCmtFromPath ~path with
-  | None -> ()
+  | None ->
+    Printf.printf
+      "error: failed to generate doc for %s, try to build the project\n" path;
+    exit 1
   | Some full ->
     let file = full.file in
     let structure = file.structure in
@@ -260,7 +267,7 @@ let extractDocs ~path ~debug =
     let rec extractDocsForModule ?(modulePath = [env.file.moduleName])
         (structure : Module.structure) =
       {
-        id = modulePath |> ident;
+        id = modulePath |> List.rev |> ident;
         docstring = structure.docstring |> List.map String.trim;
         name = structure.name;
         deprecated = structure.deprecated;
@@ -297,15 +304,27 @@ let extractDocs ~path ~debug =
                  | Module (Ident p) ->
                    (* module Whatever = OtherModule *)
                    let aliasToModule = p |> pathIdentToString in
-                   let modulePath = aliasToModule :: modulePath in
+                   let id =
+                     (modulePath |> List.rev |> List.hd) ^ "." ^ item.name
+                   in
+                   let items =
+                     match
+                       ProcessCmt.fileForModule ~package:full.package
+                         aliasToModule
+                     with
+                     | None -> []
+                     | Some file ->
+                       let docs =
+                         extractDocsForModule ~modulePath:[id] file.structure
+                       in
+                       docs.items
+                   in
                    Some
                      (ModuleAlias
                         {
-                          id = modulePath |> List.rev |> SharedTypes.ident;
-                          signature =
-                            Printf.sprintf "module %s = %s" item.name
-                              aliasToModule;
+                          id;
                           name = item.name;
+                          items;
                           docstring = item.docstring |> List.map String.trim;
                         })
                  | Module (Structure m) ->
