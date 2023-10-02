@@ -304,7 +304,9 @@ let extractDocs ~path ~debug =
                  | Module (Ident p) ->
                    (* module Whatever = OtherModule *)
                    let aliasToModule = p |> pathIdentToString in
-                   let modulePath = aliasToModule :: modulePath in
+                   let id =
+                     (modulePath |> List.rev |> List.hd) ^ "." ^ item.name
+                   in
                    let items =
                      match
                        ProcessCmt.fileForModule ~package:full.package
@@ -313,14 +315,14 @@ let extractDocs ~path ~debug =
                      | None -> []
                      | Some file ->
                        let docs =
-                         extractDocsForModule ~modulePath file.structure
+                         extractDocsForModule ~modulePath:[id] file.structure
                        in
                        docs.items
                    in
                    Some
                      (ModuleAlias
                         {
-                          id = modulePath |> List.rev |> SharedTypes.ident;
+                          id;
                           name = item.name;
                           items;
                           docstring = item.docstring |> List.map String.trim;
