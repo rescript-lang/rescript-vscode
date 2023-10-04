@@ -39,8 +39,9 @@ let newBsPackage ~rootPath =
                  config
              in
              let projectFilesAndPaths =
-               FindFiles.findProjectFiles ~namespace ~path:rootPath
-                 ~sourceDirectories ~libBs
+               FindFiles.findProjectFiles
+                 ~public:(FindFiles.getPublic config)
+                 ~namespace ~path:rootPath ~sourceDirectories ~libBs
              in
              projectFilesAndPaths
              |> List.iter (fun (_name, paths) -> Log.log (showPaths paths));
