@@ -91,13 +91,12 @@ export function activate(context: ExtensionContext) {
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     let serverOptions: ServerOptions = {
-      // run,
       run: { module: serverModule, args: ["--node-ipc"], transport: TransportKind.ipc },
       debug: {
         module: serverModule,
         args: ["--node-ipc"],
         transport: TransportKind.ipc,
-        options: debugOptions
+        options: debugOptions,
       },
     };
 
