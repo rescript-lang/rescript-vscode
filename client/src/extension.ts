@@ -201,9 +201,6 @@ export function activate(context: ExtensionContext) {
     customCommands.openCompiled(client);
   });
 
-  commands.registerCommand("rescript-vscode.extract_docs", () => {
-    customCommands.extractDocs(client);
-  });
 
   commands.registerCommand(
     "rescript-vscode.go_to_location",
