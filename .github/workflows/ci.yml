@@ -214,4 +214,12 @@ jobs:
 
     - name: NPM dry-run
       working-directory: server
-      run: npm publish --dry-run
+      run: |
+        npm build
+        npm publish --dry-run
+
+    - name: Test LSP install
+      working-directory: server
+      run: |
+        npm install -g .
+        rescriptls --help
