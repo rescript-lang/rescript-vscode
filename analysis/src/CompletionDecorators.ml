@@ -1,4 +1,4 @@
-let decorators =
+let local =
   [
     ( "as",
       [
@@ -219,5 +219,28 @@ Note: The `@react.component` decorator requires the react-jsx config to be set i
         {|The `@variadic` decorator is used to model JavaScript functions that take a variable number of arguments, where all arguments are of the same type.
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#variadic-decorator).|};
+      ] );
+  ]
+
+let toplevel =
+  [
+    ( "deprecated",
+      [
+        {|The `@@deprecated` decorator is used to add a deprecation note to the file-level of a module. The compiler and editor tooling will yield a warning whenever a deprecated file module is being used.
+
+[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#module-deprecated-decorator).|};
+      ] );
+    ( "directive",
+      [
+        {|The `@@directive` decorator will output that string verbatim at the very top of the generated JavaScript file, before any imports.
+
+[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#directive-decorator).|};
+      ] );
+    ( "warning",
+      [
+        {|The `@@warning` decorator is used to modify the enabled compiler warnings for the current module. See here for all available warning numbers.
+
+[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#module-warning-decorator).
+         |};
       ] );
   ]

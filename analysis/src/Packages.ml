@@ -29,13 +29,19 @@ let newBsPackage ~rootPath =
         | Some libBs ->
           Some
             (let namespace = FindFiles.getNamespace config in
+             let uncurried =
+               let ns = config |> Json.get "uncurried" in
+               Option.bind ns Json.bool
+             in
+             let uncurried = uncurried = Some true in
              let sourceDirectories =
                FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
                  config
              in
              let projectFilesAndPaths =
-               FindFiles.findProjectFiles ~namespace ~path:rootPath
-                 ~sourceDirectories ~libBs
+               FindFiles.findProjectFiles
+                 ~public:(FindFiles.getPublic config)
+                 ~namespace ~path:rootPath ~sourceDirectories ~libBs
              in
              projectFilesAndPaths
              |> List.iter (fun (_name, paths) -> Log.log (showPaths paths));
@@ -77,7 +83,11 @@ let newBsPackage ~rootPath =
                | None -> []
              in
              let opens =
-               opens_from_namespace
+               [
+                 (if uncurried then "PervasivesU" else "Pervasives");
+                 "JsxModules";
+               ]
+               :: opens_from_namespace
                |> List.rev_append opens_from_bsc_flags
                |> List.map (fun path -> path @ ["place holder"])
              in
@@ -144,6 +154,7 @@ let newBsPackage ~rootPath =
                      resultModulePath = ["Belt"; "Result"];
                      exnModulePath = ["Js"; "Exn"];
                    });
+               uncurried;
              })))
     | None -> None)
 

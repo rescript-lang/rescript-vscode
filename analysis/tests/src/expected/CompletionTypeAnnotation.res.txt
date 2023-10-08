@@ -1,6 +1,10 @@
 Complete src/CompletionTypeAnnotation.res 9:22
 XXX Not found!
 Completable: Cexpression Type[someRecord]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[someRecord]
+Path someRecord
 [{
     "label": "{}",
     "kind": 12,
@@ -15,6 +19,10 @@ Completable: Cexpression Type[someRecord]
 Complete src/CompletionTypeAnnotation.res 12:24
 XXX Not found!
 Completable: Cexpression Type[someRecord]->recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[someRecord]
+Path someRecord
 [{
     "label": "age",
     "kind": 5,
@@ -32,6 +40,10 @@ Completable: Cexpression Type[someRecord]->recordBody
 Complete src/CompletionTypeAnnotation.res 15:23
 XXX Not found!
 Completable: Cexpression Type[someVariant]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -53,6 +65,10 @@ Completable: Cexpression Type[someVariant]
 Complete src/CompletionTypeAnnotation.res 18:25
 XXX Not found!
 Completable: Cexpression Type[someVariant]=O
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -69,7 +85,7 @@ Completable: Cexpression Type[someVariant]=O
     "detail": "file module",
     "documentation": null
   }, {
-    "label": "Object",
+    "label": "Objects",
     "kind": 9,
     "tags": [],
     "detail": "file module",
@@ -79,6 +95,10 @@ Completable: Cexpression Type[someVariant]=O
 Complete src/CompletionTypeAnnotation.res 21:27
 XXX Not found!
 Completable: Cexpression Type[somePolyVariant]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[somePolyVariant]
+Path somePolyVariant
 [{
     "label": "#one",
     "kind": 4,
@@ -100,6 +120,10 @@ Completable: Cexpression Type[somePolyVariant]
 Complete src/CompletionTypeAnnotation.res 24:30
 XXX Not found!
 Completable: Cexpression Type[somePolyVariant]=#o
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[somePolyVariant]
+Path somePolyVariant
 [{
     "label": "#one",
     "kind": 4,
@@ -113,6 +137,10 @@ Completable: Cexpression Type[somePolyVariant]=#o
 Complete src/CompletionTypeAnnotation.res 29:20
 XXX Not found!
 Completable: Cexpression Type[someFunc]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[someFunc]
+Path someFunc
 [{
     "label": "(v1, v2) => {}",
     "kind": 12,
@@ -127,6 +155,10 @@ Completable: Cexpression Type[someFunc]
 Complete src/CompletionTypeAnnotation.res 34:21
 XXX Not found!
 Completable: Cexpression Type[someTuple]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[someTuple]
+Path someTuple
 [{
     "label": "(_, _)",
     "kind": 12,
@@ -140,15 +172,19 @@ Completable: Cexpression Type[someTuple]
 Complete src/CompletionTypeAnnotation.res 37:28
 XXX Not found!
 Completable: Cexpression Type[someTuple]->tuple($1)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[someTuple]
+Path someTuple
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "bool",
     "documentation": null,
@@ -171,15 +207,20 @@ Completable: Cexpression Type[someTuple]->tuple($1)
 Complete src/CompletionTypeAnnotation.res 40:31
 XXX Not found!
 Completable: Cexpression option<Type[someVariant]>
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath option<Type[someVariant]>
+ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "None",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "type someVariant = One | Two(bool)",
     "documentation": null
   }, {
     "label": "Some(_)",
-    "kind": 4,
+    "kind": 12,
     "tags": [],
     "detail": "type someVariant = One | Two(bool)",
     "documentation": null,
@@ -206,6 +247,11 @@ Completable: Cexpression option<Type[someVariant]>
 Complete src/CompletionTypeAnnotation.res 43:37
 XXX Not found!
 Completable: Cexpression option<Type[someVariant]>->variantPayload::Some($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath option<Type[someVariant]>
+ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -227,6 +273,11 @@ Completable: Cexpression option<Type[someVariant]>->variantPayload::Some($0)
 Complete src/CompletionTypeAnnotation.res 46:30
 XXX Not found!
 Completable: Cexpression array<Type[someVariant]>
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath array<Type[someVariant]>
+ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "[]",
     "kind": 12,
@@ -241,6 +292,11 @@ Completable: Cexpression array<Type[someVariant]>
 Complete src/CompletionTypeAnnotation.res 49:32
 XXX Not found!
 Completable: Cexpression array<Type[someVariant]>->array
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath array<Type[someVariant]>
+ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,
@@ -262,6 +318,12 @@ Completable: Cexpression array<Type[someVariant]>->array
 Complete src/CompletionTypeAnnotation.res 52:38
 XXX Not found!
 Completable: Cexpression array<option<Type[someVariant]>>
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath array<option<Type[someVariant]>>
+ContextPath option<Type[someVariant]>
+ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "[]",
     "kind": 12,
@@ -276,6 +338,12 @@ Completable: Cexpression array<option<Type[someVariant]>>
 Complete src/CompletionTypeAnnotation.res 55:45
 XXX Not found!
 Completable: Cexpression option<array<Type[someVariant]>>->variantPayload::Some($0), array
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath option<array<Type[someVariant]>>
+ContextPath array<Type[someVariant]>
+ContextPath Type[someVariant]
+Path someVariant
 [{
     "label": "One",
     "kind": 4,

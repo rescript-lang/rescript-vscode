@@ -9,7 +9,10 @@ posCursor:[14:8] posNoWhite:[14:7] Found expr:[14:5->14:8]
 Pexp_ident eqN:[14:5->14:8]
 Completable: Cpath Value[eqN]
 Raw opens: 1 Js.place holder
-Resolved opens 1 js.ml
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 js.ml pervasives
+ContextPath Value[eqN]
+Path eqN
 [{
     "label": "eqNullable",
     "kind": 12,

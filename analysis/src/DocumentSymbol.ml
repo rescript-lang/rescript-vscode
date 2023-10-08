@@ -27,11 +27,16 @@ let kindNumber = function
 let command ~path =
   let symbols = ref [] in
   let addSymbol name loc kind =
-    let range = Utils.cmtLocToRange loc in
-    let symbol : Protocol.documentSymbolItem =
-      {name; range; kind = kindNumber kind; children = []}
-    in
-    symbols := symbol :: !symbols
+    if
+      (not loc.Location.loc_ghost)
+      && loc.loc_start.pos_cnum >= 0
+      && loc.loc_end.pos_cnum >= 0
+    then
+      let range = Utils.cmtLocToRange loc in
+      let symbol : Protocol.documentSymbolItem =
+        {name; range; kind = kindNumber kind; children = []}
+      in
+      symbols := symbol :: !symbols
   in
   let rec exprKind (exp : Parsetree.expression) =
     match exp.pexp_desc with

@@ -96,11 +96,11 @@ let nestedObj = {"x": {"y": {"name": "a", "age": 32}}}
 // nestedObj["x"]["y"]["
 //                      ^com
 
-let o: Object.objT = assert false
+let o: Objects.objT = assert false
 // o["a
 //     ^com
 
-type nestedObjT = {"x": Object.nestedObjT}
+type nestedObjT = {"x": Objects.nestedObjT}
 let no: nestedObjT = assert false
 // no["x"]["y"]["
 //               ^com
@@ -111,8 +111,8 @@ let r: rAlias = assert false
 // r.
 //   ^com
 
-// Object.Rec.recordVal.
-//                      ^com
+// Objects.Rec.recordVal.
+//                       ^com
 
 let myAmazingFunction = (x, y) => x + y
 
@@ -123,8 +123,8 @@ let make = () => {
   <> </>
 }
 
-// Object.object["
-//                ^com
+// Objects.object["
+//                 ^com
 
 let foo = {
   let x = {
@@ -319,7 +319,7 @@ let ff = (~opt1=0, ~a, ~b, (), ~opt2=0, (), ~c) => a + b + c + opt1 + opt2
 
 type callback = (~a: int) => int
 
-let withCallback: (~b: int) => callback = (~b, ~a) => a + b
+let withCallback: (~b: int) => callback = (~b) => { (); (~a) => a + b }
 
 // withCallback(~
 //               ^com
@@ -450,3 +450,15 @@ type someVariantWithDeprecated =
 // Should show deprecated status
 // let v: someVariantWithDeprecated =
 //                                   ^com
+
+let uncurried = (. num) => num + 2
+
+// let _ = uncurried(. 1)->toS
+//                            ^com
+
+type withUncurried = {
+  fn: (. int) => unit
+}
+
+// let f: withUncurried = {fn: }
+//                            ^com

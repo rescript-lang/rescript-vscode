@@ -1,8 +1,5 @@
 (library
  (name reanalyze)
  (flags
-  (-w "+6+26+27+32+33+39")
-  (-open Compilerlibs406)
-  (-open Jsonlib)
-  (-open Ext))
- (libraries compilerlibs406 jsonlib ext str unix))
+  (-w "+6+26+27+32+33+39"))
+ (libraries jsonlib ext ml str unix))

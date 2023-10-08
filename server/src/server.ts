@@ -716,6 +716,8 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
       filePath,
       params.range.start.line,
       params.range.start.character,
+      params.range.end.line,
+      params.range.end.character,
       tmpname,
     ],
     msg
@@ -1128,12 +1130,12 @@ function onMessage(msg: p.Message) {
               tokenTypes: [
                 "operator",
                 "variable",
-                "support-type-primitive",
-                "jsx-tag",
-                "class",
+                "type",
+                "modifier", // emit jsx-tag < and > in <div> as modifier
+                "namespace",
                 "enumMember",
                 "property",
-                "jsx-lowercase",
+                "interface", // emit jsxlowercase, div in <div> as interface
               ],
               tokenModifiers: [],
             },

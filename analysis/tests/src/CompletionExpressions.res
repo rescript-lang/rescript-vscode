@@ -186,3 +186,79 @@ let something = {
   Js.log(s)
   //      ^com
 }
+
+let fff: recordWithOptionalField = {
+  someField: 123,
+  someOptField: true,
+}
+
+ignore(fff)
+
+// fff.someOpt
+//            ^com
+
+type someTyp = {test: bool}
+
+let takesCb = cb => {
+  cb({test: true})
+}
+
+// takesCb()
+//         ^com
+
+module Environment = {
+  type t = {hello: bool}
+}
+
+let takesCb2 = cb => {
+  cb({Environment.hello: true})
+}
+
+// takesCb2()
+//          ^com
+
+type apiCallResult = {hi: bool}
+
+let takesCb3 = cb => {
+  cb({hi: true})
+}
+
+// takesCb3()
+//          ^com
+
+let takesCb4 = cb => {
+  cb(Some({hi: true}))
+}
+
+// takesCb4()
+//          ^com
+
+let takesCb5 = cb => {
+  cb([Some({hi: true})])
+}
+
+// takesCb5()
+//          ^com
+
+module RecordSourceSelectorProxy = {
+  type t
+}
+
+@val
+external commitLocalUpdate: (~updater: RecordSourceSelectorProxy.t => unit) => unit =
+  "commitLocalUpdate"
+
+// commitLocalUpdate(~updater=)
+//                            ^com
+
+let fnTakingAsyncCallback = (cb: unit => promise<unit>) => {
+  let _ = cb
+}
+
+// fnTakingAsyncCallback()
+//                       ^com
+
+let arr = ["hello"]
+
+// arr->Belt.Array.map()
+//                     ^com

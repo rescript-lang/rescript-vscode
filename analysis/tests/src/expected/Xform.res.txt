@@ -1,4 +1,12 @@
 Xform src/Xform.res 6:5
+posCursor:[6:3] posNoWhite:[6:1] Found expr:[6:0->11:1]
+Completable: Cpath Value[kind]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[kind]
+Path kind
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
 Hit: Replace with switch
 {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}}
 newText:
@@ -26,8 +34,24 @@ Hit: Add type annotation
 newText:
         <--here
         : string
+Hit: Add Documentation template
+{"start": {"line": 16, "character": 0}, "end": {"line": 16, "character": 18}}
+newText:
+<--here
+/**
+
+*/
+let name = "hello"
 
 Xform src/Xform.res 19:5
+Hit: Add Documentation template
+{"start": {"line": 19, "character": 0}, "end": {"line": 19, "character": 23}}
+newText:
+<--here
+/**
+
+*/
+let annotated: int = 34
 
 Xform src/Xform.res 26:10
 Hit: Add type annotation
@@ -58,6 +82,15 @@ newText:
                         : int
 
 Xform src/Xform.res 38:5
+Hit: Add Documentation template
+{"start": {"line": 37, "character": 0}, "end": {"line": 38, "character": 40}}
+newText:
+<--here
+/**
+
+*/
+@react.component
+let make = (~name) => React.string(name)
 
 Xform src/Xform.res 41:9
 Hit: Add type annotation
@@ -67,6 +100,14 @@ newText:
            : int
 
 Xform src/Xform.res 48:21
+posCursor:[48:21] posNoWhite:[48:19] Found expr:[48:15->48:25]
+Completable: Cpath Value[name]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[name]
+Path name
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
 Hit: Add braces to function
 {"start": {"line": 48, "character": 0}, "end": {"line": 48, "character": 25}}
 newText:

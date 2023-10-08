@@ -6,6 +6,7 @@ let stringifyCodeActions codeActions =
     (codeActions |> List.map Protocol.stringifyCodeAction |> Protocol.array)
 
 let make ~title ~kind ~uri ~newText ~range =
+  let uri = uri |> Uri.fromPath |> Uri.toString in
   {
     Protocol.title;
     codeActionKind = kind;

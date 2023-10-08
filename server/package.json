@@ -1,7 +1,7 @@
 {
 	"name": "rescript-language-server",
 	"description": "ReScript's language-server",
-	"version": "1.12.0",
+	"version": "1.20.0",
 	"author": "chenglou",
 	"license": "MIT",
 	"main": "./out/cli.js",

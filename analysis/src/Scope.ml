@@ -4,7 +4,7 @@ type item =
   | Module of string * Location.t
   | Open of string list
   | Type of string * Location.t
-  | Value of string * Location.t
+  | Value of string * Location.t * SharedTypes.Completable.contextPath option
 
 type t = item list
 
@@ -16,7 +16,7 @@ let itemToString item =
   | Field (s, loc) -> "Field " ^ s ^ " " ^ Loc.toString loc
   | Open sl -> "Open " ^ list sl
   | Module (s, loc) -> "Module " ^ s ^ " " ^ Loc.toString loc
-  | Value (s, loc) -> "Value " ^ s ^ " " ^ Loc.toString loc
+  | Value (s, loc, _) -> "Value " ^ s ^ " " ^ Loc.toString loc
   | Type (s, loc) -> "Type " ^ s ^ " " ^ Loc.toString loc
   [@@live]
 
@@ -25,14 +25,23 @@ let addConstructor ~name ~loc x = Constructor (name, loc) :: x
 let addField ~name ~loc x = Field (name, loc) :: x
 let addModule ~name ~loc x = Module (name, loc) :: x
 let addOpen ~lid x = Open (Utils.flattenLongIdent lid @ ["place holder"]) :: x
-let addValue ~name ~loc x = Value (name, loc) :: x
+let addValue ~name ~loc ?contextPath x =
+  let showDebug = !Cfg.debugFollowCtxPath in
+  (if showDebug then
+   match contextPath with
+   | None -> Printf.printf "adding value '%s', no ctxPath\n" name
+   | Some contextPath ->
+     if showDebug then
+       Printf.printf "adding value '%s' with ctxPath: %s\n" name
+         (SharedTypes.Completable.contextPathToString contextPath));
+  Value (name, loc, contextPath) :: x
 let addType ~name ~loc x = Type (name, loc) :: x
 
 let iterValuesBeforeFirstOpen f x =
   let rec loop items =
     match items with
-    | Value (s, loc) :: rest ->
-      f s loc;
+    | Value (s, loc, contextPath) :: rest ->
+      f s loc contextPath;
       loop rest
     | Open _ :: _ -> ()
     | _ :: rest -> loop rest
@@ -43,8 +52,8 @@ let iterValuesBeforeFirstOpen f x =
 let iterValuesAfterFirstOpen f x =
   let rec loop foundOpen items =
     match items with
-    | Value (s, loc) :: rest ->
-      if foundOpen then f s loc;
+    | Value (s, loc, contextPath) :: rest ->
+      if foundOpen then f s loc contextPath;
       loop foundOpen rest
     | Open _ :: rest -> loop true rest
     | _ :: rest -> loop foundOpen rest

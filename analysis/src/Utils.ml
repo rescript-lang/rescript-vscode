@@ -15,6 +15,9 @@ let endsWith s suffix =
     let l = String.length s in
     p <= String.length s && String.sub s (l - p) p = suffix
 
+let isFirstCharUppercase s =
+  String.length s > 0 && Char.equal s.[0] (Char.uppercase_ascii s.[0])
+
 let cmtPosToPosition {Lexing.pos_lnum; pos_cnum; pos_bol} =
   Protocol.{line = pos_lnum - 1; character = pos_cnum - pos_bol}
 
@@ -137,22 +140,6 @@ let identifyPpat pat =
   | Ppat_extension _ -> "Ppat_extension"
   | Ppat_open _ -> "Ppat_open"
 
-let identifyType type_desc =
-  match type_desc with
-  | Types.Tvar _ -> "Tvar"
-  | Tarrow _ -> "Tarrow"
-  | Ttuple _ -> "Ttuple"
-  | Tconstr _ -> "Tconstr"
-  | Tobject _ -> "Tobject"
-  | Tfield _ -> "Tfield"
-  | Tnil -> "Tnil"
-  | Tlink _ -> "Tlink"
-  | Tsubst _ -> "Tsubst"
-  | Tvariant _ -> "Tvariant"
-  | Tunivar _ -> "Tunivar"
-  | Tpoly _ -> "Tpoly"
-  | Tpackage _ -> "Tpackage"
-
 let rec skipWhite text i =
   if i < 0 then 0
   else
@@ -161,7 +148,7 @@ let rec skipWhite text i =
     | _ -> i
 
 let hasBraces attributes =
-  attributes |> List.exists (fun (loc, _) -> loc.Location.txt = "ns.braces")
+  attributes |> List.exists (fun (loc, _) -> loc.Location.txt = "res.braces")
 
 let rec unwrapIfOption (t : Types.type_expr) =
   match t.desc with
@@ -220,3 +207,12 @@ module Option = struct
     | None -> None
     | Some v -> f v
 end
+
+let rec lastElements list =
+  match list with
+  | ([_; _] | [_] | []) as res -> res
+  | _ :: tl -> lastElements tl
+
+let lowercaseFirstChar s =
+  if String.length s = 0 then s
+  else String.mapi (fun i c -> if i = 0 then Char.lowercase_ascii c else c) s

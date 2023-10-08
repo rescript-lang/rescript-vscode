@@ -127,6 +127,8 @@ let resultsToDiagnostics = (
   };
 };
 
+let platformDir = process.arch === "arm64" ? process.platform + process.arch : process.platform;
+
 let analysisDevPath = path.join(
   path.dirname(__dirname),
   "..",
@@ -141,7 +143,7 @@ let analysisProdPath = path.join(
   "..",
   "server",
   "analysis_binaries",
-  process.platform,
+  platformDir,
   "rescript-editor-analysis.exe"
 );
 

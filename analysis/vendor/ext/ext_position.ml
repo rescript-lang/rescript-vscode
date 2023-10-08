@@ -23,11 +23,19 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
 type t = Lexing.position = {
-  pos_fname: string; [@dead]
-  pos_lnum: int;
-  pos_bol: int;
-  pos_cnum: int;
+  pos_fname : string;
+  pos_lnum : int;
+  pos_bol : int;
+  pos_cnum : int;
 }
+
+let offset (x : t) (y : t) =
+  {
+    x with
+    pos_lnum = x.pos_lnum + y.pos_lnum - 1;
+    pos_cnum = x.pos_cnum + y.pos_cnum;
+    pos_bol = (if y.pos_lnum = 1 then x.pos_bol else x.pos_cnum + y.pos_bol);
+  }
 
 let print fmt (pos : t) =
   Format.fprintf fmt "(line %d, column %d)" pos.pos_lnum
@@ -46,4 +54,3 @@ let lexbuf_from_channel_with_fname ic fname =
   x.lex_start_p <- pos;
   x.lex_curr_p <- pos;
   x
-  [@@raises Invalid_argument]

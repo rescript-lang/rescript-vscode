@@ -731,7 +731,11 @@ let getJsxLabels ~componentPath ~findTypeOfValue ~package =
     in
     let rec getLabels (t : Types.type_expr) =
       match t.desc with
-      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
+      | Tlink t1
+      | Tsubst t1
+      | Tpoly (t1, [])
+      | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
+        getLabels t1
       | Tarrow
           ( Nolabel,
             {
@@ -894,7 +898,7 @@ let extractJsxProps ~(compName : Longident.t Location.loc) ~args =
     | ((Labelled s | Optional s), (eProp : Parsetree.expression)) :: rest -> (
       let namedArgLoc =
         eProp.pexp_attributes
-        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "ns.namedArgLoc")
+        |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "res.namedArgLoc")
       in
       match namedArgLoc with
       | Some ({loc}, _) ->

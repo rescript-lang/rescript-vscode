@@ -23,13 +23,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
 type loc = Lexing.position
-type json_str = string
-type json_flo = string
 
-module StringMap = Map.Make (String)
+type json_str = { str : string; loc : loc }
 
-type json_array = t array
-and json_map = t StringMap.t
+type json_flo = { flo : string; loc : loc }
+
+type json_array = { content : t array; loc_start : loc; loc_end : loc }
+
+and json_map = { map : t Map_string.t; loc : loc }
 
 and t =
   | True of loc

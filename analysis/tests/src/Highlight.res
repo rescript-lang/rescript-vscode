@@ -69,7 +69,7 @@ let foo = x => x.T.someField
 
 let add = (~hello as x, ~world) => x + world
 
-let _ = add(~hello=3)
+let _ = @res.partial add(~hello=3)
 
 let _ = <div scale="abc"> <div /> </div>
 
@@ -132,3 +132,5 @@ let _ = 3 == 3 || 3 === 3
 let _ = (~_type_ as _) => ()
 
 let _ = {"abc": 34}
+
+let _ = {"Key": 2}

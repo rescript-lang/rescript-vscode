@@ -1,29 +1,13 @@
-let getCompletions ~debug ~path ~pos ~currentFile ~forHover =
-  let textOpt = Files.readFile currentFile in
-  match textOpt with
-  | None | Some "" -> []
-  | Some text -> (
+let completion ~debug ~path ~pos ~currentFile =
+  let completions =
     match
-      CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
-        ~currentFile ~text
+      Completions.getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
     with
     | None -> []
-    | Some (completable, scope) -> (
-      if debug then
-        Printf.printf "Completable: %s\n"
-          (SharedTypes.Completable.toString completable);
-      (* Only perform expensive ast operations if there are completables *)
-      match Cmt.loadFullCmtFromPath ~path with
-      | None -> []
-      | Some full ->
-        let env = SharedTypes.QueryEnv.fromFile full.file in
-        completable
-        |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope ~env
-             ~forHover))
-
-let completion ~debug ~path ~pos ~currentFile =
+    | Some (completions, _, _) -> completions
+  in
   print_endline
-    (getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
+    (completions
     |> List.map CompletionBackEnd.completionToItem
     |> List.map Protocol.stringifyCompletionItem
     |> Protocol.array)
@@ -96,8 +80,8 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
   in
   print_endline (Protocol.stringifySignatureHelp result)
 
-let codeAction ~path ~pos ~currentFile ~debug =
-  Xform.extractCodeActions ~path ~pos ~currentFile ~debug
+let codeAction ~path ~startPos ~endPos ~currentFile ~debug =
+  Xform.extractCodeActions ~path ~startPos ~endPos ~currentFile ~debug
   |> CodeActions.stringifyCodeActions |> print_endline
 
 let definition ~path ~pos ~debug =
@@ -110,7 +94,7 @@ let definition ~path ~pos ~debug =
       | Some locItem -> (
         match References.definitionForLocItem ~full locItem with
         | None -> None
-        | Some (uri, loc) ->
+        | Some (uri, loc) when not loc.loc_ghost ->
           let isInterface = full.file.uri |> Uri.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
             (* range is zero *)
@@ -129,7 +113,7 @@ let definition ~path ~pos ~debug =
           else
             Some
               {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc}
-        ))
+        | Some _ -> None))
   in
   print_endline
     (match locationOpt with
@@ -284,7 +268,9 @@ let test ~path =
     let lines = text |> String.split_on_char '\n' in
     let processLine i line =
       let createCurrentFile () =
-        let currentFile, cout = Filename.open_temp_file "def" "txt" in
+        let currentFile, cout =
+          Filename.open_temp_file "def" ("txt." ^ Filename.extension path)
+        in
         let removeLineComment l =
           let len = String.length l in
           let rec loop i =
@@ -388,13 +374,24 @@ let test ~path =
              ^ string_of_int col);
             typeDefinition ~path ~pos:(line, col) ~debug:true
           | "xfm" ->
-            print_endline
-              ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
-             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            (* +2 is to ensure that the character ^ points to is what's considered the end of the selection. *)
+            let endCol = col + try String.index rest '^' + 2 with _ -> 0 in
+            let endPos = (line, endCol) in
+            let startPos = (line, col) in
+            if startPos = endPos then
+              print_endline
+                ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
+               ^ string_of_int col)
+            else
+              print_endline
+                ("Xform " ^ path ^ " start: " ^ Pos.toString startPos
+               ^ ", end: " ^ Pos.toString endPos);
             let codeActions =
-              Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile:path
+              Xform.extractCodeActions ~path ~startPos ~endPos ~currentFile
                 ~debug:true
             in
+            Sys.remove currentFile;
             codeActions
             |> List.iter (fun {Protocol.title; edit = {documentChanges}} ->
                    Printf.printf "Hit: %s\n" title;
@@ -408,6 +405,14 @@ let test ~path =
                                  Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
                                    (Protocol.stringifyRange range)
                                    indent indent newText)))
+          | "c-a" ->
+            let hint = String.sub rest 3 (String.length rest - 3) in
+            print_endline
+              ("Codemod AddMissingCases" ^ path ^ " " ^ string_of_int line ^ ":"
+             ^ string_of_int col);
+            Codemod.transform ~path ~pos:(line, col) ~debug:true
+              ~typ:AddMissingCases ~hint
+            |> print_endline
           | "dia" -> diagnosticSyntax ~path
           | "hin" ->
             (* Get all inlay Hint between line 1 and n.

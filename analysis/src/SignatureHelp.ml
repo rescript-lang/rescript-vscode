@@ -39,10 +39,23 @@ let findFunctionType ~currentFile ~debug ~path ~pos =
 let extractParameters ~signature ~typeStrForParser ~labelPrefixLen =
   match signature with
   | [
-   {
-     Parsetree.psig_desc =
-       Psig_value {pval_type = {ptyp_desc = Ptyp_arrow _} as expr};
-   };
+   ( {
+       Parsetree.psig_desc =
+         Psig_value {pval_type = {ptyp_desc = Ptyp_arrow _} as expr};
+     }
+   | {
+       psig_desc =
+         Psig_value
+           {
+             pval_type =
+               {
+                 ptyp_desc =
+                   Ptyp_constr
+                     ( {txt = Lident "function$"},
+                       [({ptyp_desc = Ptyp_arrow _} as expr); _] );
+               };
+           };
+     } );
   ] ->
     let rec extractParams expr params =
       match expr with
@@ -262,7 +275,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
         | {
          pexp_desc =
            Pexp_apply
-             ( {pexp_desc = Pexp_ident {txt = Lident "|."}},
+             ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
                [
                  _;
                  ( _,

@@ -24,7 +24,7 @@ module Token = struct
     | Variable  (** let x = *)
     | Type  (** type t = *)
     | JsxTag  (** the < and > in <div> *)
-    | Class  (** module M = *)
+    | Namespace  (** module M = *)
     | EnumMember  (** variant A or poly variant #A *)
     | Property  (** {x:...} *)
     | JsxLowercase  (** div in <div> *)
@@ -34,7 +34,7 @@ module Token = struct
     | Variable -> "1"
     | Type -> "2"
     | JsxTag -> "3"
-    | Class -> "4"
+    | Namespace -> "4"
     | EnumMember -> "5"
     | Property -> "6"
     | JsxLowercase -> "7"
@@ -44,7 +44,7 @@ module Token = struct
     | Variable -> "Variable"
     | Type -> "Type"
     | JsxTag -> "JsxTag"
-    | Class -> "Class"
+    | Namespace -> "Namespace"
     | EnumMember -> "EnumMember"
     | Property -> "Property"
     | JsxLowercase -> "JsxLowercase"
@@ -115,8 +115,8 @@ let emitFromLoc ~loc ~type_ emitter =
 
 let emitLongident ?(backwards = false) ?(jsx = false)
     ?(lowerCaseToken = if jsx then Token.JsxLowercase else Token.Variable)
-    ?(upperCaseToken = Token.Class) ?(lastToken = None) ?(posEnd = None) ~pos
-    ~lid ~debug emitter =
+    ?(upperCaseToken = Token.Namespace) ?(lastToken = None) ?(posEnd = None)
+    ~pos ~lid ~debug emitter =
   let rec flatten acc lid =
     match lid with
     | Longident.Lident txt -> txt :: acc
@@ -309,7 +309,12 @@ let command ~debug ~emitter ~path =
       Ast_iterator.default_iterator.expr iterator e
     | Pexp_record (cases, _) ->
       cases
-      |> List.iter (fun (label, _) -> emitter |> emitRecordLabel ~label ~debug);
+      |> List.filter_map (fun ((label : Longident.t Location.loc), _) ->
+             match label.txt with
+             | Longident.Lident s when not (Utils.isFirstCharUppercase s) ->
+               Some label
+             | _ -> None)
+      |> List.iter (fun label -> emitter |> emitRecordLabel ~label ~debug);
       Ast_iterator.default_iterator.expr iterator e
     | Pexp_field (_, label) | Pexp_setfield (_, label, _) ->
       emitter |> emitRecordLabel ~label ~debug;

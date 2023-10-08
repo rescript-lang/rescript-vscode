@@ -42,7 +42,7 @@ let printAttributes attributes =
 let printConstant const =
   match const with
   | Parsetree.Pconst_integer (s, _) -> "Pconst_integer(" ^ s ^ ")"
-  | Pconst_char c -> "Pconst_char(" ^ String.make 1 c ^ ")"
+  | Pconst_char c -> "Pconst_char(" ^ String.make 1 (Char.chr c) ^ ")"
   | Pconst_string (s, delim) ->
     let delim =
       match delim with
