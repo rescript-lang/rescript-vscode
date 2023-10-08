@@ -15,7 +15,8 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 ├── package.json // The extension manifest
 └── server // Language Server. Usable standalone
     ├── src
-    │   └── server.ts // Language Server entry point
+    │   ├── server.ts // Language Server Module
+    │   ├── cli.ts // LSP CLI
     └── analysis_binaries // Prod-time platform-specific analysis binaries
         ├── darwin
         ├── linux
