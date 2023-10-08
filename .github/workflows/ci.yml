@@ -211,3 +211,7 @@ jobs:
     - name: Publish extension as release
       if: startsWith(github.ref, 'refs/tags/')
       run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
+
+    - name: NPM dry-run
+      working-directory: server
+      run: npm publish --dry-run
