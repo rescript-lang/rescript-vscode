@@ -1,15 +1,21 @@
 # ReScript Language Server
 
+## Install
+
+```sh
+npm install -g @rescript/lsp
+```
+
 ## Run
 
 ```sh
-resciptlsp --stdio
+resciptls --stdio
 ```
 
 ```sh
 ReScript Language Server
 
-Usage: rescriptlsp [options]
+Usage: rescriptls [options]
 
 Options:
 

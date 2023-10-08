@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import fs from "fs";
 import server from "./server";
 
@@ -6,14 +5,14 @@ const args = process.argv.slice(2)
 
 const help = `ReScript Language Server
 
-Usage: rescriptlsp [options]
+Usage: rescriptls [options]
 
 Options:
 
---stdio         Use stdio
---node-ipc      Use node-ipc
--v, --version   Print version
--h, --help      Print help`;
+--stdio               Use stdio
+--node-ipc            Use node-ipc
+-v, --version         Print version
+-h, --help            Print help`;
 
 (() => {
   switch (args[0]) {

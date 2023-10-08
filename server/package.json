@@ -1,13 +1,17 @@
 {
-	"name": "rescript-language-server",
-	"description": "ReScript's language-server",
+	"name": "@rescript/lsp",
+	"description": "LSP server for ReScript",
 	"version": "1.20.0",
 	"author": "chenglou",
 	"license": "MIT",
-	"main": "./out/cli.js",
 	"bin": {
-		"rescriptlsp": "./out/cli.js"
+		"rescriptls": "out/rescriptls"
 	},
+	"keywords": [
+		"ReScript",
+		"LSP",
+		"Language Server"
+	],
 	"files": [
 		"out/*",
 		"README.md"
@@ -15,9 +19,14 @@
 	"engines": {
 		"node": "*"
 	},
+	"homepage": "https://github.com/rescript-lang/rescript-vscode/server/README.md",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/rescript-lang/rescript-vscode"
+		"url": "https://github.com/rescript-lang/rescript-vscode",
+		"directory": "server"
+	},
+	"bugs": {
+		"url": "https://github.com/rescript-lang/rescript-vscode/issues"
 	},
 	"dependencies": {
 		"chokidar": "^3.5.1",
@@ -25,5 +34,7 @@
 		"vscode-languageserver": "^8.0.1",
 		"vscode-languageserver-protocol": "^3.17.1"
 	},
-	"scripts": {}
+	"scripts": {
+		"build": "cp src/rescriptls out/rescriptls"
+	}
 }
