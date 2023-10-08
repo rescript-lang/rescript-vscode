@@ -215,7 +215,7 @@ jobs:
     - name: NPM dry-run
       working-directory: server
       run: |
-        npm build
+        npm run build
         npm publish --dry-run
 
     - name: Test LSP install
