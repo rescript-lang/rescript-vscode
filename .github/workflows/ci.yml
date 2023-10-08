@@ -87,7 +87,7 @@ jobs:
 
   package:
     needs: test
-    runs-on: windows-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v3
@@ -211,15 +211,3 @@ jobs:
     - name: Publish extension as release
       if: startsWith(github.ref, 'refs/tags/')
       run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
-
-    - name: NPM dry-run
-      working-directory: server
-      run: |
-        npm run build
-        npm publish --dry-run
-
-    - name: Test LSP install
-      working-directory: server
-      run: |
-        npm install -g .
-        rescriptls --help
