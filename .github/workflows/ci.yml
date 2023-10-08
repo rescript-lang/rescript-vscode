@@ -87,7 +87,7 @@ jobs:
 
   package:
     needs: test
-    runs-on: ubuntu-20.04
+    runs-on: ${{matrix.os}}
 
     steps:
     - uses: actions/checkout@v3
