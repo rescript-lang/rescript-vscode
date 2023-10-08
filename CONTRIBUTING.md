@@ -15,7 +15,9 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 ├── package.json // The extension manifest
 └── server // Language Server. Usable standalone
     ├── src
-    │   └── server.ts // Language Server entry point
+    │   ├── server.ts // Language Server Module
+    │   ├── cli.ts // LSP CLI
+    │   ├── rescripls // Binary
     └── analysis_binaries // Prod-time platform-specific analysis binaries
         ├── darwin
         ├── linux
@@ -45,6 +47,14 @@ opam install ocaml-lsp-server
 
 - `npm run compile`. You don't need this if you're developing this repo in VSCode. The compilation happens automatically in the background.
 - `cd analysis && make`.
+
+## Build LSP
+
+Enter `server` folder
+
+```sh
+npm run build
+```
 
 ## Test
 
