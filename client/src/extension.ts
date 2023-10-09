@@ -203,6 +203,7 @@ export function activate(context: ExtensionContext) {
     customCommands.openCompiled(client);
   });
 
+
   commands.registerCommand(
     "rescript-vscode.go_to_location",
     async (fileUri: string, startLine: number, startCol: number) => {

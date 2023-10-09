@@ -152,6 +152,7 @@ let openCompiledFileRequest = new v.RequestType<
   void
 >("textDocument/openCompiled");
 
+
 let getCurrentCompilerDiagnosticsForFile = (
   fileUri: string
 ): p.Diagnostic[] => {

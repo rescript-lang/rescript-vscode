@@ -120,6 +120,7 @@ let main () =
       ~pos:(int_of_string line_start, int_of_string line_end)
       ~maxLength ~debug:false
   | [_; "codeLens"; path] -> Commands.codeLens ~path ~debug:false
+  | [_; "extractDocs"; path] -> DocExtraction.extractDocs ~path ~debug:false
   | [_; "codeAction"; path; startLine; startCol; endLine; endCol; currentFile]
     ->
     Commands.codeAction ~path

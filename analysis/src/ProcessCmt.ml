@@ -54,7 +54,14 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         newDeclared
       | _ -> declared
     in
-    [{Module.kind = Module.Value declared.item; name = declared.name.txt}]
+    [
+      {
+        Module.kind = Module.Value declared.item;
+        name = declared.name.txt;
+        docstring = declared.docstring;
+        deprecated = declared.deprecated;
+      };
+    ]
   | Sig_type
       ( ident,
         ({type_loc; type_kind; type_manifest; type_attributes} as decl),
@@ -121,7 +128,14 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         (Exported.add exported Exported.Type)
         Stamps.addType
     in
-    [{Module.kind = Type (declared.item, recStatus); name = declared.name.txt}]
+    [
+      {
+        Module.kind = Type (declared.item, recStatus);
+        name = declared.name.txt;
+        docstring = declared.docstring;
+        deprecated = declared.deprecated;
+      };
+    ]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
     let name = Ident.name ident in
     let declared =
@@ -132,7 +146,14 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [{Module.kind = Module declared.item; name = declared.name.txt}]
+    [
+      {
+        Module.kind = Module declared.item;
+        name = declared.name.txt;
+        docstring = declared.docstring;
+        deprecated = declared.deprecated;
+      };
+    ]
   | _ -> []
 
 and forTypeSignature ~name ~env signature =
@@ -142,7 +163,7 @@ and forTypeSignature ~name ~env signature =
       (fun item items -> forTypeSignatureItem ~env ~exported item @ items)
       signature []
   in
-  {Module.name; docstring = []; exported; items}
+  {Module.name; docstring = []; exported; items; deprecated = None}
 
 and forTypeModule ~name ~env moduleType =
   match moduleType with
@@ -293,6 +314,8 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
   {
     Module.kind = Module.Type (declared.item, recStatus);
     name = declared.name.txt;
+    docstring = declared.docstring;
+    deprecated = declared.deprecated;
   }
 
 let rec forSignatureItem ~env ~(exported : Exported.t)
@@ -306,7 +329,14 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [{Module.kind = Module.Value declared.item; name = declared.name.txt}]
+    [
+      {
+        Module.kind = Module.Value declared.item;
+        name = declared.name.txt;
+        docstring = declared.docstring;
+        deprecated = declared.deprecated;
+      };
+    ]
   | Tsig_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -330,7 +360,14 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [{Module.kind = Module declared.item; name = declared.name.txt}]
+    [
+      {
+        Module.kind = Module declared.item;
+        name = declared.name.txt;
+        docstring = declared.docstring;
+        deprecated = declared.deprecated;
+      };
+    ]
   | Tsig_recmodule modDecls ->
     modDecls
     |> List.map (fun modDecl ->
@@ -364,7 +401,8 @@ let forSignature ~name ~env sigItems =
     | _ -> []
   in
   let docstring = attrsToDocstring attributes in
-  {Module.name; docstring; exported; items}
+  let deprecated = ProcessAttributes.findDeprecatedAttribute attributes in
+  {Module.name; docstring; exported; items; deprecated}
 
 let forTreeModuleType ~name ~env {Typedtree.mty_desc} =
   match mty_desc with
@@ -400,7 +438,12 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
             Stamps.addValue
         in
         items :=
-          {Module.kind = Module.Value declared.item; name = declared.name.txt}
+          {
+            Module.kind = Module.Value declared.item;
+            name = declared.name.txt;
+            docstring = declared.docstring;
+            deprecated = declared.deprecated;
+          }
           :: !items
       | Tpat_tuple pats | Tpat_array pats | Tpat_construct (_, _, pats) ->
         pats |> List.iter (fun p -> handlePattern [] p)
@@ -429,7 +472,14 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [{Module.kind = Module declared.item; name = declared.name.txt}]
+    [
+      {
+        Module.kind = Module declared.item;
+        name = declared.name.txt;
+        docstring = declared.docstring;
+        deprecated = declared.deprecated;
+      };
+    ]
   | Tstr_recmodule modDecls ->
     modDecls
     |> List.map (fun modDecl ->
@@ -453,7 +503,14 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Module)
         Stamps.addModule
     in
-    [{Module.kind = Module modTypeItem; name = declared.name.txt}]
+    [
+      {
+        Module.kind = Module modTypeItem;
+        name = declared.name.txt;
+        docstring = declared.docstring;
+        deprecated = declared.deprecated;
+      };
+    ]
   | Tstr_include {incl_mod; incl_type} ->
     let env =
       match getModulePath incl_mod.mod_desc with
@@ -475,7 +532,14 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         (Exported.add exported Exported.Value)
         Stamps.addValue
     in
-    [{Module.kind = Value declared.item; name = declared.name.txt}]
+    [
+      {
+        Module.kind = Value declared.item;
+        name = declared.name.txt;
+        docstring = declared.docstring;
+        deprecated = declared.deprecated;
+      };
+    ]
   | Tstr_type (recFlag, decls) ->
     decls
     |> List.mapi (fun i decl ->
@@ -529,12 +593,15 @@ and forStructure ~name ~env strItems =
       strItems []
   in
   let attributes =
-    match strItems with
-    | {str_desc = Tstr_attribute attribute} :: _ -> [attribute]
-    | _ -> []
+    strItems
+    |> List.filter_map (fun (struc : Typedtree.structure_item) ->
+           match struc with
+           | {str_desc = Tstr_attribute attr} -> Some attr
+           | _ -> None)
   in
   let docstring = attrsToDocstring attributes in
-  {Module.name; docstring; exported; items}
+  let deprecated = ProcessAttributes.findDeprecatedAttribute attributes in
+  {Module.name; docstring; exported; items; deprecated}
 
 let fileForCmtInfos ~moduleName ~uri
     ({cmt_modname; cmt_annots} : Cmt_format.cmt_infos) =
