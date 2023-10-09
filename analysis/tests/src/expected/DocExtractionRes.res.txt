@@ -1,0 +1,97 @@
+Documentation extraction src/DocExtractionRes.res
+extracting docs for src/DocExtractionRes.res
+
+{
+  "name": "DocExtractionRes",
+  "docstrings": ["Module level documentation goes here."],
+  "items": [
+  {
+    "kind": "type",
+    "name": "t",
+    "signature": "type t = {name: string, online: bool}",
+    "docstrings": ["This type represents stuff."],
+    "detail": 
+    {
+      "kind": "record",
+      "fieldDocs": [{
+        "fieldName": "name",
+        "docstrings": ["The name of the stuff."]
+      }, {
+        "fieldName": "online",
+        "docstrings": ["Whether stuff is online."]
+      }]
+    }
+  }, 
+  {
+    "kind": "value",
+    "name": "make",
+    "signature": "let make: string => t",
+    "docstrings": ["Create stuff.\\n\\n```rescript example\\nlet stuff = make(\\\"My name\\\")\\n```"]
+  }, 
+  {
+    "kind": "value",
+    "name": "asOffline",
+    "signature": "let asOffline: t => t",
+    "docstrings": ["Stuff goes offline."]
+  }, 
+  {
+    "kind": "module",
+    "item": 
+    {
+      "name": "SomeInnerModule",
+      "docstrings": ["Another module level docstring here."],
+      "items": [
+      {
+        "kind": "type",
+        "name": "status",
+        "signature": "type status = Started(t) | Stopped | Idle",
+        "docstrings": [],
+        "detail": 
+        {
+          "kind": "variant",
+          "fieldDocs": [
+          {
+            "constructorName": "Started",
+            "docstrings": ["If this is started or not"]
+          }, 
+          {
+            "constructorName": "Stopped",
+            "docstrings": ["Stopped?"]
+          }, 
+          {
+            "constructorName": "Idle",
+            "docstrings": ["Now idle."]
+          }]
+        }
+      }, 
+      {
+        "kind": "type",
+        "name": "validInputs",
+        "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #withPayload(int)\\n]",
+        "docstrings": ["These are all the valid inputs."]
+      }, 
+      {
+        "kind": "type",
+        "name": "callback",
+        "signature": "type callback = (t, ~status: status) => unit",
+        "docstrings": []
+      }]
+    }
+  }, 
+  {
+    "kind": "module",
+    "item": 
+    {
+      "name": "AnotherModule",
+      "docstrings": ["Mighty fine module here too!"],
+      "items": [
+      {
+        "kind": "type",
+        "name": "callback",
+        "signature": "type callback = SomeInnerModule.status => unit",
+        "docstrings": ["Testing what this looks like."]
+      }]
+    }
+  }]
+}
+
