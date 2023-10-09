@@ -237,7 +237,7 @@ let extractDocs ~path ~debug =
     FindFiles.isImplementation path = false
     && FindFiles.isInterface path = false
   then (
-    Printf.printf "error: failed to read %s, expected an .res or .resi file\n"
+    Printf.eprintf "error: failed to read %s, expected an .res or .resi file\n"
       path;
     exit 1);
   let path =
@@ -256,7 +256,7 @@ let extractDocs ~path ~debug =
   in
   match Cmt.loadFullCmtFromPath ~path with
   | None ->
-    Printf.printf
+    Printf.eprintf
       "error: failed to generate doc for %s, try to build the project\n" path;
     exit 1
   | Some full ->

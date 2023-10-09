@@ -50,10 +50,6 @@
 				"title": "ReScript: Create an interface file for this implementation file"
 			},
 			{
-				"command": "rescript-vscode.extract_docs",
-				"title": "ReScript: Extract documentation as JSON for file."
-			},
-			{
 				"command": "rescript-vscode.open_compiled",
 				"category": "ReScript",
 				"title": "Open the compiled JS file for this implementation file",
