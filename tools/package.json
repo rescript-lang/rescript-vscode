@@ -1,0 +1,35 @@
+{
+	"name": "@rescript/tools",
+	"description": "ReScript Tools",
+	"version": "0.1.0",
+	"author": "chenglou",
+	"license": "MIT",
+	"bin": {
+		"restools": "./src/cli.js"
+	},
+	"keywords": [
+		"ReScript",
+		"Tools",
+		"Docgen"
+	],
+	"files": [
+		"src/cli.js",
+		"analysis_binaries",
+		"README.md"
+	],
+	"engines": {
+		"node": "*"
+	},
+	"homepage": "https://github.com/rescript-lang/rescript-vscode/tools/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/rescript-lang/rescript-vscode",
+		"directory": "tools"
+	},
+	"bugs": {
+		"url": "https://github.com/rescript-lang/rescript-vscode/issues"
+	},
+	"scripts": {
+		"build": "cp -r ../server/analysis_binaries/* analysis_binaries/"
+	}
+}

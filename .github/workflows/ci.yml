@@ -219,3 +219,9 @@ jobs:
       run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    - name: NPM Dry run
+      working-directory: tools
+      run: |
+          npm run build
+          npm publish --dry-run

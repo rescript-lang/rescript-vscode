@@ -121,8 +121,7 @@ let main () =
       ~maxLength ~debug:false
   | [_; "codeLens"; path] -> Commands.codeLens ~path ~debug:false
   | [_; "extractDocs"; path] -> DocExtraction.extractDocs ~path ~debug:false
-  | [_; "codeAction"; path; startLine; startCol; endLine; endCol; currentFile]
-    ->
+  | [_; "codeAction"; path; startLine; startCol; endLine; endCol; currentFile] ->
     Commands.codeAction ~path
       ~startPos:(int_of_string startLine, int_of_string startCol)
       ~endPos:(int_of_string endLine, int_of_string endCol)
