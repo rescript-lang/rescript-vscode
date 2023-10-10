@@ -28,7 +28,10 @@ export let findProjectRootOfFile = (
   source: p.DocumentUri
 ): null | p.DocumentUri => {
   let dir = path.dirname(source);
-  if (fs.existsSync(path.join(dir, c.bsconfigPartialPath))) {
+  if (
+    fs.existsSync(path.join(dir, c.rescriptJsonPartialPath)) ||
+    fs.existsSync(path.join(dir, c.bsconfigPartialPath))
+  ) {
     return dir;
   } else {
     if (dir === source) {
@@ -192,23 +195,23 @@ export const toCamelCase = (text: string): string => {
     .replace(/(\s|-)+/g, "");
 };
 
-export const getNamespaceNameFromBsConfig = (
+export const getNamespaceNameFromConfigFile = (
   projDir: p.DocumentUri
 ): execResult => {
-  let bsconfig = lookup.readBsConfig(projDir);
+  let config = lookup.readConfig(projDir);
   let result = "";
 
-  if (!bsconfig) {
+  if (!config) {
     return {
       kind: "error",
-      error: "Could not read bsconfig",
+      error: "Could not read ReScript config file",
     };
   }
 
-  if (bsconfig.namespace === true) {
-    result = toCamelCase(bsconfig.name);
-  } else if (typeof bsconfig.namespace === "string") {
-    result = toCamelCase(bsconfig.namespace);
+  if (config.namespace === true) {
+    result = toCamelCase(config.name);
+  } else if (typeof config.namespace === "string") {
+    result = toCamelCase(config.namespace);
   }
 
   return {
@@ -223,7 +226,7 @@ export let getCompiledFilePath = (
 ): execResult => {
   let error: execResult = {
     kind: "error",
-    error: "Could not read bsconfig",
+    error: "Could not read ReScript config file",
   };
   let partialFilePath = filePath.split(projDir)[1];
   let compiledPath = lookup.getFilenameFromBsconfig(projDir, partialFilePath);

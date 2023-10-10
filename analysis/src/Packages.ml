@@ -12,12 +12,10 @@ let makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths =
   pathsForModule
 
 let newBsPackage ~rootPath =
-  let bsconfig = Filename.concat rootPath "bsconfig.json" in
-  match Files.readFile bsconfig with
-  | None ->
-    Log.log ("Unable to read " ^ bsconfig);
-    None
-  | Some raw -> (
+  let rescriptJson = Filename.concat rootPath "rescript.json" in
+  let bsconfigJson = Filename.concat rootPath "bsconfig.json" in
+
+  let parseRaw raw =
     let libBs = BuildSystem.getLibBs rootPath in
     match Json.parse raw with
     | Some config -> (
@@ -92,7 +90,7 @@ let newBsPackage ~rootPath =
                |> List.map (fun path -> path @ ["place holder"])
              in
              Log.log
-               ("Opens from bsconfig: "
+               ("Opens from ReScript config file: "
                ^ (opens |> List.map pathToString |> String.concat " "));
              {
                rootPath;
@@ -156,15 +154,28 @@ let newBsPackage ~rootPath =
                    });
                uncurried;
              })))
-    | None -> None)
+    | None -> None
+  in
+
+  match Files.readFile rescriptJson with
+  | Some raw -> parseRaw raw
+  | None -> (
+    Log.log ("Unable to read " ^ rescriptJson);
+    match Files.readFile bsconfigJson with
+    | Some raw -> parseRaw raw
+    | None ->
+      Log.log ("Unable to read " ^ bsconfigJson);
+      None)
 
 let findRoot ~uri packagesByRoot =
   let path = Uri.toPath uri in
   let rec loop path =
     if path = "/" then None
     else if Hashtbl.mem packagesByRoot path then Some (`Root path)
-    else if Files.exists (Filename.concat path "bsconfig.json") then
-      Some (`Bs path)
+    else if
+      Files.exists (Filename.concat path "rescript.json")
+      || Files.exists (Filename.concat path "bsconfig.json")
+    then Some (`Bs path)
     else
       let parent = Filename.dirname path in
       if parent = path then (* reached root *) None else loop parent
