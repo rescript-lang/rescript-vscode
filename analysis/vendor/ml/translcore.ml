@@ -762,7 +762,14 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
       let inlined, funct =
         Translattribute.get_and_remove_inlined_attribute funct
       in
-      transl_apply ~inlined (transl_exp funct) oargs e.exp_loc
+      let uncurried_partial_application =
+        let uncurried_partial_app = Ext_list.exists e.exp_attributes (fun ({txt },_) -> txt = "res.partial") in
+        if uncurried_partial_app then
+          let arity_opt = Ast_uncurried.uncurried_type_get_arity_opt ~env:funct.exp_env funct.exp_type in   
+          arity_opt
+        else
+          None in
+      transl_apply ~inlined ~uncurried_partial_application (transl_exp funct) oargs e.exp_loc
   | Texp_match (arg, pat_expr_list, exn_pat_expr_list, partial) ->
       transl_match e arg pat_expr_list exn_pat_expr_list partial
   | Texp_try (body, pat_expr_list) ->
@@ -781,9 +788,17 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
       (* ReScript uncurried encoding *)
       let loc = expr.exp_loc in
       let lambda = transl_exp expr in
-      let arity_s = Ast_uncurried.uncurried_type_get_arity ~env:e.exp_env e.exp_type |> string_of_int in
+      let arity = Ast_uncurried.uncurried_type_get_arity ~env:e.exp_env e.exp_type in
+      let arity_s = arity |> string_of_int in
+      let name = match (Ctype.expand_head expr.exp_env expr.exp_type).desc with
+      | Tarrow (Nolabel, t, _, _) -> (
+        match (Ctype.expand_head expr.exp_env t).desc with
+        | Tconstr (Pident {name= "unit"}, [], _) -> "#fn_mk_unit"
+        | _ -> "#fn_mk"
+      )
+      | _ -> "#fn_mk" in
       let prim =
-        Primitive.make ~name:"#fn_mk" ~alloc:true ~native_name:arity_s
+        Primitive.make ~name ~alloc:true ~native_name:arity_s
           ~native_repr_args:[ Same_as_ocaml_repr ]
           ~native_repr_res:Same_as_ocaml_repr
       in
@@ -816,6 +831,7 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
                              name = cstr.cstr_name;
                              const = cstr.cstr_consts;
                              non_const = cstr.cstr_nonconsts;
+                             attrs = cstr.cstr_attributes;
                            } ))
         | Cstr_unboxed -> ( match ll with [ v ] -> v | _ -> assert false)
         | Cstr_block n -> (
@@ -823,7 +839,7 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
               if Datarepr.constructor_has_optional_shape cstr then
                 match args with
                 | [ arg ]
-                  when Typeopt.cannot_inhabit_none_like_value arg.exp_type
+                  when Typeopt.type_cannot_contain_undefined arg.exp_type
                          arg.exp_env ->
                     (* Format.fprintf Format.err_formatter "@[special boxingl@]@."; *)
                     Blk_some_not_nested
@@ -834,6 +850,7 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
                     name = cstr.cstr_name;
                     num_nonconst = cstr.cstr_nonconsts;
                     tag = n;
+                    attrs = cstr.cstr_attributes;
                   }
             in
             try Lconst (Const_block (tag_info, List.map extract_constant ll))
@@ -968,7 +985,7 @@ and transl_cases_try cases =
   in
   List.map transl_case_try cases
 
-and transl_apply ?(inlined = Default_inline) lam sargs loc =
+and transl_apply ?(inlined = Default_inline) ?(uncurried_partial_application=None) lam sargs loc =
   let lapply funct args =
     match funct with
     (* Attention: This may not be what we need to change the application arity*)
@@ -1018,11 +1035,36 @@ and transl_apply ?(inlined = Default_inline) lam sargs loc =
     | (Some arg, optional) :: l -> build_apply lam ((arg, optional) :: args) l
     | [] -> lapply lam (List.rev_map fst args)
   in
-  (build_apply lam []
-     (List.map
-        (fun (l, x) -> (may_map transl_exp x, Btype.is_optional l))
-        sargs)
-    : Lambda.lambda)
+  match uncurried_partial_application with
+    | Some arity when arity > List.length sargs ->
+    let extra_arity = arity - List.length sargs in
+    let none_ids = ref [] in
+    let args = Ext_list.filter_map sargs (function
+     | _, Some e ->
+        Some (transl_exp e)
+     | _, None ->
+        let id_arg = Ident.create "none" in
+        none_ids := id_arg :: !none_ids;
+        Some (Lvar id_arg)) in
+    let extra_ids = ref [] in
+    extra_ids := Ident.create "extra" :: !extra_ids;
+    let extra_ids = Array.init extra_arity (fun _ -> Ident.create "extra") |> Array.to_list in
+    let extra_args = Ext_list.map extra_ids (fun id -> Lvar id) in
+    let ap_args = args @ extra_args in
+    let l0 = Lapply { ap_func = lam; ap_args; ap_inlined = inlined; ap_loc = loc } in
+    Lfunction
+      {
+        params = List.rev_append !none_ids extra_ids ;
+        body = l0;
+        attr = default_function_attribute;
+        loc;
+      }
+  | _ ->
+    (build_apply lam []
+      (List.map
+          (fun (l, x) -> (may_map transl_exp x, Btype.is_optional l))
+          sargs)
+      : Lambda.lambda)
 
 and transl_function loc partial param cases =
   match cases with
@@ -1155,10 +1197,10 @@ and transl_record loc env fields repres opt_init_expr =
             | Record_optional_labels _ ->
                 Lconst
                   (Const_block (!Lambda.blk_record fields mut Record_optional, cl))
-            | Record_inlined { tag; name; num_nonconsts; optional_labels } ->
+            | Record_inlined { tag; name; num_nonconsts; optional_labels; attrs } ->
                 Lconst
                   (Const_block
-                     ( !Lambda.blk_record_inlined fields name num_nonconsts optional_labels ~tag
+                     ( !Lambda.blk_record_inlined fields name num_nonconsts optional_labels ~tag ~attrs
                          mut,
                        cl ))
             | Record_unboxed _ ->
@@ -1177,10 +1219,10 @@ and transl_record loc env fields repres opt_init_expr =
                     ll,
                     loc )
             | Record_float_unused -> assert false
-            | Record_inlined { tag; name; num_nonconsts; optional_labels } ->
+            | Record_inlined { tag; name; num_nonconsts; optional_labels; attrs } ->
                 Lprim
                   ( Pmakeblock
-                      (!Lambda.blk_record_inlined fields name num_nonconsts optional_labels ~tag
+                      (!Lambda.blk_record_inlined fields name num_nonconsts optional_labels ~tag ~attrs
                          mut),
                     ll,
                     loc )
