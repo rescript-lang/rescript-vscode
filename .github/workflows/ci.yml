@@ -220,8 +220,12 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-    - name: NPM Dry run
+    - name: Build @rescript/tools package
       working-directory: tools
       run: |
-          npm run build
-          npm publish --dry-run
+        cp -r ../server/analysis_binaries/* analysis_binaries/
+        npm run build
+
+    - name: NPM Dry run
+      working-directory: tools
+      run: npm publish --dry-run

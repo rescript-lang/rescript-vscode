@@ -14,6 +14,8 @@
 	],
 	"files": [
 		"src/cli.js",
+		"src/*.res",
+		"src/*.resi",
 		"analysis_binaries",
 		"README.md"
 	],
@@ -30,6 +32,9 @@
 		"url": "https://github.com/rescript-lang/rescript-vscode/issues"
 	},
 	"scripts": {
-		"build": "cp -r ../server/analysis_binaries/* analysis_binaries/"
+		"build": "rescript build"
+	},
+	"dependencies": {
+		"rescript": "^10.1.4"
 	}
 }
