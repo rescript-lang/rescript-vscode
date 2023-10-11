@@ -220,10 +220,12 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+    - name: Copy analysis binaries to tools folder
+      run: cp -r server/analysis_binaries/* tools/analysis_binaries
+
     - name: Build @rescript/tools package
       working-directory: tools
       run: |
-        cp -r ../server/analysis_binaries/* analysis_binaries/
         npm ci
         npm run build
 
