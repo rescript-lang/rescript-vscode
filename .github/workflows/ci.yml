@@ -233,3 +233,5 @@ jobs:
       if: ${{ startsWith(github.event.head_commit.message, 'publish tools') && (github.ref == 'refs/heads/master') }}
       working-directory: tools
       run: npm publish --dry-run
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
