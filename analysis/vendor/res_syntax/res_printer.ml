@@ -480,6 +480,10 @@ let printPolyVarIdent txt =
       | "" -> Doc.concat [Doc.text "\""; Doc.text txt; Doc.text "\""]
       | _ -> Doc.text txt)
 
+let polyVarIdentToString polyVarIdent =
+  Doc.concat [Doc.text "#"; printPolyVarIdent polyVarIdent]
+  |> Doc.toString ~width:80
+
 let printLident l =
   let flatLidOpt lid =
     let rec flat accu = function
@@ -1442,8 +1446,9 @@ and printConstructorDeclarations ~state ~privateFlag
 and printConstructorDeclaration2 ~state i
     (cd : Parsetree.constructor_declaration) cmtTbl =
   let attrs = printAttributes ~state cd.pcd_attributes cmtTbl in
+  let isDotDotDot = cd.pcd_name.txt = "..." in
   let bar =
-    if i > 0 || cd.pcd_attributes <> [] then Doc.text "| "
+    if i > 0 || cd.pcd_attributes <> [] || isDotDotDot then Doc.text "| "
     else Doc.ifBreaks (Doc.text "| ") Doc.nil
   in
   let constrName =
@@ -1451,7 +1456,8 @@ and printConstructorDeclaration2 ~state i
     printComments doc cmtTbl cd.pcd_name.loc
   in
   let constrArgs =
-    printConstructorArguments ~state ~indent:true cd.pcd_args cmtTbl
+    printConstructorArguments ~isDotDotDot ~state ~indent:true cd.pcd_args
+      cmtTbl
   in
   let gadt =
     match cd.pcd_res with
@@ -1473,7 +1479,7 @@ and printConstructorDeclaration2 ~state i
            ]);
     ]
 
-and printConstructorArguments ~state ~indent
+and printConstructorArguments ?(isDotDotDot = false) ~state ~indent
     (cdArgs : Parsetree.constructor_arguments) cmtTbl =
   match cdArgs with
   | Pcstr_tuple [] -> Doc.nil
@@ -1481,7 +1487,7 @@ and printConstructorArguments ~state ~indent
     let args =
       Doc.concat
         [
-          Doc.lparen;
+          (if isDotDotDot then Doc.nil else Doc.lparen);
           Doc.indent
             (Doc.concat
                [
@@ -1494,7 +1500,7 @@ and printConstructorArguments ~state ~indent
                ]);
           Doc.trailingComma;
           Doc.softLine;
-          Doc.rparen;
+          (if isDotDotDot then Doc.nil else Doc.rparen);
         ]
     in
     Doc.group (if indent then Doc.indent args else args)
@@ -3452,6 +3458,12 @@ and printTemplateLiteral ~state expr cmtTbl =
       printStringContents txt
     | _ ->
       let doc = printExpressionWithComments ~state expr cmtTbl in
+      let doc =
+        match Parens.expr expr with
+        | Parens.Parenthesized -> addParens doc
+        | Braced braces -> printBraces doc expr braces
+        | Nothing -> doc
+      in
       Doc.group (Doc.concat [Doc.text "${"; Doc.indent doc; Doc.rbrace])
   in
   let content = walkExpr expr in
@@ -3515,8 +3527,8 @@ and printBinaryExpression ~state (expr : Parsetree.expression) cmtTbl =
     Doc.concat
       [spacingBeforeOperator; Doc.text operatorTxt; spacingAfterOperator]
   in
-  let printOperand ~isLhs expr parentOperator =
-    let rec flatten ~isLhs expr parentOperator =
+  let printOperand ~isLhs ~isMultiline expr parentOperator =
+    let rec flatten ~isLhs ~isMultiline expr parentOperator =
       if ParsetreeViewer.isBinaryExpression expr then
         match expr with
         | {
@@ -3529,7 +3541,7 @@ and printBinaryExpression ~state (expr : Parsetree.expression) cmtTbl =
             ParsetreeViewer.flattenableOperators parentOperator operator
             && not (ParsetreeViewer.hasAttributes expr.pexp_attributes)
           then
-            let leftPrinted = flatten ~isLhs:true left operator in
+            let leftPrinted = flatten ~isLhs:true ~isMultiline left operator in
             let rightPrinted =
               let rightPrinteableAttrs, rightInternalAttrs =
                 ParsetreeViewer.partitionPrintableAttributes
@@ -3573,12 +3585,26 @@ and printBinaryExpression ~state (expr : Parsetree.expression) cmtTbl =
                     Doc.rparen;
                   ]
               else
-                Doc.concat
-                  [
-                    leftPrinted;
-                    printBinaryOperator ~inlineRhs:false operator;
-                    rightPrinted;
-                  ]
+                match operator with
+                | ("|." | "|.u") when isMultiline ->
+                  (* If the pipe-chain is written over multiple lines, break automatically
+                   * `let x = a->b->c -> same line, break when line-width exceeded
+                   * `let x = a->
+                   *   b->c` -> pipe-chain is written on multiple lines, break the group *)
+                  Doc.breakableGroup ~forceBreak:true
+                    (Doc.concat
+                       [
+                         leftPrinted;
+                         printBinaryOperator ~inlineRhs:false operator;
+                         rightPrinted;
+                       ])
+                | _ ->
+                  Doc.concat
+                    [
+                      leftPrinted;
+                      printBinaryOperator ~inlineRhs:false operator;
+                      rightPrinted;
+                    ]
             in
 
             let doc =
@@ -3653,7 +3679,7 @@ and printBinaryExpression ~state (expr : Parsetree.expression) cmtTbl =
           | Braced braces -> printBraces doc expr braces
           | Nothing -> doc)
     in
-    flatten ~isLhs expr parentOperator
+    flatten ~isLhs ~isMultiline expr parentOperator
   in
   match expr.pexp_desc with
   | Pexp_apply
@@ -3667,8 +3693,8 @@ and printBinaryExpression ~state (expr : Parsetree.expression) cmtTbl =
            || ParsetreeViewer.isBinaryExpression rhs
            || printAttributes ~state expr.pexp_attributes cmtTbl <> Doc.nil) ->
     let lhsHasCommentBelow = hasCommentBelow cmtTbl lhs.pexp_loc in
-    let lhsDoc = printOperand ~isLhs:true lhs op in
-    let rhsDoc = printOperand ~isLhs:false rhs op in
+    let lhsDoc = printOperand ~isLhs:true ~isMultiline:false lhs op in
+    let rhsDoc = printOperand ~isLhs:false ~isMultiline:false rhs op in
     Doc.group
       (Doc.concat
          [
@@ -3685,12 +3711,16 @@ and printBinaryExpression ~state (expr : Parsetree.expression) cmtTbl =
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Longident.Lident operator}},
         [(Nolabel, lhs); (Nolabel, rhs)] ) ->
+    let isMultiline =
+      lhs.pexp_loc.loc_start.pos_lnum < rhs.pexp_loc.loc_start.pos_lnum
+    in
+
     let right =
       let operatorWithRhs =
         let rhsDoc =
           printOperand
             ~isLhs:(ParsetreeViewer.isRhsBinaryOperator operator)
-            rhs operator
+            ~isMultiline rhs operator
         in
         Doc.concat
           [
@@ -3710,7 +3740,7 @@ and printBinaryExpression ~state (expr : Parsetree.expression) cmtTbl =
            [
              printOperand
                ~isLhs:(not @@ ParsetreeViewer.isRhsBinaryOperator operator)
-               lhs operator;
+               ~isMultiline lhs operator;
              right;
            ])
     in

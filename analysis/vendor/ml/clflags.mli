@@ -25,6 +25,7 @@ val dont_write_files : bool ref
 val keep_docs : bool ref
 val keep_locs : bool ref
 val only_parse : bool ref
+val ignore_parse_errors: bool ref
 
 
 val parse_color_setting : string -> Misc.Color.setting option
@@ -37,7 +38,6 @@ val reset_dump_state: unit -> unit
 
 type mli_status =  Mli_exists | Mli_non_exists
 val assume_no_mli : mli_status ref
-val bs_vscode : bool
 val dont_record_crc_unit : string option ref
 val bs_gentype : bool ref
 val no_assert_false : bool ref

@@ -26,6 +26,8 @@ type loc = {
   loc_ghost : bool;
 }
 
+type topLevelUnitHelp = FunctionCall | Other
+
 type t =
   | Comment_start (*  1 *)
   | Comment_not_end (*  2 *)
@@ -83,7 +85,7 @@ type t =
   | Bs_unimplemented_primitive of string (* 106 *)
   | Bs_integer_literal_overflow (* 107 *)
   | Bs_uninterpreted_delimiters of string (* 108 *)
-  | Bs_toplevel_expression_unit (* 109 *)
+  | Bs_toplevel_expression_unit of (string * topLevelUnitHelp) option (* 109 *)
 
 (* If you remove a warning, leave a hole in the numbering.  NEVER change
    the numbers of existing warnings.
@@ -148,7 +150,7 @@ let number = function
   | Bs_unimplemented_primitive _ -> 106
   | Bs_integer_literal_overflow -> 107
   | Bs_uninterpreted_delimiters _ -> 108
-  | Bs_toplevel_expression_unit -> 109
+  | Bs_toplevel_expression_unit _ -> 109
 
 let last_warning_number = 110
 
@@ -480,7 +482,7 @@ let message = function
   | Bs_polymorphic_comparison ->
       "Polymorphic comparison introduced (maybe unsafe)"
   | Bs_ffi_warning s -> "FFI warning: " ^ s
-  | Bs_derive_warning s -> "bs.deriving warning: " ^ s
+  | Bs_derive_warning s -> "@deriving warning: " ^ s
   | Bs_fragile_external s ->
       s
       ^ " : using an empty string as a shorthand to infer the external's name \
@@ -490,8 +492,23 @@ let message = function
   | Bs_integer_literal_overflow ->
       "Integer literal exceeds the range of representable integers of type int"
   | Bs_uninterpreted_delimiters s -> "Uninterpreted delimiters " ^ s
-  | Bs_toplevel_expression_unit ->
-      "Toplevel expression is expected to have unit type."
+  | Bs_toplevel_expression_unit help ->
+      Printf.sprintf "This%sis at the top level and is expected to return `unit`. But it's returning %s.\n\n  In ReScript, anything at the top level must evaluate to `unit`. You can fix this by assigning the expression to a value, or piping it into the `ignore` function.%s" 
+        (match help with 
+        | Some (_, FunctionCall) -> " function call " 
+        | _ -> " ") 
+
+        (match help with 
+        | Some (returnType, _) -> Printf.sprintf "`%s`" returnType 
+        | None -> "something that is not `unit`")
+
+        (match help with 
+        | Some (_, helpTyp) ->
+          let helpText = (match helpTyp with 
+          | FunctionCall -> "yourFunctionCall()" 
+          | Other -> "yourExpression") in
+          Printf.sprintf "\n\n  Possible solutions:\n  - Assigning to a value that is then ignored: `let _ = %s`\n  - Piping into the built-in ignore function to ignore the result: `%s->ignore`" helpText helpText
+        | _ -> "") 
 
 let sub_locs = function
   | Deprecated (_, def, use) ->
