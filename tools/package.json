@@ -5,7 +5,7 @@
 	"author": "chenglou",
 	"license": "MIT",
 	"bin": {
-		"restools": "./src/cli.js"
+		"restools": "./src/Cli.bs.js"
 	},
 	"keywords": [
 		"ReScript",
@@ -13,7 +13,9 @@
 		"Docgen"
 	],
 	"files": [
-		"src/",
+		"src/Cli.bs.js",
+		"src/*.res",
+		"src/*.resi",
 		"analysis_binaries/",
 		"README.md"
 	],
@@ -33,6 +35,6 @@
 		"build": "rescript build"
 	},
 	"dependencies": {
-		"rescript": "^10.1.4"
+		"rescript": "^11.0.0-rc.4"
 	}
 }

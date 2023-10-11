@@ -4,10 +4,15 @@
   "sources": [
     {
       "dir": "src"
+    },
+    {
+      "dir": "test",
+      "type": "dev"
     }
   ],
-  "suffix": ".bs.mjs",
+  "suffix": ".bs.js",
   "package-specs": {
-    "module": "es6"
+    "module": "commonjs",
+    "in-source": true
   }
 }

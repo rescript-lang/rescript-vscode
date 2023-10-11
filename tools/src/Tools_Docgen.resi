@@ -15,27 +15,27 @@ type detail = Record(array<field>) | Variant(array<constructor>)
 type rec item =
   | Value({
       id: string,
-      docstring: array<string>,
+      docstrings: array<string>,
       signature: string,
       name: string,
       deprecated: option<string>,
     })
   | Type({
       id: string,
-      docstring: array<string>,
+      docstrings: array<string>,
       signature: string,
       name: string,
       deprecated: option<string>,
       detail: option<detail>,
     })
   | Module(docsForModule)
-  | ModuleAlias({id: string, docstring: array<string>, name: string, items: array<item>})
+  | ModuleAlias({id: string, docstrings: array<string>, name: string, items: array<item>})
 and docsForModule = {
   id: string,
-  docstring: array<string>,
+  docstrings: array<string>,
   deprecated: option<string>,
   name: string,
   items: array<item>,
 }
-type doc = {name: string, deprecated: option<string>, docstring: array<string>, items: array<item>}
+type doc = {name: string, deprecated: option<string>, docstrings: array<string>, items: array<item>}
 let decodeFromJson: Js.Json.t => doc
