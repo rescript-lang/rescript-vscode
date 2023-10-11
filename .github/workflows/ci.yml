@@ -227,6 +227,7 @@ jobs:
         npm ci
         npm run build
 
-    - name: NPM Dry run
+    - name: Publish @rescript/tools package
+      if: ${{ startsWith(github.event.head_commit.message, 'publish tools') && (github.ref != 'refs/heads/master') }}
       working-directory: tools
       run: npm publish --dry-run
