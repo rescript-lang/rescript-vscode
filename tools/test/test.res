@@ -1,5 +1,5 @@
 /***
-Gerenate the json from some lib
+Gerenate the json for some lib
 
 Example for rescript-core
 

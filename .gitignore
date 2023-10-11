@@ -10,4 +10,4 @@ analysis/rescript-editor-analysis.exe
 analysis/_opam
 tools/node_modules
 tools/lib
-tools/src/*.bs.mjs
+tools/**/.bs.js

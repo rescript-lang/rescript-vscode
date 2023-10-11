@@ -57,43 +57,30 @@ and docsForModule = {
 let decodeDocstrings = item => {
   open Js.Json
   switch item->Js.Dict.get("docstrings") {
-  | Some(j) =>
-    switch j {
-    | Array(arr) =>
-      arr->Js.Array2.map(s =>
-        switch s {
-        | String(s) => s
-        | _ => assert(false)
-        }
-      )
-    | _ => assert(false)
-    }
-  | None => []
+  | Some(Array(arr)) =>
+    arr->Js.Array2.map(s =>
+      switch s {
+      | String(s) => s
+      | _ => assert(false)
+      }
+    )
+  | _ => []
   }
 }
 
 let decodeStringByField = (item, field) => {
   open Js.Json
   switch item->Js.Dict.get(field) {
-  | Some(j) =>
-    switch j {
-    | String(s) => s
-    | _ => assert(false)
-    }
-  | None => assert(false)
+  | Some(String(s)) => s
+  | _ => assert(false)
   }
 }
 
 let decodeDepreacted = item => {
   open Js.Json
   switch item->Js.Dict.get("deprecated") {
-  | Some(j) =>
-    switch j {
-    | String(j) => Some(j)
-    | _ => assert(false)
-    }
-
-  | None => None
+  | Some(String(s)) => Some(s)
+  | _ => None
   }
 }
 
@@ -107,12 +94,8 @@ let decodeRecordFields = fields => {
         let signature = doc->decodeStringByField("signature")
         let deprecated = doc->decodeDepreacted
         let optional = switch Js.Dict.get(doc, "optional") {
-        | Some(value) =>
-          switch value {
-          | Boolean(bool) => bool
-          | _ => assert(false)
-          }
-        | None => assert(false)
+        | Some(Boolean(bool)) => bool
+        | _ => assert(false)
         }
 
         {name, docstrings, signature, optional, deprecated}
@@ -149,15 +132,10 @@ let decodeDetail = detail => {
   switch detail {
   | Object(detail) =>
     switch (detail->Js.Dict.get("kind"), detail->Js.Dict.get("items")) {
-    | (Some(kind), Some(items)) =>
-      switch (kind, items) {
-      | (String(kind), Array(items)) =>
-        switch kind {
-        | "record" => decodeRecordFields(items)
-        | "variant" => decodeConstructorFields(items)
-        | _ => assert(false)
-        }
-
+    | (Some(String(kind)), Some(Array(items))) =>
+      switch kind {
+      | "record" => decodeRecordFields(items)
+      | "variant" => decodeConstructorFields(items)
       | _ => assert(false)
       }
     | _ => assert(false)
@@ -193,12 +171,8 @@ and decodeModuleAlias = item => {
   let name = item->decodeStringByField("name")
   let docstrings = item->decodeDocstrings
   let items = switch Js.Dict.get(item, "items") {
-  | Some(items) =>
-    switch items {
-    | Array(arr) => arr->Js.Array2.map(i => decodeItem(i))
-    | _ => assert(false)
-    }
-  | None => assert(false)
+  | Some(Array(items)) => items->Js.Array2.map(item => decodeItem(item))
+  | _ => assert(false)
   }
   ModuleAlias({id, items, name, docstrings})
 }
@@ -209,12 +183,8 @@ and decodeModule = item => {
   let deprecated = item->decodeDepreacted
   let docstrings = item->decodeDocstrings
   let items = switch Js.Dict.get(item, "items") {
-  | Some(items) =>
-    switch items {
-    | Array(arr) => arr->Js.Array2.map(i => decodeItem(i))
-    | _ => assert(false)
-    }
-  | None => assert(false)
+  | Some(Array(items)) => items->Js.Array2.map(item => decodeItem(item))
+  | _ => assert(false)
   }
   Module({id, name, docstrings, deprecated, items})
 }
@@ -223,23 +193,16 @@ and decodeItem = item => {
   switch item {
   | Object(value) =>
     switch Js.Dict.get(value, "kind") {
-    | Some(kind) =>
+    | Some(String(kind)) =>
       switch kind {
-      | String(type_) =>
-        switch type_ {
-        | "type" => decodeType(value)
-        | "value" => decodeValue(value)
-        | "module" => decodeModule(value)
-        | "moduleAlias" => decodeModuleAlias(value)
-        | _ => assert(false)
-        }
-
+      | "type" => decodeType(value)
+      | "value" => decodeValue(value)
+      | "module" => decodeModule(value)
+      | "moduleAlias" => decodeModuleAlias(value)
       | _ => assert(false)
       }
-
-    | None => assert(false)
+    | _ => assert(false)
     }
-
   | _ => assert(false)
   }
 }
@@ -263,13 +226,8 @@ let decodeFromJson = json => {
       let deprecated = mod->decodeDepreacted
       let docstrings = mod->decodeDocstrings
       let items = switch Js.Dict.get(mod, "items") {
-      | Some(items) =>
-        switch items {
-        | Array(arr) => arr->Js.Array2.map(i => decodeItem(i))
-        | _ => assert(false)
-        }
-
-      | None => assert(false)
+      | Some(Array(items)) => items->Js.Array2.map(item => decodeItem(item))
+      | _ => assert(false)
       }
 
       {name, deprecated, docstrings, items}

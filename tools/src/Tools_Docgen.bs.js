@@ -4,126 +4,66 @@
 var Js_dict = require("rescript/lib/js/js_dict.js");
 
 function decodeDocstrings(item) {
-  var j = Js_dict.get(item, "docstrings");
-  if (j === undefined) {
-    return [];
-  }
-  if (!Array.isArray(j) && (j === null || typeof j !== "object") && typeof j !== "number" && typeof j !== "string" && typeof j !== "boolean") {
-    throw {
-          RE_EXN_ID: "Assert_failure",
-          _1: [
-            "Tools_Docgen.res",
-            69,
-            11
-          ],
-          Error: new Error()
-        };
-  }
-  if (Array.isArray(j)) {
-    return j.map(function (s) {
-                if (!Array.isArray(s) && (s === null || typeof s !== "object") && typeof s !== "number" && typeof s !== "string" && typeof s !== "boolean") {
+  var match = Js_dict.get(item, "docstrings");
+  if (match !== undefined) {
+    if (!Array.isArray(match) && (match === null || typeof match !== "object") && typeof match !== "number" && typeof match !== "string" && typeof match !== "boolean") {
+      return [];
+    } else if (Array.isArray(match)) {
+      return match.map(function (s) {
+                  if (!Array.isArray(s) && (s === null || typeof s !== "object") && typeof s !== "number" && typeof s !== "string" && typeof s !== "boolean") {
+                    throw {
+                          RE_EXN_ID: "Assert_failure",
+                          _1: [
+                            "Tools_Docgen.res",
+                            64,
+                            13
+                          ],
+                          Error: new Error()
+                        };
+                  }
+                  if (typeof s === "string") {
+                    return s;
+                  }
                   throw {
                         RE_EXN_ID: "Assert_failure",
                         _1: [
                           "Tools_Docgen.res",
-                          66,
-                          15
+                          64,
+                          13
                         ],
                         Error: new Error()
                       };
-                }
-                if (typeof s === "string") {
-                  return s;
-                }
-                throw {
-                      RE_EXN_ID: "Assert_failure",
-                      _1: [
-                        "Tools_Docgen.res",
-                        66,
-                        15
-                      ],
-                      Error: new Error()
-                    };
-              });
+                });
+    } else {
+      return [];
+    }
+  } else {
+    return [];
   }
-  throw {
-        RE_EXN_ID: "Assert_failure",
-        _1: [
-          "Tools_Docgen.res",
-          69,
-          11
-        ],
-        Error: new Error()
-      };
 }
 
 function decodeStringByField(item, field) {
-  var j = Js_dict.get(item, field);
-  if (j !== undefined) {
-    if (!Array.isArray(j) && (j === null || typeof j !== "object") && typeof j !== "number" && typeof j !== "string" && typeof j !== "boolean") {
-      throw {
-            RE_EXN_ID: "Assert_failure",
-            _1: [
-              "Tools_Docgen.res",
-              81,
-              11
-            ],
-            Error: new Error()
-          };
-    }
-    if (typeof j === "string") {
-      return j;
-    }
-    throw {
-          RE_EXN_ID: "Assert_failure",
-          _1: [
-            "Tools_Docgen.res",
-            81,
-            11
-          ],
-          Error: new Error()
-        };
-  } else {
-    throw {
-          RE_EXN_ID: "Assert_failure",
-          _1: [
-            "Tools_Docgen.res",
-            83,
-            12
-          ],
-          Error: new Error()
-        };
-  }
-}
-
-function decodeDepreacted(item) {
-  var j = Js_dict.get(item, "deprecated");
-  if (j === undefined) {
-    return ;
-  }
-  if (!Array.isArray(j) && (j === null || typeof j !== "object") && typeof j !== "number" && typeof j !== "string" && typeof j !== "boolean") {
-    throw {
-          RE_EXN_ID: "Assert_failure",
-          _1: [
-            "Tools_Docgen.res",
-            93,
-            11
-          ],
-          Error: new Error()
-        };
-  }
-  if (typeof j === "string") {
-    return j;
+  var match = Js_dict.get(item, field);
+  if (match !== undefined && !(!Array.isArray(match) && (match === null || typeof match !== "object") && typeof match !== "number" && typeof match !== "string" && typeof match !== "boolean") && typeof match === "string") {
+    return match;
   }
   throw {
         RE_EXN_ID: "Assert_failure",
         _1: [
           "Tools_Docgen.res",
-          93,
-          11
+          75,
+          9
         ],
         Error: new Error()
       };
+}
+
+function decodeDepreacted(item) {
+  var match = Js_dict.get(item, "deprecated");
+  if (match !== undefined && !(!Array.isArray(match) && (match === null || typeof match !== "object") && typeof match !== "number" && typeof match !== "string" && typeof match !== "boolean" || typeof match !== "string")) {
+    return match;
+  }
+  
 }
 
 function decodeDetail(detail) {
@@ -132,7 +72,7 @@ function decodeDetail(detail) {
           RE_EXN_ID: "Assert_failure",
           _1: [
             "Tools_Docgen.res",
-            166,
+            144,
             9
           ],
           Error: new Error()
@@ -141,164 +81,123 @@ function decodeDetail(detail) {
   if (typeof detail === "object" && !Array.isArray(detail)) {
     var match = Js_dict.get(detail, "kind");
     var match$1 = Js_dict.get(detail, "items");
-    if (match !== undefined) {
-      if (match$1 !== undefined) {
-        if (!(!Array.isArray(match) && (match === null || typeof match !== "object") && typeof match !== "number" && typeof match !== "string" && typeof match !== "boolean") && typeof match === "string" && !(!Array.isArray(match$1) && (match$1 === null || typeof match$1 !== "object") && typeof match$1 !== "number" && typeof match$1 !== "string" && typeof match$1 !== "boolean") && Array.isArray(match$1)) {
-          switch (match) {
-            case "record" :
-                var fields = match$1.map(function (field) {
-                      if (!Array.isArray(field) && (field === null || typeof field !== "object") && typeof field !== "number" && typeof field !== "string" && typeof field !== "boolean") {
-                        throw {
-                              RE_EXN_ID: "Assert_failure",
-                              _1: [
-                                "Tools_Docgen.res",
-                                121,
-                                11
-                              ],
-                              Error: new Error()
-                            };
-                      }
-                      if (typeof field === "object" && !Array.isArray(field)) {
-                        var name = decodeStringByField(field, "name");
-                        var docstrings = decodeDocstrings(field);
-                        var signature = decodeStringByField(field, "signature");
-                        var deprecated = decodeDepreacted(field);
-                        var value = Js_dict.get(field, "optional");
-                        var optional;
-                        if (value !== undefined) {
-                          if (!Array.isArray(value) && (value === null || typeof value !== "object") && typeof value !== "number" && typeof value !== "string" && typeof value !== "boolean") {
-                            throw {
-                                  RE_EXN_ID: "Assert_failure",
-                                  _1: [
-                                    "Tools_Docgen.res",
-                                    113,
-                                    17
-                                  ],
-                                  Error: new Error()
-                                };
-                          }
-                          if (typeof value === "boolean") {
-                            optional = value;
-                          } else {
-                            throw {
-                                  RE_EXN_ID: "Assert_failure",
-                                  _1: [
-                                    "Tools_Docgen.res",
-                                    113,
-                                    17
-                                  ],
-                                  Error: new Error()
-                                };
-                          }
-                        } else {
-                          throw {
-                                RE_EXN_ID: "Assert_failure",
-                                _1: [
-                                  "Tools_Docgen.res",
-                                  115,
-                                  18
-                                ],
-                                Error: new Error()
-                              };
-                        }
-                        return {
-                                name: name,
-                                docstrings: docstrings,
-                                signature: signature,
-                                optional: optional,
-                                deprecated: deprecated
-                              };
-                      }
+    if (match !== undefined && !(!Array.isArray(match) && (match === null || typeof match !== "object") && typeof match !== "number" && typeof match !== "string" && typeof match !== "boolean") && typeof match === "string" && match$1 !== undefined && !(!Array.isArray(match$1) && (match$1 === null || typeof match$1 !== "object") && typeof match$1 !== "number" && typeof match$1 !== "string" && typeof match$1 !== "boolean") && Array.isArray(match$1)) {
+      switch (match) {
+        case "record" :
+            var fields = match$1.map(function (field) {
+                  if (!Array.isArray(field) && (field === null || typeof field !== "object") && typeof field !== "number" && typeof field !== "string" && typeof field !== "boolean") {
+                    throw {
+                          RE_EXN_ID: "Assert_failure",
+                          _1: [
+                            "Tools_Docgen.res",
+                            104,
+                            11
+                          ],
+                          Error: new Error()
+                        };
+                  }
+                  if (typeof field === "object" && !Array.isArray(field)) {
+                    var name = decodeStringByField(field, "name");
+                    var docstrings = decodeDocstrings(field);
+                    var signature = decodeStringByField(field, "signature");
+                    var deprecated = decodeDepreacted(field);
+                    var match = Js_dict.get(field, "optional");
+                    var optional;
+                    var exit = 0;
+                    if (match !== undefined && !(!Array.isArray(match) && (match === null || typeof match !== "object") && typeof match !== "number" && typeof match !== "string" && typeof match !== "boolean" || typeof match !== "boolean")) {
+                      optional = match;
+                    } else {
+                      exit = 1;
+                    }
+                    if (exit === 1) {
                       throw {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "Tools_Docgen.res",
-                              121,
-                              11
+                              98,
+                              15
                             ],
                             Error: new Error()
                           };
-                    });
-                return {
-                        kind: "record",
-                        _0: fields
-                      };
-            case "variant" :
-                var fields$1 = match$1.map(function (field) {
-                      if (!Array.isArray(field) && (field === null || typeof field !== "object") && typeof field !== "number" && typeof field !== "string" && typeof field !== "boolean") {
-                        throw {
-                              RE_EXN_ID: "Assert_failure",
-                              _1: [
-                                "Tools_Docgen.res",
-                                140,
-                                11
-                              ],
-                              Error: new Error()
-                            };
-                      }
-                      if (typeof field === "object" && !Array.isArray(field)) {
-                        var name = decodeStringByField(field, "name");
-                        var docstrings = decodeDocstrings(field);
-                        var signature = decodeStringByField(field, "signature");
-                        var deprecated = decodeDepreacted(field);
-                        return {
-                                name: name,
-                                docstrings: docstrings,
-                                signature: signature,
-                                deprecated: deprecated
-                              };
-                      }
-                      throw {
-                            RE_EXN_ID: "Assert_failure",
-                            _1: [
-                              "Tools_Docgen.res",
-                              140,
-                              11
-                            ],
-                            Error: new Error()
+                    }
+                    return {
+                            name: name,
+                            docstrings: docstrings,
+                            signature: signature,
+                            optional: optional,
+                            deprecated: deprecated
                           };
-                    });
-                return {
-                        kind: "variant",
-                        _0: fields$1
+                  }
+                  throw {
+                        RE_EXN_ID: "Assert_failure",
+                        _1: [
+                          "Tools_Docgen.res",
+                          104,
+                          11
+                        ],
+                        Error: new Error()
                       };
-            default:
-              throw {
-                    RE_EXN_ID: "Assert_failure",
-                    _1: [
-                      "Tools_Docgen.res",
-                      158,
-                      15
-                    ],
-                    Error: new Error()
+                });
+            return {
+                    kind: "record",
+                    _0: fields
                   };
-          }
-        }
-        throw {
-              RE_EXN_ID: "Assert_failure",
-              _1: [
-                "Tools_Docgen.res",
-                161,
-                13
-              ],
-              Error: new Error()
-            };
+        case "variant" :
+            var fields$1 = match$1.map(function (field) {
+                  if (!Array.isArray(field) && (field === null || typeof field !== "object") && typeof field !== "number" && typeof field !== "string" && typeof field !== "boolean") {
+                    throw {
+                          RE_EXN_ID: "Assert_failure",
+                          _1: [
+                            "Tools_Docgen.res",
+                            123,
+                            11
+                          ],
+                          Error: new Error()
+                        };
+                  }
+                  if (typeof field === "object" && !Array.isArray(field)) {
+                    var name = decodeStringByField(field, "name");
+                    var docstrings = decodeDocstrings(field);
+                    var signature = decodeStringByField(field, "signature");
+                    var deprecated = decodeDepreacted(field);
+                    return {
+                            name: name,
+                            docstrings: docstrings,
+                            signature: signature,
+                            deprecated: deprecated
+                          };
+                  }
+                  throw {
+                        RE_EXN_ID: "Assert_failure",
+                        _1: [
+                          "Tools_Docgen.res",
+                          123,
+                          11
+                        ],
+                        Error: new Error()
+                      };
+                });
+            return {
+                    kind: "variant",
+                    _0: fields$1
+                  };
+        default:
+          throw {
+                RE_EXN_ID: "Assert_failure",
+                _1: [
+                  "Tools_Docgen.res",
+                  139,
+                  13
+                ],
+                Error: new Error()
+              };
       }
-      throw {
-            RE_EXN_ID: "Assert_failure",
-            _1: [
-              "Tools_Docgen.res",
-              163,
-              11
-            ],
-            Error: new Error()
-          };
     }
     throw {
           RE_EXN_ID: "Assert_failure",
           _1: [
             "Tools_Docgen.res",
-            163,
+            141,
             11
           ],
           Error: new Error()
@@ -308,7 +207,7 @@ function decodeDetail(detail) {
         RE_EXN_ID: "Assert_failure",
         _1: [
           "Tools_Docgen.res",
-          166,
+          144,
           9
         ],
         Error: new Error()
@@ -321,209 +220,146 @@ function decodeItem(item) {
           RE_EXN_ID: "Assert_failure",
           _1: [
             "Tools_Docgen.res",
-            243,
+            206,
             9
           ],
           Error: new Error()
         };
   }
   if (typeof item === "object" && !Array.isArray(item)) {
-    var kind = Js_dict.get(item, "kind");
-    if (kind !== undefined) {
-      if (!Array.isArray(kind) && (kind === null || typeof kind !== "object") && typeof kind !== "number" && typeof kind !== "string" && typeof kind !== "boolean") {
-        throw {
-              RE_EXN_ID: "Assert_failure",
-              _1: [
-                "Tools_Docgen.res",
-                237,
-                13
-              ],
-              Error: new Error()
-            };
+    var match = Js_dict.get(item, "kind");
+    if (match !== undefined && !(!Array.isArray(match) && (match === null || typeof match !== "object") && typeof match !== "number" && typeof match !== "string" && typeof match !== "boolean") && typeof match === "string") {
+      switch (match) {
+        case "module" :
+            var id = decodeStringByField(item, "id");
+            var name = decodeStringByField(item, "name");
+            var deprecated = decodeDepreacted(item);
+            var docstrings = decodeDocstrings(item);
+            var match$1 = Js_dict.get(item, "items");
+            var items;
+            var exit = 0;
+            if (match$1 !== undefined && !(!Array.isArray(match$1) && (match$1 === null || typeof match$1 !== "object") && typeof match$1 !== "number" && typeof match$1 !== "string" && typeof match$1 !== "boolean" || !Array.isArray(match$1))) {
+              items = match$1.map(function (item) {
+                    return decodeItem(item);
+                  });
+            } else {
+              exit = 1;
+            }
+            if (exit === 1) {
+              throw {
+                    RE_EXN_ID: "Assert_failure",
+                    _1: [
+                      "Tools_Docgen.res",
+                      187,
+                      9
+                    ],
+                    Error: new Error()
+                  };
+            }
+            return {
+                    kind: "module",
+                    _0: {
+                      id: id,
+                      docstrings: docstrings,
+                      deprecated: deprecated,
+                      name: name,
+                      items: items
+                    }
+                  };
+        case "moduleAlias" :
+            var id$1 = decodeStringByField(item, "id");
+            var name$1 = decodeStringByField(item, "name");
+            var docstrings$1 = decodeDocstrings(item);
+            var match$2 = Js_dict.get(item, "items");
+            var items$1;
+            var exit$1 = 0;
+            if (match$2 !== undefined && !(!Array.isArray(match$2) && (match$2 === null || typeof match$2 !== "object") && typeof match$2 !== "number" && typeof match$2 !== "string" && typeof match$2 !== "boolean" || !Array.isArray(match$2))) {
+              items$1 = match$2.map(function (item) {
+                    return decodeItem(item);
+                  });
+            } else {
+              exit$1 = 1;
+            }
+            if (exit$1 === 1) {
+              throw {
+                    RE_EXN_ID: "Assert_failure",
+                    _1: [
+                      "Tools_Docgen.res",
+                      175,
+                      9
+                    ],
+                    Error: new Error()
+                  };
+            }
+            return {
+                    kind: "moduleAlias",
+                    id: id$1,
+                    docstrings: docstrings$1,
+                    name: name$1,
+                    items: items$1
+                  };
+        case "type" :
+            var id$2 = decodeStringByField(item, "id");
+            var signature = decodeStringByField(item, "signature");
+            var name$2 = decodeStringByField(item, "name");
+            var deprecated$1 = decodeDepreacted(item);
+            var docstrings$2 = decodeDocstrings(item);
+            var field = Js_dict.get(item, "detail");
+            var detail = field !== undefined ? decodeDetail(field) : undefined;
+            return {
+                    kind: "type",
+                    id: id$2,
+                    docstrings: docstrings$2,
+                    signature: signature,
+                    name: name$2,
+                    deprecated: deprecated$1,
+                    detail: detail
+                  };
+        case "value" :
+            var id$3 = decodeStringByField(item, "id");
+            var signature$1 = decodeStringByField(item, "signature");
+            var name$3 = decodeStringByField(item, "name");
+            var deprecated$2 = decodeDepreacted(item);
+            var docstrings$3 = decodeDocstrings(item);
+            return {
+                    kind: "value",
+                    id: id$3,
+                    docstrings: docstrings$3,
+                    signature: signature$1,
+                    name: name$3,
+                    deprecated: deprecated$2
+                  };
+        default:
+          throw {
+                RE_EXN_ID: "Assert_failure",
+                _1: [
+                  "Tools_Docgen.res",
+                  202,
+                  13
+                ],
+                Error: new Error()
+              };
       }
-      if (typeof kind === "string") {
-        switch (kind) {
-          case "module" :
-              var id = decodeStringByField(item, "id");
-              var name = decodeStringByField(item, "name");
-              var deprecated = decodeDepreacted(item);
-              var docstrings = decodeDocstrings(item);
-              var items = Js_dict.get(item, "items");
-              var items$1;
-              if (items !== undefined) {
-                if (!Array.isArray(items) && (items === null || typeof items !== "object") && typeof items !== "number" && typeof items !== "string" && typeof items !== "boolean") {
-                  throw {
-                        RE_EXN_ID: "Assert_failure",
-                        _1: [
-                          "Tools_Docgen.res",
-                          215,
-                          11
-                        ],
-                        Error: new Error()
-                      };
-                }
-                if (Array.isArray(items)) {
-                  items$1 = items.map(function (i) {
-                        return decodeItem(i);
-                      });
-                } else {
-                  throw {
-                        RE_EXN_ID: "Assert_failure",
-                        _1: [
-                          "Tools_Docgen.res",
-                          215,
-                          11
-                        ],
-                        Error: new Error()
-                      };
-                }
-              } else {
-                throw {
-                      RE_EXN_ID: "Assert_failure",
-                      _1: [
-                        "Tools_Docgen.res",
-                        217,
-                        12
-                      ],
-                      Error: new Error()
-                    };
-              }
-              return {
-                      kind: "module",
-                      _0: {
-                        id: id,
-                        docstrings: docstrings,
-                        deprecated: deprecated,
-                        name: name,
-                        items: items$1
-                      }
-                    };
-          case "moduleAlias" :
-              var id$1 = decodeStringByField(item, "id");
-              var name$1 = decodeStringByField(item, "name");
-              var docstrings$1 = decodeDocstrings(item);
-              var items$2 = Js_dict.get(item, "items");
-              var items$3;
-              if (items$2 !== undefined) {
-                if (!Array.isArray(items$2) && (items$2 === null || typeof items$2 !== "object") && typeof items$2 !== "number" && typeof items$2 !== "string" && typeof items$2 !== "boolean") {
-                  throw {
-                        RE_EXN_ID: "Assert_failure",
-                        _1: [
-                          "Tools_Docgen.res",
-                          199,
-                          11
-                        ],
-                        Error: new Error()
-                      };
-                }
-                if (Array.isArray(items$2)) {
-                  items$3 = items$2.map(function (i) {
-                        return decodeItem(i);
-                      });
-                } else {
-                  throw {
-                        RE_EXN_ID: "Assert_failure",
-                        _1: [
-                          "Tools_Docgen.res",
-                          199,
-                          11
-                        ],
-                        Error: new Error()
-                      };
-                }
-              } else {
-                throw {
-                      RE_EXN_ID: "Assert_failure",
-                      _1: [
-                        "Tools_Docgen.res",
-                        201,
-                        12
-                      ],
-                      Error: new Error()
-                    };
-              }
-              return {
-                      kind: "moduleAlias",
-                      id: id$1,
-                      docstrings: docstrings$1,
-                      name: name$1,
-                      items: items$3
-                    };
-          case "type" :
-              var id$2 = decodeStringByField(item, "id");
-              var signature = decodeStringByField(item, "signature");
-              var name$2 = decodeStringByField(item, "name");
-              var deprecated$1 = decodeDepreacted(item);
-              var docstrings$2 = decodeDocstrings(item);
-              var field = Js_dict.get(item, "detail");
-              var detail = field !== undefined ? decodeDetail(field) : undefined;
-              return {
-                      kind: "type",
-                      id: id$2,
-                      docstrings: docstrings$2,
-                      signature: signature,
-                      name: name$2,
-                      deprecated: deprecated$1,
-                      detail: detail
-                    };
-          case "value" :
-              var id$3 = decodeStringByField(item, "id");
-              var signature$1 = decodeStringByField(item, "signature");
-              var name$3 = decodeStringByField(item, "name");
-              var deprecated$2 = decodeDepreacted(item);
-              var docstrings$3 = decodeDocstrings(item);
-              return {
-                      kind: "value",
-                      id: id$3,
-                      docstrings: docstrings$3,
-                      signature: signature$1,
-                      name: name$3,
-                      deprecated: deprecated$2
-                    };
-          default:
-            throw {
-                  RE_EXN_ID: "Assert_failure",
-                  _1: [
-                    "Tools_Docgen.res",
-                    234,
-                    15
-                  ],
-                  Error: new Error()
-                };
-        }
-      } else {
-        throw {
-              RE_EXN_ID: "Assert_failure",
-              _1: [
-                "Tools_Docgen.res",
-                237,
-                13
-              ],
-              Error: new Error()
-            };
-      }
-    } else {
-      throw {
-            RE_EXN_ID: "Assert_failure",
-            _1: [
-              "Tools_Docgen.res",
-              240,
-              14
-            ],
-            Error: new Error()
-          };
     }
-  } else {
     throw {
           RE_EXN_ID: "Assert_failure",
           _1: [
             "Tools_Docgen.res",
-            243,
-            9
+            204,
+            11
           ],
           Error: new Error()
         };
   }
+  throw {
+        RE_EXN_ID: "Assert_failure",
+        _1: [
+          "Tools_Docgen.res",
+          206,
+          9
+        ],
+        Error: new Error()
+      };
 }
 
 function decodeFromJson(json) {
@@ -532,7 +368,7 @@ function decodeFromJson(json) {
           RE_EXN_ID: "Assert_failure",
           _1: [
             "Tools_Docgen.res",
-            278,
+            236,
             9
           ],
           Error: new Error()
@@ -542,42 +378,23 @@ function decodeFromJson(json) {
     var name = decodeStringByField(json, "name");
     var deprecated = decodeDepreacted(json);
     var docstrings = decodeDocstrings(json);
-    var items = Js_dict.get(json, "items");
-    var items$1;
-    if (items !== undefined) {
-      if (!Array.isArray(items) && (items === null || typeof items !== "object") && typeof items !== "number" && typeof items !== "string" && typeof items !== "boolean") {
-        throw {
-              RE_EXN_ID: "Assert_failure",
-              _1: [
-                "Tools_Docgen.res",
-                269,
-                15
-              ],
-              Error: new Error()
-            };
-      }
-      if (Array.isArray(items)) {
-        items$1 = items.map(function (i) {
-              return decodeItem(i);
-            });
-      } else {
-        throw {
-              RE_EXN_ID: "Assert_failure",
-              _1: [
-                "Tools_Docgen.res",
-                269,
-                15
-              ],
-              Error: new Error()
-            };
-      }
+    var match = Js_dict.get(json, "items");
+    var items;
+    var exit = 0;
+    if (match !== undefined && !(!Array.isArray(match) && (match === null || typeof match !== "object") && typeof match !== "number" && typeof match !== "string" && typeof match !== "boolean" || !Array.isArray(match))) {
+      items = match.map(function (item) {
+            return decodeItem(item);
+          });
     } else {
+      exit = 1;
+    }
+    if (exit === 1) {
       throw {
             RE_EXN_ID: "Assert_failure",
             _1: [
               "Tools_Docgen.res",
-              272,
-              16
+              230,
+              13
             ],
             Error: new Error()
           };
@@ -586,14 +403,14 @@ function decodeFromJson(json) {
             name: name,
             deprecated: deprecated,
             docstrings: docstrings,
-            items: items$1
+            items: items
           };
   }
   throw {
         RE_EXN_ID: "Assert_failure",
         _1: [
           "Tools_Docgen.res",
-          278,
+          236,
           9
         ],
         Error: new Error()
