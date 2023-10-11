@@ -4,10 +4,6 @@
   "sources": [
     {
       "dir": "src"
-    },
-    {
-      "dir": "test",
-      "type": "dev"
     }
   ],
   "suffix": ".bs.js",
