@@ -46,14 +46,17 @@ export const findFilePathFromProjectRoot = (
   return findFilePathFromProjectRoot(parentDir, filePartialPath);
 };
 
-export const readBsConfig = (projDir: p.DocumentUri): BuildSchema | null => {
+export const readConfig = (projDir: p.DocumentUri): BuildSchema | null => {
   try {
-    let bsconfigFile = fs.readFileSync(
-      path.join(projDir, c.bsconfigPartialPath),
+    let rescriptJson = path.join(projDir, c.rescriptJsonPartialPath);
+    let bsconfigJson = path.join(projDir, c.bsconfigPartialPath);
+
+    let configFile = fs.readFileSync(
+      fs.existsSync(rescriptJson) ? rescriptJson : bsconfigJson,
       { encoding: "utf-8" }
     );
 
-    let result: BuildSchema = JSON.parse(bsconfigFile);
+    let result: BuildSchema = JSON.parse(configFile);
     return result;
   } catch (e) {
     return null;
@@ -108,7 +111,7 @@ export const getFilenameFromBsconfig = (
   projDir: string,
   partialFilePath: string
 ): string | null => {
-  let bsconfig = readBsConfig(projDir);
+  let bsconfig = readConfig(projDir);
 
   if (!bsconfig) {
     return null;
@@ -126,23 +129,29 @@ export const getFilenameFromRootBsconfig = (
   projDir: string,
   partialFilePath: string
 ): string | null => {
-  let rootBsConfigPath = findFilePathFromProjectRoot(
+  let rootConfigPath = findFilePathFromProjectRoot(
     path.join("..", projDir),
-    c.bsconfigPartialPath
+    c.rescriptJsonPartialPath
   );
 
-  if (!rootBsConfigPath) {
+  if (!rootConfigPath) {
+    rootConfigPath = findFilePathFromProjectRoot(
+      path.join("..", projDir),
+      c.bsconfigPartialPath
+    );
+  }
+
+  if (!rootConfigPath) {
     return null;
   }
 
-  let rootBsconfig = readBsConfig(path.dirname(rootBsConfigPath));
+  let rootConfig = readConfig(path.dirname(rootConfigPath));
 
-  if (!rootBsconfig) {
+  if (!rootConfig) {
     return null;
   }
 
-  let [suffix, pathFragment] =
-    getSuffixAndPathFragmentFromBsconfig(rootBsconfig);
+  let [suffix, pathFragment] = getSuffixAndPathFragmentFromBsconfig(rootConfig);
 
   let compiledPartialPath = replaceFileExtension(partialFilePath, suffix);
 

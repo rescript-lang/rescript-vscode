@@ -233,9 +233,10 @@ let findDependencyFiles base config =
              Json.bind
                (ModuleResolution.resolveNodeModulePath ~startPath:base name)
                (fun path ->
-                 let innerPath = path /+ "bsconfig.json" in
-                 match Files.readFile innerPath with
-                 | Some text -> (
+                 let rescriptJsonPath = path /+ "rescript.json" in
+                 let bsconfigJsonPath = path /+ "bsconfig.json" in
+
+                 let parseText text =
                    match Json.parse text with
                    | Some inner -> (
                      let namespace = getNamespace inner in
@@ -259,9 +260,17 @@ let findDependencyFiles base config =
                            ~path ~sourceDirectories ~libBs
                        in
                        Some (compiledDirectories, projectFiles))
-                   | None -> None)
-                 | None -> None)
+                   | None -> None
+                 in
+
+                 match Files.readFile rescriptJsonPath with
+                 | Some text -> parseText text
+                 | None -> (
+                   match Files.readFile bsconfigJsonPath with
+                   | Some text -> parseText text
+                   | None -> None))
            in
+
            match result with
            | Some (files, directories) -> (files, directories)
            | None ->

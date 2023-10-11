@@ -152,7 +152,6 @@ let openCompiledFileRequest = new v.RequestType<
   void
 >("textDocument/openCompiled");
 
-
 let getCurrentCompilerDiagnosticsForFile = (
   fileUri: string
 ): p.Diagnostic[] => {
@@ -896,12 +895,12 @@ function createInterface(msg: p.RequestMessage): p.Message {
   let resPartialPath = filePath.split(projDir)[1];
 
   // The .cmi filename may have a namespace suffix appended.
-  let namespaceResult = utils.getNamespaceNameFromBsConfig(projDir);
+  let namespaceResult = utils.getNamespaceNameFromConfigFile(projDir);
 
   if (namespaceResult.kind === "error") {
     let params: p.ShowMessageParams = {
       type: p.MessageType.Error,
-      message: `Error reading bsconfig file.`,
+      message: `Error reading ReScript config file.`,
     };
 
     let response: p.NotificationMessage = {
