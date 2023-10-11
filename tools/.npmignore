@@ -1,4 +1,1 @@
-node_modules
 analysis_binaries/.gitkeep
-lib
-*.bs.mjs

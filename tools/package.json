@@ -13,10 +13,8 @@
 		"Docgen"
 	],
 	"files": [
-		"src/cli.js",
-		"src/*.res",
-		"src/*.resi",
-		"analysis_binaries",
+		"src/",
+		"analysis_binaries/",
 		"README.md"
 	],
 	"engines": {

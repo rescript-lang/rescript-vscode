@@ -224,6 +224,7 @@ jobs:
       working-directory: tools
       run: |
         cp -r ../server/analysis_binaries/* analysis_binaries/
+        npm ci
         npm run build
 
     - name: NPM Dry run

@@ -8,7 +8,6 @@
   ],
   "suffix": ".bs.mjs",
   "package-specs": {
-    "module": "es6",
-    "in-source": true
+    "module": "es6"
   }
 }
