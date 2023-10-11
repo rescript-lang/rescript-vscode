@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "sources": [
     {
-      "dir": "src"
+      "dir": "src",
+      "public": ["RescriptTools"]
     }
   ],
   "suffix": ".bs.js",
