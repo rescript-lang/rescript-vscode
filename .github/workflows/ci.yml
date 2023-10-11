@@ -230,6 +230,6 @@ jobs:
         npm run build
 
     - name: Publish @rescript/tools package
-      if: ${{ startsWith(github.event.head_commit.message, 'publish tools') && (github.ref != 'refs/heads/master') }}
+      if: startsWith(github.event.head_commit.message, 'publish tools')
       working-directory: tools
       run: npm publish --dry-run
