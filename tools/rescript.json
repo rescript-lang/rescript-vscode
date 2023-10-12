@@ -1,0 +1,15 @@
+{
+  "name": "@rescript/tools",
+  "version": "0.1.0",
+  "sources": [
+    {
+      "dir": "src",
+      "public": ["RescriptTools"]
+    }
+  ],
+  "suffix": ".bs.js",
+  "package-specs": {
+    "module": "commonjs",
+    "in-source": true
+  }
+}

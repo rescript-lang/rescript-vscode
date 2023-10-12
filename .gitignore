@@ -8,3 +8,6 @@ analysis/_build
 analysis/tests/.merlin
 analysis/rescript-editor-analysis.exe
 analysis/_opam
+tools/node_modules
+tools/lib
+tools/**/*.bs.js

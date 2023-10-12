@@ -219,3 +219,19 @@ jobs:
       run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    - name: Copy analysis binaries to tools folder
+      run: cp -r server/analysis_binaries/* tools/analysis_binaries
+
+    - name: Build @rescript/tools package
+      working-directory: tools
+      run: |
+        npm ci
+        npm run build
+
+    - name: Publish @rescript/tools package
+      if: ${{ startsWith(github.event.head_commit.message, 'publish tools') && (github.ref == 'refs/heads/master') }}
+      working-directory: tools
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
