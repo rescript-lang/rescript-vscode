@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "ReScript's language-client",
   "keywords": [],
-  "author": "chenglou",
+  "author": "ReScript Team",
   "license": "MIT",
   "dependencies": {
     "vscode-languageclient": "8.1.0-next.5"

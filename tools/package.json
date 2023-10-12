@@ -2,10 +2,10 @@
 	"name": "@rescript/tools",
 	"description": "ReScript Tools",
 	"version": "0.1.0",
-	"author": "chenglou",
+	"author": "ReScript Team",
 	"license": "MIT",
 	"bin": {
-		"restools": "./src/Cli.bs.js"
+		"rescript-tools": "./src/Cli.bs.js"
 	},
 	"keywords": [
 		"ReScript",

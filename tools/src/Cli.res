@@ -43,13 +43,13 @@ let docHelp = `ReScript Tools
 
 Output documentation to standard output
 
-Usage: restools doc <FILE>
+Usage: rescript-tools doc <FILE>
 
-Example: restools doc ./path/to/EntryPointLib.res`
+Example: rescript-tools doc ./path/to/EntryPointLib.res`
 
 let help = `ReScript Tools
 
-Usage: restools [command]
+Usage: rescript-tools [command]
 
 Commands:
 

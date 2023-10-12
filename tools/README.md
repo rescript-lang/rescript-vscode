@@ -9,7 +9,7 @@ npm install --save-dev @rescript/tools
 ## CLI Usage
 
 ```sh
-restools --help
+rescript-tools --help
 ```
 
 ### Generate documentation
@@ -17,19 +17,19 @@ restools --help
 Print JSON:
 
 ```sh
-restools doc src/EntryPointLibFile.res
+rescript-tools doc src/EntryPointLibFile.res
 ```
 
 Write JSON:
 
 ```sh
-restools doc src/EntryPointLibFile.res > doc.json
+rescript-tools doc src/EntryPointLibFile.res > doc.json
 ```
 
 ### Reanalyze
 
 ```sh
-restools reanalyze --help
+rescript-tools reanalyze --help
 ```
 
 ## Decode JSON
