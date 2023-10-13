@@ -196,7 +196,7 @@ We're happy to gather more resources over time here, including more in-depth get
 
 _This below will automatically release the LSP package as well._
 
-1. Bump the version to an _even minor_ version number in `client/package.json`. It's very important that it's an even minor like `1.8.0`, and not `1.7.0`. This is because even minors are reserved for actual releases, and uneven minors for pre-releases. Commit and push the version bump.
+1. Bump the version to an _even minor_ version number in `package.json`. It's very important that it's an even minor like `1.8.0`, and not `1.7.0`. This is because even minors are reserved for actual releases, and uneven minors for pre-releases. Commit and push the version bump.
 2. Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
 3. Let CI build your version bump commit.
 4. Tag the commit with the version number (e.g. `git tag 1.6.0`) and push the tag (e.g. `git push origin 1.6.0`). Another build will trigger, which should automatically:
