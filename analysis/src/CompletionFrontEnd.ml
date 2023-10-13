@@ -697,46 +697,46 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
   let attribute (iterator : Ast_iterator.iterator)
       ((id, payload) : Parsetree.attribute) =
     (if String.length id.txt >= 4 && String.sub id.txt 0 4 = "res." then
-     (* skip: internal parser attribute *) ()
-    else if id.loc.loc_ghost then ()
-    else if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-      let posStart, posEnd = Loc.range id.loc in
-      match
-        (Pos.positionToOffset text posStart, Pos.positionToOffset text posEnd)
-      with
-      | Some offsetStart, Some offsetEnd ->
-        (* Can't trust the parser's location
-           E.g. @foo. let x... gives as label @foo.let *)
-        let label =
-          let rawLabel =
-            String.sub text offsetStart (offsetEnd - offsetStart)
-          in
-          let ( ++ ) x y =
-            match (x, y) with
-            | Some i1, Some i2 -> Some (min i1 i2)
-            | Some _, None -> x
-            | None, _ -> y
-          in
-          let label =
-            match
-              String.index_opt rawLabel ' '
-              ++ String.index_opt rawLabel '\t'
-              ++ String.index_opt rawLabel '\r'
-              ++ String.index_opt rawLabel '\n'
-            with
-            | None -> rawLabel
-            | Some i -> String.sub rawLabel 0 i
-          in
-          if label <> "" && label.[0] = '@' then
-            String.sub label 1 (String.length label - 1)
-          else label
-        in
-        found := true;
-        if debug then
-          Printf.printf "Attribute id:%s:%s label:%s\n" id.txt
-            (Loc.toString id.loc) label;
-        setResult (Completable.Cdecorator label)
-      | _ -> ());
+       (* skip: internal parser attribute *) ()
+     else if id.loc.loc_ghost then ()
+     else if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
+       let posStart, posEnd = Loc.range id.loc in
+       match
+         (Pos.positionToOffset text posStart, Pos.positionToOffset text posEnd)
+       with
+       | Some offsetStart, Some offsetEnd ->
+         (* Can't trust the parser's location
+            E.g. @foo. let x... gives as label @foo.let *)
+         let label =
+           let rawLabel =
+             String.sub text offsetStart (offsetEnd - offsetStart)
+           in
+           let ( ++ ) x y =
+             match (x, y) with
+             | Some i1, Some i2 -> Some (min i1 i2)
+             | Some _, None -> x
+             | None, _ -> y
+           in
+           let label =
+             match
+               String.index_opt rawLabel ' '
+               ++ String.index_opt rawLabel '\t'
+               ++ String.index_opt rawLabel '\r'
+               ++ String.index_opt rawLabel '\n'
+             with
+             | None -> rawLabel
+             | Some i -> String.sub rawLabel 0 i
+           in
+           if label <> "" && label.[0] = '@' then
+             String.sub label 1 (String.length label - 1)
+           else label
+         in
+         found := true;
+         if debug then
+           Printf.printf "Attribute id:%s:%s label:%s\n" id.txt
+             (Loc.toString id.loc) label;
+         setResult (Completable.Cdecorator label)
+       | _ -> ());
     Ast_iterator.default_iterator.attribute iterator (id, payload)
   in
   let rec iterateFnArguments ~args ~iterator ~isPipe

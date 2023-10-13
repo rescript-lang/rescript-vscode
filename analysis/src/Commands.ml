@@ -163,7 +163,7 @@ let references ~path ~pos ~debug =
   in
   print_endline
     (if allLocs = [] then Protocol.null
-    else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
+     else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
 
 let rename ~path ~pos ~newName ~debug =
   let result =

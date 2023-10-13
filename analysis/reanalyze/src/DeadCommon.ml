@@ -266,8 +266,8 @@ module ProcessDeadAnnotations = struct
       | Ttype_variant constructorDeclarations ->
         constructorDeclarations
         |> List.iter
-             (fun ({cd_attributes; cd_loc} : Typedtree.constructor_declaration)
-             ->
+             (fun
+               ({cd_attributes; cd_loc} : Typedtree.constructor_declaration) ->
                toplevelAttrs @ cd_attributes
                |> processAttributes ~doGenType:false ~name:""
                     ~pos:cd_loc.loc_start)

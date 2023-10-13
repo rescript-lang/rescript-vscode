@@ -103,55 +103,55 @@ let newBsPackage ~rootPath =
                namespace;
                builtInCompletionModules =
                  (if
-                  opens_from_bsc_flags
-                  |> List.find_opt (fun opn ->
-                         match opn with
-                         | ["RescriptCore"] -> true
-                         | _ -> false)
-                  |> Option.is_some
-                 then
-                  {
-                    arrayModulePath = ["Array"];
-                    optionModulePath = ["Option"];
-                    stringModulePath = ["String"];
-                    intModulePath = ["Int"];
-                    floatModulePath = ["Float"];
-                    promiseModulePath = ["Promise"];
-                    listModulePath = ["List"];
-                    resultModulePath = ["Result"];
-                    exnModulePath = ["Exn"];
-                  }
-                 else if
-                 opens_from_bsc_flags
-                 |> List.find_opt (fun opn ->
-                        match opn with
-                        | ["Belt"] -> true
-                        | _ -> false)
-                 |> Option.is_some
-                then
-                   {
-                     arrayModulePath = ["Array"];
-                     optionModulePath = ["Option"];
-                     stringModulePath = ["Js"; "String2"];
-                     intModulePath = ["Int"];
-                     floatModulePath = ["Float"];
-                     promiseModulePath = ["Js"; "Promise"];
-                     listModulePath = ["List"];
-                     resultModulePath = ["Result"];
-                     exnModulePath = ["Js"; "Exn"];
-                   }
-                 else
-                   {
-                     arrayModulePath = ["Js"; "Array2"];
-                     optionModulePath = ["Belt"; "Option"];
-                     stringModulePath = ["Js"; "String2"];
-                     intModulePath = ["Belt"; "Int"];
-                     floatModulePath = ["Belt"; "Float"];
-                     promiseModulePath = ["Js"; "Promise"];
-                     listModulePath = ["Belt"; "List"];
-                     resultModulePath = ["Belt"; "Result"];
-                     exnModulePath = ["Js"; "Exn"];
-                   });
+                    opens_from_bsc_flags
+                    |> List.find_opt (fun opn ->
+                           match opn with
+                           | ["RescriptCore"] -> true
+                           | _ -> false)
+                    |> Option.is_some
+                  then
+                    {
+                      arrayModulePath = ["Array"];
+                      optionModulePath = ["Option"];
+                      stringModulePath = ["String"];
+                      intModulePath = ["Int"];
+                      floatModulePath = ["Float"];
+                      promiseModulePath = ["Promise"];
+                      listModulePath = ["List"];
+                      resultModulePath = ["Result"];
+                      exnModulePath = ["Exn"];
+                    }
+                  else if
+                    opens_from_bsc_flags
+                    |> List.find_opt (fun opn ->
+                           match opn with
+                           | ["Belt"] -> true
+                           | _ -> false)
+                    |> Option.is_some
+                  then
+                    {
+                      arrayModulePath = ["Array"];
+                      optionModulePath = ["Option"];
+                      stringModulePath = ["Js"; "String2"];
+                      intModulePath = ["Int"];
+                      floatModulePath = ["Float"];
+                      promiseModulePath = ["Js"; "Promise"];
+                      listModulePath = ["List"];
+                      resultModulePath = ["Result"];
+                      exnModulePath = ["Js"; "Exn"];
+                    }
+                  else
+                    {
+                      arrayModulePath = ["Js"; "Array2"];
+                      optionModulePath = ["Belt"; "Option"];
+                      stringModulePath = ["Js"; "String2"];
+                      intModulePath = ["Belt"; "Int"];
+                      floatModulePath = ["Belt"; "Float"];
+                      promiseModulePath = ["Js"; "Promise"];
+                      listModulePath = ["Belt"; "List"];
+                      resultModulePath = ["Belt"; "Result"];
+                      exnModulePath = ["Js"; "Exn"];
+                    });
                uncurried;
              })))
     | None -> None

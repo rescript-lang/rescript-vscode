@@ -567,7 +567,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
       detail;
       documentation =
         (if docContent = "" then None
-        else Some {kind = "markdown"; value = docContent});
+         else Some {kind = "markdown"; value = docContent});
       sortText = None;
       insertText = None;
       insertTextFormat = None;
