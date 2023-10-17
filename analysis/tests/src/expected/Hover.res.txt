@@ -264,3 +264,6 @@ Path x
 Hover src/Hover.res 263:8
 {"contents": {"kind": "markdown", "value": "\n [`Belt.Array`]()\n\n  **mutable array**: Utilities functions\n\n```rescript\nmodule Array: {\n  module Id\n  module Array\n  module SortArray\n  module MutableQueue\n  module MutableStack\n  module List\n  module Range\n  module Set\n  module Map\n  module MutableSet\n  module MutableMap\n  module HashSet\n  module HashMap\n  module Option\n  module Result\n  module Int\n  module Float\n}\n```"}}
 
+Hover src/Hover.res 266:6
+{"contents": {"kind": "markdown", "value": "```rescript\ntype t2 = RecordCompletion.t2 = {n2: RecordCompletion.t}\n```"}}
+

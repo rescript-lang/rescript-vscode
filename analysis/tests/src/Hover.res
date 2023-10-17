@@ -263,3 +263,6 @@ let coolVariant = CoolVariant
 
 module Arr = Belt.Array
 //      ^hov
+
+type t2 = RecordCompletion.t2
+//    ^hov
