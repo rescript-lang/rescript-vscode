@@ -55,7 +55,7 @@ let resolveOpens ~env opens ~package =
     (* loop(previous) *)
     [] opens
 
-let completionForExporteds iterExported getDeclared ~prefix ~exact ~env ~package
+let completionForExporteds iterExported getDeclared ~prefix ~exact ~(env : QueryEnv.t) ~package
     ~namesUsed transformContents =
   let res = ref [] in
   iterExported (fun name stamp ->
@@ -66,7 +66,7 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env ~package
           when not (Hashtbl.mem namesUsed declared.name.txt) ->
           Hashtbl.add namesUsed declared.name.txt ();
           let docstring =
-            match ProcessCmt.fileForModule name ~package with
+            match ProcessCmt.fileForModule (env.file.moduleName ^ "." ^ name) ~package with
             | Some file -> file.structure.docstring
             | None -> declared.docstring
           in
