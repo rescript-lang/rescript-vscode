@@ -55,7 +55,7 @@ let resolveOpens ~env opens ~package =
     (* loop(previous) *)
     [] opens
 
-let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
+let completionForExporteds iterExported getDeclared ~prefix ~exact ~env ~package
     ~namesUsed transformContents =
   let res = ref [] in
   iterExported (fun name stamp ->
@@ -65,27 +65,32 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
         | Some (declared : _ Declared.t)
           when not (Hashtbl.mem namesUsed declared.name.txt) ->
           Hashtbl.add namesUsed declared.name.txt ();
+          let docstring =
+            match ProcessCmt.fileForModule name ~package with
+            | Some file -> file.structure.docstring
+            | None -> declared.docstring
+          in
           res :=
             {
               (Completion.create declared.name.txt ~env
                  ~kind:(transformContents declared.item))
               with
               deprecated = declared.deprecated;
-              docstring = declared.docstring;
+              docstring;
             }
             :: !res
         | _ -> ());
   !res
 
-let completionForExportedModules ~env ~prefix ~exact ~namesUsed =
+let completionForExportedModules ~env ~package ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Module)
-    (Stamps.findModule env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun m ->
-      Completion.Module m)
+    (Stamps.findModule env.file.stamps) ~prefix ~exact ~env ~package ~namesUsed
+    (fun m -> Completion.Module m)
 
-let completionForExportedValues ~env ~prefix ~exact ~namesUsed =
+let completionForExportedValues ~env ~package ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Value)
-    (Stamps.findValue env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun v ->
-      Completion.Value v)
+    (Stamps.findValue env.file.stamps) ~prefix ~exact ~env ~package ~namesUsed
+    (fun v -> Completion.Value v)
 
 let completionForExportedTypes ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Type)
@@ -219,8 +224,8 @@ let kindToDetail name (kind : Completion.kind) =
   | Value typ -> typ |> Shared.typeToString
   | ObjLabel typ -> typ |> Shared.typeToString
   | Label typString -> typString
-  | Module _ -> "module"
-  | FileModule _ -> "file module"
+  | Module _ -> ""
+  | FileModule docstring -> docstring
   | Field ({typ; optional}, s) ->
     (* Handle optional fields. Checking for "?" is because sometimes optional
        fields are prefixed with "?" when completing, and at that point we don't
@@ -247,21 +252,22 @@ let kindToDetail name (kind : Completion.kind) =
   | ExtractedType (extractedType, _) ->
     TypeUtils.extractedTypeToString extractedType
 
-let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
+let findAllCompletions ~(env : QueryEnv.t) ~package ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
   Log.log ("findAllCompletions uri:" ^ Uri.toString env.file.uri);
   match completionContext with
   | Value ->
-    completionForExportedValues ~env ~prefix ~exact ~namesUsed
+    completionForExportedValues ~env ~package ~prefix ~exact ~namesUsed
     @ completionsForExportedConstructors ~env ~prefix ~exact ~namesUsed
-    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~package ~prefix ~exact ~namesUsed
   | Type ->
-    completionForExportedTypes ~env ~prefix ~exact ~namesUsed
-    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
-  | Module -> completionForExportedModules ~env ~prefix ~exact ~namesUsed
+    completionForExportedTypes ~env ~package ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~package ~prefix ~exact ~namesUsed
+  | Module ->
+    completionForExportedModules ~env ~package ~prefix ~exact ~namesUsed
   | Field ->
     completionForExportedFields ~env ~prefix ~exact ~namesUsed
-    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~package ~prefix ~exact ~namesUsed
 
 let processLocalValue name loc contextPath ~prefix ~exact ~env
     ~(localTables : LocalTables.t) =
@@ -362,19 +368,20 @@ let processLocalModule name loc ~prefix ~exact ~env
         (Printf.sprintf "Completion Module Not Found %s loc:%s\n" name
            (Loc.toString loc))
 
-let getItemsFromOpens ~opens ~localTables ~prefix ~exact ~completionContext =
+let getItemsFromOpens ~opens ~package ~localTables ~prefix ~exact
+    ~completionContext =
   opens
   |> List.fold_left
        (fun results env ->
          let completionsFromThisOpen =
-           findAllCompletions ~env ~prefix ~exact
+           findAllCompletions ~env ~package ~prefix ~exact
              ~namesUsed:localTables.LocalTables.namesUsed ~completionContext
          in
          completionsFromThisOpen @ results)
        []
 
 let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
-    ~env ~prefix ~exact ~opens ~scope =
+    ~env ~package ~prefix ~exact ~opens ~scope =
   localTables |> LocalTables.populateValues ~env;
   localTables |> LocalTables.populateConstructors ~env;
   localTables |> LocalTables.populateModules ~env;
@@ -389,7 +396,7 @@ let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
        (processLocalModule ~prefix ~exact ~env ~localTables);
 
   let valuesFromOpens =
-    getItemsFromOpens ~opens ~localTables ~prefix ~exact
+    getItemsFromOpens ~opens ~package ~localTables ~prefix ~exact
       ~completionContext:Value
   in
 
@@ -404,8 +411,8 @@ let findLocalCompletionsForValuesAndConstructors ~(localTables : LocalTables.t)
        (processLocalModule ~prefix ~exact ~env ~localTables);
   List.rev_append localTables.resultRev valuesFromOpens
 
-let findLocalCompletionsForValues ~(localTables : LocalTables.t) ~env ~prefix
-    ~exact ~opens ~scope =
+let findLocalCompletionsForValues ~(localTables : LocalTables.t) ~env ~package
+    ~prefix ~exact ~opens ~scope =
   localTables |> LocalTables.populateValues ~env;
   localTables |> LocalTables.populateModules ~env;
   scope
@@ -416,7 +423,7 @@ let findLocalCompletionsForValues ~(localTables : LocalTables.t) ~env ~prefix
        (processLocalModule ~prefix ~exact ~env ~localTables);
 
   let valuesFromOpens =
-    getItemsFromOpens ~opens ~localTables ~prefix ~exact
+    getItemsFromOpens ~opens ~package ~localTables ~prefix ~exact
       ~completionContext:Value
   in
 
@@ -428,8 +435,8 @@ let findLocalCompletionsForValues ~(localTables : LocalTables.t) ~env ~prefix
        (processLocalModule ~prefix ~exact ~env ~localTables);
   List.rev_append localTables.resultRev valuesFromOpens
 
-let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
-    ~exact ~opens ~scope =
+let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~package
+    ~prefix ~exact ~opens ~scope =
   localTables |> LocalTables.populateTypes ~env;
   localTables |> LocalTables.populateModules ~env;
   scope
@@ -440,7 +447,8 @@ let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
        (processLocalModule ~prefix ~exact ~env ~localTables);
 
   let valuesFromOpens =
-    getItemsFromOpens ~opens ~localTables ~prefix ~exact ~completionContext:Type
+    getItemsFromOpens ~opens ~package ~localTables ~prefix ~exact
+      ~completionContext:Type
   in
 
   scope
@@ -451,15 +459,15 @@ let findLocalCompletionsForTypes ~(localTables : LocalTables.t) ~env ~prefix
        (processLocalModule ~prefix ~exact ~env ~localTables);
   List.rev_append localTables.resultRev valuesFromOpens
 
-let findLocalCompletionsForModules ~(localTables : LocalTables.t) ~env ~prefix
-    ~exact ~opens ~scope =
+let findLocalCompletionsForModules ~(localTables : LocalTables.t) ~env ~package
+    ~prefix ~exact ~opens ~scope =
   localTables |> LocalTables.populateModules ~env;
   scope
   |> Scope.iterModulesBeforeFirstOpen
        (processLocalModule ~prefix ~exact ~env ~localTables);
 
   let valuesFromOpens =
-    getItemsFromOpens ~opens ~localTables ~prefix ~exact
+    getItemsFromOpens ~opens ~package ~localTables ~prefix ~exact
       ~completionContext:Module
   in
 
@@ -468,8 +476,8 @@ let findLocalCompletionsForModules ~(localTables : LocalTables.t) ~env ~prefix
        (processLocalModule ~prefix ~exact ~env ~localTables);
   List.rev_append localTables.resultRev valuesFromOpens
 
-let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
-    ~scope ~(completionContext : Completable.completionContext) =
+let findLocalCompletionsWithOpens ~pos ~package ~(env : QueryEnv.t) ~prefix
+    ~exact ~opens ~scope ~(completionContext : Completable.completionContext) =
   (* TODO: handle arbitrary interleaving of opens and local bindings correctly *)
   Log.log
     ("findLocalCompletionsWithOpens uri:" ^ Uri.toString env.file.uri ^ " pos:"
@@ -477,23 +485,25 @@ let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
   let localTables = LocalTables.create () in
   match completionContext with
   | Value ->
-    findLocalCompletionsForValuesAndConstructors ~localTables ~env ~prefix
-      ~exact ~opens ~scope
+    findLocalCompletionsForValuesAndConstructors ~localTables ~env ~package
+      ~prefix ~exact ~opens ~scope
   | Type ->
-    findLocalCompletionsForTypes ~localTables ~env ~prefix ~exact ~opens ~scope
+    findLocalCompletionsForTypes ~localTables ~env ~package ~prefix ~exact
+      ~opens ~scope
   | Module ->
-    findLocalCompletionsForModules ~localTables ~env ~prefix ~exact ~opens
-      ~scope
+    findLocalCompletionsForModules ~localTables ~env ~package ~prefix ~exact
+      ~opens ~scope
   | Field ->
     (* There's no local completion for fields *)
     []
 
-let getComplementaryCompletionsForTypedValue ~opens ~allFiles ~scope ~env prefix
-    =
+let getComplementaryCompletionsForTypedValue ~opens ~allFiles ~scope ~env
+    ~package prefix =
   let exact = false in
   let localCompletionsWithOpens =
     let localTables = LocalTables.create () in
-    findLocalCompletionsForValues ~localTables ~env ~prefix ~exact ~opens ~scope
+    findLocalCompletionsForValues ~localTables ~env ~package ~prefix ~exact
+      ~opens ~scope
   in
   let fileModules =
     allFiles |> FileSet.elements
@@ -518,8 +528,8 @@ let getCompletionsForPath ~debug ~package ~opens ~full ~pos ~exact ~scope
   | [] -> []
   | [prefix] ->
     let localCompletionsWithOpens =
-      findLocalCompletionsWithOpens ~pos ~env ~prefix ~exact ~opens ~scope
-        ~completionContext
+      findLocalCompletionsWithOpens ~pos ~package ~env ~prefix ~exact ~opens
+        ~scope ~completionContext
     in
     let fileModules =
       allFiles |> FileSet.elements
@@ -530,8 +540,14 @@ let getCompletionsForPath ~debug ~package ~opens ~full ~pos ~exact ~scope
                     (* TODO complete the namespaced name too *)
                     (String.contains name '-')
              then
+               let docstring =
+                 match ProcessCmt.fileForModule ~package name with
+                 | None -> []
+                 | Some file -> file.structure.docstring
+               in
                Some
-                 (Completion.create name ~env ~kind:(Completion.FileModule name))
+                 (Completion.create name ~env ~docstring
+                    ~kind:(Completion.FileModule name))
              else None)
     in
     localCompletionsWithOpens @ fileModules
@@ -541,7 +557,8 @@ let getCompletionsForPath ~debug ~package ~opens ~full ~pos ~exact ~scope
     | Some (env, prefix) ->
       Log.log "Got the env";
       let namesUsed = Hashtbl.create 10 in
-      findAllCompletions ~env ~prefix ~exact ~namesUsed ~completionContext
+      findAllCompletions ~env ~package ~prefix ~exact ~namesUsed
+        ~completionContext
     | None -> [])
 
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
@@ -1601,7 +1618,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       if prefix = "" then []
       else
         prefix
-        |> getComplementaryCompletionsForTypedValue ~opens ~allFiles ~env ~scope
+        |> getComplementaryCompletionsForTypedValue ~opens ~allFiles ~env
+             ~package ~scope
     in
     match
       contextPath

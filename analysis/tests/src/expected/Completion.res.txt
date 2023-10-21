@@ -296,7 +296,7 @@ Path Array.
     "label": "Floatarray",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 
@@ -816,7 +816,7 @@ Path O.
     "label": "Comp",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 
@@ -874,14 +874,14 @@ Path Lis
     "label": "List",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "List",
+    "documentation": {"kind": "markdown", "value": " List operations.\n\n   Some functions are flagged as not tail-recursive.  A tail-recursive\n   function uses constant stack space, while a non-tail-recursive function\n   uses stack space proportional to the length of its list argument, which\n   can be a problem with very long lists.  When the function takes several\n   list arguments, an approximate formula giving stack usage (in some\n   unspecified constant unit) is shown in parentheses.\n\n   The above considerations can usually be ignored if your lists are not\n   longer than about 10000 elements.\n"}
   }, {
     "label": "ListLabels",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "ListLabels",
+    "documentation": {"kind": "markdown", "value": " List operations.\n\n   Some functions are flagged as not tail-recursive.  A tail-recursive\n   function uses constant stack space, while a non-tail-recursive function\n   uses stack space proportional to the length of its list argument, which\n   can be a problem with very long lists.  When the function takes several\n   list arguments, an approximate formula giving stack usage (in some\n   unspecified constant unit) is shown in parentheses.\n\n   The above considerations can usually be ignored if your lists are not\n   longer than about 10000 elements.\n"}
   }]
 
 Complete src/Completion.res 169:16
@@ -896,7 +896,7 @@ Path WithChildren
     "label": "WithChildren",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 
@@ -971,7 +971,7 @@ Path For
     "label": "ForAuto",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 
@@ -1205,7 +1205,7 @@ Path SomeLo
     "label": "SomeLocalModule",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 
@@ -1261,7 +1261,7 @@ Path SomeLocal
     "label": "SomeLocalModule",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 
@@ -1279,7 +1279,7 @@ Path SomeLocal
     "label": "SomeLocalModule",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 
@@ -1648,13 +1648,13 @@ Path Res
     "label": "RescriptReactErrorBoundary",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "RescriptReactErrorBoundary",
     "documentation": null
   }, {
     "label": "RescriptReactRouter",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "RescriptReactRouter",
     "documentation": null
   }]
 
@@ -1762,19 +1762,19 @@ Path T
     "label": "TableclothMap",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "TableclothMap",
     "documentation": null
   }, {
     "label": "TypeAtPosCompletion",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "TypeAtPosCompletion",
     "documentation": null
   }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "TypeDefinition",
     "documentation": null
   }]
 

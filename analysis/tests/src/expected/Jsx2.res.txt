@@ -46,26 +46,26 @@ Path M
     "label": "M",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }, {
     "label": "Map",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "Map",
+    "documentation": {"kind": "markdown", "value": " Association tables over ordered types.\n\n   This module implements applicative association tables, also known as\n   finite maps or dictionaries, given a total ordering function\n   over the keys.\n   All operations over maps are purely applicative (no side-effects).\n   The implementation uses balanced binary trees, and therefore searching\n   and insertion take time logarithmic in the size of the map.\n\n   For instance:\n   {[\n     module IntPairs =\n       struct\n         type t = int * int\n         let compare (x0,y0) (x1,y1) =\n           match Pervasives.compare x0 x1 with\n               0 -> Pervasives.compare y0 y1\n             | c -> c\n       end\n\n     module PairsMap = Map.Make(IntPairs)\n\n     let m = PairsMap.(empty |> add (0,1) \"hello\" |> add (1,0) \"world\")\n   ]}\n\n   This creates a new module [PairsMap], with a new type ['a PairsMap.t]\n   of maps from [int * int] to ['a]. In this example, [m] contains [string]\n   values so its type is [string PairsMap.t].\n"}
   }, {
     "label": "MapLabels",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "MapLabels",
     "documentation": null
   }, {
     "label": "MoreLabels",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "MoreLabels",
+    "documentation": {"kind": "markdown", "value": " Extra labeled libraries.\n\n   This meta-module provides labelized version of the {!Hashtbl},\n   {!Map} and {!Set} modules.\n\n   They only differ by their labels. They are provided to help\n   porting from previous versions of OCaml.\n   The contents of this module are subject to change.\n"}
   }]
 
 Complete src/Jsx2.res 22:19
@@ -336,7 +336,7 @@ Path WithChildren
     "label": "WithChildren",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 
@@ -385,7 +385,7 @@ Path ReactDOMR
     "label": "ReactDOMRe",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "ReactDOMRe",
     "documentation": null
   }]
 
@@ -495,7 +495,7 @@ Path Nested.Co
     "label": "Comp",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 
@@ -511,7 +511,7 @@ Path Nested.
     "label": "Comp",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }]
 

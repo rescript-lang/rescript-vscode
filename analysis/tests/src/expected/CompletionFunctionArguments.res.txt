@@ -169,19 +169,19 @@ Path someFnTakingVariant
     "label": "OIncludeMeInCompletions",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }, {
     "label": "Obj",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "Obj",
     "documentation": null
   }, {
     "label": "Objects",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "Objects",
     "documentation": null
   }]
 
@@ -207,7 +207,7 @@ Path someFnTakingVariant
     "label": "Sort",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "Sort",
     "documentation": null
   }]
 
@@ -233,19 +233,19 @@ Path someFnTakingVariant
     "label": "OIncludeMeInCompletions",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "",
     "documentation": null
   }, {
     "label": "Obj",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "Obj",
     "documentation": null
   }, {
     "label": "Objects",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "Objects",
     "documentation": null
   }]
 

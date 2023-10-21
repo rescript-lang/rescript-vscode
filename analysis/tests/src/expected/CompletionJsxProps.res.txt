@@ -66,19 +66,19 @@ Path CompletionSupport.TestComponent.make
     "label": "TableclothMap",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "TableclothMap",
     "documentation": null
   }, {
     "label": "TypeAtPosCompletion",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "TypeAtPosCompletion",
     "documentation": null
   }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "TypeDefinition",
     "documentation": null
   }]
 

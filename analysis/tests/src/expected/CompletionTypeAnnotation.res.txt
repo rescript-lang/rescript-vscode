@@ -82,13 +82,13 @@ Path someVariant
     "label": "Obj",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "Obj",
     "documentation": null
   }, {
     "label": "Objects",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "Objects",
     "documentation": null
   }]
 
