@@ -3,37 +3,37 @@ type field = {
   docstrings: array<string>,
   signature: string,
   optional: bool,
-  deprecated: option<string>,
+  deprecated?: string,
 }
 type constructor = {
   name: string,
   docstrings: array<string>,
   signature: string,
-  deprecated: option<string>,
+  deprecated?: string,
 }
-type detail = Record(array<field>) | Variant(array<constructor>)
+type detail = Record({items: array<field>}) | Variant({items: array<constructor>})
 type rec item =
   | Value({
       id: string,
       docstrings: array<string>,
       signature: string,
       name: string,
-      deprecated: option<string>,
+      deprecated?: string,
     })
   | Type({
       id: string,
       docstrings: array<string>,
       signature: string,
       name: string,
-      deprecated: option<string>,
-      detail: option<detail>,
+      deprecated?: string,
+      detail?: detail,
     })
   | Module(docsForModule)
   | ModuleAlias({id: string, docstrings: array<string>, name: string, items: array<item>})
 and docsForModule = {
   id: string,
   docstrings: array<string>,
-  deprecated: option<string>,
+  deprecated?: string,
   name: string,
   items: array<item>,
 }
