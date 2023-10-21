@@ -17,6 +17,7 @@
 		"src/*.res",
 		"src/*.resi",
 		"analysis_binaries/",
+		"rescript.json",
 		"README.md"
 	],
 	"engines": {
