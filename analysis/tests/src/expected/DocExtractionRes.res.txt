@@ -118,7 +118,7 @@ extracting docs for src/DocExtractionRes.res
       "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
       "kind": "type",
       "name": "someVariantWithInlineRecords",
-      "signature": "type someVariantWithInlineRecords = SomeStuff({offline: bool})",
+      "signature": "type someVariantWithInlineRecords =\\n  | SomeStuff({offline: bool})",
       "docstrings": ["Trying how it looks with an inline record in a variant."],
       "detail": 
       {
