@@ -3,20 +3,20 @@ type field = {
   docstrings: array<string>,
   signature: string,
   optional: bool,
-  deprecated: option<string>,
+  deprecated?: string,
 }
 
 type constructor = {
   name: string,
   docstrings: array<string>,
   signature: string,
-  deprecated: option<string>,
+  deprecated?: string,
 }
 
 @tag("kind")
 type detail =
-  | @as("record") Record(array<field>)
-  | @as("variant") Variant(array<constructor>)
+  | @as("record") Record({items: array<field>})
+  | @as("variant") Variant({items: array<constructor>})
 
 @tag("kind")
 type rec item =
@@ -26,7 +26,7 @@ type rec item =
       docstrings: array<string>,
       signature: string,
       name: string,
-      deprecated: option<string>,
+      deprecated?: string,
     })
   | @as("type")
   Type({
@@ -34,9 +34,9 @@ type rec item =
       docstrings: array<string>,
       signature: string,
       name: string,
-      deprecated: option<string>,
+      deprecated?: string,
       /** Additional documentation for constructors and record fields, if available. */
-      detail: option<detail>,
+      detail?: detail,
     })
   | @as("module") Module(docsForModule)
   | @as("moduleAlias")
@@ -49,7 +49,7 @@ type rec item =
 and docsForModule = {
   id: string,
   docstrings: array<string>,
-  deprecated: option<string>,
+  deprecated?: string,
   name: string,
   items: array<item>,
 }
@@ -86,7 +86,7 @@ let decodeDepreacted = item => {
 
 let decodeRecordFields = fields => {
   open Js.Json
-  let fields = fields->Js.Array2.map(field => {
+  let items = fields->Js.Array2.map(field => {
     switch field {
     | Object(doc) => {
         let name = doc->decodeStringByField("name")
@@ -98,18 +98,18 @@ let decodeRecordFields = fields => {
         | _ => assert(false)
         }
 
-        {name, docstrings, signature, optional, deprecated}
+        {name, docstrings, signature, optional, ?deprecated}
       }
 
     | _ => assert(false)
     }
   })
-  Record(fields)
+  Record({items: items})
 }
 
 let decodeConstructorFields = fields => {
   open Js.Json
-  let fields = fields->Js.Array2.map(field => {
+  let items = fields->Js.Array2.map(field => {
     switch field {
     | Object(doc) => {
         let name = doc->decodeStringByField("name")
@@ -117,13 +117,13 @@ let decodeConstructorFields = fields => {
         let signature = doc->decodeStringByField("signature")
         let deprecated = doc->decodeDepreacted
 
-        {name, docstrings, signature, deprecated}
+        {name, docstrings, signature, ?deprecated}
       }
 
     | _ => assert(false)
     }
   })
-  Variant(fields)
+  Variant({items: items})
 }
 
 let decodeDetail = detail => {
@@ -151,7 +151,7 @@ let rec decodeValue = item => {
   let name = item->decodeStringByField("name")
   let deprecated = item->decodeDepreacted
   let docstrings = item->decodeDocstrings
-  Value({id, docstrings, signature, name, deprecated})
+  Value({id, docstrings, signature, name, ?deprecated})
 }
 and decodeType = item => {
   let id = item->decodeStringByField("id")
@@ -163,7 +163,7 @@ and decodeType = item => {
   | Some(field) => decodeDetail(field)->Some
   | None => None
   }
-  Type({id, docstrings, signature, name, deprecated, detail})
+  Type({id, docstrings, signature, name, ?deprecated, ?detail})
 }
 and decodeModuleAlias = item => {
   open Js.Json
@@ -186,7 +186,7 @@ and decodeModule = item => {
   | Some(Array(items)) => items->Js.Array2.map(item => decodeItem(item))
   | _ => assert(false)
   }
-  Module({id, name, docstrings, deprecated, items})
+  Module({id, name, docstrings, ?deprecated, items})
 }
 and decodeItem = item => {
   open Js.Json
