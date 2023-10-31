@@ -542,16 +542,13 @@ function references(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(
+  let response = utils.runAnalysisCommand(filePath, [
+    "references",
     filePath,
-    params.position
-  );
-  let response: p.ResponseMessage = {
-    jsonrpc: c.jsonrpcVersion,
-    id: msg.id,
-    result,
-    // error: code and message set in case an exception happens during the definition request.
-  };
+    params.position.line,
+    params.position.character,
+  ], msg, false);
+
   return response;
 }
 
@@ -559,35 +556,14 @@ function prepareRename(msg: p.RequestMessage): p.ResponseMessage {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let locations: null | p.Location[] = utils.getReferencesForPosition(
+  let response = utils.runAnalysisCommand(filePath, [
+    "prepareRename",
     filePath,
-    params.position
-  );
-  let result: p.Range | null = null;
-  if (locations !== null) {
-    locations.forEach((loc) => {
-      if (
-        path.normalize(fileURLToPath(loc.uri)) ===
-        path.normalize(fileURLToPath(params.textDocument.uri))
-      ) {
-        let { start, end } = loc.range;
-        let pos = params.position;
-        if (
-          start.character <= pos.character &&
-          start.line <= pos.line &&
-          end.character >= pos.character &&
-          end.line >= pos.line
-        ) {
-          result = loc.range;
-        }
-      }
-    });
-  }
-  return {
-    jsonrpc: c.jsonrpcVersion,
-    id: msg.id,
-    result,
-  };
+    params.position.line,
+    params.position.character,
+  ], msg, false);
+
+  return response
 }
 
 function rename(msg: p.RequestMessage) {

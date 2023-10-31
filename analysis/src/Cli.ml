@@ -10,6 +10,7 @@ API examples:
   ./rescript-editor-analysis.exe hover src/MyFile.res 10 2 true
   ./rescript-editor-analysis.exe references src/MyFile.res 10 2
   ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
+  ./rescript-editor-analysis.exe prepareRename src/MyFile.res 10 2
   ./rescript-editor-analysis.exe diagnosticSyntax src/MyFile.res
   ./rescript-editor-analysis.exe inlayHint src/MyFile.res 0 3 25
   ./rescript-editor-analysis.exe codeLens src/MyFile.res
@@ -50,6 +51,10 @@ Options:
   rename: rename all appearances of item in MyFile.res at line 10 column 2 with foo:
 
     ./rescript-editor-analysis.exe rename src/MyFile.res 10 2 foo
+
+  prepareRename: Validity of a rename operation at a given location.
+
+    ./rescript-editor-analysis.exe prepareRename src/MyFile.res 10 2
 
   semanticTokens: return token semantic highlighting info for MyFile.res
 
@@ -156,6 +161,10 @@ let main () =
     Commands.rename ~path
       ~pos:(int_of_string line, int_of_string col)
       ~newName ~debug:false
+  | [_; "prepareRename"; path; line; col] ->
+    Commands.prepareRename ~path
+      ~pos:(int_of_string line, int_of_string col)
+      ~debug:false
   | [_; "semanticTokens"; currentFile] ->
     SemanticTokens.semanticTokens ~currentFile
   | [_; "createInterface"; path; cmiFile] ->

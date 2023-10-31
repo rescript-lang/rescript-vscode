@@ -237,6 +237,20 @@ let rename ~path ~pos ~newName ~debug =
   in
   print_endline result
 
+let prepareRename ~path ~pos ~debug =
+  let currentLoc =
+    match Cmt.loadFullCmtFromPath ~path with
+    | None -> None
+    | Some full -> (
+      match References.getLocItem ~full ~pos ~debug with
+      | None -> None
+      | Some {loc} -> Some (Utils.cmtLocToRange loc))
+  in
+  (match currentLoc with
+  | None -> Protocol.null
+  | Some range -> range |> Protocol.stringifyRange)
+  |> print_endline
+
 let format ~path =
   if Filename.check_suffix path ".res" then
     let {Res_driver.parsetree = structure; comments; diagnostics} =
@@ -371,6 +385,13 @@ let test ~path =
                ^ string_of_int col ^ " " ^ newName)
             in
             rename ~path ~pos:(line, col) ~newName ~debug:true
+          | "pre" ->
+              let () =
+                print_endline
+                  ("PrepareRename " ^ path ^ " " ^ string_of_int line ^ ":"
+                 ^ string_of_int col)
+              in
+              prepareRename ~path ~pos:(line, col) ~debug:true
           | "typ" ->
             print_endline
               ("TypeDefinition " ^ path ^ " " ^ string_of_int line ^ ":"

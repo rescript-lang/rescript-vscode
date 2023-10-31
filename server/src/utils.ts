@@ -178,17 +178,6 @@ export let runAnalysisCommand = (
   return response;
 };
 
-export let getReferencesForPosition = (
-  filePath: p.DocumentUri,
-  position: p.Position
-) =>
-  runAnalysisAfterSanityCheck(filePath, [
-    "references",
-    filePath,
-    position.line,
-    position.character,
-  ]);
-
 export const toCamelCase = (text: string): string => {
   return text
     .replace(/(?:^\w|[A-Z]|\b\w)/g, (s: string) => s.toUpperCase())

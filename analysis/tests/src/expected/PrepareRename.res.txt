@@ -1,0 +1,9 @@
+PrepareRename src/PrepareRename.res 0:4
+{"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 5}}
+
+PrepareRename src/PrepareRename.res 3:14
+{"start": {"line": 3, "character": 14}, "end": {"line": 3, "character": 15}}
+
+PrepareRename src/PrepareRename.res 6:2
+null
+
