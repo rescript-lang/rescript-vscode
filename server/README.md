@@ -9,7 +9,7 @@ npm install -g @rescript/lsp
 ## Run
 
 ```sh
-resciptls --stdio
+rescript-language-server --stdio
 ```
 
 ```sh
