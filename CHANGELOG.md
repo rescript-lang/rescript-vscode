@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.22.0
+
 #### :nail_care: Polish
 
 - Resolve module aliases in hover. https://github.com/rescript-lang/rescript-vscode/pull/820
