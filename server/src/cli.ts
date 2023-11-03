@@ -6,7 +6,7 @@ const args = process.argv.slice(2)
 
 const help = `ReScript Language Server
 
-Usage: rescriptls [options]
+Usage: rescript-ls [options]
 
 Options:
 

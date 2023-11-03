@@ -15,7 +15,7 @@ resciptls --stdio
 ```sh
 ReScript Language Server
 
-Usage: rescriptls [options]
+Usage: rescript-ls [options]
 
 Options:
 

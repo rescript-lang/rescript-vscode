@@ -176,16 +176,6 @@ A screenshot of the result:
 
 ![Shows the end result in VSCode, with ReScript related files nested under eachother appropriately.](https://user-images.githubusercontent.com/1457626/168123647-400e2f09-31e3-45a2-b74b-190c7c207446.png)
 
-## ⌨️ Use with Other Editors
-
-This repo also contains a language server that can power other editors. **However, the language server in this project is a pure implementation detail. We don't guarantee its stability for other editors' consumption** apart from Vim and Sublime Text.
-
-Still, if you'd like to use this language-server with other editors:
-
-- Get the release binaries from the Github Releases page.
-- Unzip the `.vsix` and get the `server` folder. That's the only folder you need.
-- The language server will be at `server/out/server.js`. Call it through node, and optionally pass `--stdio` if your editor doesn't support the default JSONRPC.
-
 ## 📰 Changelog
 
 See [CHANGELOG](CHANGELOG.md)
