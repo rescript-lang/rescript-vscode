@@ -219,7 +219,7 @@ jobs:
       working-directory: server
       run: npm publish
       env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Copy analysis binaries to tools folder
       run: cp -r server/analysis_binaries/* tools/analysis_binaries
@@ -235,4 +235,4 @@ jobs:
       working-directory: tools
       run: npm publish
       env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
