@@ -217,7 +217,7 @@ jobs:
     - name: Publish LSP to NPM
       if: startsWith(github.ref, 'refs/tags/')
       working-directory: server
-      run: npm publish --access public
+      run: npm publish
       env:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -233,6 +233,6 @@ jobs:
     - name: Publish @rescript/tools package
       if: ${{ startsWith(github.event.head_commit.message, 'publish tools') && (github.ref == 'refs/heads/master') }}
       working-directory: tools
-      run: npm publish --access public
+      run: npm publish
       env:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
