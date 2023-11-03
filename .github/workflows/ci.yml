@@ -206,7 +206,7 @@ jobs:
         files: rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix
 
     - name: Publish extension as pre-release
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' && !startsWith(github.event.head_commit.message, 'publish tools')
       run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} --pre-release ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
 
     - name: Publish extension as release
