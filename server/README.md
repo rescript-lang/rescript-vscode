@@ -3,7 +3,7 @@
 ## Install
 
 ```sh
-npm install -g @rescript/lsp
+npm install -g @rescript/language-server
 ```
 
 ## Run
