@@ -12,6 +12,10 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Fix issue `open` on submodules exposed via `-open` in bsconfig.json/rescript.json, that would cause the content of those `open` modules to not actually appear in autocomplete. https://github.com/rescript-lang/rescript-vscode/pull/842
+
 ## 1.22.0
 
 #### :nail_care: Polish
