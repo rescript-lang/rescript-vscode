@@ -1007,7 +1007,7 @@ Pexp_ident sha:[205:3->205:6]
 Completable: Cpath Value[sha]
 Raw opens: 1 Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 2 Completion.res pervasives
+Resolved opens 2 pervasives Completion.res
 ContextPath Value[sha]
 Path sha
 [{
@@ -1024,7 +1024,7 @@ Pexp_ident sha:[208:3->208:6]
 Completable: Cpath Value[sha]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[sha]
 Path sha
 [{
@@ -1041,7 +1041,7 @@ Pexp_send [221:22->221:22] e:[221:3->221:20]
 Completable: Cpath Value[FAO, forAutoObject][""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[FAO, forAutoObject][""]
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
@@ -1065,7 +1065,7 @@ Pexp_field [224:3->224:36] _:[233:0->224:37]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].""
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"].""
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
 ContextPath Value[FAO, forAutoObject]
@@ -1089,7 +1089,7 @@ posCursor:[227:46] posNoWhite:[227:45] Found expr:[227:3->0:-1]
 Completable: Cpath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"].forAuto
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
@@ -1120,7 +1120,7 @@ Pexp_ident ForAuto.a:[230:46->230:55]
 Completable: Cpath Value[ForAuto, a]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ForAuto, a]
 Path ForAuto.a
 [{
@@ -1147,7 +1147,7 @@ Pexp_ident na:[234:32->234:34]
 Completable: Cpath Value[na]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[na]
 Path na
 [{
@@ -1163,7 +1163,7 @@ posCursor:[237:17] posNoWhite:[237:14] Found expr:[237:14->237:22]
 Completable: Cnone
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 []
 
 Complete src/Completion.res 243:8
@@ -1174,7 +1174,7 @@ Pexp_field [243:5->243:7] _:[245:0->243:8]
 Completable: Cpath Value[_z].""
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[_z].""
 ContextPath Value[_z]
 Path _z
@@ -1198,7 +1198,7 @@ Pexp_construct SomeLo:[254:11->254:17] None
 Completable: Cpath Value[SomeLo]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[SomeLo]
 Path SomeLo
 [{
@@ -1215,7 +1215,7 @@ Ptyp_constr SomeLocalModule.:[256:13->256:29]
 Completable: Cpath Type[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[SomeLocalModule, ""]
 Path SomeLocalModule.
 [{
@@ -1232,7 +1232,7 @@ Ptyp_constr SomeLocalModule.:[261:17->263:11]
 Completable: Cpath Type[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[SomeLocalModule, ""]
 Path SomeLocalModule.
 [{
@@ -1248,7 +1248,7 @@ Ptype_variant unary SomeLocal:[268:12->268:21]
 Completable: Cpath Value[SomeLocal]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[SomeLocal]
 Path SomeLocal
 [{
@@ -1272,7 +1272,7 @@ Ptyp_constr SomeLocal:[271:11->274:3]
 Completable: Cpath Type[SomeLocal]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[SomeLocal]
 Path SomeLocal
 [{
@@ -1291,7 +1291,7 @@ Pexp_ident _w:[275:13->275:15]
 Completable: Cpath Value[_w]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[_w]
 Path _w
 [{
@@ -1308,7 +1308,7 @@ Ptyp_constr s:[281:21->281:22]
 Completable: Cpath Type[s]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[s]
 Path s
 [{
@@ -1331,7 +1331,7 @@ Pexp_apply ...[291:11->291:28] ()
 Completable: CnamedArg(Value[funRecord].someFun, "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[funRecord].someFun
 ContextPath Value[funRecord]
 Path funRecord
@@ -1350,7 +1350,7 @@ Pexp_field [296:3->296:10] _:[299:0->296:11]
 Completable: Cpath Value[retAA](Nolabel).""
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[retAA](Nolabel).""
 ContextPath Value[retAA](Nolabel)
 ContextPath Value[retAA]
@@ -1375,7 +1375,7 @@ Pexp_apply ...[301:3->301:11] ()
 Completable: CnamedArg(Value[ff](~c), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ff](~c)
 ContextPath Value[ff]
 Path ff
@@ -1419,7 +1419,7 @@ Pexp_apply ...[304:3->304:13] ()
 Completable: CnamedArg(Value[ff](~c)(Nolabel), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ff](~c)(Nolabel)
 ContextPath Value[ff](~c)
 ContextPath Value[ff]
@@ -1451,7 +1451,7 @@ Pexp_apply ...[307:3->307:15] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ff](~c, Nolabel)
 ContextPath Value[ff]
 Path ff
@@ -1482,7 +1482,7 @@ Pexp_apply ...[310:3->310:19] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel, Nolabel), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ff](~c, Nolabel, Nolabel)
 ContextPath Value[ff]
 Path ff
@@ -1507,7 +1507,7 @@ Pexp_apply ...[313:3->313:21] ()
 Completable: CnamedArg(Value[ff](~c, Nolabel, ~b), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ff](~c, Nolabel, ~b)
 ContextPath Value[ff]
 Path ff
@@ -1532,7 +1532,7 @@ Pexp_apply ...[316:3->316:14] ()
 Completable: CnamedArg(Value[ff](~opt2), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ff](~opt2)
 ContextPath Value[ff]
 Path ff
@@ -1569,7 +1569,7 @@ Pexp_apply ...[323:3->323:15] ()
 Completable: CnamedArg(Value[withCallback], "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[withCallback]
 Path withCallback
 Found type for function (~b: int) => callback
@@ -1593,7 +1593,7 @@ Pexp_apply ...[326:3->326:19] ()
 Completable: CnamedArg(Value[withCallback](~a), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[withCallback](~a)
 ContextPath Value[withCallback]
 Path withCallback
@@ -1612,7 +1612,7 @@ Pexp_apply ...[329:3->329:19] ()
 Completable: CnamedArg(Value[withCallback](~b), "", [])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[withCallback](~b)
 ContextPath Value[withCallback]
 Path withCallback
@@ -1641,7 +1641,7 @@ Ptyp_constr Res:[336:23->338:5]
 Completable: Cpath Type[Res]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[Res]
 Path Res
 [{
@@ -1665,7 +1665,7 @@ Pexp_ident this:[343:53->343:57]
 Completable: Cpath Value[this]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[this]
 Path this
 [{
@@ -1683,7 +1683,7 @@ JSX <div:[346:9->346:12] name[346:13->346:17]=...[346:18->346:20]> _children:346
 Completable: Cjsx([div], name, [name])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 {"contents": {"kind": "markdown", "value": "```rescript\nstring\n```"}}
 
 Hover src/Completion.res 349:17
@@ -1695,7 +1695,7 @@ Pexp_ident FAO.forAutoObject:[349:11->349:28]
 Completable: Cpath Value[FAO, forAutoObject]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
@@ -1710,7 +1710,7 @@ Pexp_apply ...[352:11->352:13] (~opt1352:15->352:19=...[352:20->352:21])
 Completable: CnamedArg(Value[ff], opt1, [opt1])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ff]
 Path ff
 Found type for function (
@@ -1737,13 +1737,13 @@ Ppat_construct T:[362:7->362:8]
 Completable: Cpattern Value[x]=T
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[x]
 Path x
 Completable: Cpath Value[T]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[T]
 Path T
 [{
@@ -1786,7 +1786,7 @@ Ppat_construct AndThatOther.T:[373:7->373:21]
 Completable: Cpath Value[AndThatOther, T]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[AndThatOther, T]
 Path AndThatOther.T
 [{
@@ -1807,7 +1807,7 @@ Pexp_ident ForAuto.:[378:16->378:24]
 Completable: Cpath Value[ForAuto, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ForAuto, ""]
 Path ForAuto.
 [{
@@ -1834,7 +1834,7 @@ Pexp_send [381:38->381:38] e:[381:19->381:36]
 Completable: Cpath Value[FAO, forAutoObject][""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[FAO, forAutoObject][""]
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
@@ -1862,7 +1862,7 @@ Pexp_field [384:14->384:23] _:[384:24->384:24]
 Completable: Cpath Value[funRecord].""
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[funRecord].""
 ContextPath Value[funRecord]
 Path funRecord
@@ -1888,7 +1888,7 @@ posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->389:12]
 Completable: Cpath array->ma
 Raw opens: 3 Js.place holder ... Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 4 Completion.res Completion.res js.ml pervasives
+Resolved opens 4 pervasives Completion.res Completion.res js.ml
 ContextPath array->ma
 ContextPath array
 CPPipe env:Completion
@@ -1917,7 +1917,7 @@ Pexp_ident red:[397:13->397:16]
 Completable: Cpath Value[red]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[red]
 Path red
 [{
@@ -1938,7 +1938,7 @@ Pexp_ident red:[402:24->402:27]
 Completable: Cpath Value[red]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[red]
 Path red
 [{
@@ -1960,7 +1960,7 @@ Pexp_ident r:[405:21->405:22]
 Completable: Cpath Value[r]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[r]
 Path r
 [{
@@ -1992,7 +1992,7 @@ Pexp_ident SomeLocalModule.:[409:5->411:5]
 Completable: Cpath Value[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[SomeLocalModule, ""]
 Path SomeLocalModule.
 [{
@@ -2019,7 +2019,7 @@ Pexp_ident SomeLocalModule.:[412:5->414:8]
 Completable: Cpath Value[SomeLocalModule, ""]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[SomeLocalModule, ""]
 Path SomeLocalModule.
 [{
@@ -2041,7 +2041,7 @@ posCursor:[417:17] posNoWhite:[417:16] Found expr:[417:11->417:17]
 Completable: Cpath int->t
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath int->t
 ContextPath int
 CPPipe env:Completion
@@ -2065,7 +2065,7 @@ posCursor:[420:19] posNoWhite:[420:18] Found expr:[420:11->420:19]
 Completable: Cpath float->t
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath float->t
 ContextPath float
 CPPipe env:Completion
@@ -2089,7 +2089,7 @@ posCursor:[425:8] posNoWhite:[425:7] Found expr:[425:3->425:8]
 Completable: Cpath Value[ok]->g
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[ok]->g
 ContextPath Value[ok]
 Path ok
@@ -2115,7 +2115,7 @@ Pexp_field [443:3->443:12] so:[443:13->443:15]
 Completable: Cpath Value[rWithDepr].so
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[rWithDepr].so
 ContextPath Value[rWithDepr]
 Path rWithDepr
@@ -2138,7 +2138,7 @@ XXX Not found!
 Completable: Cexpression Type[someVariantWithDeprecated]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[someVariantWithDeprecated]
 Path someVariantWithDeprecated
 [{
@@ -2172,7 +2172,7 @@ posCursor:[455:30] posNoWhite:[455:29] Found expr:[455:11->455:30]
 Completable: Cpath Value[uncurried](Nolabel)->toS
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[uncurried](Nolabel)->toS
 ContextPath Value[uncurried](Nolabel)
 ContextPath Value[uncurried]
@@ -2192,7 +2192,7 @@ XXX Not found!
 Completable: Cexpression Type[withUncurried]->recordField(fn)
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
-Resolved opens 3 Completion.res Completion.res pervasives
+Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[withUncurried]
 Path withUncurried
 [{

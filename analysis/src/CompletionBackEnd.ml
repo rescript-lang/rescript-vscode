@@ -1152,7 +1152,7 @@ let getOpens ~debug ~rawOpens ~package ~env =
                         if name = "PervasivesU" then "Pervasives" else name)
                  |> pathToString)));
   let resolvedOpens =
-    resolveOpens ~env (List.rev (packageOpens @ rawOpens)) ~package
+    resolveOpens ~env (List.rev (rawOpens @ packageOpens)) ~package
   in
   if debug && resolvedOpens <> [] then
     Printf.printf "%s\n"
