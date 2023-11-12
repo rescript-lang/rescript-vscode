@@ -943,6 +943,10 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
           | [_], _ -> Some modulePath
           | s :: inner, first :: restPath when s = first ->
             removeRawOpen inner restPath
+          | s :: inner, first :: restPath
+            when String.contains first '-' && Utils.startsWith first s ->
+            (* This handles namespaced modules, which have their namespace appended after a '-' *)
+            removeRawOpen inner restPath
           | _ -> None
         in
         let rec removeRawOpens rawOpens modulePath =
