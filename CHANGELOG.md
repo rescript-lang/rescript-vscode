@@ -14,6 +14,7 @@
 
 #### :bug: Bug Fix
 
+- Clean up name of namespaced module when hovering. https://github.com/rescript-lang/rescript-vscode/pull/845
 - Fix issue `open` on submodules exposed via `-open` in bsconfig.json/rescript.json, that would cause the content of those `open` modules to not actually appear in autocomplete. https://github.com/rescript-lang/rescript-vscode/pull/842
 - Account for namespace when filtering pipe completion items. https://github.com/rescript-lang/rescript-vscode/pull/843
 

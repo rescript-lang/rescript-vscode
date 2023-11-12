@@ -216,3 +216,8 @@ let rec lastElements list =
 let lowercaseFirstChar s =
   if String.length s = 0 then s
   else String.mapi (fun i c -> if i = 0 then Char.lowercase_ascii c else c) s
+
+let cutAfterDash s =
+  match String.index s '-' with
+  | n -> ( try String.sub s 0 n with Invalid_argument _ -> s)
+  | exception Not_found -> s
