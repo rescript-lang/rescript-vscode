@@ -502,7 +502,7 @@ let getComplementaryCompletionsForTypedValue ~opens ~allFiles ~scope ~env prefix
              Utils.checkName name ~prefix ~exact
              && not
                   (* TODO complete the namespaced name too *)
-                  (String.contains name '-')
+                  (Utils.fileNameHasUnallowedChars name)
            then
              Some
                (Completion.create name ~env ~kind:(Completion.FileModule name))
@@ -528,7 +528,7 @@ let getCompletionsForPath ~debug ~package ~opens ~full ~pos ~exact ~scope
                Utils.checkName name ~prefix ~exact
                && not
                     (* TODO complete the namespaced name too *)
-                    (String.contains name '-')
+                    (Utils.fileNameHasUnallowedChars name)
              then
                Some
                  (Completion.create name ~env ~kind:(Completion.FileModule name))
