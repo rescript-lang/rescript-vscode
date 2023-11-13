@@ -282,7 +282,7 @@ type clientSentBuildAction = {
   title: string;
   projectRootPath: string;
 };
-let openedFile = (fileUri: string, fileContent: string) => {
+let openedFile = (fileUri: string, fileContent: string, askToStartBuild: boolean) => {
   let filePath = fileURLToPath(fileUri);
 
   stupidFileContentCache.set(filePath, fileContent);
@@ -313,6 +313,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
     // because otherwise the diagnostics info we'll display might be stale
     let bsbLockPath = path.join(projectRootPath, c.bsbLock);
     if (
+      askToStartBuild === true &&
       projectRootState.hasPromptedToStartBuild === false &&
       extensionConfiguration.askToStartBuild === true &&
       !fs.existsSync(bsbLockPath)
@@ -400,7 +401,7 @@ let getOpenedFileContent = (fileUri: string) => {
   return content;
 };
 
-export default function listen(useStdio = false) {
+export default function listen(useStdio = false, askToStartBuild = true) {
   // Start listening now!
   // We support two modes: the regular node RPC mode for VSCode, and the --stdio
   // mode for other editors The latter is _technically unsupported_. It's an
@@ -410,11 +411,11 @@ export default function listen(useStdio = false) {
     let reader = new rpc.StreamMessageReader(process.stdin);
     // proper `this` scope for writer
     send = (msg: p.Message) => writer.write(msg);
-    reader.listen(onMessage);
+    reader.listen(onMessage(askToStartBuild));
   } else {
     // proper `this` scope for process
     send = (msg: p.Message) => process.send!(msg);
-    process.on("message", onMessage);
+    process.on("message", onMessage(askToStartBuild));
   }
 }
 
@@ -1025,283 +1026,285 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
   return response;
 }
 
-function onMessage(msg: p.Message) {
-  if (p.Message.isNotification(msg)) {
-    // notification message, aka the client ends it and doesn't want a reply
-    if (!initialized && msg.method !== "exit") {
-      // From spec: "Notifications should be dropped, except for the exit notification. This will allow the exit of a server without an initialize request"
-      // For us: do nothing. We don't have anything we need to clean up right now
-      // TODO: we might have things we need to clean up now... like some watcher stuff
-    } else if (msg.method === "exit") {
-      // The server should exit with success code 0 if the shutdown request has been received before; otherwise with error code 1
-      if (shutdownRequestAlreadyReceived) {
-        process.exit(0);
-      } else {
-        process.exit(1);
-      }
-    } else if (msg.method === DidOpenTextDocumentNotification.method) {
-      let params = msg.params as p.DidOpenTextDocumentParams;
-      openedFile(params.textDocument.uri, params.textDocument.text);
-      updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
-    } else if (msg.method === DidChangeTextDocumentNotification.method) {
-      let params = msg.params as p.DidChangeTextDocumentParams;
-      let extName = path.extname(params.textDocument.uri);
-      if (extName === c.resExt || extName === c.resiExt) {
-        let changes = params.contentChanges;
-        if (changes.length === 0) {
-          // no change?
+function onMessage(askToStartBuild: boolean) {
+  return function (msg: p.Message) {
+    if (p.Message.isNotification(msg)) {
+      // notification message, aka the client ends it and doesn't want a reply
+      if (!initialized && msg.method !== "exit") {
+        // From spec: "Notifications should be dropped, except for the exit notification. This will allow the exit of a server without an initialize request"
+        // For us: do nothing. We don't have anything we need to clean up right now
+        // TODO: we might have things we need to clean up now... like some watcher stuff
+      } else if (msg.method === "exit") {
+        // The server should exit with success code 0 if the shutdown request has been received before; otherwise with error code 1
+        if (shutdownRequestAlreadyReceived) {
+          process.exit(0);
         } else {
-          // we currently only support full changes
-          updateOpenedFile(
-            params.textDocument.uri,
-            changes[changes.length - 1].text
-          );
-          updateDiagnosticSyntax(
-            params.textDocument.uri,
-            changes[changes.length - 1].text
-          );
+          process.exit(1);
         }
-      }
-    } else if (msg.method === DidCloseTextDocumentNotification.method) {
-      let params = msg.params as p.DidCloseTextDocumentParams;
-      closedFile(params.textDocument.uri);
-    } else if (msg.method === DidChangeConfigurationNotification.type.method) {
-      // Can't seem to get this notification to trigger, but if it does this will be here and ensure we're synced up at the server.
-      askForAllCurrentConfiguration();
-    }
-  } else if (p.Message.isRequest(msg)) {
-    // request message, aka client sent request and waits for our mandatory reply
-    if (!initialized && msg.method !== "initialize") {
-      let response: p.ResponseMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        id: msg.id,
-        error: {
-          code: p.ErrorCodes.ServerNotInitialized,
-          message: "Server not initialized.",
-        },
-      };
-      send(response);
-    } else if (msg.method === "initialize") {
-      // Save initial configuration, if present
-      let initParams = msg.params as InitializeParams;
-      let initialConfiguration = initParams.initializationOptions
-        ?.extensionConfiguration as extensionConfiguration | undefined;
-
-      if (initialConfiguration != null) {
-        extensionConfiguration = initialConfiguration;
-      }
-
-      // These are static configuration options the client can set to enable certain
-      let extensionClientCapabilitiesFromClient = initParams
-        .initializationOptions?.extensionClientCapabilities as
-        | extensionClientCapabilities
-        | undefined;
-
-      if (extensionClientCapabilitiesFromClient != null) {
-        extensionClientCapabilities = extensionClientCapabilitiesFromClient;
-      }
-
-      extensionClientCapabilities.supportsSnippetSyntax = Boolean(
-        initParams.capabilities.textDocument?.completion?.completionItem
-          ?.snippetSupport
-      );
-
-      // send the list of features we support
-      let result: p.InitializeResult = {
-        // This tells the client: "hey, we support the following operations".
-        // Example: we want to expose "jump-to-definition".
-        // By adding `definitionProvider: true`, the client will now send "jump-to-definition" requests.
-        capabilities: {
-          // TODO: incremental sync?
-          textDocumentSync: v.TextDocumentSyncKind.Full,
-          documentFormattingProvider: true,
-          hoverProvider: true,
-          definitionProvider: true,
-          typeDefinitionProvider: true,
-          referencesProvider: true,
-          codeActionProvider: true,
-          renameProvider: { prepareProvider: true },
-          documentSymbolProvider: true,
-          completionProvider: {
-            triggerCharacters: [".", ">", "@", "~", '"', "=", "("],
-          },
-          semanticTokensProvider: {
-            legend: {
-              tokenTypes: [
-                "operator",
-                "variable",
-                "type",
-                "modifier", // emit jsx-tag < and > in <div> as modifier
-                "namespace",
-                "enumMember",
-                "property",
-                "interface", // emit jsxlowercase, div in <div> as interface
-              ],
-              tokenModifiers: [],
-            },
-            documentSelector: [{ scheme: "file", language: "rescript" }],
-            // TODO: Support range for full, and add delta support
-            full: true,
-          },
-          inlayHintProvider: extensionConfiguration.inlayHints?.enable,
-          codeLensProvider: extensionConfiguration.codeLens
-            ? {
-                workDoneProgress: false,
-              }
-            : undefined,
-          signatureHelpProvider: extensionConfiguration.signatureHelp?.enabled
-            ? {
-                triggerCharacters: ["("],
-                retriggerCharacters: ["=", ","],
-              }
-            : undefined,
-        },
-      };
-      let response: p.ResponseMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        id: msg.id,
-        result: result,
-      };
-      initialized = true;
-
-      // Periodically pull configuration from the client.
-      pullConfigurationPeriodically = setInterval(() => {
+      } else if (msg.method === DidOpenTextDocumentNotification.method) {
+        let params = msg.params as p.DidOpenTextDocumentParams;
+        openedFile(params.textDocument.uri, params.textDocument.text, askToStartBuild);
+        updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
+      } else if (msg.method === DidChangeTextDocumentNotification.method) {
+        let params = msg.params as p.DidChangeTextDocumentParams;
+        let extName = path.extname(params.textDocument.uri);
+        if (extName === c.resExt || extName === c.resiExt) {
+          let changes = params.contentChanges;
+          if (changes.length === 0) {
+            // no change?
+          } else {
+            // we currently only support full changes
+            updateOpenedFile(
+              params.textDocument.uri,
+              changes[changes.length - 1].text
+            );
+            updateDiagnosticSyntax(
+              params.textDocument.uri,
+              changes[changes.length - 1].text
+            );
+          }
+        }
+      } else if (msg.method === DidCloseTextDocumentNotification.method) {
+        let params = msg.params as p.DidCloseTextDocumentParams;
+        closedFile(params.textDocument.uri);
+      } else if (msg.method === DidChangeConfigurationNotification.type.method) {
+        // Can't seem to get this notification to trigger, but if it does this will be here and ensure we're synced up at the server.
         askForAllCurrentConfiguration();
-      }, c.pullConfigurationInterval);
-
-      send(response);
-    } else if (msg.method === "initialized") {
-      // sent from client after initialize. Nothing to do for now
-      let response: p.ResponseMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        id: msg.id,
-        result: null,
-      };
-      send(response);
-    } else if (msg.method === "shutdown") {
-      // https://microsoft.github.io/language-server-protocol/specification#shutdown
-      if (shutdownRequestAlreadyReceived) {
+      }
+    } else if (p.Message.isRequest(msg)) {
+      // request message, aka client sent request and waits for our mandatory reply
+      if (!initialized && msg.method !== "initialize") {
         let response: p.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
           id: msg.id,
           error: {
-            code: p.ErrorCodes.InvalidRequest,
-            message: `Language server already received the shutdown request`,
+            code: p.ErrorCodes.ServerNotInitialized,
+            message: "Server not initialized.",
           },
         };
         send(response);
-      } else {
-        shutdownRequestAlreadyReceived = true;
-        // TODO: recheck logic around init/shutdown...
-        stopWatchingCompilerLog();
-        // TODO: delete bsb watchers
+      } else if (msg.method === "initialize") {
+        // Save initial configuration, if present
+        let initParams = msg.params as InitializeParams;
+        let initialConfiguration = initParams.initializationOptions
+          ?.extensionConfiguration as extensionConfiguration | undefined;
 
-        if (pullConfigurationPeriodically != null) {
-          clearInterval(pullConfigurationPeriodically);
+        if (initialConfiguration != null) {
+          extensionConfiguration = initialConfiguration;
         }
 
+        // These are static configuration options the client can set to enable certain
+        let extensionClientCapabilitiesFromClient = initParams
+          .initializationOptions?.extensionClientCapabilities as
+          | extensionClientCapabilities
+          | undefined;
+
+        if (extensionClientCapabilitiesFromClient != null) {
+          extensionClientCapabilities = extensionClientCapabilitiesFromClient;
+        }
+
+        extensionClientCapabilities.supportsSnippetSyntax = Boolean(
+          initParams.capabilities.textDocument?.completion?.completionItem
+            ?.snippetSupport
+        );
+
+        // send the list of features we support
+        let result: p.InitializeResult = {
+          // This tells the client: "hey, we support the following operations".
+          // Example: we want to expose "jump-to-definition".
+          // By adding `definitionProvider: true`, the client will now send "jump-to-definition" requests.
+          capabilities: {
+            // TODO: incremental sync?
+            textDocumentSync: v.TextDocumentSyncKind.Full,
+            documentFormattingProvider: true,
+            hoverProvider: true,
+            definitionProvider: true,
+            typeDefinitionProvider: true,
+            referencesProvider: true,
+            codeActionProvider: true,
+            renameProvider: { prepareProvider: true },
+            documentSymbolProvider: true,
+            completionProvider: {
+              triggerCharacters: [".", ">", "@", "~", '"', "=", "("],
+            },
+            semanticTokensProvider: {
+              legend: {
+                tokenTypes: [
+                  "operator",
+                  "variable",
+                  "type",
+                  "modifier", // emit jsx-tag < and > in <div> as modifier
+                  "namespace",
+                  "enumMember",
+                  "property",
+                  "interface", // emit jsxlowercase, div in <div> as interface
+                ],
+                tokenModifiers: [],
+              },
+              documentSelector: [{ scheme: "file", language: "rescript" }],
+              // TODO: Support range for full, and add delta support
+              full: true,
+            },
+            inlayHintProvider: extensionConfiguration.inlayHints?.enable,
+            codeLensProvider: extensionConfiguration.codeLens
+              ? {
+                  workDoneProgress: false,
+                }
+              : undefined,
+            signatureHelpProvider: extensionConfiguration.signatureHelp?.enabled
+              ? {
+                  triggerCharacters: ["("],
+                  retriggerCharacters: ["=", ","],
+                }
+              : undefined,
+          },
+        };
+        let response: p.ResponseMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: msg.id,
+          result: result,
+        };
+        initialized = true;
+
+        // Periodically pull configuration from the client.
+        pullConfigurationPeriodically = setInterval(() => {
+          askForAllCurrentConfiguration();
+        }, c.pullConfigurationInterval);
+
+        send(response);
+      } else if (msg.method === "initialized") {
+        // sent from client after initialize. Nothing to do for now
         let response: p.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
           id: msg.id,
           result: null,
         };
         send(response);
-      }
-    } else if (msg.method === p.HoverRequest.method) {
-      send(hover(msg));
-    } else if (msg.method === p.DefinitionRequest.method) {
-      send(definition(msg));
-    } else if (msg.method === p.TypeDefinitionRequest.method) {
-      send(typeDefinition(msg));
-    } else if (msg.method === p.ReferencesRequest.method) {
-      send(references(msg));
-    } else if (msg.method === p.PrepareRenameRequest.method) {
-      send(prepareRename(msg));
-    } else if (msg.method === p.RenameRequest.method) {
-      send(rename(msg));
-    } else if (msg.method === p.DocumentSymbolRequest.method) {
-      send(documentSymbol(msg));
-    } else if (msg.method === p.CompletionRequest.method) {
-      send(completion(msg));
-    } else if (msg.method === p.SemanticTokensRequest.method) {
-      send(semanticTokens(msg));
-    } else if (msg.method === p.CodeActionRequest.method) {
-      send(codeAction(msg));
-    } else if (msg.method === p.DocumentFormattingRequest.method) {
-      let responses = format(msg);
-      responses.forEach((response) => send(response));
-    } else if (msg.method === createInterfaceRequest.method) {
-      send(createInterface(msg));
-    } else if (msg.method === openCompiledFileRequest.method) {
-      send(openCompiledFile(msg));
-    } else if (msg.method === p.InlayHintRequest.method) {
-      let params = msg.params as InlayHintParams;
-      let extName = path.extname(params.textDocument.uri);
-      if (extName === c.resExt) {
-        send(inlayHint(msg));
-      }
-    } else if (msg.method === p.CodeLensRequest.method) {
-      let params = msg.params as CodeLensParams;
-      let extName = path.extname(params.textDocument.uri);
-      if (extName === c.resExt) {
-        send(codeLens(msg));
-      }
-    } else if (msg.method === p.SignatureHelpRequest.method) {
-      let params = msg.params as SignatureHelpParams;
-      let extName = path.extname(params.textDocument.uri);
-      if (extName === c.resExt) {
-        send(signatureHelp(msg));
-      }
-    } else {
-      let response: p.ResponseMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        id: msg.id,
-        error: {
-          code: p.ErrorCodes.InvalidRequest,
-          message: "Unrecognized editor request.",
-        },
-      };
-      send(response);
-    }
-  } else if (p.Message.isResponse(msg)) {
-    if (msg.id === c.configurationRequestId) {
-      if (msg.result != null) {
-        // This is a response from a request to get updated configuration. Note
-        // that it seems to return the configuration in a way that lets the
-        // current workspace settings override the user settings. This is good
-        // as we get started, but _might_ be problematic further down the line
-        // if we want to support having several projects open at the same time
-        // without their settings overriding eachother. Not a problem now though
-        // as we'll likely only have "global" settings starting out.
-        let [configuration] = msg.result as [
-          extensionConfiguration | null | undefined
-        ];
-        if (configuration != null) {
-          extensionConfiguration = configuration;
+      } else if (msg.method === "shutdown") {
+        // https://microsoft.github.io/language-server-protocol/specification#shutdown
+        if (shutdownRequestAlreadyReceived) {
+          let response: p.ResponseMessage = {
+            jsonrpc: c.jsonrpcVersion,
+            id: msg.id,
+            error: {
+              code: p.ErrorCodes.InvalidRequest,
+              message: `Language server already received the shutdown request`,
+            },
+          };
+          send(response);
+        } else {
+          shutdownRequestAlreadyReceived = true;
+          // TODO: recheck logic around init/shutdown...
+          stopWatchingCompilerLog();
+          // TODO: delete bsb watchers
+
+          if (pullConfigurationPeriodically != null) {
+            clearInterval(pullConfigurationPeriodically);
+          }
+
+          let response: p.ResponseMessage = {
+            jsonrpc: c.jsonrpcVersion,
+            id: msg.id,
+            result: null,
+          };
+          send(response);
         }
+      } else if (msg.method === p.HoverRequest.method) {
+        send(hover(msg));
+      } else if (msg.method === p.DefinitionRequest.method) {
+        send(definition(msg));
+      } else if (msg.method === p.TypeDefinitionRequest.method) {
+        send(typeDefinition(msg));
+      } else if (msg.method === p.ReferencesRequest.method) {
+        send(references(msg));
+      } else if (msg.method === p.PrepareRenameRequest.method) {
+        send(prepareRename(msg));
+      } else if (msg.method === p.RenameRequest.method) {
+        send(rename(msg));
+      } else if (msg.method === p.DocumentSymbolRequest.method) {
+        send(documentSymbol(msg));
+      } else if (msg.method === p.CompletionRequest.method) {
+        send(completion(msg));
+      } else if (msg.method === p.SemanticTokensRequest.method) {
+        send(semanticTokens(msg));
+      } else if (msg.method === p.CodeActionRequest.method) {
+        send(codeAction(msg));
+      } else if (msg.method === p.DocumentFormattingRequest.method) {
+        let responses = format(msg);
+        responses.forEach((response) => send(response));
+      } else if (msg.method === createInterfaceRequest.method) {
+        send(createInterface(msg));
+      } else if (msg.method === openCompiledFileRequest.method) {
+        send(openCompiledFile(msg));
+      } else if (msg.method === p.InlayHintRequest.method) {
+        let params = msg.params as InlayHintParams;
+        let extName = path.extname(params.textDocument.uri);
+        if (extName === c.resExt) {
+          send(inlayHint(msg));
+        }
+      } else if (msg.method === p.CodeLensRequest.method) {
+        let params = msg.params as CodeLensParams;
+        let extName = path.extname(params.textDocument.uri);
+        if (extName === c.resExt) {
+          send(codeLens(msg));
+        }
+      } else if (msg.method === p.SignatureHelpRequest.method) {
+        let params = msg.params as SignatureHelpParams;
+        let extName = path.extname(params.textDocument.uri);
+        if (extName === c.resExt) {
+          send(signatureHelp(msg));
+        }
+      } else {
+        let response: p.ResponseMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: msg.id,
+          error: {
+            code: p.ErrorCodes.InvalidRequest,
+            message: "Unrecognized editor request.",
+          },
+        };
+        send(response);
       }
-    } else if (
-      msg.result != null &&
-      // @ts-ignore
-      msg.result.title != null &&
-      // @ts-ignore
-      msg.result.title === c.startBuildAction
-    ) {
-      let msg_ = msg.result as clientSentBuildAction;
-      let projectRootPath = msg_.projectRootPath;
-      // TODO: sometime stale .bsb.lock dangling
-      // TODO: close watcher when lang-server shuts down. However, by Node's
-      // default, these subprocesses are automatically killed when this
-      // language-server process exits
-      let rescriptBinaryPath = findRescriptBinary(projectRootPath);
-      if (rescriptBinaryPath != null) {
-        let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
-          rescriptBinaryPath,
-          projectRootPath
-        );
-        let root = projectsFiles.get(projectRootPath)!;
-        root.bsbWatcherByEditor = bsbProcess;
-        // bsbProcess.on("message", (a) => console.log(a));
+    } else if (p.Message.isResponse(msg)) {
+      if (msg.id === c.configurationRequestId) {
+        if (msg.result != null) {
+          // This is a response from a request to get updated configuration. Note
+          // that it seems to return the configuration in a way that lets the
+          // current workspace settings override the user settings. This is good
+          // as we get started, but _might_ be problematic further down the line
+          // if we want to support having several projects open at the same time
+          // without their settings overriding eachother. Not a problem now though
+          // as we'll likely only have "global" settings starting out.
+          let [configuration] = msg.result as [
+            extensionConfiguration | null | undefined
+          ];
+          if (configuration != null) {
+            extensionConfiguration = configuration;
+          }
+        }
+      } else if (
+        msg.result != null &&
+        // @ts-ignore
+        msg.result.title != null &&
+        // @ts-ignore
+        msg.result.title === c.startBuildAction
+      ) {
+        let msg_ = msg.result as clientSentBuildAction;
+        let projectRootPath = msg_.projectRootPath;
+        // TODO: sometime stale .bsb.lock dangling
+        // TODO: close watcher when lang-server shuts down. However, by Node's
+        // default, these subprocesses are automatically killed when this
+        // language-server process exits
+        let rescriptBinaryPath = findRescriptBinary(projectRootPath);
+        if (rescriptBinaryPath != null) {
+          let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
+            rescriptBinaryPath,
+            projectRootPath
+          );
+          let root = projectsFiles.get(projectRootPath)!;
+          root.bsbWatcherByEditor = bsbProcess;
+          // bsbProcess.on("message", (a) => console.log(a));
+        }
       }
     }
   }

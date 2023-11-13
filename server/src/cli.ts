@@ -12,15 +12,16 @@ Options:
 
 --stdio               Use stdio
 --node-ipc            Use node-ipc
+--dont-ask            Don't ask to start build (use it as second parameter)
 -v, --version         Print version
 -h, --help            Print help`;
 
 (() => {
   switch (args[0]) {
     case '--stdio':
-      return server(true);
+      return server(true, args[1] !== "--dont-ask");
     case '--node-ipc':
-      return server(false);
+      return server(false, args[1] !== "--dont-ask");
     case '--version':
     case '-v':
       console.log(JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf8' })).version);
