@@ -222,7 +222,7 @@ let cutAfterDash s =
   | n -> ( try String.sub s 0 n with Invalid_argument _ -> s)
   | exception Not_found -> s
 
-let hasUnallowedChars s =
+let fileNameHasUnallowedChars s =
   let regexp = Str.regexp "[^A-Za-z0-9]" in
   try
     ignore (Str.search_forward regexp s 0);
