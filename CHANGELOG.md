@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.24.0
+
 #### :bug: Bug Fix
 
 - Clean up name of namespaced module when hovering. https://github.com/rescript-lang/rescript-vscode/pull/845
