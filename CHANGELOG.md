@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.26.0
+
 #### :bug: Bug Fix
 
 - More robust handling of namespaces in pipe completions. https://github.com/rescript-lang/rescript-vscode/pull/850
