@@ -7,7 +7,7 @@ These configurations are sent to the server on [initialization](https://microsof
 ```typescript
 interface config {
   /**
-  * Format code using builtin formatter from ReScript Compiler
+  * Format code using builtin formatter from server
   * @default false
   */
   allowBuiltInFormatter: boolean;
