@@ -77,10 +77,10 @@ Hover src/Hover.res 106:21
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 116:16
-{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<([< #str(string)] as 'a)> => AA.cond<'a>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
 
 Hover src/Hover.res 119:25
-{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<([< #str(string)] as 'a)> => AA.cond<'a>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
 
 Hover src/Hover.res 122:3
 Nothing at that position. Now trying to use completion.
