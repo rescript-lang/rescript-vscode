@@ -1,0 +1,2 @@
+Hover src/PolyRec.res 12:10
+Fatal error: exception Stack overflow
