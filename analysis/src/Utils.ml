@@ -228,3 +228,18 @@ let fileNameHasUnallowedChars s =
     ignore (Str.search_forward regexp s 0);
     true
   with Not_found -> false
+
+(* Flattens any namespace in the provided path.
+   Example:
+    Globals-RescriptBun.URL.t (which is an illegal path because of the namespace) becomes:
+    RescriptBun.Globals.URL.t
+*)
+let rec flattenAnyNamespaceInPath path =
+  match path with
+  | [] -> []
+  | head :: tail ->
+    if String.contains head '-' then
+      let parts = String.split_on_char '-' head in
+      (* Namespaces are in reverse order, so "URL-RescriptBun" where RescriptBun is the namespace. *)
+      (parts |> List.rev) @ flattenAnyNamespaceInPath tail
+    else head :: flattenAnyNamespaceInPath tail
