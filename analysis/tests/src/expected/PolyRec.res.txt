@@ -1,2 +1,3 @@
 Hover src/PolyRec.res 12:10
-Fatal error: exception Stack overflow
+{"contents": {"kind": "markdown", "value": "```rescript\nError: could not print type\n```"}}
+
