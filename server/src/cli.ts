@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import fs from "fs";
 import server from "./server";
 
 const args = process.argv.slice(2)
@@ -23,7 +22,7 @@ Options:
       return server(false);
     case '--version':
     case '-v':
-      console.log(JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf8' })).version);
+      console.log(require('../package.json').version);
       process.exit(0);
     case '--help':
     case '-h':
