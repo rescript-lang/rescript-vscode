@@ -14,7 +14,7 @@
 
 #### :bug: Bug Fix
 
-- Fix `rescript-language-server --version` command. https://github.com/rescript-lang/rescript-vscode/pull/853
+- Fix `rescript-language-server --version` and `rescript-tools --version` command. https://github.com/rescript-lang/rescript-vscode/pull/853
 
 ## 1.26.0
 
