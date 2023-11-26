@@ -1,3 +1,5 @@
+open Analysis
+
 let help =
   {|
 **Private CLI For rescript-vscode usage only**

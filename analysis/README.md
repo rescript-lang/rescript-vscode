@@ -1,4 +1,4 @@
-# Analysis Binary
+# Analysis Library and Binary
 
 This subfolder builds a private command line binary used by the plugin to power a few functionalities such as jump to definition, hover and autocomplete.
 
@@ -12,8 +12,13 @@ See main CONTRIBUTING.md's repo structure. Additionally, `examples/` is a conven
 
 ## Usage
 
+At root:
 ```sh
 ./rescript-editor-analysis.exe --help
+
+# or
+
+dune exec -- rescript-editor-analysis --help
 ```
 
 ## History

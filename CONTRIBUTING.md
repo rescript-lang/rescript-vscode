@@ -10,14 +10,21 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 │   └── src
 │       └── extension.ts // Language Client entry point
 ├── analysis // Native binary powering hover, autocomplete, etc.
-│   ├── src
-│   └── rescript-editor-analysis.exe // Dev-time analysis binary
+│   ├── src // Analysis library
+│   ├── bin // Analysis binary
 ├── package.json // The extension manifest
-└── server // Language Server. Usable standalone
-    ├── src
-    │   ├── server.ts // Language Server Module
-    │   ├── cli.ts // LSP CLI
-    └── analysis_binaries // Prod-time platform-specific analysis binaries
+├── server // Language Server. Usable standalone
+│   ├── src
+│   │   ├── server.ts // Language Server Module
+│   │   ├── cli.ts // LSP CLI
+│   └── analysis_binaries // Prod-time platform-specific analysis binaries
+│       ├── darwin
+│       ├── linux
+│       └── win32
+└── tools // ReScript Tools
+    ├── bin // OCaml Binary
+    ├── src // ReScript Tools library
+    └── binaries // Prod-time platform-specific binaries
         ├── darwin
         ├── linux
         └── win32
@@ -27,9 +34,11 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 
 - Run `npm install` at the root. This will also install the npm modules for both the `client` and `server` folders.
 
-## Analysis Binary
+## OCaml Code
 
-This is needed for the `analysis` folder, which is native code.
+This is needed for the `analysis` and `tools` folder, which is native code.
+
+At the root:
 
 ```sh
 # If you haven't created the switch, do it. OPAM(https://opam.ocaml.org)
@@ -45,7 +54,7 @@ opam install ocaml-lsp-server
 ## Build & Run
 
 - `npm run compile`. You don't need this if you're developing this repo in VSCode. The compilation happens automatically in the background.
-- `cd analysis && make`.
+- `make`.
 
 ## Test
 
@@ -214,4 +223,4 @@ For beta releases, ask folks to use the pre-release version installable from the
 
 ## Releasing the `@rescript/tools` package
 
-The tools package is released by bumping the version in `tools/package.json`, running `npm i` in the `tools/` folder, and then pushing those changes with the commit message `publish tools`.
+The tools package is released by bumping the version in `tools/package.json` and `tools/bin/main/ml`, running `npm i` in the `tools/` folder, and then pushing those changes with the commit message `publish tools`.

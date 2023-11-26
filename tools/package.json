@@ -5,7 +5,7 @@
 	"author": "ReScript Team",
 	"license": "MIT",
 	"bin": {
-		"rescript-tools": "./src/Cli.bs.js"
+		"rescript-tools": "src/cli.js"
 	},
 	"keywords": [
 		"ReScript",
@@ -13,10 +13,10 @@
 		"Docgen"
 	],
 	"files": [
-		"src/Cli.bs.js",
+		"src/cli.js",
 		"src/*.res",
 		"src/*.resi",
-		"analysis_binaries/",
+		"binaries",
 		"rescript.json",
 		"README.md"
 	],
@@ -36,6 +36,6 @@
 		"build": "rescript build"
 	},
 	"dependencies": {
-		"rescript": "^11.0.0-rc.4"
+		"rescript": "^11.0.0-rc.6"
 	}
 }
