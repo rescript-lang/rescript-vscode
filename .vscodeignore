@@ -8,3 +8,9 @@ contributing.md
 server/node_modules/.bin
 node_modules/.bin
 analysis/
+tools/
+dune-project
+analysis.opam
+tools.opam
+.ocamlformat
+.ocamlformat-ignore
