@@ -1,11 +1,11 @@
 {
-	"name": "@rescript/lsp",
+	"name": "@rescript/language-server",
 	"description": "LSP server for ReScript",
-	"version": "1.20.0",
-	"author": "chenglou",
+	"version": "1.26.0",
+	"author": "ReScript Team",
 	"license": "MIT",
 	"bin": {
-		"rescriptls": "./out/cli.js"
+		"rescript-language-server": "./out/cli.js"
 	},
 	"keywords": [
 		"ReScript",

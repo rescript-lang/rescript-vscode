@@ -2,9 +2,9 @@
 	"name": "rescript-vscode",
 	"displayName": "ReScript",
 	"description": "ReScript language support (official)",
-	"author": "chenglou",
+	"author": "ReScript Team",
 	"license": "MIT",
-	"version": "1.20.0",
+	"version": "1.26.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/rescript-lang/rescript-vscode"

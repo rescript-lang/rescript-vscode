@@ -1,11 +1,11 @@
 {
 	"name": "@rescript/tools",
 	"description": "ReScript Tools",
-	"version": "0.1.0",
-	"author": "chenglou",
+	"version": "0.1.1",
+	"author": "ReScript Team",
 	"license": "MIT",
 	"bin": {
-		"restools": "./src/Cli.bs.js"
+		"rescript-tools": "./src/Cli.bs.js"
 	},
 	"keywords": [
 		"ReScript",
@@ -17,6 +17,7 @@
 		"src/*.res",
 		"src/*.resi",
 		"analysis_binaries/",
+		"rescript.json",
 		"README.md"
 	],
 	"engines": {

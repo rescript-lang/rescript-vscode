@@ -502,7 +502,7 @@ let getComplementaryCompletionsForTypedValue ~opens ~allFiles ~scope ~env prefix
              Utils.checkName name ~prefix ~exact
              && not
                   (* TODO complete the namespaced name too *)
-                  (String.contains name '-')
+                  (Utils.fileNameHasUnallowedChars name)
            then
              Some
                (Completion.create name ~env ~kind:(Completion.FileModule name))
@@ -528,7 +528,7 @@ let getCompletionsForPath ~debug ~package ~opens ~full ~pos ~exact ~scope
                Utils.checkName name ~prefix ~exact
                && not
                     (* TODO complete the namespaced name too *)
-                    (String.contains name '-')
+                    (Utils.fileNameHasUnallowedChars name)
              then
                Some
                  (Completion.create name ~env ~kind:(Completion.FileModule name))
@@ -955,7 +955,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
           | [] -> modulePath
         in
         let completionPathMinusOpens =
-          completionPath
+          completionPath |> Utils.flattenAnyNamespaceInPath
           |> removeRawOpens package.opens
           |> removeRawOpens rawOpens |> String.concat "."
         in
@@ -1152,7 +1152,7 @@ let getOpens ~debug ~rawOpens ~package ~env =
                         if name = "PervasivesU" then "Pervasives" else name)
                  |> pathToString)));
   let resolvedOpens =
-    resolveOpens ~env (List.rev (packageOpens @ rawOpens)) ~package
+    resolveOpens ~env (List.rev (rawOpens @ packageOpens)) ~package
   in
   if debug && resolvedOpens <> [] then
     Printf.printf "%s\n"

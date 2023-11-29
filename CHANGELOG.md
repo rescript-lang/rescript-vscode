@@ -12,6 +12,23 @@
 
 ## master
 
+## 1.26.0
+
+#### :bug: Bug Fix
+
+- More robust handling of namespaces in pipe completions. https://github.com/rescript-lang/rescript-vscode/pull/850
+
+## 1.24.0
+
+#### :bug: Bug Fix
+
+- Clean up name of namespaced module when hovering. https://github.com/rescript-lang/rescript-vscode/pull/845
+- Don't complete illegal file module names. https://github.com/rescript-lang/rescript-vscode/pull/844
+- Fix issue `open` on submodules exposed via `-open` in bsconfig.json/rescript.json, that would cause the content of those `open` modules to not actually appear in autocomplete. https://github.com/rescript-lang/rescript-vscode/pull/842
+- Account for namespace when filtering pipe completion items. https://github.com/rescript-lang/rescript-vscode/pull/843
+
+## 1.22.0
+
 #### :nail_care: Polish
 
 - Resolve module aliases in hover. https://github.com/rescript-lang/rescript-vscode/pull/820

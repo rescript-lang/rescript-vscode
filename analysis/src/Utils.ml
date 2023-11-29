@@ -216,3 +216,30 @@ let rec lastElements list =
 let lowercaseFirstChar s =
   if String.length s = 0 then s
   else String.mapi (fun i c -> if i = 0 then Char.lowercase_ascii c else c) s
+
+let cutAfterDash s =
+  match String.index s '-' with
+  | n -> ( try String.sub s 0 n with Invalid_argument _ -> s)
+  | exception Not_found -> s
+
+let fileNameHasUnallowedChars s =
+  let regexp = Str.regexp "[^A-Za-z0-9]" in
+  try
+    ignore (Str.search_forward regexp s 0);
+    true
+  with Not_found -> false
+
+(* Flattens any namespace in the provided path.
+   Example:
+    Globals-RescriptBun.URL.t (which is an illegal path because of the namespace) becomes:
+    RescriptBun.Globals.URL.t
+*)
+let rec flattenAnyNamespaceInPath path =
+  match path with
+  | [] -> []
+  | head :: tail ->
+    if String.contains head '-' then
+      let parts = String.split_on_char '-' head in
+      (* Namespaces are in reverse order, so "URL-RescriptBun" where RescriptBun is the namespace. *)
+      (parts |> List.rev) @ flattenAnyNamespaceInPath tail
+    else head :: flattenAnyNamespaceInPath tail

@@ -14,6 +14,7 @@ let showModuleTopLevel ~docstring ~isType ~name (topLevel : Module.item list) =
     (* TODO indent *)
     |> String.concat "\n"
   in
+  let name = Utils.cutAfterDash name in
   let full =
     Markdown.codeBlock
       ("module "

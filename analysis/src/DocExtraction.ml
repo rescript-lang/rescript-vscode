@@ -48,15 +48,6 @@ and docsForModule = {
   items: docItem list;
 }
 
-let formatCode content =
-  let {Res_driver.parsetree = signature; comments} =
-    Res_driver.parseInterfaceFromSource ~forPrinter:true
-      ~displayFilename:"<missing-file>" ~source:content
-  in
-  Res_printer.printInterface ~width:!Res_cli.ResClflags.width ~comments
-    signature
-  |> String.trim
-
 let stringifyDocstrings docstrings =
   let open Protocol in
   docstrings
@@ -282,8 +273,7 @@ let extractDocs ~path ~debug =
                           id = modulePath |> makeId ~identifier:item.name;
                           docstring = item.docstring |> List.map String.trim;
                           signature =
-                            "let " ^ item.name ^ ": " ^ Shared.typeToString typ
-                            |> formatCode;
+                            "let " ^ item.name ^ ": " ^ Shared.typeToString typ;
                           name = item.name;
                           deprecated = item.deprecated;
                         })
@@ -293,10 +283,7 @@ let extractDocs ~path ~debug =
                         {
                           id = modulePath |> makeId ~identifier:item.name;
                           docstring = item.docstring |> List.map String.trim;
-                          signature =
-                            typ.decl
-                            |> Shared.declToString item.name
-                            |> formatCode;
+                          signature = typ.decl |> Shared.declToString item.name;
                           name = item.name;
                           deprecated = item.deprecated;
                           detail = typeDetail typ ~full ~env;
