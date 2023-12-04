@@ -1275,7 +1275,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
           Completion.createWithSnippet
             ~name:("Some(" ^ fieldName ^ ")")
             ~kind:(kindFromInnerType t) ~env
-            ~insertText:("Some(${1:" ^ fieldName ^ "})")
+            ~insertText:("Some(" ^ fieldName ^ ")$0")
             ();
           someAnyCase;
           noneCase;
