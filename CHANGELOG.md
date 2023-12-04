@@ -12,6 +12,12 @@
 
 ## master
 
+## 1.28.0
+
+#### :bug: Bug Fix
+
+- Fix issue introduced in recent PR for module completion. https://github.com/rescript-lang/rescript-vscode/pull/856
+
 ## 1.26.0
 
 #### :bug: Bug Fix
