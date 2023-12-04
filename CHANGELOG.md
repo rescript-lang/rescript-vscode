@@ -12,6 +12,10 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- Change end position of cursor when completing `Some(<fieldName>)` in patterns. https://github.com/rescript-lang/rescript-vscode/pull/857
+
 ## 1.28.0
 
 #### :bug: Bug Fix
