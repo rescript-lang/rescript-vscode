@@ -102,7 +102,18 @@ let addDeclaration ~(typeId : Ident.t) ~(typeKind : Types.type_kind) =
       l
   | Type_variant decls ->
     List.iteri
-      (fun i {Types.cd_id; cd_loc} ->
+      (fun i {Types.cd_id; cd_loc; cd_args} ->
+        let _handle_inline_records =
+          match cd_args with
+          | Cstr_record lbls ->
+            List.iter
+              (fun {Types.ld_id; ld_loc} ->
+                Ident.name cd_id ^ "." ^ Ident.name ld_id
+                |> Name.create
+                |> processTypeLabel ~declKind:RecordLabel ~loc:ld_loc)
+              lbls
+          | Cstr_tuple _ -> ()
+        in
         let posAdjustment =
           (* In Res the variant loc can include the | and spaces after it *)
           if WriteDeadAnnotations.posLanguage cd_loc.loc_start = Res then

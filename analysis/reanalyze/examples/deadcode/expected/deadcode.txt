@@ -87,6 +87,9 @@
   addValueDeclaration +version DeadMl.ml:29:8 path:+DeadMl.Bs_version
   addValueDeclaration +header DeadMl.ml:30:8 path:+DeadMl.Bs_version
   addValueDeclaration +package_name DeadMl.ml:31:8 path:+DeadMl.Bs_version
+  addRecordLabelDeclaration Lfunction.arity DeadMl.ml:35:21 path:+DeadMl.l
+  addRecordLabelDeclaration Lfunction.params DeadMl.ml:36:21 path:+DeadMl.l
+  addRecordLabelDeclaration Lfunction.body DeadMl.ml:37:21 path:+DeadMl.l
   addVariantCaseDeclaration Lfunction DeadMl.ml:35:2 path:+DeadMl.l
   addRecordLabelDeclaration module_name DeadMl.ml:41:2 path:+DeadMl.module_info
   addRecordLabelDeclaration case DeadMl.ml:42:2 path:+DeadMl.module_info
@@ -172,6 +175,7 @@
   addValueDeclaration +globallyLive3 DeadTest.res:154:6 path:+DeadTest.GloobLive
   addValueDeclaration +funWithInnerVars DeadTest.res:169:4 path:+DeadTest
   addValueDeclaration +deadIncorrect DeadTest.res:178:4 path:+DeadTest
+  addValueDeclaration +ira DeadTest.res:184:4 path:+DeadTest
   addValueReference DeadTest.res:1:15 --> ImmutableArray.resi:9:0
   addValueReference DeadTest.res:8:7 --> DeadTest.res:7:4
   addValueReference DeadTest.res:11:7 --> DeadTest.res:10:4
@@ -249,6 +253,18 @@
   addRecordLabelDeclaration a DeadTest.res:175:11 path:+DeadTest.rc
   addValueDeclaration +_ DeadTest.res:180:0 path:+DeadTest
   addValueReference DeadTest.res:180:8 --> DeadTest.res:178:4
+  addRecordLabelDeclaration IR.a DeadTest.res:182:24 path:+DeadTest.inlineRecord
+  addRecordLabelDeclaration IR.b DeadTest.res:182:32 path:+DeadTest.inlineRecord
+  addRecordLabelDeclaration IR.c DeadTest.res:182:40 path:+DeadTest.inlineRecord
+  addVariantCaseDeclaration IR DeadTest.res:182:20 path:+DeadTest.inlineRecord
+  addValueDeclaration +_ DeadTest.res:185:0 path:+DeadTest
+  addTypeReference DeadTest.res:187:20 --> DeadTest.res:182:20
+  addValueReference DeadTest.res:187:27 --> DeadTest.res:184:4
+  addTypeReference DeadTest.res:187:35 --> DeadTest.res:182:32
+  addValueReference DeadTest.res:187:35 --> DeadTest.res:187:7
+  addValueReference DeadTest.res:187:43 --> DeadTest.res:187:8
+  addTypeReference DeadTest.res:187:7 --> DeadTest.res:182:40
+  addValueReference DeadTest.res:186:9 --> DeadTest.res:185:8
   addValueReference DeadTest.res:28:2 --> DeadTest.res:31:6
   addValueReference DeadTest.res:36:2 --> DeadTest.res:39:6
   addValueReference DeadTest.res:60:2 --> DeadTest.res:64:6
@@ -1665,6 +1681,7 @@
   addVariantCaseDeclaration A Unboxed.res:5:10 path:+Unboxed.v2
   addValueReference Unboxed.res:8:4 --> Unboxed.res:8:14
   addRecordLabelDeclaration x Unboxed.res:11:11 path:+Unboxed.r1
+  addRecordLabelDeclaration B.g Unboxed.res:14:13 path:+Unboxed.r2
   addVariantCaseDeclaration B Unboxed.res:14:10 path:+Unboxed.r2
   addValueReference Unboxed.res:17:4 --> Unboxed.res:17:14
   Scanning Uncurried.cmt Source:Uncurried.res
@@ -1984,6 +2001,9 @@ File References
   Dead Value +DeadMl.+map_split_opt: 0 references () [0]
   Dead RecordLabel +DeadMl.module_info.case: 0 references () [0]
   Dead RecordLabel +DeadMl.module_info.module_name: 0 references () [0]
+  Dead RecordLabel +DeadMl.l.Lfunction.body: 0 references () [0]
+  Dead RecordLabel +DeadMl.l.Lfunction.params: 0 references () [0]
+  Dead RecordLabel +DeadMl.l.Lfunction.arity: 0 references () [0]
   Dead VariantCase +DeadMl.l.Lfunction: 0 references () [0]
   Dead Value +DeadMl.Bs_version.+package_name: 0 references () [1]
   Dead Value +DeadMl.Bs_version.+package_name: 0 references () [0]
@@ -2004,6 +2024,12 @@ File References
   Live VariantCase DeadRT.moduleAccessPath.Root: 1 references (DeadTest.res:106:16) [1]
   Live VariantCase +DeadRT.moduleAccessPath.Root: 1 references (DeadRT.resi:2:2) [0]
   Live VariantCase DeadRT.moduleAccessPath.Kaboom: 1 references (DeadRT.res:3:2) [0]
+  Dead Value +DeadTest.+_: 0 references () [0]
+  Live Value +DeadTest.+ira: 1 references (DeadTest.res:187:27) [0]
+  Live RecordLabel +DeadTest.inlineRecord.IR.c: 1 references (DeadTest.res:187:7) [0]
+  Live RecordLabel +DeadTest.inlineRecord.IR.b: 1 references (DeadTest.res:187:35) [0]
+  Dead RecordLabel +DeadTest.inlineRecord.IR.a: 0 references () [0]
+  Live VariantCase +DeadTest.inlineRecord.IR: 1 references (DeadTest.res:187:20) [0]
   Dead Value +DeadTest.+_: 0 references () [0]
   Live Value +DeadTest.+deadIncorrect: 1 references (DeadTest.res:180:8) [0]
   Dead RecordLabel +DeadTest.rc.a: 0 references () [0]
@@ -2350,6 +2376,7 @@ File References
   Live Value +Types.+map: 0 references () [0]
   Live Value +Types.+someIntList: 0 references () [0]
   Live Value +Unboxed.+r2Test: 0 references () [0]
+  Dead RecordLabel +Unboxed.r2.B.g: 0 references () [0]
   Dead VariantCase +Unboxed.r2.B: 0 references () [0]
   Dead RecordLabel +Unboxed.r1.x: 0 references () [0]
   Live Value +Unboxed.+testV1: 0 references () [0]
@@ -2839,6 +2866,24 @@ File References
                          } [@dead "l.Lfunction"] 
 
   Warning Dead Type
+  DeadMl.ml:35:22-34
+  l.Lfunction.arity is a record label never used to read a value
+  <-- line 35
+    | Lfunction of   { arity : int ; [@dead "l.Lfunction.arity"]  
+
+  Warning Dead Type
+  DeadMl.ml:36:22-40
+  l.Lfunction.params is a record label never used to read a value
+  <-- line 36
+                       params : int list ; [@dead "l.Lfunction.params"] 
+
+  Warning Dead Type
+  DeadMl.ml:37:22-34
+  l.Lfunction.body is a record label never used to read a value
+  <-- line 37
+                       body : string [@dead "l.Lfunction.body"]  
+
+  Warning Dead Type
   DeadMl.ml:41:3-22
   module_info.module_name is a record label never used to read a value
   <-- line 41
@@ -3063,6 +3108,12 @@ File References
   rc.a is a record label never used to read a value
   <-- line 175
   type rc = {@dead("rc.a") a: int}
+
+  Warning Dead Type
+  DeadTest.res:182:25-30
+  inlineRecord.IR.a is a record label never used to read a value
+  <-- line 182
+  type inlineRecord = IR({@dead("inlineRecord.IR.a") a: int, b: int, c: string})
 
   Warning Dead Module
   DeadTestBlacklist.res:0:1
@@ -4448,7 +4499,13 @@ File References
   Unboxed.res:14:11-24
   r2.B is a variant case which is never constructed
   <-- line 14
-  type r2 = | @dead("r2.B") B({g: string})
+  type r2 = | @dead("r2.B") B({@dead("r2.B.g") g: string})
+
+  Warning Dead Type
+  Unboxed.res:14:14-22
+  r2.B.g is a record label never used to read a value
+  <-- line 14
+  type r2 = | @dead("r2.B") B({@dead("r2.B.g") g: string})
 
   Warning Dead Type
   Variants.res:95:14-39
@@ -4528,4 +4585,4 @@ File References
   <-- line 96
   type variant1Object = | @dead("variant1Object.R") R(payload)
   
-  Analysis reported 334 issues (Incorrect Dead Annotation:1, Warning Dead Exception:2, Warning Dead Module:25, Warning Dead Type:89, Warning Dead Value:199, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)
+  Analysis reported 339 issues (Incorrect Dead Annotation:1, Warning Dead Exception:2, Warning Dead Module:25, Warning Dead Type:94, Warning Dead Value:199, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)

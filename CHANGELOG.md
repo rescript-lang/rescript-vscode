@@ -16,6 +16,11 @@
 
 - Change end position of cursor when completing `Some(<fieldName>)` in patterns. https://github.com/rescript-lang/rescript-vscode/pull/857
 
+
+#### :bug: Bug Fix
+
+- Add support for detecting dead fields inside inline records. https://github.com/rescript-lang/rescript-vscode/pull/858
+
 ## 1.28.0
 
 #### :bug: Bug Fix
