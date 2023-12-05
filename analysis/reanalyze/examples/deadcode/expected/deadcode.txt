@@ -255,12 +255,15 @@
   addValueReference DeadTest.res:180:8 --> DeadTest.res:178:4
   addRecordLabelDeclaration IR.a DeadTest.res:182:24 path:+DeadTest.inlineRecord
   addRecordLabelDeclaration IR.b DeadTest.res:182:32 path:+DeadTest.inlineRecord
+  addRecordLabelDeclaration IR.c DeadTest.res:182:40 path:+DeadTest.inlineRecord
   addVariantCaseDeclaration IR DeadTest.res:182:20 path:+DeadTest.inlineRecord
   addValueDeclaration +_ DeadTest.res:185:0 path:+DeadTest
-  addTypeReference DeadTest.res:187:13 --> DeadTest.res:182:20
-  addValueReference DeadTest.res:187:20 --> DeadTest.res:184:4
-  addTypeReference DeadTest.res:187:28 --> DeadTest.res:182:32
-  addValueReference DeadTest.res:187:28 --> DeadTest.res:187:7
+  addTypeReference DeadTest.res:187:20 --> DeadTest.res:182:20
+  addValueReference DeadTest.res:187:27 --> DeadTest.res:184:4
+  addTypeReference DeadTest.res:187:35 --> DeadTest.res:182:32
+  addValueReference DeadTest.res:187:35 --> DeadTest.res:187:7
+  addValueReference DeadTest.res:187:43 --> DeadTest.res:187:8
+  addTypeReference DeadTest.res:187:7 --> DeadTest.res:182:40
   addValueReference DeadTest.res:186:9 --> DeadTest.res:185:8
   addValueReference DeadTest.res:28:2 --> DeadTest.res:31:6
   addValueReference DeadTest.res:36:2 --> DeadTest.res:39:6
@@ -2022,10 +2025,11 @@ File References
   Live VariantCase +DeadRT.moduleAccessPath.Root: 1 references (DeadRT.resi:2:2) [0]
   Live VariantCase DeadRT.moduleAccessPath.Kaboom: 1 references (DeadRT.res:3:2) [0]
   Dead Value +DeadTest.+_: 0 references () [0]
-  Live Value +DeadTest.+ira: 1 references (DeadTest.res:187:20) [0]
-  Live RecordLabel +DeadTest.inlineRecord.IR.b: 1 references (DeadTest.res:187:28) [0]
+  Live Value +DeadTest.+ira: 1 references (DeadTest.res:187:27) [0]
+  Live RecordLabel +DeadTest.inlineRecord.IR.c: 1 references (DeadTest.res:187:7) [0]
+  Live RecordLabel +DeadTest.inlineRecord.IR.b: 1 references (DeadTest.res:187:35) [0]
   Dead RecordLabel +DeadTest.inlineRecord.IR.a: 0 references () [0]
-  Live VariantCase +DeadTest.inlineRecord.IR: 1 references (DeadTest.res:187:13) [0]
+  Live VariantCase +DeadTest.inlineRecord.IR: 1 references (DeadTest.res:187:20) [0]
   Dead Value +DeadTest.+_: 0 references () [0]
   Live Value +DeadTest.+deadIncorrect: 1 references (DeadTest.res:180:8) [0]
   Dead RecordLabel +DeadTest.rc.a: 0 references () [0]
@@ -3109,7 +3113,7 @@ File References
   DeadTest.res:182:25-30
   inlineRecord.IR.a is a record label never used to read a value
   <-- line 182
-  type inlineRecord = IR({@dead("inlineRecord.IR.a") a: int, b: int})
+  type inlineRecord = IR({@dead("inlineRecord.IR.a") a: int, b: int, c: string})
 
   Warning Dead Module
   DeadTestBlacklist.res:0:1
