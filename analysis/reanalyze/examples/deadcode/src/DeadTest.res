@@ -178,3 +178,11 @@ type rc = {a: int}
 let deadIncorrect = 34
 
 let _ = deadIncorrect
+
+type inlineRecord = IR({a: int, b: int})
+
+let ira = 10
+let _ = ir =>
+  switch ir {
+  | IR(r) => IR({a: ira, b: r.b})
+  }
