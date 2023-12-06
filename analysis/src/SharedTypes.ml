@@ -134,7 +134,7 @@ module Module = struct
     docstring: string list;
     exported: Exported.t;
     items: item list;
-    deprecated: string option
+    deprecated: string option;
   }
 
   and t = Ident of Path.t | Structure of structure | Constraint of t * t
@@ -259,7 +259,7 @@ module File = struct
           docstring = [];
           exported = Exported.init ();
           items = [];
-          deprecated = None
+          deprecated = None;
         };
     }
 end

@@ -256,6 +256,8 @@
   addRecordLabelDeclaration IR.a DeadTest.res:182:24 path:+DeadTest.inlineRecord
   addRecordLabelDeclaration IR.b DeadTest.res:182:32 path:+DeadTest.inlineRecord
   addRecordLabelDeclaration IR.c DeadTest.res:182:40 path:+DeadTest.inlineRecord
+  addRecordLabelDeclaration IR.d DeadTest.res:182:51 path:+DeadTest.inlineRecord
+  addRecordLabelDeclaration IR.e DeadTest.res:182:65 path:+DeadTest.inlineRecord
   addVariantCaseDeclaration IR DeadTest.res:182:20 path:+DeadTest.inlineRecord
   addValueDeclaration +_ DeadTest.res:185:0 path:+DeadTest
   addTypeReference DeadTest.res:187:20 --> DeadTest.res:182:20
@@ -2026,6 +2028,8 @@ File References
   Live VariantCase DeadRT.moduleAccessPath.Kaboom: 1 references (DeadRT.res:3:2) [0]
   Dead Value +DeadTest.+_: 0 references () [0]
   Live Value +DeadTest.+ira: 1 references (DeadTest.res:187:27) [0]
+  Live RecordLabel +DeadTest.inlineRecord.IR.e: 0 references () [0]
+  Dead RecordLabel +DeadTest.inlineRecord.IR.d: 0 references () [0]
   Live RecordLabel +DeadTest.inlineRecord.IR.c: 1 references (DeadTest.res:187:7) [0]
   Live RecordLabel +DeadTest.inlineRecord.IR.b: 1 references (DeadTest.res:187:35) [0]
   Dead RecordLabel +DeadTest.inlineRecord.IR.a: 0 references () [0]
@@ -3113,7 +3117,7 @@ File References
   DeadTest.res:182:25-30
   inlineRecord.IR.a is a record label never used to read a value
   <-- line 182
-  type inlineRecord = IR({@dead("inlineRecord.IR.a") a: int, b: int, c: string})
+  type inlineRecord = IR({@dead("inlineRecord.IR.a") a: int, b: int, c: string, @dead d: int, @live e: int})
 
   Warning Dead Module
   DeadTestBlacklist.res:0:1

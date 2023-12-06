@@ -179,10 +179,10 @@ let deadIncorrect = 34
 
 let _ = deadIncorrect
 
-type inlineRecord = IR({a: int, b: int, c: string})
+type inlineRecord = IR({a: int, b: int, c: string, @dead d: int, @live e: int})
 
 let ira = 10
 let _ = ir =>
   switch ir {
-  | IR({c} as r) => IR({a: ira, b: r.b, c: c})
+  | IR({c} as r) => IR({a: ira, b: r.b, c: c, d: 0, e: 0})
   }
