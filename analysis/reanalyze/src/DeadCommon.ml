@@ -276,7 +276,7 @@ module ProcessDeadAnnotations = struct
                    List.iter
                      (fun ({ld_attributes; ld_loc} :
                             Typedtree.label_declaration) ->
-                       ld_attributes
+                       toplevelAttrs @ ld_attributes
                        |> processAttributes ~doGenType:false ~name:""
                             ~pos:ld_loc.loc_start)
                      flds
