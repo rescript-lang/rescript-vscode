@@ -270,6 +270,9 @@
   addRecordLabelDeclaration IR2.a DeadTest.res:191:26 path:+DeadTest.inlineRecord2
   addRecordLabelDeclaration IR2.b DeadTest.res:191:34 path:+DeadTest.inlineRecord2
   addVariantCaseDeclaration IR2 DeadTest.res:191:21 path:+DeadTest.inlineRecord2
+  addRecordLabelDeclaration IR3.a DeadTest.res:193:34 path:+DeadTest.inlineRecord3
+  addRecordLabelDeclaration IR3.b DeadTest.res:193:42 path:+DeadTest.inlineRecord3
+  addVariantCaseDeclaration IR3 DeadTest.res:193:21 path:+DeadTest.inlineRecord3
   addValueReference DeadTest.res:28:2 --> DeadTest.res:31:6
   addValueReference DeadTest.res:36:2 --> DeadTest.res:39:6
   addValueReference DeadTest.res:60:2 --> DeadTest.res:64:6
@@ -2029,6 +2032,9 @@ File References
   Live VariantCase DeadRT.moduleAccessPath.Root: 1 references (DeadTest.res:106:16) [1]
   Live VariantCase +DeadRT.moduleAccessPath.Root: 1 references (DeadRT.resi:2:2) [0]
   Live VariantCase DeadRT.moduleAccessPath.Kaboom: 1 references (DeadRT.res:3:2) [0]
+  Dead RecordLabel +DeadTest.inlineRecord3.IR3.b: 0 references () [0]
+  Dead RecordLabel +DeadTest.inlineRecord3.IR3.a: 0 references () [0]
+  Dead VariantCase +DeadTest.inlineRecord3.IR3: 0 references () [0]
   Dead RecordLabel +DeadTest.inlineRecord2.IR2.b: 0 references () [0]
   Dead RecordLabel +DeadTest.inlineRecord2.IR2.a: 0 references () [0]
   Dead VariantCase +DeadTest.inlineRecord2.IR2: 0 references () [0]

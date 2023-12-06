@@ -189,3 +189,5 @@ let _ = ir =>
 
 @dead
 type inlineRecord2 = IR2({a: int, b: int})
+
+type inlineRecord3 = | @dead IR3({a: int, b: int})
