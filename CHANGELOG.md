@@ -12,10 +12,13 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Treat `result` type as a proper built in type. https://github.com/rescript-lang/rescript-vscode/pull/860
+
 #### :nail_care: Polish
 
 - Change end position of cursor when completing `Some(<fieldName>)` in patterns. https://github.com/rescript-lang/rescript-vscode/pull/857
-
 
 #### :bug: Bug Fix
 
