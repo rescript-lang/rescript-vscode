@@ -1,5 +1,4 @@
 import * as cp from "child_process";
-import * as fs from "fs";
 import * as path from "path";
 import {
   window,
@@ -14,6 +13,7 @@ import {
   WorkspaceEdit,
   OutputChannel,
 } from "vscode";
+import { analysisProdPath, getAnalysisBinaryPath } from "../utils";
 
 export type DiagnosticsResultCodeActionsMap = Map<
   string,
@@ -125,36 +125,6 @@ let resultsToDiagnostics = (
   return {
     diagnosticsMap,
   };
-};
-
-let platformDir = process.arch === "arm64" ? process.platform + process.arch : process.platform;
-
-let analysisDevPath = path.join(
-  path.dirname(__dirname),
-  "..",
-  "..",
-  "analysis",
-  "rescript-editor-analysis.exe"
-);
-
-let analysisProdPath = path.join(
-  path.dirname(__dirname),
-  "..",
-  "..",
-  "server",
-  "analysis_binaries",
-  platformDir,
-  "rescript-editor-analysis.exe"
-);
-
-let getAnalysisBinaryPath = (): string | null => {
-  if (fs.existsSync(analysisDevPath)) {
-    return analysisDevPath;
-  } else if (fs.existsSync(analysisProdPath)) {
-    return analysisProdPath;
-  } else {
-    return null;
-  }
 };
 
 export const runCodeAnalysisWithReanalyze = (
