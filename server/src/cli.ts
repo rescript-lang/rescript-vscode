@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-import server from "./server";
-
+const server = require("./server")
 const args = process.argv.slice(2)
 
 const help = `ReScript Language Server
