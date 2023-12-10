@@ -14,7 +14,22 @@
 
 #### :bug: Bug Fix
 
+- Treat `result` type as a proper built in type. https://github.com/rescript-lang/rescript-vscode/pull/860
 - Fix `rescript-language-server --version` and `rescript-tools --version` command. https://github.com/rescript-lang/rescript-vscode/pull/853
+
+#### :nail_care: Polish
+
+- Change end position of cursor when completing `Some(<fieldName>)` in patterns. https://github.com/rescript-lang/rescript-vscode/pull/857
+
+#### :bug: Bug Fix
+
+- Add support for detecting dead fields inside inline records. https://github.com/rescript-lang/rescript-vscode/pull/858
+
+## 1.28.0
+
+#### :bug: Bug Fix
+
+- Fix issue introduced in recent PR for module completion. https://github.com/rescript-lang/rescript-vscode/pull/856
 
 ## 1.26.0
 

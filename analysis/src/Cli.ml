@@ -85,28 +85,51 @@ Options:
 |}
 
 let main () =
-  match Array.to_list Sys.argv with
+  let args = Array.to_list Sys.argv in
+  let debugLevel, args =
+    match args with
+    | _ :: "debug-dump" :: logLevel :: rest ->
+      ( (match logLevel with
+        | "verbose" -> Debug.Verbose
+        | "regular" -> Regular
+        | _ -> Off),
+        "dummy" :: rest )
+    | args -> (Off, args)
+  in
+  Debug.debugLevel := debugLevel;
+  let debug = debugLevel <> Debug.Off in
+  let printHeaderInfo path line col =
+    if debug then
+      Printf.printf "Debug level: %s\n%s:%s-%s\n\n"
+        (match debugLevel with
+        | Debug.Verbose -> "verbose"
+        | Regular -> "regular"
+        | Off -> "off")
+        path line col
+  in
+  match args with
   | [_; "completion"; path; line; col; currentFile; supportsSnippets] ->
+    printHeaderInfo path line col;
     (Cfg.supportsSnippets :=
        match supportsSnippets with
        | "true" -> true
        | _ -> false);
-    Commands.completion ~debug:false ~path
+    Commands.completion ~debug ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile
   | [_; "definition"; path; line; col] ->
     Commands.definition ~path
       ~pos:(int_of_string line, int_of_string col)
-      ~debug:false
+      ~debug
   | [_; "typeDefinition"; path; line; col] ->
     Commands.typeDefinition ~path
       ~pos:(int_of_string line, int_of_string col)
-      ~debug:false
+      ~debug
   | [_; "documentSymbol"; path] -> DocumentSymbol.command ~path
   | [_; "hover"; path; line; col; currentFile; supportsMarkdownLinks] ->
     Commands.hover ~path
       ~pos:(int_of_string line, int_of_string col)
-      ~currentFile ~debug:false
+      ~currentFile ~debug
       ~supportsMarkdownLinks:
         (match supportsMarkdownLinks with
         | "true" -> true
@@ -114,19 +137,19 @@ let main () =
   | [_; "signatureHelp"; path; line; col; currentFile] ->
     Commands.signatureHelp ~path
       ~pos:(int_of_string line, int_of_string col)
-      ~currentFile ~debug:false
+      ~currentFile ~debug
   | [_; "inlayHint"; path; line_start; line_end; maxLength] ->
     Commands.inlayhint ~path
       ~pos:(int_of_string line_start, int_of_string line_end)
-      ~maxLength ~debug:false
-  | [_; "codeLens"; path] -> Commands.codeLens ~path ~debug:false
-  | [_; "extractDocs"; path] -> DocExtraction.extractDocs ~path ~debug:false
+      ~maxLength ~debug
+  | [_; "codeLens"; path] -> Commands.codeLens ~path ~debug
+  | [_; "extractDocs"; path] -> DocExtraction.extractDocs ~path ~debug
   | [_; "codeAction"; path; startLine; startCol; endLine; endCol; currentFile]
     ->
     Commands.codeAction ~path
       ~startPos:(int_of_string startLine, int_of_string startCol)
       ~endPos:(int_of_string endLine, int_of_string endCol)
-      ~currentFile ~debug:false
+      ~currentFile ~debug
   | [_; "codemod"; path; line; col; typ; hint] ->
     let typ =
       match typ with
@@ -136,7 +159,7 @@ let main () =
     let res =
       Codemod.transform ~path
         ~pos:(int_of_string line, int_of_string col)
-        ~debug:false ~typ ~hint
+        ~debug ~typ ~hint
       |> Json.escape
     in
     Printf.printf "\"%s\"" res
@@ -151,11 +174,11 @@ let main () =
   | [_; "references"; path; line; col] ->
     Commands.references ~path
       ~pos:(int_of_string line, int_of_string col)
-      ~debug:false
+      ~debug
   | [_; "rename"; path; line; col; newName] ->
     Commands.rename ~path
       ~pos:(int_of_string line, int_of_string col)
-      ~newName ~debug:false
+      ~newName ~debug
   | [_; "semanticTokens"; currentFile] ->
     SemanticTokens.semanticTokens ~currentFile
   | [_; "createInterface"; path; cmiFile] ->
