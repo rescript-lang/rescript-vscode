@@ -4,7 +4,7 @@
 	"description": "ReScript language support (official)",
 	"author": "ReScript Team",
 	"license": "MIT",
-	"version": "1.26.0",
+	"version": "1.28.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/rescript-lang/rescript-vscode"
@@ -74,6 +74,10 @@
 					"light": "assets/switch-impl-intf-light.svg",
 					"dark": "assets/switch-impl-intf-dark.svg"
 				}
+			},
+			{
+				"command": "rescript-vscode.debug-dump-start",
+				"title": "DEBUG ReScript: Dump analysis info"
 			}
 		],
 		"keybindings": [

@@ -173,6 +173,8 @@ var theSideEffectIsLogging;
 
 var deadIncorrect = 34;
 
+var ira = 10;
+
 export {
   fortytwo ,
   fortyTwoButExported ,
@@ -208,5 +210,6 @@ export {
   WithInclude ,
   funWithInnerVars ,
   deadIncorrect ,
+  ira ,
 }
 /*  Not a pure module */

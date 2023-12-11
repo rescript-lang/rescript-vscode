@@ -216,3 +216,6 @@ let res: result<someVariant, somePolyVariant> = Ok(One)
 
 // switch res { | Ok() }
 //                   ^com
+
+// switch res { | Error() }
+//                      ^com

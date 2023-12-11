@@ -196,7 +196,7 @@ Path fnTakingRecord
     "tags": [],
     "detail": "otherRecord",
     "documentation": null,
-    "insertText": "Some(${1:nested})",
+    "insertText": "Some(nested)$0",
     "insertTextFormat": 2
   }, {
     "label": "Some(_)",
@@ -616,7 +616,7 @@ Path fnTakingRecordWithOptVariant
     "tags": [],
     "detail": "someVariant",
     "documentation": null,
-    "insertText": "Some(${1:someVariant})",
+    "insertText": "Some(someVariant)$0",
     "insertTextFormat": 2
   }, {
     "label": "Some(_)",
