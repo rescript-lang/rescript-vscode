@@ -319,6 +319,11 @@ and completionType =
   | Texn of QueryEnv.t
   | Tpromise of QueryEnv.t * Types.type_expr
   | Toption of QueryEnv.t * innerType
+  | Tresult of {
+      env: QueryEnv.t;
+      okType: Types.type_expr;
+      errorType: Types.type_expr;
+    }
   | Tbool of QueryEnv.t
   | Tarray of QueryEnv.t * innerType
   | Tstring of QueryEnv.t

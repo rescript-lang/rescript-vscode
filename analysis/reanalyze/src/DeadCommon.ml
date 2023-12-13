@@ -267,7 +267,21 @@ module ProcessDeadAnnotations = struct
         constructorDeclarations
         |> List.iter
              (fun
-               ({cd_attributes; cd_loc} : Typedtree.constructor_declaration) ->
+               ({cd_attributes; cd_loc; cd_args} :
+                 Typedtree.constructor_declaration)
+             ->
+               let _process_inline_records =
+                 match cd_args with
+                 | Cstr_record flds ->
+                   List.iter
+                     (fun ({ld_attributes; ld_loc} :
+                            Typedtree.label_declaration) ->
+                       toplevelAttrs @ cd_attributes @ ld_attributes
+                       |> processAttributes ~doGenType:false ~name:""
+                            ~pos:ld_loc.loc_start)
+                     flds
+                 | Cstr_tuple _ -> ()
+               in
                toplevelAttrs @ cd_attributes
                |> processAttributes ~doGenType:false ~name:""
                     ~pos:cd_loc.loc_start)

@@ -173,6 +173,10 @@ export function activate(context: ExtensionContext) {
     StatusBarAlignment.Right
   );
 
+  let debugDumpStatusBarItem = window.createStatusBarItem(
+    StatusBarAlignment.Right
+  );
+
   let inCodeAnalysisState: {
     active: boolean;
     activatedFromDirectory: string | null;
@@ -203,6 +207,13 @@ export function activate(context: ExtensionContext) {
     customCommands.openCompiled(client);
   });
 
+  commands.registerCommand("rescript-vscode.debug-dump-start", () => {
+    customCommands.dumpDebug(context, debugDumpStatusBarItem);
+  });
+
+  commands.registerCommand("rescript-vscode.debug-dump-retrigger", () => {
+    customCommands.dumpDebugRetrigger();
+  });
 
   commands.registerCommand(
     "rescript-vscode.go_to_location",

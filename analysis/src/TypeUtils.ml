@@ -119,6 +119,8 @@ let rec extractType ~env ~package (t : Types.type_expr) =
     Some (Tpromise (env, payloadTypeExpr))
   | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
     Some (Tarray (env, TypeExpr payloadTypeExpr))
+  | Tconstr (Path.Pident {name = "result"}, [okType; errorType], _) ->
+    Some (Tresult {env; okType; errorType})
   | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
   | Tconstr (Path.Pident {name = "string"}, [], _) -> Some (Tstring env)
   | Tconstr (Path.Pident {name = "exn"}, [], _) -> Some (Texn env)
@@ -362,6 +364,15 @@ let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
       typ
       |> extractType ~env ~package:full.package
       |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
+    | NVariantPayload {constructorName = "Ok"; itemNum = 0}, Tresult {okType} ->
+      okType
+      |> extractType ~env ~package:full.package
+      |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
+    | ( NVariantPayload {constructorName = "Error"; itemNum = 0},
+        Tresult {errorType} ) ->
+      errorType
+      |> extractType ~env ~package:full.package
+      |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
     | ( NVariantPayload {constructorName; itemNum},
         Tvariant {env; constructors; typeParams; typeArgs} ) -> (
       match
@@ -481,6 +492,12 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
       | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
           Toption (env, typ) ) ->
         Some (typ, env)
+      | ( NVariantPayload {constructorName = "Ok"; itemNum = 0},
+          Tresult {env; okType} ) ->
+        Some (TypeExpr okType, env)
+      | ( NVariantPayload {constructorName = "Error"; itemNum = 0},
+          Tresult {env; errorType} ) ->
+        Some (TypeExpr errorType, env)
       | NArray, Tarray (env, typ) -> Some (typ, env)
       | _ -> None))
   | patternPath :: nested -> (
@@ -527,6 +544,12 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
       | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
           Toption (env, typ) ) ->
         typ |> resolveNestedPatternPath ~env ~full ~nested
+      | ( NVariantPayload {constructorName = "Ok"; itemNum = 0},
+          Tresult {env; okType} ) ->
+        TypeExpr okType |> resolveNestedPatternPath ~env ~full ~nested
+      | ( NVariantPayload {constructorName = "Error"; itemNum = 0},
+          Tresult {env; errorType} ) ->
+        TypeExpr errorType |> resolveNestedPatternPath ~env ~full ~nested
       | NArray, Tarray (env, typ) ->
         typ |> resolveNestedPatternPath ~env ~full ~nested
       | _ -> None))
@@ -613,6 +636,10 @@ let rec extractedTypeToString ?(inner = false) = function
     "array<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
   | Toption (_, TypeExpr innerTyp) ->
     "option<" ^ Shared.typeToString innerTyp ^ ">"
+  | Tresult {okType; errorType} ->
+    "result<" ^ Shared.typeToString okType ^ ", "
+    ^ Shared.typeToString errorType
+    ^ ">"
   | Toption (_, ExtractedType innerTyp) ->
     "option<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
   | Tpromise (_, innerTyp) -> "promise<" ^ Shared.typeToString innerTyp ^ ">"
@@ -687,6 +714,34 @@ module Codegen = struct
         @ (expandedBranches
           |> List.map (fun (pat : Parsetree.pattern) ->
                  mkConstructPat ~payload:pat "Some")))
+    | Tresult {okType; errorType} ->
+      let extractedOkType = okType |> extractType ~env ~package:full.package in
+      let extractedErrorType =
+        errorType |> extractType ~env ~package:full.package
+      in
+      let expandedOkBranches =
+        match extractedOkType with
+        | None -> []
+        | Some extractedType -> (
+          match extractedTypeToExhaustivePatterns ~env ~full extractedType with
+          | None -> []
+          | Some patterns -> patterns)
+      in
+      let expandedErrorBranches =
+        match extractedErrorType with
+        | None -> []
+        | Some extractedType -> (
+          match extractedTypeToExhaustivePatterns ~env ~full extractedType with
+          | None -> []
+          | Some patterns -> patterns)
+      in
+      Some
+        ((expandedOkBranches
+         |> List.map (fun (pat : Parsetree.pattern) ->
+                mkConstructPat ~payload:pat "Ok"))
+        @ (expandedErrorBranches
+          |> List.map (fun (pat : Parsetree.pattern) ->
+                 mkConstructPat ~payload:pat "Error")))
     | Tbool _ -> Some [mkConstructPat "true"; mkConstructPat "false"]
     | _ -> None
 

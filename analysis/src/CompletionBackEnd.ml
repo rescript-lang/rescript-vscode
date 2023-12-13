@@ -1275,7 +1275,7 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
           Completion.createWithSnippet
             ~name:("Some(" ^ fieldName ^ ")")
             ~kind:(kindFromInnerType t) ~env
-            ~insertText:("Some(${1:" ^ fieldName ^ "})")
+            ~insertText:("Some(" ^ fieldName ^ ")$0")
             ();
           someAnyCase;
           noneCase;
@@ -1283,6 +1283,71 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
       | _ -> [noneCase; someAnyCase]
     in
     completions @ expandedCompletions |> filterItems ~prefix
+  | Tresult {env; okType; errorType} ->
+    let okInnerType =
+      okType |> TypeUtils.extractType ~env ~package:full.package
+    in
+    let errorInnerType =
+      errorType |> TypeUtils.extractType ~env ~package:full.package
+    in
+    let expandedOkCompletions =
+      match okInnerType with
+      | None -> []
+      | Some innerType ->
+        innerType
+        |> completeTypedValue ~full ~prefix ~completionContext ~mode
+        |> List.map (fun (c : Completion.t) ->
+               {
+                 c with
+                 name = "Ok(" ^ c.name ^ ")";
+                 sortText = None;
+                 insertText =
+                   (match c.insertText with
+                   | None -> None
+                   | Some insertText -> Some ("Ok(" ^ insertText ^ ")"));
+               })
+    in
+    let expandedErrorCompletions =
+      match errorInnerType with
+      | None -> []
+      | Some innerType ->
+        innerType
+        |> completeTypedValue ~full ~prefix ~completionContext ~mode
+        |> List.map (fun (c : Completion.t) ->
+               {
+                 c with
+                 name = "Error(" ^ c.name ^ ")";
+                 sortText = None;
+                 insertText =
+                   (match c.insertText with
+                   | None -> None
+                   | Some insertText -> Some ("Error(" ^ insertText ^ ")"));
+               })
+    in
+    let okAnyCase =
+      Completion.createWithSnippet ~name:"Ok(_)" ~kind:(Value okType) ~env
+        ~insertText:"Ok(${1:_})" ()
+    in
+    let errorAnyCase =
+      Completion.createWithSnippet ~name:"Error(_)" ~kind:(Value errorType) ~env
+        ~insertText:"Error(${1:_})" ()
+    in
+    let completions =
+      match completionContext with
+      | Some (Completable.CameFromRecordField fieldName) ->
+        [
+          Completion.createWithSnippet
+            ~name:("Ok(" ^ fieldName ^ ")")
+            ~kind:(Value okType) ~env
+            ~insertText:("Ok(" ^ fieldName ^ ")$0")
+            ();
+          okAnyCase;
+          errorAnyCase;
+        ]
+      | _ -> [okAnyCase; errorAnyCase]
+    in
+    completions @ expandedOkCompletions @ expandedErrorCompletions
+    |> filterItems ~prefix
   | Tuple (env, exprs, typ) ->
     let numExprs = List.length exprs in
     [
@@ -1715,6 +1780,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                           | _ -> "(_)"))
              | Some (Toption (_env, _typ)) ->
                withExhaustiveItem c ~cases:["Some($1)"; "None"] ~startIndex:1
+             | Some (Tresult _) ->
+               withExhaustiveItem c ~cases:["Ok($1)"; "Error($1)"] ~startIndex:1
              | Some (Tbool _) -> withExhaustiveItem c ~cases:["true"; "false"]
              | _ -> [c])
            | _ -> [c])
