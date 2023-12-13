@@ -12,6 +12,10 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- If interface file exists, ask if it should be overwritten. https://github.com/rescript-lang/rescript-vscode/pull/865
+
 #### :bug: Bug Fix
 
 - Treat `result` type as a proper built in type. https://github.com/rescript-lang/rescript-vscode/pull/860
