@@ -28,14 +28,20 @@ type rec item =
       deprecated?: string,
       detail?: detail,
     })
-  | Module(docsForModule)
+  | Module({
+      id: string,
+      docstrings: array<string>,
+      deprecated?: string,
+      name: string,
+      items: array<item>,
+    })
   | ModuleAlias({id: string, docstrings: array<string>, name: string, items: array<item>})
-and docsForModule = {
-  id: string,
-  docstrings: array<string>,
-  deprecated?: string,
-  name: string,
-  items: array<item>,
-}
+
 type doc = {name: string, deprecated: option<string>, docstrings: array<string>, items: array<item>}
+
+let decodeValue: Js.Dict.t<Js.Json.t> => item
+let decodeType: Js.Dict.t<Js.Json.t> => item
+let decodeModule: Js.Dict.t<Js.Json.t> => item
+let decodeModuleAlias: Js.Dict.t<Js.Json.t> => item
+let decodeItem: Js.Json.t => item
 let decodeFromJson: Js.Json.t => doc
