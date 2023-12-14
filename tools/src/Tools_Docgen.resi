@@ -11,31 +11,46 @@ type constructor = {
   signature: string,
   deprecated?: string,
 }
-type detail = Record({items: array<field>}) | Variant({items: array<constructor>})
+@tag("kind")
+type detail =
+  | @as("record") Record({items: array<field>})
+  | @as("variant") Variant({items: array<constructor>})
+
+@tag("kind")
 type rec item =
-  | Value({
+  | @as("value")
+  Value({
       id: string,
       docstrings: array<string>,
       signature: string,
       name: string,
       deprecated?: string,
     })
-  | Type({
+  | @as("type")
+  Type({
       id: string,
       docstrings: array<string>,
       signature: string,
       name: string,
       deprecated?: string,
+      /** Additional documentation for constructors and record fields, if available. */
       detail?: detail,
     })
-  | Module({
+  | @as("module")
+  Module({
       id: string,
       docstrings: array<string>,
       deprecated?: string,
       name: string,
       items: array<item>,
     })
-  | ModuleAlias({id: string, docstrings: array<string>, name: string, items: array<item>})
+  | @as("moduleAlias")
+  ModuleAlias({
+      id: string,
+      docstrings: array<string>,
+      name: string,
+      items: array<item>,
+    })
 
 type doc = {name: string, deprecated: option<string>, docstrings: array<string>, items: array<item>}
 
