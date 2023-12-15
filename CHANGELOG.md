@@ -18,6 +18,7 @@
 
 #### :bug: Bug Fix
 
+- Proper default for `"uncurried"` in V11 projects. https://github.com/rescript-lang/rescript-vscode/pull/867
 - Treat `result` type as a proper built in type. https://github.com/rescript-lang/rescript-vscode/pull/860
 
 #### :nail_care: Polish
