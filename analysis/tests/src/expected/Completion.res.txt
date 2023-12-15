@@ -28,7 +28,7 @@ Path MyList.m
     "label": "mapReverse2U",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, t<'b>, (. 'a, 'b) => 'c) => t<'c>",
+    "detail": "(t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse2](#mapReverse2). "}
   }, {
     "label": "map",
@@ -40,19 +40,19 @@ Path MyList.m
     "label": "mapWithIndexU",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, (. int, 'a) => 'b) => t<'b>",
+    "detail": "(t<'a>, (int, 'a) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [mapWithIndex](#mapWithIndex). "}
   }, {
     "label": "mapU",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [map](#map). "}
   }, {
     "label": "makeByU",
     "kind": 12,
     "tags": [],
-    "detail": "(int, (. int) => 'a) => t<'a>",
+    "detail": "(int, int => 'a) => t<'a>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [makeBy](#makeBy) "}
   }, {
     "label": "mapReverse2",
@@ -70,7 +70,7 @@ Path MyList.m
     "label": "mapReverseU",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse](#mapReverse). "}
   }]
 
@@ -451,7 +451,7 @@ Path Belt.Option.e
     "label": "Belt.Option.eqU",
     "kind": 12,
     "tags": [],
-    "detail": "(option<'a>, option<'b>, (. 'a, 'b) => bool) => bool",
+    "detail": "(option<'a>, option<'b>, ('a, 'b) => bool) => bool",
     "documentation": {"kind": "markdown", "value": "\n   Uncurried version of `eq`\n"}
   }, {
     "label": "Belt.Option.eq",
@@ -508,7 +508,7 @@ Path Js.Dict.u
     "label": "unsafeDeleteKey",
     "kind": 12,
     "tags": [],
-    "detail": "(. t<string>, string) => unit",
+    "detail": "(t<string>, string) => unit",
     "documentation": {"kind": "markdown", "value": " Experimental internal function "}
   }]
 
@@ -764,6 +764,7 @@ Path Objects.Rec.recordVal
   }]
 
 Complete src/Completion.res 120:7
+posCursor:[120:7] posNoWhite:[120:6] Found expr:[119:11->123:1]
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[119:11->123:1]
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->122:5]
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->120:7]
@@ -1285,6 +1286,7 @@ Path SomeLocal
 
 Complete src/Completion.res 275:15
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[274:11->278:1]
+posCursor:[275:15] posNoWhite:[275:14] Found expr:[274:11->278:1]
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:5->277:3]
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:13->275:15]
 Pexp_ident _w:[275:13->275:15]
@@ -1630,6 +1632,7 @@ posCursor:[336:26] posNoWhite:[336:25] Found expr:[333:3->346:23]
 JSX <div:[333:3->333:6] onClick[334:4->334:11]=...[334:13->346:23]> _children:None
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->346:23]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[335:6->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[336:16->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found pattern:[336:20->338:5]
@@ -1731,6 +1734,7 @@ posCursor:[355:23] posNoWhite:[355:22] Found expr:[355:12->355:23]
 
 Complete src/Completion.res 362:8
 posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
+posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
 Ppat_construct T:[362:7->362:8]
@@ -1779,6 +1783,7 @@ Path T
   }]
 
 Complete src/Completion.res 373:21
+posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->373:21]
@@ -1881,6 +1886,7 @@ Path funRecord
   }]
 
 Complete src/Completion.res 389:12
+posCursor:[389:12] posNoWhite:[389:11] Found expr:[387:8->392:1]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[387:8->392:1]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[388:2->391:4]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->391:4]
@@ -1985,6 +1991,7 @@ Path r
 
 Complete src/Completion.res 409:21
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[408:14->415:1]
+posCursor:[409:21] posNoWhite:[409:20] Found expr:[408:14->415:1]
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->414:17]
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->411:42]
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->411:5]
@@ -2010,6 +2017,7 @@ Path SomeLocalModule.
   }]
 
 Complete src/Completion.res 412:21
+posCursor:[412:21] posNoWhite:[412:20] Found expr:[408:14->415:1]
 posCursor:[412:21] posNoWhite:[412:20] Found expr:[408:14->415:1]
 posCursor:[412:21] posNoWhite:[412:20] Found expr:[411:2->414:17]
 posCursor:[412:21] posNoWhite:[412:20] Found expr:[412:5->414:17]
@@ -2196,13 +2204,13 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[withUncurried]
 Path withUncurried
 [{
-    "label": "(. v) => {}",
+    "label": "v => {}",
     "kind": 12,
     "tags": [],
     "detail": "int => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(. ${1:v}) => {$0}",
+    "insertText": "${1:v} => {$0}",
     "insertTextFormat": 2
   }]
 

@@ -493,6 +493,7 @@ type package = {
   builtInCompletionModules: builtInCompletionModules;
   opens: path list;
   uncurried: bool;
+  rescriptVersion: int * int;
 }
 
 let allFilesInPackage package =
