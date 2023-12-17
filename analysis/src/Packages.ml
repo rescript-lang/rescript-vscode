@@ -11,6 +11,22 @@ let makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths =
          Hashtbl.replace pathsForModule modName paths);
   pathsForModule
 
+let getReScriptVersion () =
+  (* TODO: Include patch stuff when needed *)
+  let defaultVersion = (10, 1) in
+  try
+    let value = Sys.getenv "RESCRIPT_VERSION" in
+    let version =
+      match value |> String.split_on_char '.' with
+      | major :: minor :: _rest -> (
+        match (int_of_string_opt major, int_of_string_opt minor) with
+        | Some major, Some minor -> (major, minor)
+        | _ -> defaultVersion)
+      | _ -> defaultVersion
+    in
+    version
+  with Not_found -> defaultVersion
+
 let newBsPackage ~rootPath =
   let rescriptJson = Filename.concat rootPath "rescript.json" in
   let bsconfigJson = Filename.concat rootPath "bsconfig.json" in
@@ -27,9 +43,12 @@ let newBsPackage ~rootPath =
         | Some libBs ->
           Some
             (let namespace = FindFiles.getNamespace config in
+             let rescriptVersion = getReScriptVersion () in
              let uncurried =
                let ns = config |> Json.get "uncurried" in
-               Option.bind ns Json.bool
+               match (rescriptVersion, ns) with
+               | (major, _), None when major >= 11 -> Some true
+               | _, ns -> Option.bind ns Json.bool
              in
              let uncurried = uncurried = Some true in
              let sourceDirectories =
@@ -93,6 +112,7 @@ let newBsPackage ~rootPath =
                ("Opens from ReScript config file: "
                ^ (opens |> List.map pathToString |> String.concat " "));
              {
+               rescriptVersion;
                rootPath;
                projectFiles =
                  projectFilesAndPaths |> List.map fst |> FileSet.of_list;
