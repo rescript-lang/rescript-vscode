@@ -32,7 +32,10 @@ let newBsPackage ~rootPath =
   let bsconfigJson = Filename.concat rootPath "bsconfig.json" in
 
   let parseRaw raw =
-    let libBs = BuildSystem.getLibBs rootPath in
+    let libBs = match !Cfg.isDocGenFromCompiler with
+    | true -> BuildSystem.getStdlib rootPath
+    | false -> BuildSystem.getLibBs rootPath
+    in
     match Json.parse raw with
     | Some config -> (
       match FindFiles.findDependencyFiles rootPath config with

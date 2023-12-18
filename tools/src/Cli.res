@@ -11,13 +11,16 @@ module Buffer = {
   @send external toString: t => string = "toString"
 }
 
+type processEnvOptions = {stdio?: string}
 type spawnSyncResult = {
   stdout: Buffer.t,
   stderr: Buffer.t,
   status: Js.Null.t<int>,
 }
+
 @module("child_process")
-external spawnSync: (string, array<string>) => spawnSyncResult = "spawnSync"
+external spawnSync: (string, array<string>, option<processEnvOptions>) => spawnSyncResult =
+  "spawnSync"
 
 @val @scope("process")
 external exit: int => unit = "exit"
@@ -68,29 +71,21 @@ switch args->Belt.List.fromArray {
   switch rest {
   | list{"-h" | "--help"} => logAndExit(~log=docHelp, ~code=0)
   | list{filePath} =>
-    let spawn = spawnSync(analysisProdPath, ["extractDocs", filePath])
+    let spawn = spawnSync(analysisProdPath, ["extractDocs", filePath], Some({stdio: "inherit"}))
 
     switch spawn.status->Js.Null.toOption {
-    | Some(code) if code !== 0 => logAndExit(~log=spawn.stderr->Buffer.toString, ~code)
-    | Some(code) => logAndExit(~log=spawn.stdout->Buffer.toString, ~code)
-    | None => logAndExit(~log=`error: unexpected error to extract docs for ${filePath}`, ~code=1)
+    | Some(code) => exit(code)
+    | None => ()
     }
   | _ => logAndExit(~log=docHelp, ~code=1)
   }
 | list{"reanalyze", ...rest} =>
   let args = ["reanalyze"]->Js.Array2.concat(Belt.List.toArray(rest))
-  let spawn = spawnSync(analysisProdPath, args)
+  let spawn = spawnSync(analysisProdPath, args, Some({stdio: "inherit"}))
 
   switch spawn.status->Js.Null.toOption {
-  | Some(code) if code !== 0 => logAndExit(~log=spawn.stderr->Buffer.toString, ~code)
-  | Some(code) => logAndExit(~log=spawn.stdout->Buffer.toString, ~code)
-  | None =>
-    logAndExit(
-      ~log=`error: unexpected error to run reanalyze with arguments: ${args->Js.Array2.joinWith(
-          " ",
-        )}`,
-      ~code=1,
-    )
+  | Some(code) => exit(code)
+  | None => ()
   }
 | list{"-h" | "--help"} => logAndExit(~log=help, ~code=0)
 | list{"-v" | "--version"} =>
