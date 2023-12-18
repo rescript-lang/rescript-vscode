@@ -311,7 +311,11 @@ end = struct
     {env with exported = structure.exported; pathRev; parent = Some env}
 end
 
-type polyVariantConstructor = {name: string; args: Types.type_expr list}
+type polyVariantConstructor = {
+  name: string;
+  displayName: string;
+  args: Types.type_expr list;
+}
 
 type innerType = TypeExpr of Types.type_expr | ExtractedType of completionType
 and completionType =
