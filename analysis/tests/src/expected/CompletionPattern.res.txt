@@ -129,7 +129,7 @@ Path f
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "detail": "optThird: option<[#first | #second(someRecord)]>\n\nsomeRecord",
     "documentation": null
   }, {
     "label": "nest",
@@ -150,7 +150,7 @@ Path f
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "detail": "optThird: option<[#first | #second(someRecord)]>\n\nsomeRecord",
     "documentation": null
   }, {
     "label": "nest",
@@ -189,7 +189,7 @@ Path z
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "detail": "optThird: option<[#first | #second(someRecord)]>\n\nsomeRecord",
     "documentation": null
   }]
 
@@ -267,7 +267,7 @@ Path f
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "detail": "optThird: option<[#first | #second(someRecord)]>\n\nsomeRecord",
     "documentation": null
   }, {
     "label": "nest",
@@ -360,7 +360,7 @@ Path z
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "detail": "optThird: option<[#first | #second(someRecord)]>\n\nsomeRecord",
     "documentation": null
   }, {
     "label": "nest",
@@ -451,7 +451,7 @@ Path b
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
+    "detail": "optThird: option<[#first | #second(someRecord)]>\n\nsomeRecord",
     "documentation": null
   }, {
     "label": "nest",
