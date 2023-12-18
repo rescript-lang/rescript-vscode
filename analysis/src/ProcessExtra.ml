@@ -358,8 +358,16 @@ let typ ~env ~extra (iter : Tast_iterator.iterator) (item : Typedtree.core_type)
 
 let pat ~(file : File.t) ~env ~extra (iter : Tast_iterator.iterator)
     (pattern : Typedtree.pattern) =
-  let addForPattern stamp name =
+  let addForPattern stamp (name : string Location.loc) =
     if Stamps.findValue file.stamps stamp = None then (
+      let name =
+        match
+          pattern.pat_attributes
+          |> List.find_opt (fun ({Asttypes.txt}, _) -> txt = "res.namedArgLoc")
+        with
+        | None -> name
+        | Some ({loc}, _) -> {name with loc}
+      in
       let declared =
         ProcessAttributes.newDeclared ~name ~stamp ~modulePath:NotVisible
           ~extent:pattern.pat_loc ~item:pattern.pat_type false
