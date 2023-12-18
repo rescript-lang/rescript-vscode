@@ -1237,7 +1237,8 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
                (PolyvariantConstructor
                   (constructor, typeExpr |> Shared.typeToString))
              ~env ())
-    |> filterItems ~prefix
+    |> filterItems
+         ~prefix:(if Utils.startsWith prefix "#" then prefix else "#" ^ prefix)
   | Toption (env, t) ->
     let innerType =
       match t with

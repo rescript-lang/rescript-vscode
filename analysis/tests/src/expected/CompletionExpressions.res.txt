@@ -1132,3 +1132,111 @@ Path takesExotic
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionExpressions.res 278:23
+posCursor:[278:23] posNoWhite:[278:22] Found expr:[278:3->278:24]
+Pexp_apply ...[278:3->278:22] (...[278:23->278:24])
+Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingPolyVariant]($0)
+ContextPath Value[fnTakingPolyVariant]
+Path fnTakingPolyVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three(someRecord, bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "#three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "#two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 281:24
+posCursor:[281:24] posNoWhite:[281:23] Found expr:[281:3->281:25]
+Pexp_apply ...[281:3->281:22] (...[281:23->281:25])
+Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=#
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingPolyVariant]($0)
+ContextPath Value[fnTakingPolyVariant]
+Path fnTakingPolyVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three(someRecord, bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 284:25
+posCursor:[284:25] posNoWhite:[284:24] Found expr:[284:3->284:26]
+Pexp_apply ...[284:3->284:22] (...[284:23->284:25])
+Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=#o
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingPolyVariant]($0)
+ContextPath Value[fnTakingPolyVariant]
+Path fnTakingPolyVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "one",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 287:24
+posCursor:[287:24] posNoWhite:[287:23] Found expr:[287:3->287:25]
+Pexp_apply ...[287:3->287:22] (...[287:23->287:24])
+Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=o
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingPolyVariant]($0)
+ContextPath Value[fnTakingPolyVariant]
+Path fnTakingPolyVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }]
+
