@@ -1113,3 +1113,22 @@ Path Belt.Array.map
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionExpressions.res 271:15
+posCursor:[271:15] posNoWhite:[271:14] Found expr:[271:3->271:16]
+Pexp_apply ...[271:3->271:14] (...[271:15->271:16])
+Completable: Cexpression CArgument Value[takesExotic]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[takesExotic]($0)
+ContextPath Value[takesExotic]
+Path takesExotic
+[{
+    "label": "#\"some exotic\"",
+    "kind": 4,
+    "tags": [],
+    "detail": "#\"some exotic\"\n\n[#\"some exotic\"]",
+    "documentation": null,
+    "insertText": "#\"some exotic\"",
+    "insertTextFormat": 2
+  }]
+

@@ -243,3 +243,20 @@ let rec flattenAnyNamespaceInPath path =
       (* Namespaces are in reverse order, so "URL-RescriptBun" where RescriptBun is the namespace. *)
       (parts |> List.rev) @ flattenAnyNamespaceInPath tail
     else head :: flattenAnyNamespaceInPath tail
+
+let printMaybeExoticIdent ?(allowUident = false) txt =
+  let len = String.length txt in
+
+  let rec loop i =
+    if i == len then txt
+    else if i == 0 then
+      match String.unsafe_get txt i with
+      | 'A' .. 'Z' when allowUident -> loop (i + 1)
+      | 'a' .. 'z' | '_' -> loop (i + 1)
+      | _ -> "\"" ^ txt ^ "\""
+    else
+      match String.unsafe_get txt i with
+      | 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '\'' | '_' -> loop (i + 1)
+      | _ -> "\"" ^ txt ^ "\""
+  in
+  loop 0

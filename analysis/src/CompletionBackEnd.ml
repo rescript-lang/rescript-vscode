@@ -231,8 +231,8 @@ let kindToDetail name (kind : Completion.kind) =
       ^ "\n\n" ^ s
     else name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
   | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
-  | PolyvariantConstructor ({name; args}, s) ->
-    "#" ^ name
+  | PolyvariantConstructor ({displayName; args}, s) ->
+    "#" ^ displayName
     ^ (match args with
       | [] -> ""
       | typeExprs ->
@@ -1223,13 +1223,13 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
     |> List.map (fun (constructor : polyVariantConstructor) ->
            Completion.createWithSnippet
              ~name:
-               ("#" ^ constructor.name
+               ("#" ^ constructor.displayName
                ^ printConstructorArgs
                    (List.length constructor.args)
                    ~asSnippet:false)
              ~insertText:
                ((if Utils.startsWith prefix "#" then "" else "#")
-               ^ constructor.name
+               ^ constructor.displayName
                ^ printConstructorArgs
                    (List.length constructor.args)
                    ~asSnippet:true)
@@ -1771,7 +1771,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                  ~cases:
                    (v.constructors
                    |> List.map (fun (constructor : polyVariantConstructor) ->
-                          "#" ^ constructor.name
+                          "#" ^ constructor.displayName
                           ^
                           match constructor.args with
                           | [] -> ""
