@@ -1,10 +1,8 @@
 let printExpr ?(lineWidth = 60) typ =
   Printtyp.reset_names ();
   Printtyp.reset_and_mark_loops typ;
-  try
   Res_doc.toString ~width:lineWidth
-    (Res_outcome_printer.printOutTypeDoc (Printtyp.tree_of_typexp false typ (* HERE *)))
-  with _ -> "Error: could not print type"
+    (Res_outcome_printer.printOutTypeDoc (Printtyp.tree_of_typexp false typ))
 
 let printDecl ?printNameAsIs ~recStatus name decl =
   Printtyp.reset_names ();
