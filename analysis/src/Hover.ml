@@ -141,7 +141,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
       let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
       match
         CompletionBackEnd.completionsGetTypeEnv2 ~debug ~full ~rawOpens ~opens
-          ~pos ~scope completions
+          ~pos completions
       with
       | Some (typ, _env) ->
         let typeString =
@@ -154,7 +154,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
       let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
       match
         CompletionBackEnd.completionsGetTypeEnv2 ~debug ~full ~rawOpens ~opens
-          ~pos ~scope completions
+          ~pos completions
       with
       | Some (typ, _env) ->
         let typeString =
