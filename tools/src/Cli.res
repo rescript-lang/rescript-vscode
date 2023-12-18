@@ -1,6 +1,6 @@
 @@directive("#!/usr/bin/env node")
 
-@module("fs") external readFileSync: string => string = "readFileSync"
+@val external require: string => Js.Dict.t<string> = "require"
 @variadic @module("path") external join: array<string> => string = "join"
 @module("path") external dirname: string => string = "dirname"
 @val external __dirname: string = "__dirname"
@@ -89,9 +89,9 @@ switch args->Belt.List.fromArray {
   }
 | list{"-h" | "--help"} => logAndExit(~log=help, ~code=0)
 | list{"-v" | "--version"} =>
-  switch readFileSync("./package.json")->Js.Json.parseExn->Js.Json.decodeObject {
+  switch require("../package.json")->Js.Dict.get("version") {
   | None => logAndExit(~log="error: failed to find version in package.json", ~code=1)
-  | Some(dict) => logAndExit(~log=dict->Js.Dict.unsafeGet("version"), ~code=0)
+  | Some(version) => logAndExit(~log=version, ~code=0)
   }
 | _ => logAndExit(~log=help, ~code=1)
 }
