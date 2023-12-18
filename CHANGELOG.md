@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.30.0
+
 #### :rocket: New Feature
 
 - If interface file exists, ask if it should be overwritten. https://github.com/rescript-lang/rescript-vscode/pull/865
