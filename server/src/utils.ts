@@ -136,6 +136,29 @@ export let formatCode = (
   }
 };
 
+let findReScriptVersion = (filePath: p.DocumentUri): string | undefined => {
+  let projectRoot = findProjectRootOfFile(filePath);
+  if (projectRoot == null) {
+    return undefined;
+  }
+
+  let rescriptBinary = lookup.findFilePathFromProjectRoot(
+    projectRoot,
+    path.join(c.nodeModulesBinDir, c.rescriptBinName)
+  );
+
+  if (rescriptBinary == null) {
+    return undefined;
+  }
+
+  try {
+    let version = childProcess.execSync(`${rescriptBinary} -v`);
+    return version.toString().trim();
+  } catch (e) {
+    return undefined;
+  }
+};
+
 export let runAnalysisAfterSanityCheck = (
   filePath: p.DocumentUri,
   args: Array<any>,
@@ -154,9 +177,14 @@ export let runAnalysisAfterSanityCheck = (
   if (projectRootPath == null && projectRequired) {
     return null;
   }
+  let rescriptVersion = findReScriptVersion(filePath);
   let options: childProcess.ExecFileSyncOptions = {
     cwd: projectRootPath || undefined,
     maxBuffer: Infinity,
+    env: {
+      ...process.env,
+      RESCRIPT_VERSION: rescriptVersion,
+    },
   };
   let stdout = childProcess.execFileSync(binaryPath, args, options);
 

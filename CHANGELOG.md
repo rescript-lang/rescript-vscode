@@ -12,9 +12,20 @@
 
 ## master
 
+## 1.30.0
+
+#### :rocket: New Feature
+
+- If interface file exists, ask if it should be overwritten. https://github.com/rescript-lang/rescript-vscode/pull/865
+
 #### :bug: Bug Fix
 
+- Proper default for `"uncurried"` in V11 projects. https://github.com/rescript-lang/rescript-vscode/pull/867
 - Treat `result` type as a proper built in type. https://github.com/rescript-lang/rescript-vscode/pull/860
+- Fix infinite loop when resolving inferred completions when several values in scope has the same name. https://github.com/rescript-lang/rescript-vscode/pull/869
+- Fix crash when trying to print recursive polymorphic variants without a concrete definition. https://github.com/rescript-lang/rescript-vscode/pull/851
+- Fix `rescript-language-server --version` command. https://github.com/rescript-lang/rescript-vscode/pull/873
+- Print exotic polyvariant constructor names with quotes when doing completion. https://github.com/rescript-lang/rescript-vscode/pull/870
 
 #### :nail_care: Polish
 

@@ -38,7 +38,14 @@ type rec item =
       /** Additional documentation for constructors and record fields, if available. */
       detail?: detail,
     })
-  | @as("module") Module(docsForModule)
+  | @as("module")
+  Module({
+      id: string,
+      docstrings: array<string>,
+      deprecated?: string,
+      name: string,
+      items: array<item>,
+    })
   | @as("moduleAlias")
   ModuleAlias({
       id: string,
@@ -46,13 +53,6 @@ type rec item =
       name: string,
       items: array<item>,
     })
-and docsForModule = {
-  id: string,
-  docstrings: array<string>,
-  deprecated?: string,
-  name: string,
-  items: array<item>,
-}
 
 let decodeDocstrings = item => {
   open Js.Json

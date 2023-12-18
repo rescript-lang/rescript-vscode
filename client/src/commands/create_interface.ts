@@ -21,7 +21,19 @@ export const createInterface = (client: LanguageClient) => {
   }
 
   if (fs.existsSync(editor.document.uri.fsPath + "i")) {
-    return window.showInformationMessage("Interface file already exists");
+    return window
+      .showInformationMessage(
+        "Interface file already exists. Do you want to overwrite it?",
+        "Yes",
+        "No"
+      )
+      .then((answer) => {
+        if (answer === "Yes") {
+          client.sendRequest(createInterfaceRequest, {
+            uri: editor.document.uri.toString(),
+          });
+        }
+      });
   }
 
   client.sendRequest(createInterfaceRequest, {

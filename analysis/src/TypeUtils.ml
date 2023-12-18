@@ -157,6 +157,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
       |> List.map (fun (label, field) ->
              {
                name = label;
+               displayName = Utils.printMaybeExoticIdent ~allowUident:true label;
                args =
                  (* Multiple arguments are represented as a Ttuple, while a single argument is just the type expression itself. *)
                  (match field with
@@ -691,7 +692,7 @@ module Codegen = struct
                    (match c.args with
                    | [] -> None
                    | _ -> Some (any ()))
-                 c.name))
+                 c.displayName))
     | Toption (_, innerType) ->
       let extractedType =
         match innerType with
