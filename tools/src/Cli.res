@@ -5,18 +5,8 @@
 @module("path") external dirname: string => string = "dirname"
 @val external __dirname: string = "__dirname"
 
-module Buffer = {
-  type t
-
-  @send external toString: t => string = "toString"
-}
-
 type processEnvOptions = {stdio?: string}
-type spawnSyncResult = {
-  stdout: Buffer.t,
-  stderr: Buffer.t,
-  status: Js.Null.t<int>,
-}
+type spawnSyncResult = {status: Js.Null.t<int>}
 
 @module("child_process")
 external spawnSync: (string, array<string>, option<processEnvOptions>) => spawnSyncResult =
@@ -89,9 +79,14 @@ switch args->Belt.List.fromArray {
   }
 | list{"-h" | "--help"} => logAndExit(~log=help, ~code=0)
 | list{"-v" | "--version"} =>
-  switch readFileSync("./package.json")->Js.Json.parseExn->Js.Json.decodeObject {
+  let packageJson = join([__dirname, "..", "package.json"])
+  switch readFileSync(packageJson)->Js.Json.parseExn->Js.Json.decodeObject {
   | None => logAndExit(~log="error: failed to find version in package.json", ~code=1)
-  | Some(dict) => logAndExit(~log=dict->Js.Dict.unsafeGet("version"), ~code=0)
+  | Some(dict) =>
+    switch dict->Js.Dict.get("version") {
+    | Some(version) => logAndExit(~log=version, ~code=0)
+    | None => logAndExit(~log="error: failed to find version in package.json", ~code=1)
+    }
   }
 | _ => logAndExit(~log=help, ~code=1)
 }
