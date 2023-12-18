@@ -12,6 +12,8 @@
 
 ## master
 
+## 0.3.0
+
 #### :rocket: New Feature
 
 - Expose more `decode` functions. https://github.com/rescript-lang/rescript-vscode/pull/866
