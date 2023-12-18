@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-const server = require("./server")
+import fs from "fs";
+import server from "./server";
+
 const args = process.argv.slice(2)
 
 const help = `ReScript Language Server
@@ -21,7 +23,7 @@ Options:
       return server(false);
     case '--version':
     case '-v':
-      console.log(require('../package.json').version);
+      console.log(JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf8' })).version);
       process.exit(0);
     case '--help':
     case '-h':
