@@ -23,4 +23,5 @@
 #### :bug: Bug Fix
 
 - Fix tagged variant for `Module` and add attr to interface files. https://github.com/rescript-lang/rescript-vscode/pull/866
+- Fix `rescript-tools --version` command. https://github.com/rescript-lang/rescript-vscode/pull/873
 - Fix output truncate when run `rescript-tools doc path/to/file.res` in a separate process. https://github.com/rescript-lang/rescript-vscode/pull/868
