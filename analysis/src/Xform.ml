@@ -291,7 +291,7 @@ module ExhaustiveSwitch = struct
           in
           match
             CompletionBackEnd.completionsGetCompletionType2 ~debug ~full
-              ~rawOpens ~opens ~pos ~scope completions
+              ~rawOpens ~opens ~pos completions
           with
           | Some (typ, _env) ->
             let extractedType =

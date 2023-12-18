@@ -162,3 +162,8 @@ let fn3 = (~cb: sameFileRecord => unit) => {
 // But pipe completion gets the wrong completion path. Should be `ReactDOM.Client.Root.t`, but ends up being `CompletionSupport2.ReactDOM.Client.Root.t`.
 // let renderer = CompletionSupport2.makeRenderer(~prepare=() => "hello",~render=({support:{root}}) => {root->},())
 //                                                                                                            ^com
+
+// Handles reusing the same name already in scope for bindings
+let res = 1
+// switch res { | res => res }
+//                         ^hov

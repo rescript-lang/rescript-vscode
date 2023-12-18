@@ -733,6 +733,16 @@ module Completable = struct
     | ChtmlElement {prefix} -> "ChtmlElement <" ^ prefix
 end
 
+module ScopeTypes = struct
+  type item =
+    | Constructor of string * Location.t
+    | Field of string * Location.t
+    | Module of string * Location.t
+    | Open of string list
+    | Type of string * Location.t
+    | Value of string * Location.t * Completable.contextPath option * item list
+end
+
 module Completion = struct
   type kind =
     | Module of Module.t
@@ -746,7 +756,7 @@ module Completion = struct
     | FileModule of string
     | Snippet of string
     | ExtractedType of completionType * [`Value | `Type]
-    | FollowContextPath of Completable.contextPath
+    | FollowContextPath of Completable.contextPath * ScopeTypes.item list
 
   type t = {
     name: string;

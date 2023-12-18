@@ -876,3 +876,18 @@ Path ReactDOM.Client.Root.
     "documentation": null
   }]
 
+Hover src/CompletionInferValues.res 167:27
+Nothing at that position. Now trying to use completion.
+posCursor:[167:27] posNoWhite:[167:26] Found expr:[167:25->167:28]
+Pexp_ident res:[167:25->167:28]
+Completable: Cpath Value[res]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[res]
+Path res
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[res]
+Path res
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
+
