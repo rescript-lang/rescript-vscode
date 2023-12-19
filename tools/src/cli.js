@@ -12,12 +12,8 @@ const binPath = path.join(__dirname, "..", "binaries", platformArch, "rescript-t
 
 const args = process.argv.slice(2);
 
-const spawn = child_process.spawnSync(binPath, args);
+const spawn = child_process.spawnSync(binPath, args, { stdio: "inherit" });
 
-if (spawn.status !== 0) {
-  console.log(spawn.stderr.toString().trim());
-  process.exit(spawn.status || 1);
-} else {
-  console.log(spawn.stdout.toString().trim());
-  process.exit(0)
+if (spawn.status != null) {
+  process.exit(spawn.status)
 }

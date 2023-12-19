@@ -1,6 +1,4 @@
 (* Update here and package.json *)
-let version = "0.1.1"
-
 let docHelp =
   {|ReScript Tools
 
@@ -33,12 +31,20 @@ let logAndExit ~log ~code =
   in
   exit code
 
+let version = Version.version
+
 let main () =
   match Sys.argv |> Array.to_list |> List.tl with
   | "doc" :: rest -> (
     match rest with
     | ["-h"] | ["--help"] -> logAndExit ~log:docHelp ~code:`Ok
-    | [path] -> Analysis.DocExtraction.extractDocs ~path ~debug:false
+    | [path] -> (
+      (* NOTE: Internal use to generate docs from compiler *)
+      let () = match Sys.getenv_opt "FROM_COMPILER" with
+      | Some("true") -> Analysis.Cfg.isDocGenFromCompiler := true
+      | _ -> () in
+      Analysis.DocExtraction.extractDocs ~path ~debug:false
+    )
     | _ -> logAndExit ~log:docHelp ~code:`Error)
   | "reanalyze" :: _ ->
     let len = Array.length Sys.argv in

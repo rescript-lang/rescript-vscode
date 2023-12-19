@@ -223,4 +223,4 @@ For beta releases, ask folks to use the pre-release version installable from the
 
 ## Releasing the `@rescript/tools` package
 
-The tools package is released by bumping the version in `tools/package.json` and `tools/bin/main/ml`, running `npm i` in the `tools/` folder, and then pushing those changes with the commit message `publish tools`.
+The tools package is released by bumping the version in `tools/package.json` and run `node scripts/updateVersion.js`, running `npm i` in the `tools/` folder, and then pushing those changes with the commit message `publish tools`.
