@@ -271,3 +271,19 @@ let takesExotic = (e: exoticPolyvariant) => {
 
 // takesExotic()
 //             ^com
+
+let fnTakingPolyVariant = (a: somePolyVariant) => {
+  ignore(a)
+}
+
+// fnTakingPolyVariant()
+//                     ^com
+
+// fnTakingPolyVariant(#)
+//                      ^com
+
+// fnTakingPolyVariant(#o)
+//                       ^com
+
+// fnTakingPolyVariant(o)
+//                      ^com
