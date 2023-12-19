@@ -869,8 +869,6 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
         (* This is a special case for: <SomeComponent someProp=> (completing directly after the '=').
            The completion comes at the end of the component, after the equals sign, but before any
            children starts, and '>' marks that it's at the end of the component JSX.
-
-           The parser parses this differently to when there's a space after the '=' sign.
            This little heuristic makes sure we pick up this special case. *)
         Some
           (Cexpression
