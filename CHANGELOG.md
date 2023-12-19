@@ -12,6 +12,10 @@
 
 ## master
 
+#### :house: Internal
+
+- Move `rescript-tools` to OCaml code and make `analysis` an library. https://github.com/rescript-lang/rescript-vscode/pull/855
+
 ## 1.30.0
 
 #### :rocket: New Feature

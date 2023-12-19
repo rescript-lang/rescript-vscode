@@ -9,6 +9,7 @@ server/node_modules/.bin
 node_modules/.bin
 analysis/
 tools/
+scripts/
 dune-project
 analysis.opam
 tools.opam
