@@ -1,5 +1,5 @@
 type someVariant = One | Two | Three(option<bool>)
-type somePolyVariant = [#one | #two | #three(option<bool>) | #"exotic ident"]
+type somePolyVariant = [#one | #two | #three(option<bool>) | #"exotic ident" | #"switch"]
 
 let withSomeVariant = One
 let withSomePoly: somePolyVariant = #one

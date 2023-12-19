@@ -259,4 +259,4 @@ let printMaybeExoticIdent ?(allowUident = false) txt =
       | 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '\'' | '_' -> loop (i + 1)
       | _ -> "\"" ^ txt ^ "\""
   in
-  loop 0
+  if Res_token.isKeywordTxt txt then "\"" ^ txt ^ "\"" else loop 0

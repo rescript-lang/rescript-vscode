@@ -15,6 +15,7 @@
 #### :bug: Bug Fix
 
 - Fix so that you don't need a leading `#` to complete for polyvariant constructors. https://github.com/rescript-lang/rescript-vscode/pull/874
+- Print keyword polyvariant constructors with quotes when doing completions. https://github.com/rescript-lang/rescript-vscode/pull/877
 
 ## 1.30.0
 
