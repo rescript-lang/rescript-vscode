@@ -45,3 +45,6 @@ module CompWithoutJsxPpx = {
 
 // <CompWithoutJsxPpx n
 //                     ^com
+
+// <SomeComponent someProp=>
+//                         ^com
