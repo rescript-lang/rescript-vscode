@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.32.0
+
 #### :bug: Bug Fix
 
 - Fix so that you don't need a leading `#` to complete for polyvariant constructors. https://github.com/rescript-lang/rescript-vscode/pull/874
