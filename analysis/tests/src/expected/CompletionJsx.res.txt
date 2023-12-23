@@ -473,3 +473,22 @@ Path CompWithoutJsxPpx.make
     "documentation": null
   }]
 
+Complete src/CompletionJsx.res 48:27
+posCursor:[48:27] posNoWhite:[48:26] Found expr:[48:4->48:28]
+JSX <SomeComponent:[48:4->48:17] someProp[48:18->48:26]=...[48:18->48:26]> _children:None
+Completable: Cexpression CJsxPropValue [SomeComponent] someProp
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [SomeComponent] someProp
+Path SomeComponent.make
+[{
+    "label": "\"\"",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{\"$0\"}",
+    "insertTextFormat": 2
+  }]
+

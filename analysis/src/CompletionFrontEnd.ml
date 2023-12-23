@@ -249,14 +249,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
       Some text.[offsetNoWhite]
     else None
   in
+  let charAtCursor =
+    if offset < String.length text then text.[offset] else '\n'
+  in
   let posBeforeCursor = Pos.posBeforeCursor posCursor in
   let charBeforeCursor, blankAfterCursor =
     match Pos.positionToOffset text posCursor with
     | Some offset when offset > 0 -> (
       let charBeforeCursor = text.[offset - 1] in
-      let charAtCursor =
-        if offset < String.length text then text.[offset] else '\n'
-      in
       match charAtCursor with
       | ' ' | '\t' | '\r' | '\n' ->
         (Some charBeforeCursor, Some charBeforeCursor)
@@ -918,7 +918,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
             CompletionJsx.findJsxPropsCompletable ~jsxProps
               ~endPos:(Loc.end_ expr.pexp_loc) ~posBeforeCursor
               ~posAfterCompName:(Loc.end_ compName.loc)
-              ~firstCharBeforeCursorNoWhite
+              ~firstCharBeforeCursorNoWhite ~charAtCursor
           in
           if jsxCompletable <> None then setResultOpt jsxCompletable
           else if compName.loc |> Loc.hasPos ~pos:posBeforeCursor then

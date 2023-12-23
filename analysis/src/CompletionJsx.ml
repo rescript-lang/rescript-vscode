@@ -802,11 +802,16 @@ type jsxProps = {
 }
 
 let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
-    ~firstCharBeforeCursorNoWhite ~posAfterCompName =
+    ~firstCharBeforeCursorNoWhite ~charAtCursor ~posAfterCompName =
   let allLabels =
     List.fold_right
       (fun prop allLabels -> prop.name :: allLabels)
       jsxProps.props []
+  in
+  let beforeChildrenStart =
+    match jsxProps.childrenStart with
+    | Some childrenPos -> posBeforeCursor < childrenPos
+    | None -> posBeforeCursor <= endPos
   in
   let rec loop props =
     match props with
@@ -860,13 +865,26 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                  nested = [];
                })
         else None
+      else if rest = [] && beforeChildrenStart && charAtCursor = '>' then
+        (* This is a special case for: <SomeComponent someProp=> (completing directly after the '=').
+           The completion comes at the end of the component, after the equals sign, but before any
+           children starts, and '>' marks that it's at the end of the component JSX.
+           This little heuristic makes sure we pick up this special case. *)
+        Some
+          (Cexpression
+             {
+               contextPath =
+                 CJsxPropValue
+                   {
+                     pathToComponent =
+                       Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                     propName = prop.name;
+                   };
+               prefix = "";
+               nested = [];
+             })
       else loop rest
     | [] ->
-      let beforeChildrenStart =
-        match jsxProps.childrenStart with
-        | Some childrenPos -> posBeforeCursor < childrenPos
-        | None -> posBeforeCursor <= endPos
-      in
       let afterCompName = posBeforeCursor >= posAfterCompName in
       if afterCompName && beforeChildrenStart then
         Some
