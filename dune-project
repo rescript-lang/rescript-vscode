@@ -16,8 +16,6 @@
  (depends
   (ocaml
    (>= 4.10))
-  (ocamlformat
-   (= 0.22.4))
   (cppo
    (= 1.6.9))
   dune))
@@ -28,8 +26,6 @@
  (depends
   (ocaml
    (>= 4.10))
-  (ocamlformat
-   (= 0.22.4))
   (cppo
    (= 1.6.9))
   analysis
