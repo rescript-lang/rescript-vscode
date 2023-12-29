@@ -97,7 +97,7 @@ extracting docs for src/DocExtractionRes.res
       "id": "DocExtractionRes.LinkedModule",
       "kind": "moduleAlias",
       "name": "LinkedModule",
-      "docstrings": ["This links another module. Neat."],
+      "docstrings": [],
       "items": []
     }, 
     {
