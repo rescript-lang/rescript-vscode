@@ -94,9 +94,15 @@ ContextPath Value[someRecord].""
 ContextPath Value[someRecord]
 Path someRecord
 ContextPath CArgument CArgument Value[someFnWithCallback]($0)(~someRecord)
+--> function argument: someRecord
 ContextPath CArgument Value[someFnWithCallback]($0)
+--> function argument: $0
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
+--> found function type
+--> found function argument!
+--> found function type
+--> found function argument!
 [{
     "label": "name",
     "kind": 5,
@@ -126,11 +132,17 @@ ContextPath Value[someRecord].""
 ContextPath Value[someRecord]
 Path someRecord
 ContextPath CArgument CArgument Value[aliasedFn]($0)(~someRecord)
+--> function argument: someRecord
 ContextPath CArgument Value[aliasedFn]($0)
+--> function argument: $0
 ContextPath Value[aliasedFn]
 Path aliasedFn
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
+--> found function type
+--> found function argument!
+--> found function type
+--> found function argument!
 [{
     "label": "name",
     "kind": 5,
@@ -157,9 +169,15 @@ ContextPath Value[event]->pr
 ContextPath Value[event]
 Path event
 ContextPath CArgument CArgument Value[reactEventFn]($0)($0)
+--> function argument: $0
 ContextPath CArgument Value[reactEventFn]($0)
+--> function argument: $0
 ContextPath Value[reactEventFn]
 Path reactEventFn
+--> found function type
+--> found function argument!
+--> found function type
+--> found function argument!
 CPPipe env:CompletionInferValues
 CPPipe type path:ReactEvent.Mouse.t
 CPPipe pathFromEnv:ReactEvent.Mouse found:false
@@ -184,9 +202,12 @@ ContextPath Value[event]->pr <<jsx>>
 ContextPath Value[event]
 Path event
 ContextPath CArgument CJsxPropValue [div] onMouseEnter($0)
+--> function argument: $0
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
 Path Pervasives.JsxDOM.domProps
+--> found function type
+--> found function argument!
 CPPipe env:CompletionInferValues
 CPPipe type path:JsxEventC.Mouse.t
 CPPipe pathFromEnv:JsxEventC.Mouse found:false
@@ -211,8 +232,11 @@ ContextPath Value[event]->pr <<jsx>>
 ContextPath Value[event]
 Path event
 ContextPath CArgument CJsxPropValue [Div] onMouseEnter($0)
+--> function argument: $0
 ContextPath CJsxPropValue [Div] onMouseEnter
 Path Div.make
+--> found function type
+--> found function argument!
 CPPipe env:CompletionInferValues envFromCompletionItem:CompletionInferValues.Div
 CPPipe type path:Pervasives.JsxEvent.Mouse.t
 CPPipe pathFromEnv:Pervasives.JsxEvent.Mouse found:false
@@ -419,6 +443,8 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+[extract_type]--> digging for type someNestedRecord in CompletionInferValues
+[extract_type]--> found record
 [{
     "label": "name",
     "kind": 5,
@@ -551,6 +577,8 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+[extract_type]--> digging for type someVariant in CompletionInferValues
+[extract_type]--> found variant
 CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
@@ -580,6 +608,8 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+[extract_type]--> digging for type somePolyVariant in CompletionInferValues
+[extract_type]--> found type manifest
 CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
@@ -609,6 +639,8 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+[extract_type]--> digging for type someRecord in CompletionInferValues
+[extract_type]--> found record
 CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
@@ -685,9 +717,19 @@ Completable: Cpattern CArgument CArgument Value[fnWithRecordCallback]($0)($0)->r
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument CArgument Value[fnWithRecordCallback]($0)($0)
+--> function argument: $0
 ContextPath CArgument Value[fnWithRecordCallback]($0)
+--> function argument: $0
 ContextPath Value[fnWithRecordCallback]
 Path fnWithRecordCallback
+--> found function type
+--> found function argument!
+--> found function type
+--> found function argument!
+[extract_type]--> digging for type someRecord in CompletionInferValues
+[extract_type]--> found record
+[extract_type]--> digging for type someRecord in CompletionInferValues
+[extract_type]--> found record
 [{
     "label": "name",
     "kind": 5,
@@ -716,9 +758,17 @@ ContextPath Value[root]
 Path root
 ContextPath CPatternPath(CArgument CArgument Value[fn2](~cb)($0))->recordField(root)
 ContextPath CArgument CArgument Value[fn2](~cb)($0)
+--> function argument: $0
 ContextPath CArgument Value[fn2](~cb)
+--> function argument: cb
 ContextPath Value[fn2]
 Path fn2
+--> found function type
+--> found function argument!
+--> found function type
+--> found function argument!
+[extract_type]--> digging for type CompletionSupport.Nested.config in CompletionInferValues
+[extract_type]--> found record
 CPPipe env:CompletionInferValues
 CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
@@ -751,9 +801,17 @@ ContextPath Value[root]
 Path root
 ContextPath CPatternPath(CArgument CArgument Value[fn3](~cb)($0))->recordField(root)
 ContextPath CArgument CArgument Value[fn3](~cb)($0)
+--> function argument: $0
 ContextPath CArgument Value[fn3](~cb)
+--> function argument: cb
 ContextPath Value[fn3]
 Path fn3
+--> found function type
+--> found function argument!
+--> found function type
+--> found function argument!
+[extract_type]--> digging for type sameFileRecord in CompletionInferValues
+[extract_type]--> found record
 CPPipe env:CompletionInferValues
 CPPipe type path:CompletionSupport.Test.t
 CPPipe pathFromEnv:CompletionSupport.Test found:false
@@ -786,6 +844,7 @@ Resolved opens 1 pervasives
 ContextPath Value[Belt, Int, toString](Nolabel)
 ContextPath Value[Belt, Int, toString]
 Path Belt.Int.toString
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "\"\"",
     "kind": 12,
@@ -805,6 +864,7 @@ Resolved opens 1 pervasives
 ContextPath Value[Js, String2, split](Nolabel, Nolabel)
 ContextPath Value[Js, String2, split]
 Path Js.String2.split
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "[]",
     "kind": 12,
@@ -830,9 +890,17 @@ ContextPath Value[support]
 Path support
 ContextPath CPatternPath(CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)($0))->recordField(support)
 ContextPath CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)($0)
+--> function argument: $0
 ContextPath CArgument Value[CompletionSupport2, makeRenderer](~render)
+--> function argument: render
 ContextPath Value[CompletionSupport2, makeRenderer]
 Path CompletionSupport2.makeRenderer
+--> found function type
+--> found function argument!
+--> found function type
+--> found function argument!
+[extract_type]--> digging for type Internal.prepareProps in CompletionSupport2
+[extract_type]--> found record
 [{
     "label": "root",
     "kind": 5,
@@ -855,9 +923,19 @@ ContextPath Value[root]
 Path root
 ContextPath CPatternPath(CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)($0))->recordField(support)->recordField(root)
 ContextPath CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)($0)
+--> function argument: $0
 ContextPath CArgument Value[CompletionSupport2, makeRenderer](~render)
+--> function argument: render
 ContextPath Value[CompletionSupport2, makeRenderer]
 Path CompletionSupport2.makeRenderer
+--> found function type
+--> found function argument!
+--> found function type
+--> found function argument!
+[extract_type]--> digging for type Internal.prepareProps in CompletionSupport2
+[extract_type]--> found record
+[extract_type]--> digging for type CompletionSupport.Nested.config in CompletionSupport2
+[extract_type]--> found record
 CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2.Internal
 CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false

@@ -9,6 +9,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "(_, _, _)",
     "kind": 12,
@@ -27,6 +28,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
+[nested_expr]--> trying to move into tuple
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -44,6 +47,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
+[nested_expr]--> trying to move into tuple
+[nested_expr]--> trying to move into tuple
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "false",
     "kind": 4,
@@ -59,6 +65,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -80,6 +87,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -95,6 +103,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "{}",
     "kind": 22,
@@ -113,6 +124,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -146,6 +161,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "optThird",
     "kind": 5,
@@ -168,6 +187,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -185,6 +208,11 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
+[nested_expr]--> trying to move into tuple
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "optThird",
     "kind": 5,
@@ -200,6 +228,14 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[nested_expr]--> trying to move into record field
+[nested_expr]--> found record field type
+[nested_expr]--> extracting from type nestedRecord in env CompletionPattern
+[extract_type]--> digging for type nestedRecord in CompletionPattern
+[extract_type]--> found record
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "{}",
     "kind": 22,
@@ -219,6 +255,15 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[nested_expr]--> trying to move into record field
+[nested_expr]--> found record field type
+[nested_expr]--> extracting from type nestedRecord in env CompletionPattern
+[extract_type]--> digging for type nestedRecord in CompletionPattern
+[extract_type]--> found record
+[extract_type]--> digging for type nestedRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "nested",
     "kind": 5,
@@ -236,6 +281,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[nest]
 Path nest
+[extract_type]--> digging for type nestedRecord in CompletionPattern
+[extract_type]--> found record
+[extract_type]--> digging for type nestedRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "nested",
     "kind": 5,
@@ -251,6 +300,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -286,6 +339,15 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[nested_expr]--> trying to move into record field
+[nested_expr]--> found record field type
+[nested_expr]--> extracting from type nestedRecord in env CompletionPattern
+[extract_type]--> digging for type nestedRecord in CompletionPattern
+[extract_type]--> found record
+[extract_type]--> digging for type nestedRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "nested",
     "kind": 5,
@@ -304,6 +366,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
+[extract_type]--> digging for type someVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $0 of constructor 'Two'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: bool
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -327,6 +396,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
+[extract_type]--> digging for type someVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $0 of constructor 'Two'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: bool
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -344,6 +420,16 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
+[extract_type]--> digging for type someVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $0 of constructor 'Three'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: someRecord
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[nested_expr]--> extracted type, continuing descent
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -380,6 +466,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
+[extract_type]--> digging for type someVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $1 of constructor 'Three'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: bool
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -397,6 +490,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
+[extract_type]--> digging for type somePolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -419,6 +515,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
+[extract_type]--> digging for type somePolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -435,6 +534,12 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
+[extract_type]--> digging for type somePolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
+[extract_type]--> digging for type someRecord in CompletionPattern
+[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -470,6 +575,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
+[extract_type]--> digging for type somePolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -485,6 +593,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[c]
 Path c
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "[]",
     "kind": 12,
@@ -503,6 +612,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[c]
 Path c
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -527,6 +637,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[o]
 Path o
+[nested_expr]--> moving into option Some
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -549,6 +661,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[p]
 Path p
+[extract_type]--> digging for type multiPayloadVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $1 of constructor 'Test'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: bool
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -572,6 +691,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[p]
 Path p
+[extract_type]--> digging for type multiPayloadVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $2 of constructor 'Test'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: option<bool>
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "None",
     "kind": 12,
@@ -609,6 +735,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[p]
 Path p
+[extract_type]--> digging for type multiPayloadVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $1 of constructor 'Test'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: bool
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -632,6 +765,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[p]
 Path p
+[extract_type]--> digging for type multiPayloadVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $3 of constructor 'Test'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: array<bool>
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "[]",
     "kind": 12,
@@ -650,6 +790,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
+[extract_type]--> digging for type multiPayloadPolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -672,6 +815,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
+[extract_type]--> digging for type multiPayloadPolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "None",
     "kind": 12,
@@ -708,6 +854,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
+[extract_type]--> digging for type multiPayloadPolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -730,6 +879,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
+[extract_type]--> digging for type multiPayloadPolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "[]",
     "kind": 12,
@@ -749,6 +901,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
+[nested_expr]--> trying to move into tuple
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -770,6 +924,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
+[nested_expr]--> trying to move into tuple
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "None",
     "kind": 12,
@@ -805,6 +961,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
+[nested_expr]--> trying to move into tuple
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "None",
     "kind": 12,
@@ -840,6 +998,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "(_, _, _)",
     "kind": 12,
@@ -857,6 +1016,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
+[nested_expr]--> trying to move into tuple
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "None",
     "kind": 12,
@@ -892,6 +1053,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
+[extract_type]--> digging for type someVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "One",
     "kind": 4,
@@ -927,6 +1091,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
+[extract_type]--> digging for type someVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $0 of constructor 'Two'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: bool
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -951,6 +1122,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
+[extract_type]--> digging for type someVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $1 of constructor 'Three'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: bool
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -973,6 +1151,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
+[extract_type]--> digging for type somePolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -996,6 +1177,9 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
+[extract_type]--> digging for type somePolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -1018,6 +1202,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
+[nested_expr]--> trying to move into tuple
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "None",
     "kind": 12,
@@ -1053,6 +1239,12 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[ff]
 Path ff
+[extract_type]--> digging for type recordWithFn in CompletionPattern
+[extract_type]--> found record
+[nested_expr]--> trying to move into record field
+[nested_expr]--> found record field type
+[nested_expr]--> extracting from type unit => unit in env CompletionPattern
+[nested_expr]--> reached end of pattern, returning type
 []
 
 Complete src/CompletionPattern.res 206:16
@@ -1062,6 +1254,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[xn]
 Path xn
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "Js.Exn.Error(error)",
     "kind": 4,
@@ -1079,6 +1272,9 @@ ContextPath await Value[getThing](Nolabel)
 ContextPath Value[getThing](Nolabel)
 ContextPath Value[getThing]
 Path getThing
+[extract_type]--> digging for type someVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "One",
     "kind": 4,
@@ -1115,6 +1311,17 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[res]
 Path res
+[extract_type]--> digging for type Pervasives.result in CompletionPattern
+[extract_type]--> found type manifest
+[extract_type]--> digging for type Belt.Result.t in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $0 of constructor 'Ok'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: 'a
+[extract_type]--> digging for type someVariant in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "One",
     "kind": 4,
@@ -1151,6 +1358,17 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[res]
 Path res
+[extract_type]--> digging for type Pervasives.result in CompletionPattern
+[extract_type]--> found type manifest
+[extract_type]--> digging for type Belt.Result.t in CompletionPattern
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $0 of constructor 'Error'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: 'b
+[extract_type]--> digging for type somePolyVariant in CompletionPattern
+[extract_type]--> found type manifest
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
 [{
     "label": "#one",
     "kind": 4,

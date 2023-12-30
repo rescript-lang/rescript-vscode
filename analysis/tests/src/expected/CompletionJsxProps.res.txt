@@ -4,8 +4,11 @@ JSX <CompletionSupport.TestComponent:[0:12->0:43] on[0:44->0:46]=...__ghost__[0:
 Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] on
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] on
 Path CompletionSupport.TestComponent.make
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "true",
     "kind": 4,
@@ -26,8 +29,11 @@ JSX <CompletionSupport.TestComponent:[3:12->3:43] on[3:44->3:46]=...[3:47->3:48]
 Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] on=t
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] on
 Path CompletionSupport.TestComponent.make
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "true",
     "kind": 4,
@@ -42,8 +48,13 @@ JSX <CompletionSupport.TestComponent:[6:12->6:43] test[6:44->6:48]=...[6:49->6:5
 Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] test=T
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] test
 Path CompletionSupport.TestComponent.make
+[extract_type]--> digging for type testVariant in CompletionSupport
+[extract_type]--> found variant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "Two",
     "kind": 4,
@@ -88,8 +99,11 @@ JSX <CompletionSupport.TestComponent:[9:12->9:43] polyArg[9:44->9:51]=...__ghost
 Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyArg
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] polyArg
 Path CompletionSupport.TestComponent.make
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "#one",
     "kind": 4,
@@ -130,8 +144,11 @@ JSX <CompletionSupport.TestComponent:[12:12->12:43] polyArg[12:44->12:51]=...[12
 Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyArg=#t
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] polyArg
 Path CompletionSupport.TestComponent.make
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "#three(_, _)",
     "kind": 4,
@@ -164,9 +181,12 @@ JSX <div:[15:12->15:15] muted[15:16->15:21]=...__ghost__[0:-1->0:-1]> _children:
 Completable: Cexpression CJsxPropValue [div] muted
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [div] muted
 Path ReactDOM.domProps
 Path Pervasives.JsxDOM.domProps
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "true",
     "kind": 4,
@@ -187,9 +207,14 @@ JSX <div:[18:12->18:15] onMouseEnter[18:16->18:28]=...__ghost__[0:-1->0:-1]> _ch
 Completable: Cexpression CJsxPropValue [div] onMouseEnter
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
 Path Pervasives.JsxDOM.domProps
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
+[extract_type]--> digging for type unit in CompletionJsxProps
+[extract_type]--> found nothing when digging
 [{
     "label": "event => {}",
     "kind": 12,
@@ -207,8 +232,11 @@ JSX <CompletionSupport.TestComponent:[22:12->22:43] testArr[22:44->22:51]=...__g
 Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] testArr
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] testArr
 Path CompletionSupport.TestComponent.make
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "[]",
     "kind": 12,
@@ -226,8 +254,13 @@ JSX <CompletionSupport.TestComponent:[26:12->26:43] testArr[26:44->26:51]=...[26
 Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] testArr->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] testArr
 Path CompletionSupport.TestComponent.make
+[extract_type]--> digging for type testVariant in CompletionSupport
+[extract_type]--> found variant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,

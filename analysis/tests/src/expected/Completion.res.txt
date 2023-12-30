@@ -518,8 +518,11 @@ JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:Non
 Completable: Cexpression CJsxPropValue [O, Comp] second=z
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [O, Comp] second
 Path O.Comp.make
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "zzz",
     "kind": 12,
@@ -1742,6 +1745,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[x]
 Path x
+[extract_type]--> miss
 Completable: Cpath Value[T]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
@@ -2141,8 +2145,11 @@ Completable: Cexpression Type[someVariantWithDeprecated]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
+--> expression completion
 ContextPath Type[someVariantWithDeprecated]
 Path someVariantWithDeprecated
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "DoNotUseMe",
     "kind": 4,
@@ -2195,8 +2202,16 @@ Completable: Cexpression Type[withUncurried]->recordField(fn)
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
+--> expression completion
 ContextPath Type[withUncurried]
 Path withUncurried
+[nested_expr]--> trying to move into record field
+[nested_expr]--> found record field type
+[nested_expr]--> extracting from type (. int) => unit in env Completion
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
+[extract_type]--> digging for type unit in Completion
+[extract_type]--> found nothing when digging
 [{
     "label": "(. v) => {}",
     "kind": 12,

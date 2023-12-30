@@ -3,8 +3,11 @@ XXX Not found!
 Completable: Cexpression Type[someRecord]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[someRecord]
 Path someRecord
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "{}",
     "kind": 12,
@@ -21,8 +24,10 @@ XXX Not found!
 Completable: Cexpression Type[someRecord]->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[someRecord]
 Path someRecord
+--> found type in nested expression completion
 [{
     "label": "age",
     "kind": 5,
@@ -42,8 +47,11 @@ XXX Not found!
 Completable: Cexpression Type[someVariant]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[someVariant]
 Path someVariant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -67,8 +75,11 @@ XXX Not found!
 Completable: Cexpression Type[someVariant]=O
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[someVariant]
 Path someVariant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -97,8 +108,11 @@ XXX Not found!
 Completable: Cexpression Type[somePolyVariant]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[somePolyVariant]
 Path somePolyVariant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "#one",
     "kind": 4,
@@ -122,8 +136,11 @@ XXX Not found!
 Completable: Cexpression Type[somePolyVariant]=#o
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[somePolyVariant]
 Path somePolyVariant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "#one",
     "kind": 4,
@@ -139,8 +156,11 @@ XXX Not found!
 Completable: Cexpression Type[someFunc]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[someFunc]
 Path someFunc
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "(v1, v2) => {}",
     "kind": 12,
@@ -157,8 +177,11 @@ XXX Not found!
 Completable: Cexpression Type[someTuple]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[someTuple]
 Path someTuple
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "(_, _)",
     "kind": 12,
@@ -174,8 +197,12 @@ XXX Not found!
 Completable: Cexpression Type[someTuple]->tuple($1)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[someTuple]
 Path someTuple
+[nested_expr]--> trying to move into tuple
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "None",
     "kind": 12,
@@ -209,9 +236,12 @@ XXX Not found!
 Completable: Cexpression option<Type[someVariant]>
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath option<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "None",
     "kind": 12,
@@ -249,9 +279,13 @@ XXX Not found!
 Completable: Cexpression option<Type[someVariant]>->variantPayload::Some($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath option<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
+[nested_expr]--> moving into option Some
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -275,9 +309,12 @@ XXX Not found!
 Completable: Cexpression array<Type[someVariant]>
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath array<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "[]",
     "kind": 12,
@@ -294,9 +331,12 @@ XXX Not found!
 Completable: Cexpression array<Type[someVariant]>->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath array<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -320,10 +360,13 @@ XXX Not found!
 Completable: Cexpression array<option<Type[someVariant]>>
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath array<option<Type[someVariant]>>
 ContextPath option<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "[]",
     "kind": 12,
@@ -340,10 +383,14 @@ XXX Not found!
 Completable: Cexpression option<array<Type[someVariant]>>->variantPayload::Some($0), array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath option<array<Type[someVariant]>>
 ContextPath array<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
+[nested_expr]--> moving into option Some
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,

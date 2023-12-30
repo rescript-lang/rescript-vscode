@@ -3,7 +3,13 @@ posCursor:[7:17] posNoWhite:[7:15] Found expr:[6:16->9:1]
 Completable: Cexpression CTypeAtPos()->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CTypeAtPos()
+[extract_type]--> digging for type optRecord in TypeAtPosCompletion
+[extract_type]--> found record
+[extract_type]--> digging for type optRecord in TypeAtPosCompletion
+[extract_type]--> found record
+--> found type in nested expression completion
 [{
     "label": "age",
     "kind": 5,
@@ -26,7 +32,19 @@ posCursor:[16:18] posNoWhite:[16:16] Found expr:[15:2->18:3]
 Completable: Cexpression CTypeAtPos()->variantPayload::One($1), recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CTypeAtPos()
+[extract_type]--> digging for type someVariant in TypeAtPosCompletion
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $1 of constructor 'One'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: optRecord
+[extract_type]--> digging for type optRecord in TypeAtPosCompletion
+[extract_type]--> found record
+[nested_expr]--> extracted type, continuing descent
+[extract_type]--> digging for type optRecord in TypeAtPosCompletion
+[extract_type]--> found record
+--> found type in nested expression completion
 [{
     "label": "age",
     "kind": 5,
@@ -46,7 +64,12 @@ posCursor:[22:12] posNoWhite:[22:11] Found expr:[21:10->24:1]
 Completable: Cexpression CTypeAtPos()->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CTypeAtPos()
+[extract_type]--> digging for type optRecord in TypeAtPosCompletion
+[extract_type]--> found record
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "{}",
     "kind": 12,

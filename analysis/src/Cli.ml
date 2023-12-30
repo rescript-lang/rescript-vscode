@@ -144,10 +144,11 @@ let main () =
       ~maxLength ~debug
   | [_; "codeLens"; path] -> Commands.codeLens ~path ~debug
   | [_; "extractDocs"; path] ->
-
-    let () = match Sys.getenv_opt "FROM_COMPILER" with
-    | Some("true") -> Cfg.isDocGenFromCompiler := true
-    | _ -> () in
+    let () =
+      match Sys.getenv_opt "FROM_COMPILER" with
+      | Some "true" -> Cfg.isDocGenFromCompiler := true
+      | _ -> ()
+    in
 
     DocExtraction.extractDocs ~path ~debug
   | [_; "codeAction"; path; startLine; startCol; endLine; endCol; currentFile]
@@ -194,6 +195,7 @@ let main () =
     Printf.printf "\"%s\"" (Json.escape (Commands.format ~path))
   | [_; "test"; path] ->
     Cfg.supportsSnippets := true;
+    Debug.debugLevel := Verbose;
     Commands.test ~path
   | args when List.mem "-h" args || List.mem "--help" args -> prerr_endline help
   | _ ->

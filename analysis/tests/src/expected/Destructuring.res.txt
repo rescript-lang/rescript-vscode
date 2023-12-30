@@ -5,6 +5,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> digging for type x in Destructuring
+[extract_type]--> found record
+[extract_type]--> digging for type x in Destructuring
+[extract_type]--> found record
 [{
     "label": "age",
     "kind": 5,
@@ -20,6 +24,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> digging for type x in Destructuring
+[extract_type]--> found record
+[extract_type]--> digging for type x in Destructuring
+[extract_type]--> found record
 [{
     "label": "name",
     "kind": 5,
@@ -43,6 +51,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> digging for type x in Destructuring
+[extract_type]--> found record
+[extract_type]--> digging for type x in Destructuring
+[extract_type]--> found record
 [{
     "label": "age",
     "kind": 5,
@@ -60,6 +72,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> digging for type x in Destructuring
+[extract_type]--> found record
+[extract_type]--> digging for type x in Destructuring
+[extract_type]--> found record
 [{
     "label": "name",
     "kind": 5,
@@ -81,6 +97,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> digging for type recordWithOptField in Destructuring
+[extract_type]--> found record
+[extract_type]--> digging for type recordWithOptField in Destructuring
+[extract_type]--> found record
 [{
     "label": "someField",
     "kind": 5,

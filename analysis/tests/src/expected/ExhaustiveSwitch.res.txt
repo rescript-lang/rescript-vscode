@@ -5,6 +5,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[withSomeVarian]
 Path withSomeVarian
+[extract_type]--> digging for type someVariant in ExhaustiveSwitch
+[extract_type]--> found variant
 [{
     "label": "withSomeVariant",
     "kind": 12,
@@ -29,6 +31,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[withSomePol]
 Path withSomePol
+[extract_type]--> digging for type somePolyVariant in ExhaustiveSwitch
+[extract_type]--> found type manifest
 [{
     "label": "withSomePoly",
     "kind": 12,
@@ -118,6 +122,8 @@ ContextPath Value[getV]
 Path getV
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+[extract_type]--> digging for type someVariant in ExhaustiveSwitch
+[extract_type]--> found variant
 Hit: Exhaustive switch
 {"start": {"line": 33, "character": 3}, "end": {"line": 33, "character": 10}}
 newText:
@@ -137,6 +143,8 @@ ContextPath Value[vvv]
 Path vvv
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+[extract_type]--> digging for type someVariant in ExhaustiveSwitch
+[extract_type]--> found variant
 Hit: Exhaustive switch
 {"start": {"line": 36, "character": 3}, "end": {"line": 36, "character": 6}}
 newText:

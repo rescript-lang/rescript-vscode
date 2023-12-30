@@ -9,8 +9,11 @@ JSX <M:[8:4->8:5] second[8:6->8:12]=...[8:13->8:15]> _children:None
 Completable: Cexpression CJsxPropValue [M] second=fi
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CJsxPropValue [M] second
 Path M.make
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
 []
 
 Complete src/Jsx2.res 11:20

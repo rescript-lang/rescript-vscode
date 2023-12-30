@@ -7,6 +7,7 @@ ContextPath Value[kind]
 Path kind
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+[extract_type]--> miss
 Hit: Replace with switch
 {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}}
 newText:

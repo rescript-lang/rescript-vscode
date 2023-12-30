@@ -1,0 +1,41 @@
+Complete src/Reprod.res 7:53
+posCursor:[7:53] posNoWhite:[7:52] Found expr:[7:11->7:56]
+Pexp_apply ...[7:11->7:20] (~variables7:22->7:31=...[7:32->7:55])
+Completable: Cexpression CArgument Value[Query, use](~variables)->recordField(location), variantPayload::ByAddress($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+--> expression completion
+ContextPath CArgument Value[Query, use](~variables)
+--> function argument: variables
+ContextPath Value[Query, use]
+Path Query.use
+--> found function type
+--> found function argument!
+[extract_type]--> digging for type QueryFile.Types.variables in Reprod
+[extract_type]--> found record
+[nested_expr]--> trying to move into record field
+[nested_expr]--> found record field type
+[nested_expr]--> extracting from type location in env QueryFile
+[extract_type]--> digging for type location in QueryFile
+[extract_type]--> found type manifest
+[extract_type]--> digging for type SchemaAssets.input_Location in QueryFile
+[extract_type]--> found variant
+[nested_expr]--> trying to move into variant payload $0 of constructor 'ByAddress'
+[nested_expr]--> found constructor (Args type)
+[nested_expr]--> found arg of type: input_ByAddress
+[extract_type]--> digging for type input_ByAddress in SchemaAssets
+[extract_type]--> found record
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
+--> found type in nested expression completion
+[{
+    "label": "{}",
+    "kind": 12,
+    "tags": [],
+    "detail": "input_ByAddress",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
+
