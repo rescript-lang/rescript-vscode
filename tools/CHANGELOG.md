@@ -12,6 +12,10 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Fix docstrings for module alias. Get internal docstrings of module file. https://github.com/rescript-lang/rescript-vscode/pull/878
+
 ## 0.3.0
 
 #### :rocket: New Feature
