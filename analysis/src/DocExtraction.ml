@@ -294,7 +294,7 @@ let extractDocs ~path ~debug =
                    let id =
                      (modulePath |> List.rev |> List.hd) ^ "." ^ item.name
                    in
-                   let items, docstring =
+                   let items, internalDocstrings =
                      match
                        ProcessCmt.fileForModule ~package:full.package
                          aliasToModule
@@ -312,7 +312,7 @@ let extractDocs ~path ~debug =
                           id;
                           name = item.name;
                           items;
-                          docstring = docstring |> List.map String.trim;
+                          docstring = item.docstring @ internalDocstrings |> List.map String.trim;
                         })
                  | Module (Structure m) ->
                    (* module Whatever = {} in res or module Whatever: {} in resi. *)
