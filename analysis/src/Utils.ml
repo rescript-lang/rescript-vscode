@@ -260,3 +260,16 @@ let printMaybeExoticIdent ?(allowUident = false) txt =
       | _ -> "\"" ^ txt ^ "\""
   in
   if Res_token.isKeywordTxt txt then "\"" ^ txt ^ "\"" else loop 0
+
+let findPackageJson root =
+  let path = Uri.toPath root in
+
+  let rec loop path =
+    if path = "/" then None
+    else if Files.exists (Filename.concat path "package.json") then
+      Some (Filename.concat path "package.json")
+    else
+      let parent = Filename.dirname path in
+      if parent = path then (* reached root *) None else loop parent
+  in
+  loop path

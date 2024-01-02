@@ -47,6 +47,11 @@ let newBsPackage ~rootPath =
           Some
             (let namespace = FindFiles.getNamespace config in
              let rescriptVersion = getReScriptVersion () in
+             let suffix =
+              match config |> Json.get "suffix" with
+              | Some (String suffix) -> suffix
+              | _ -> ".js"
+            in
              let uncurried =
                let ns = config |> Json.get "uncurried" in
                match (rescriptVersion, ns) with
@@ -115,6 +120,7 @@ let newBsPackage ~rootPath =
                ("Opens from ReScript config file: "
                ^ (opens |> List.map pathToString |> String.concat " "));
              {
+               suffix;
                rescriptVersion;
                rootPath;
                projectFiles =

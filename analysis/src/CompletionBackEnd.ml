@@ -1516,6 +1516,8 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
     ]
   | Tpromise _ -> []
 
+module StringSet = Set.Make (String)
+
 let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
   if debug then
     Printf.printf "Completable: %s\n" (Completable.toString completable);
@@ -1571,6 +1573,83 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
              && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
+  | CdecoratorPayload (Module prefix) ->
+    let packageJsonPath =
+      Utils.findPackageJson (full.package.rootPath |> Uri.fromPath)
+    in
+    let itemsFromPackageJson =
+      match packageJsonPath with
+      | None ->
+        if debug then
+          Printf.printf
+            "Did not find package.json, started looking (going upwards) from: %s\n"
+            full.package.rootPath;
+        []
+      | Some path -> (
+        match Files.readFile path with
+        | None ->
+          if debug then print_endline "Could not read package.json";
+          []
+        | Some s -> (
+          match Json.parse s with
+          | Some (Object items) ->
+            items
+            |> List.filter_map (fun (key, t) ->
+                   match (key, t) with
+                   | ("dependencies" | "devDependencies"), Json.Object o ->
+                     Some
+                       (o
+                       |> List.filter_map (fun (pkgName, _) ->
+                              match pkgName with
+                              | "rescript" -> None
+                              | pkgName -> Some pkgName))
+                   | _ -> None)
+            |> List.flatten
+          | _ ->
+            if debug then print_endline "Could not parse package.json";
+            []))
+    in
+    (* TODO: Resolve relatives? *)
+    let localItems =
+      try
+        let files =
+          Sys.readdir (Filename.dirname (env.file.uri |> Uri.toPath))
+          |> Array.to_list
+        in
+        (* Try to filter out compiled in source files *)
+        let resFiles =
+          StringSet.of_list
+            (files
+            |> List.filter_map (fun f ->
+                   if Filename.extension f = ".res" then
+                     Some (try Filename.chop_extension f with _ -> f)
+                   else None))
+        in
+        files
+        |> List.filter_map (fun fileName ->
+               let withoutExtension =
+                 try Filename.chop_extension fileName with _ -> fileName
+               in
+               if
+                 String.ends_with fileName ~suffix:package.suffix
+                 && resFiles |> StringSet.mem withoutExtension
+               then None
+               else
+                 match Filename.extension fileName with
+                 | ".js" | ".mjs" -> Some ("./" ^ fileName)
+                 | _ -> None)
+      with _ ->
+        if debug then print_endline "Could not read relative directory";
+        []
+    in
+    let items = itemsFromPackageJson @ localItems in
+    items
+    |> List.filter (fun name -> Utils.startsWith name prefix)
+    |> List.map (fun name ->
+           let isLocal = Utils.startsWith name "./" in
+           Completion.create name
+             ~kind:(Label (if isLocal then "Local file" else "Package"))
+             ~env)
   | Cdecorator prefix ->
     let mkDecorator (name, docstring) =
       {(Completion.create name ~kind:(Label "") ~env) with docstring}

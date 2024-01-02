@@ -489,6 +489,7 @@ type builtInCompletionModules = {
 }
 
 type package = {
+  suffix: string;
   rootPath: filePath;
   projectFiles: FileSet.t;
   dependenciesFiles: FileSet.t;
@@ -619,8 +620,11 @@ module Completable = struct
 
   type patternMode = Default | Destructuring
 
+  type decoratorPayload = Module of string
+
   type t =
     | Cdecorator of string  (** e.g. @module *)
+    | CdecoratorPayload of decoratorPayload
     | CnamedArg of contextPath * string * string list
         (** e.g. (..., "label", ["l1", "l2"]) for ...(...~l1...~l2...~label...) *)
     | Cnone  (** e.g. don't complete inside strings *)
@@ -701,6 +705,7 @@ module Completable = struct
   let toString = function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
+    | CdecoratorPayload (Module s) -> "CdecoratorPayload(module=" ^ s ^ ")"
     | CnamedArg (cp, s, sl2) ->
       "CnamedArg("
       ^ (cp |> contextPathToString)
