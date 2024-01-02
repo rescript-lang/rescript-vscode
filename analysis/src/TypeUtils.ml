@@ -563,6 +563,7 @@ let findTypeOfPolyvariantArg constructors ~constructorName ~payloadNum =
   | None -> None
 
 let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
+  let extractType = extractType ~instantiateTypes:false in
   let t =
     match typ with
     | TypeExpr t -> t |> extractType ~env ~package:full.package
