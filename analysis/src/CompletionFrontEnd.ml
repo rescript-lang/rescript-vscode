@@ -736,7 +736,21 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
           Printf.printf "Attribute id:%s:%s label:%s\n" id.txt
             (Loc.toString id.loc) label;
         setResult (Completable.Cdecorator label)
-      | _ -> ());
+      | _ -> ()
+    else if id.txt = "module" then
+      (match payload with
+      | PStr
+          [
+            {
+              pstr_desc =
+                Pstr_eval
+                  ( {pexp_loc; pexp_desc = Pexp_constant (Pconst_string (s, _))},
+                    _ );
+            };
+          ]
+        when locHasCursor pexp_loc ->
+        setResult (Completable.CdecoratorPayload (Module s))
+      | _ -> ()));
     Ast_iterator.default_iterator.attribute iterator (id, payload)
   in
   let rec iterateFnArguments ~args ~iterator ~isPipe
