@@ -1204,6 +1204,11 @@ type completionMode = Pattern of Completable.patternMode | Expression
 
 let rec completeTypedValue ~full ~prefix ~completionContext ~mode
     (t : SharedTypes.completionType) =
+  let emptyCase num =
+    match mode with
+    | Expression -> "$" ^ string_of_int (num - 1)
+    | Pattern _ -> "${" ^ string_of_int num ^ ":_}"
+  in
   match t with
   | Tbool env ->
     [
@@ -1278,7 +1283,9 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
     let noneCase = Completion.create "None" ~kind:(kindFromInnerType t) ~env in
     let someAnyCase =
       Completion.createWithSnippet ~name:"Some(_)" ~kind:(kindFromInnerType t)
-        ~env ~insertText:"Some(${1:_})" ()
+        ~env
+        ~insertText:(Printf.sprintf "Some(%s)" (emptyCase 1))
+        ()
     in
     let completions =
       match completionContext with
@@ -1338,11 +1345,13 @@ let rec completeTypedValue ~full ~prefix ~completionContext ~mode
     in
     let okAnyCase =
       Completion.createWithSnippet ~name:"Ok(_)" ~kind:(Value okType) ~env
-        ~insertText:"Ok(${1:_})" ()
+        ~insertText:(Printf.sprintf "Ok(%s)" (emptyCase 1))
+        ()
     in
     let errorAnyCase =
       Completion.createWithSnippet ~name:"Error(_)" ~kind:(Value errorType) ~env
-        ~insertText:"Error(${1:_})" ()
+        ~insertText:(Printf.sprintf "Error(%s)" (emptyCase 1))
+        ()
     in
     let completions =
       match completionContext with

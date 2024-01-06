@@ -201,7 +201,7 @@ Path someFnTakingVariant
     "detail": "someVariant",
     "documentation": null,
     "sortText": "A Some(_)",
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Sort",

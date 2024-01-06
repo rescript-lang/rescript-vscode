@@ -188,7 +188,7 @@ Path someTuple
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -224,7 +224,7 @@ Path someVariant
     "tags": [],
     "detail": "type someVariant = One | Two(bool)",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(One)",

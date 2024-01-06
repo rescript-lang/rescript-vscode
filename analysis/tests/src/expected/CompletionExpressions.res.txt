@@ -204,7 +204,7 @@ Path fnTakingRecord
     "tags": [],
     "detail": "otherRecord",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "None",
@@ -411,7 +411,7 @@ Path fnTakingArray
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -488,7 +488,7 @@ Path fnTakingArray
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -525,7 +525,7 @@ Path fnTakingArray
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -624,7 +624,7 @@ Path fnTakingRecordWithOptVariant
     "tags": [],
     "detail": "someVariant",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "None",
