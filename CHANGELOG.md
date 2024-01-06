@@ -13,10 +13,10 @@
 ## master
 
 - Better error recovery when analysis fails. https://github.com/rescript-lang/rescript-vscode/pull/880
+- Expand type aliases in hovers. https://github.com/rescript-lang/rescript-vscode/pull/881
+- Include fields when completing a braced expr that's an ID, where it the path likely starts with a module. https://github.com/rescript-lang/rescript-vscode/pull/882
 
 ## 1.32.0
-
-- Expand type aliases in hovers. https://github.com/rescript-lang/rescript-vscode/pull/881
 
 #### :bug: Bug Fix
 
