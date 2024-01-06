@@ -1585,6 +1585,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     match fromDomProps with
     | Some domProps -> domProps
     | None ->
+      if debug then
+        Printf.printf "Could not find ReactDOM.domProps to complete from.\n";
       (CompletionJsx.domLabels
       |> List.filter (fun (name, _t) ->
              Utils.startsWith name prefix
