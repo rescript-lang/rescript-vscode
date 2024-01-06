@@ -866,7 +866,23 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
               (lidPath |> String.concat ".")
               (Loc.toString lid.loc);
           if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            setResult (Cpath (CPId (lidPath, Value)))
+            let isLikelyModulePath =
+              match lidPath with
+              | head :: _
+                when String.length head > 0
+                     && head.[0] == Char.uppercase_ascii head.[0] ->
+                true
+              | _ -> false
+            in
+            setResult
+              (Cpath
+                 (CPId
+                    ( lidPath,
+                      if
+                        isLikelyModulePath
+                        && expr |> Res_parsetree_viewer.isBracedExpr
+                      then ValueOrField
+                      else Value )))
         | Pexp_construct (lid, eOpt) ->
           let lidPath = flattenLidCheckDot lid in
           if debug && lid.txt <> Lident "Function$" then

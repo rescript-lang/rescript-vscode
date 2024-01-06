@@ -1950,8 +1950,8 @@ Path red
   }]
 
 Complete src/Completion.res 405:22
-posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->465:0]
-Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->465:0])
+posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->467:0]
+Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->423:17], ...[428:0->467:0])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:11->423:17]
 Pexp_apply ...__ghost__[0:-1->0:-1] (...[405:11->405:19], ...[405:21->423:17])
 posCursor:[405:22] posNoWhite:[405:21] Found expr:[405:21->423:17]
@@ -2204,5 +2204,34 @@ Path withUncurried
     "sortText": "A",
     "insertText": "(. ${1:v}) => {$0}",
     "insertTextFormat": 2
+  }]
+
+Complete src/Completion.res 465:26
+posCursor:[465:26] posNoWhite:[465:25] Found expr:[465:22->465:26]
+Pexp_ident FAR.:[465:22->465:26]
+Completable: Cpath ValueOrField[FAR, ""]
+Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 3 pervasives Completion.res Completion.res
+ContextPath ValueOrField[FAR, ""]
+Path FAR.
+[{
+    "label": "forAutoRecord",
+    "kind": 12,
+    "tags": [],
+    "detail": "forAutoRecord",
+    "documentation": null
+  }, {
+    "label": "forAuto",
+    "kind": 5,
+    "tags": [],
+    "detail": "forAuto: ForAuto.t\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
+    "documentation": null
+  }, {
+    "label": "something",
+    "kind": 5,
+    "tags": [],
+    "detail": "something: option<int>\n\ntype forAutoRecord = {\n  forAuto: ForAuto.t,\n  something: option<int>,\n}",
+    "documentation": null
   }]
 
