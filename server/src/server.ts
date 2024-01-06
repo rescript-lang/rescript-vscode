@@ -25,6 +25,7 @@ import { fileURLToPath } from "url";
 import { ChildProcess } from "child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { filesDiagnostics } from "./utils";
+import { onErrorReported } from "./errorReporter";
 
 interface extensionConfiguration {
   allowBuiltInFormatter: boolean;
@@ -1306,3 +1307,21 @@ function onMessage(msg: p.Message) {
     }
   }
 }
+
+// Gate behind a debug setting potentially?
+onErrorReported((msg) => {
+  let params: p.ShowMessageParams = {
+    type: p.MessageType.Warning,
+    message: `ReScript tooling: Internal error. Something broke. Here's the error message that you can report if you want:
+    
+${msg}
+
+(this message will only be reported once every 15 minutes)`,
+  };
+  let message: p.NotificationMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: "window/showMessage",
+    params: params,
+  };
+  send(message);
+});

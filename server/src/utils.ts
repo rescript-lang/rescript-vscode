@@ -12,6 +12,7 @@ import * as os from "os";
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
 import * as lookup from "./lookup";
+import { reportError } from "./errorReporter";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -186,9 +187,15 @@ export let runAnalysisAfterSanityCheck = (
       RESCRIPT_VERSION: rescriptVersion,
     },
   };
-  let stdout = childProcess.execFileSync(binaryPath, args, options);
-
-  return JSON.parse(stdout.toString());
+  try {
+    let stdout = childProcess.execFileSync(binaryPath, args, options);
+    return JSON.parse(stdout.toString());
+  } catch (e) {
+    console.error(e);
+    // Element 0 is the action we're performing
+    reportError(String(args[0]), String(e));
+    return null;
+  }
 };
 
 export let runAnalysisCommand = (
