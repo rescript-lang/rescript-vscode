@@ -12,6 +12,8 @@
 
 ## master
 
+- Better error recovery when analysis fails. https://github.com/rescript-lang/rescript-vscode/pull/880
+
 ## 1.32.0
 
 - Expand type aliases in hovers. https://github.com/rescript-lang/rescript-vscode/pull/881
