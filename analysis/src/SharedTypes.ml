@@ -331,6 +331,7 @@ and completionType =
   | Tbool of QueryEnv.t
   | Tarray of QueryEnv.t * innerType
   | Tstring of QueryEnv.t
+  | TtypeT of {env: QueryEnv.t; path: Path.t}
   | Tvariant of {
       env: QueryEnv.t;
       constructors: Constructor.t list;
