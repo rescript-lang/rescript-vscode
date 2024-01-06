@@ -17,6 +17,7 @@
 - Include fields when completing a braced expr that's an ID, where it the path likely starts with a module. https://github.com/rescript-lang/rescript-vscode/pull/882
 - Complete domProps for lowercase JSX components from `ReactDOM.domProps` if possible. https://github.com/rescript-lang/rescript-vscode/pull/883
 - Do not emit `_` when completing in patterns. https://github.com/rescript-lang/rescript-vscode/pull/885
+- Complete for maker-style functions (functions returning type `t` of a module) when encountering a `type t` in relevant scenarios. https://github.com/rescript-lang/rescript-vscode/pull/884
 
 ## 1.32.0
 
