@@ -1684,6 +1684,8 @@ Completable: Cjsx([div], name, [name])
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
+Path ReactDOM.domProps
+Path Pervasives.JsxDOM.domProps
 {"contents": {"kind": "markdown", "value": "```rescript\nstring\n```"}}
 
 Hover src/Completion.res 349:17

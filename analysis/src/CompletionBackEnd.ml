@@ -548,6 +548,24 @@ let getCompletionsForPath ~debug ~package ~opens ~full ~pos ~exact ~scope
       findAllCompletions ~env ~prefix ~exact ~namesUsed ~completionContext
     | None -> [])
 
+let rec digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos ~env
+    ~scope path =
+  match
+    path
+    |> getCompletionsForPath ~debug ~completionContext:Type ~exact:true ~package
+         ~opens ~full ~pos ~env ~scope
+  with
+  | {kind = Type {kind = Abstract (Some (p, _))}} :: _ ->
+    (* This case happens when what we're looking for is a type alias.
+       This is the case in newer rescript-react versions where
+       ReactDOM.domProps is an alias for JsxEvent.t. *)
+    let pathRev = p |> Utils.expandPath in
+    pathRev |> List.rev
+    |> digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos ~env
+         ~scope
+  | {kind = Type {kind = Record fields}} :: _ -> Some fields
+  | _ -> None
+
 let mkItem ~name ~kind ~detail ~deprecated ~docstring =
   let docContent =
     (match deprecated with
@@ -571,7 +589,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
       detail;
       documentation =
         (if docContent = "" then None
-        else Some {kind = "markdown"; value = docContent});
+         else Some {kind = "markdown"; value = docContent});
       sortText = None;
       insertText = None;
       insertTextFormat = None;
@@ -1043,25 +1061,16 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     in
     let targetLabel =
       if lowercaseComponent then
-        let rec digToTypeForCompletion path =
-          match
-            path
-            |> getCompletionsForPath ~debug ~completionContext:Type ~exact:true
-                 ~package ~opens ~full ~pos ~env ~scope
-          with
-          | {kind = Type {kind = Abstract (Some (p, _))}} :: _ ->
-            (* This case happens when what we're looking for is a type alias.
-               This is the case in newer rescript-react versions where
-               ReactDOM.domProps is an alias for JsxEvent.t. *)
-            let pathRev = p |> Utils.expandPath in
-            pathRev |> List.rev |> digToTypeForCompletion
-          | {kind = Type {kind = Record fields}} :: _ -> (
-            match fields |> List.find_opt (fun f -> f.fname.txt = propName) with
-            | None -> None
-            | Some f -> Some (f.fname.txt, f.typ, env))
-          | _ -> None
-        in
-        ["ReactDOM"; "domProps"] |> digToTypeForCompletion
+        match
+          ["ReactDOM"; "domProps"]
+          |> digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos
+               ~env ~scope
+        with
+        | None -> None
+        | Some fields -> (
+          match fields |> List.find_opt (fun f -> f.fname.txt = propName) with
+          | None -> None
+          | Some f -> Some (f.fname.txt, f.typ, env))
       else
         CompletionJsx.getJsxLabels ~componentPath:pathToComponent
           ~findTypeOfValue ~package
@@ -1541,7 +1550,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     contextPath
     |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
          ~exact:forHover ~scope
-  | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id ->
+  | Cjsx ([id], prefix, identsSeen) when String.uncapitalize_ascii id = id -> (
     (* Lowercase JSX tag means builtin *)
     let mkLabel (name, typString) =
       Completion.create name ~kind:(Label typString) ~env
@@ -1549,12 +1558,39 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     let keyLabels =
       if Utils.startsWith "key" prefix then [mkLabel ("key", "string")] else []
     in
-    (CompletionJsx.domLabels
-    |> List.filter (fun (name, _t) ->
-           Utils.startsWith name prefix
-           && (forHover || not (List.mem name identsSeen)))
-    |> List.map mkLabel)
-    @ keyLabels
+    (* We always try to look up completion from the actual domProps type first.
+       This works in JSXv4. For JSXv3, we have a backup hardcoded list of dom
+       labels we can use for completion. *)
+    let fromDomProps =
+      match
+        ["ReactDOM"; "domProps"]
+        |> digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos ~env
+             ~scope
+      with
+      | None -> None
+      | Some fields ->
+        Some
+          (fields
+          |> List.filter_map (fun (f : field) ->
+                 if
+                   Utils.startsWith f.fname.txt prefix
+                   && (forHover || not (List.mem f.fname.txt identsSeen))
+                 then
+                   Some
+                     ( f.fname.txt,
+                       Shared.typeToString (Utils.unwrapIfOption f.typ) )
+                 else None)
+          |> List.map mkLabel)
+    in
+    match fromDomProps with
+    | Some domProps -> domProps
+    | None ->
+      (CompletionJsx.domLabels
+      |> List.filter (fun (name, _t) ->
+             Utils.startsWith name prefix
+             && (forHover || not (List.mem name identsSeen)))
+      |> List.map mkLabel)
+      @ keyLabels)
   | Cjsx (componentPath, prefix, identsSeen) ->
     let labels =
       CompletionJsx.getJsxLabels ~componentPath ~findTypeOfValue ~package

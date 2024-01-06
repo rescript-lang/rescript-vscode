@@ -48,3 +48,6 @@ module CompWithoutJsxPpx = {
 
 // <SomeComponent someProp=>
 //                         ^com
+
+// <h1 hidd
+//         ^com
