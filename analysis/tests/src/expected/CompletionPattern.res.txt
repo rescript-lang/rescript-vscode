@@ -1318,35 +1318,13 @@ Path res
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Ok'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'a
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
-[{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
-    "insertText": "One",
-    "insertTextFormat": 2
-  }, {
-    "label": "Two(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
-    "insertText": "Two(${1:_})",
-    "insertTextFormat": 2
-  }, {
-    "label": "Three(_, _)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
-    "insertText": "Three(${1:_}, ${2:_})",
-    "insertTextFormat": 2
-  }]
+[extract_type]--> miss
+Completable: Cpath Value[()]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[()]
+Path ()
+[]
 
 Complete src/CompletionPattern.res 219:24
 posCursor:[219:24] posNoWhite:[219:23] Found pattern:[219:18->219:25]
@@ -1365,33 +1343,11 @@ Path res
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Error'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'b
-[extract_type]--> digging for type somePolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
-[{
-    "label": "#one",
-    "kind": 4,
-    "tags": [],
-    "detail": "#one\n\n[#one | #three(someRecord, bool) | #two(bool)]",
-    "documentation": null,
-    "insertText": "#one",
-    "insertTextFormat": 2
-  }, {
-    "label": "#three(_, _)",
-    "kind": 4,
-    "tags": [],
-    "detail": "#three(someRecord, bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
-    "documentation": null,
-    "insertText": "#three(${1:_}, ${2:_})",
-    "insertTextFormat": 2
-  }, {
-    "label": "#two(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
-    "documentation": null,
-    "insertText": "#two(${1:_})",
-    "insertTextFormat": 2
-  }]
+[extract_type]--> miss
+Completable: Cpath Value[()]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[()]
+Path ()
+[]
 

@@ -41,27 +41,13 @@ Path res
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Okay'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'a
-[extract_type]--> digging for type things in EnvCompletion
-[extract_type]--> found variant
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
-[{
-    "label": "One",
-    "kind": 4,
-    "tags": [],
-    "detail": "One\n\ntype things = One | Two",
-    "documentation": null,
-    "insertText": "One",
-    "insertTextFormat": 2
-  }, {
-    "label": "Two",
-    "kind": 4,
-    "tags": [],
-    "detail": "Two\n\ntype things = One | Two",
-    "documentation": null,
-    "insertText": "Two",
-    "insertTextFormat": 2
-  }]
+[extract_type]--> miss
+Completable: Cpath Value[()]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[()]
+Path ()
+[]
 
 Complete src/EnvCompletion.res 16:26
 posCursor:[16:26] posNoWhite:[16:25] Found pattern:[16:18->16:27]
@@ -78,18 +64,13 @@ Path res
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Failure'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'b
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
-[{
-    "label": "\"\"",
-    "kind": 12,
-    "tags": [],
-    "detail": "string",
-    "documentation": null,
-    "sortText": "A",
-    "insertText": "\"$0\"",
-    "insertTextFormat": 2
-  }]
+[extract_type]--> miss
+Completable: Cpath Value[()]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[()]
+Path ()
+[]
 
 Complete src/EnvCompletion.res 19:19
 XXX Not found!
@@ -300,27 +281,13 @@ Path use
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Okay'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'a
-[extract_type]--> digging for type theVariant in EnvCompletionOtherFile
-[extract_type]--> found variant
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
-[{
-    "label": "First",
-    "kind": 4,
-    "tags": [],
-    "detail": "First\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
-    "insertText": "First",
-    "insertTextFormat": 2
-  }, {
-    "label": "Second(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Second(r1)\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
-    "insertText": "Second(${1:_})",
-    "insertTextFormat": 2
-  }]
+[extract_type]--> miss
+Completable: Cpath Value[()]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[()]
+Path ()
+[]
 
 Complete src/EnvCompletion.res 40:38
 posCursor:[40:38] posNoWhite:[40:37] Found pattern:[40:20->40:42]
@@ -346,26 +313,13 @@ Path use
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Okay'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'a
-[extract_type]--> digging for type theVariant in EnvCompletionOtherFile
-[extract_type]--> found variant
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> trying to move into variant payload $0 of constructor 'Second'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: r1
-[extract_type]--> digging for type r1 in EnvCompletionOtherFile
-[extract_type]--> found record
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
-[{
-    "label": "{}",
-    "kind": 22,
-    "tags": [],
-    "detail": "r1",
-    "documentation": null,
-    "sortText": "A",
-    "insertText": "{$0}",
-    "insertTextFormat": 2
-  }]
+[extract_type]--> miss
+Completable: Cpath Value[()]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[()]
+Path ()
+[]
 
 Complete src/EnvCompletion.res 43:39
 posCursor:[43:39] posNoWhite:[43:38] Found pattern:[43:20->43:44]
@@ -390,24 +344,13 @@ Path use
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Okay'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'a
-[extract_type]--> digging for type theVariant in EnvCompletionOtherFile
-[extract_type]--> found variant
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> trying to move into variant payload $0 of constructor 'Second'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: r1
-[extract_type]--> digging for type r1 in EnvCompletionOtherFile
-[extract_type]--> found record
-[nested_expr]--> extracted type, continuing descent
-[extract_type]--> digging for type r1 in EnvCompletionOtherFile
-[extract_type]--> found record
-[{
-    "label": "age",
-    "kind": 5,
-    "tags": [],
-    "detail": "age: int\n\nr1",
-    "documentation": null
-  }]
+[extract_type]--> miss
+Completable: Cpath Value[Second]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Second]
+Path Second
+[]
 
 Complete src/EnvCompletion.res 52:18
 XXX Not found!

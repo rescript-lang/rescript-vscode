@@ -479,9 +479,6 @@ let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
             (Printf.sprintf "[nested_expr]--> found arg of type: %s"
                (Shared.typeToString typ));
 
-          let typ, env =
-            typ |> instantiateVar ~env ~typeParamsEnv ~typeParams ~typeArgs
-          in
           typ
           |> extractType ~env ~package:full.package
           |> Utils.Option.flatMap (fun typ ->
