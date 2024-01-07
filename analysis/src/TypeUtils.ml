@@ -1,8 +1,7 @@
 open SharedTypes
 
-let instantiateType ?(instantiateTypes = true) ~typeParams ~typeArgs
-    (t : Types.type_expr) =
-  if typeParams = [] || typeArgs = [] || instantiateTypes = false then t
+let instantiateType ~typeParams ~typeArgs (t : Types.type_expr) =
+  if typeParams = [] || typeArgs = [] then t
   else
     let rec applySub tp ta t =
       match (tp, ta) with
@@ -136,9 +135,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
       (Printf.sprintf "[extract_type]--> digging for type %s in %s"
          (Path.name path) env.file.moduleName);
     match References.digConstructor ~env ~package path with
-    | Some
-        (_envFromItem, {item = {decl = {type_manifest = Some t1; type_params}}})
-      ->
+    | Some (_env, {item = {decl = {type_manifest = Some t1; type_params}}}) ->
       Debug.logVerbose "[extract_type]--> found type manifest";
       t1
       |> instantiateType ~typeParams:type_params ~typeArgs
@@ -155,7 +152,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
              typeArgs;
              typeParams = decl.type_params;
            })
-    | Some (_env, {item = {kind = Record fields}}) ->
+    | Some (env, {item = {kind = Record fields}}) ->
       Debug.logVerbose "[extract_type]--> found record";
       Some (Trecord {env; fields; definition = `TypeExpr t})
     | None ->
@@ -327,7 +324,6 @@ type ctx = Rfield of string  (** A record field of name *)
 
 (** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
 let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
-  let extractType = extractType in
   match nested with
   | [] ->
     Debug.logVerbose "[nested_expr]--> reached end of pattern, returning type";
