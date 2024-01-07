@@ -100,27 +100,27 @@ let findRelevantTypesFromType ~file ~package typ =
   let constructors = Shared.findTypeConstructors typesToSearch in
   constructors |> List.filter_map (fromConstructorPath ~env:envToSearch)
 
+let expandTypes ~file ~package ~supportsMarkdownLinks typ =
+  findRelevantTypesFromType typ ~file ~package
+  |> List.map (fun {decl; env; loc; path} ->
+         let linkToTypeDefinitionStr =
+           if supportsMarkdownLinks then
+             Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
+           else ""
+         in
+         Markdown.divider
+         ^ (if supportsMarkdownLinks then Markdown.spacing else "")
+         ^ Markdown.codeBlock
+             (decl
+             |> Shared.declToString ~printNameAsIs:true
+                  (SharedTypes.pathIdentToString path))
+         ^ linkToTypeDefinitionStr ^ "\n")
+
 (* Produces a hover with relevant types expanded in the main type being hovered. *)
 let hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ =
   let typeString = Markdown.codeBlock (typ |> Shared.typeToString) in
-  let types = findRelevantTypesFromType typ ~file ~package in
-  let typeDefinitions =
-    types
-    |> List.map (fun {decl; env; loc; path} ->
-           let linkToTypeDefinitionStr =
-             if supportsMarkdownLinks then
-               Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
-             else ""
-           in
-           Markdown.divider
-           ^ (if supportsMarkdownLinks then Markdown.spacing else "")
-           ^ Markdown.codeBlock
-               (decl
-               |> Shared.declToString ~printNameAsIs:true
-                    (SharedTypes.pathIdentToString path))
-           ^ linkToTypeDefinitionStr ^ "\n")
-  in
-  typeString :: typeDefinitions |> String.concat "\n"
+  typeString :: expandTypes ~file ~package ~supportsMarkdownLinks typ
+  |> String.concat "\n"
 
 (* Leverages autocomplete functionality to produce a hover for a position. This
    makes it (most often) work with unsaved content. *)
@@ -166,9 +166,14 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
 
 let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
   match locItem.locType with
-  | TypeDefinition (name, decl, _stamp) ->
-    let typeDef = Shared.declToString name decl in
-    Some (Markdown.codeBlock typeDef)
+  | TypeDefinition (name, decl, _stamp) -> (
+    let typeDef = Markdown.codeBlock (Shared.declToString name decl) in
+    match decl.type_manifest with
+    | None -> Some typeDef
+    | Some typ ->
+      Some
+        (typeDef :: expandTypes ~file ~package ~supportsMarkdownLinks typ
+        |> String.concat "\n"))
   | LModule (Definition (stamp, _tip)) | LModule (LocalReference (stamp, _tip))
     -> (
     match Stamps.findModule file.stamps stamp with
