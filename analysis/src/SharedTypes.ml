@@ -554,7 +554,7 @@ let _ = locItemToString
 
 module Completable = struct
   (* Completion context *)
-  type completionContext = Type | Value | Module | Field
+  type completionContext = Type | Value | Module | Field | ValueOrField
 
   type argumentLabel =
     | Unlabelled of {argumentPosition: int}
@@ -651,6 +651,7 @@ module Completable = struct
     | Type -> "Type"
     | Module -> "Module"
     | Field -> "Field"
+    | ValueOrField -> "ValueOrField"
 
   let rec contextPathToString = function
     | CPString -> "string"

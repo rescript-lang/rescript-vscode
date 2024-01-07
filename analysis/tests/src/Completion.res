@@ -462,3 +462,6 @@ type withUncurried = {
 
 // let f: withUncurried = {fn: }
 //                            ^com
+
+// let someRecord = { FAR. }
+//                        ^com

@@ -262,6 +262,10 @@ let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
   | Field ->
     completionForExportedFields ~env ~prefix ~exact ~namesUsed
     @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
+  | ValueOrField ->
+    completionForExportedValues ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedFields ~env ~prefix ~exact ~namesUsed
+    @ completionForExportedModules ~env ~prefix ~exact ~namesUsed
 
 let processLocalValue name loc contextPath scope ~prefix ~exact ~env
     ~(localTables : LocalTables.t) =
@@ -476,7 +480,7 @@ let findLocalCompletionsWithOpens ~pos ~(env : QueryEnv.t) ~prefix ~exact ~opens
    ^ Pos.toString pos);
   let localTables = LocalTables.create () in
   match completionContext with
-  | Value ->
+  | Value | ValueOrField ->
     findLocalCompletionsForValuesAndConstructors ~localTables ~env ~prefix
       ~exact ~opens ~scope
   | Type ->
