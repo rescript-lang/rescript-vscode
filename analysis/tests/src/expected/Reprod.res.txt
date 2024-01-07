@@ -15,29 +15,11 @@ Path Query.use
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type location in env QueryFile
-[extract_type]--> digging for type location in QueryFile
-[extract_type]--> found type manifest
-[extract_type]--> digging for type SchemaAssets.input_Location in QueryFile
-[extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'ByAddress'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: input_ByAddress
-[extract_type]--> digging for type input_ByAddress in SchemaAssets
-[extract_type]--> found record
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
---> found type in nested expression completion
-[{
-    "label": "{}",
-    "kind": 12,
-    "tags": [],
-    "detail": "input_ByAddress",
-    "documentation": null,
-    "sortText": "A",
-    "insertText": "{$0}",
-    "insertTextFormat": 2
-  }]
+[nested_expr]--> extracting from type location in env Reprod
+[extract_type]--> digging for type location in Reprod
+[extract_type]--> found nothing when digging
+--> could not resolve nested expression path
+[]
 
 Complete src/Reprod.res 25:21
 posCursor:[25:21] posNoWhite:[25:20] Found pattern:[25:18->25:22]
@@ -56,13 +38,35 @@ Path res
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Ok'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'a
-[extract_type]--> miss
-Completable: Cpath Value[()]
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-ContextPath Value[()]
-Path ()
-[]
+[extract_type]--> digging for type someVariant in Reprod
+[extract_type]--> found variant
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
 
 Complete src/Reprod.res 28:24
 posCursor:[28:24] posNoWhite:[28:23] Found pattern:[28:18->28:25]
@@ -81,11 +85,33 @@ Path res
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Error'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'b
-[extract_type]--> miss
-Completable: Cpath Value[()]
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-ContextPath Value[()]
-Path ()
-[]
+[extract_type]--> digging for type somePolyVariant in Reprod
+[extract_type]--> found type manifest
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three(someRecord, bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "#three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
+    "documentation": null,
+    "insertText": "#two(${1:_})",
+    "insertTextFormat": 2
+  }]
 

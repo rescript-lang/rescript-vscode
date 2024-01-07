@@ -936,7 +936,7 @@ Path CompletionSupport2.makeRenderer
 [extract_type]--> found record
 [extract_type]--> digging for type CompletionSupport.Nested.config in CompletionSupport2
 [extract_type]--> found record
-CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2.Internal
+CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2
 CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path ReactDOM.Client.Root.

@@ -334,7 +334,6 @@ and completionType =
   | TtypeT of {env: QueryEnv.t; path: Path.t}
   | Tvariant of {
       env: QueryEnv.t;
-      typeParamsEnv: QueryEnv.t;
       constructors: Constructor.t list;
       variantDecl: Types.type_declaration;
       variantName: string;
@@ -348,9 +347,6 @@ and completionType =
     }
   | Trecord of {
       env: QueryEnv.t;
-      typeParamsEnv: QueryEnv.t;
-      typeArgs: Types.type_expr list;
-      typeParams: Types.type_expr list;
       fields: field list;
       definition:
         [ `NameOnly of string
@@ -358,13 +354,7 @@ and completionType =
         | `TypeExpr of Types.type_expr
           (** When we have the full type expr from the compiler. *) ];
     }
-  | TinlineRecord of {
-      env: QueryEnv.t;
-      typeParamsEnv: QueryEnv.t;
-      fields: field list;
-      typeArgs: Types.type_expr list;
-      typeParams: Types.type_expr list;
-    }
+  | TinlineRecord of {env: QueryEnv.t; fields: field list}
   | Tfunction of {
       env: QueryEnv.t;
       args: typedFnArg list;

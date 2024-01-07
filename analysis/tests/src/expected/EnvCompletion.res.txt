@@ -41,13 +41,27 @@ Path res
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Okay'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'a
-[extract_type]--> miss
-Completable: Cpath Value[()]
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-ContextPath Value[()]
-Path ()
-[]
+[extract_type]--> digging for type things in EnvCompletion
+[extract_type]--> found variant
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype things = One | Two",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\ntype things = One | Two",
+    "documentation": null,
+    "insertText": "Two",
+    "insertTextFormat": 2
+  }]
 
 Complete src/EnvCompletion.res 16:26
 posCursor:[16:26] posNoWhite:[16:25] Found pattern:[16:18->16:27]
@@ -64,13 +78,18 @@ Path res
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Failure'
 [nested_expr]--> found constructor (Args type)
 [nested_expr]--> found arg of type: 'b
-[extract_type]--> miss
-Completable: Cpath Value[()]
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-ContextPath Value[()]
-Path ()
-[]
+[nested_expr]--> extracted type, continuing descent
+[nested_expr]--> reached end of pattern, returning type
+[{
+    "label": "\"\"",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "\"$0\"",
+    "insertTextFormat": 2
+  }]
 
 Complete src/EnvCompletion.res 19:19
 XXX Not found!
@@ -104,7 +123,7 @@ ContextPath Value[use]
 Path use
 [extract_type]--> digging for type EnvCompletionOtherFile.response in EnvCompletion
 [extract_type]--> found record
-[extract_type]--> digging for type EnvCompletionOtherFile.response in EnvCompletionOtherFile
+[extract_type]--> digging for type EnvCompletionOtherFile.response in EnvCompletion
 [extract_type]--> found record
 [{
     "label": "stuff",
@@ -132,27 +151,10 @@ Path use
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type theVariant in env EnvCompletionOtherFile
-[extract_type]--> digging for type theVariant in EnvCompletionOtherFile
-[extract_type]--> found variant
-[nested_expr]--> reached end of pattern, returning type
-[{
-    "label": "First",
-    "kind": 4,
-    "tags": [],
-    "detail": "First\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
-    "insertText": "First",
-    "insertTextFormat": 2
-  }, {
-    "label": "Second(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Second(r1)\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
-    "insertText": "Second(${1:_})",
-    "insertTextFormat": 2
-  }]
+[nested_expr]--> extracting from type theVariant in env EnvCompletion
+[extract_type]--> digging for type theVariant in EnvCompletion
+[extract_type]--> found nothing when digging
+[]
 
 Complete src/EnvCompletion.res 28:35
 posCursor:[28:35] posNoWhite:[28:34] Found pattern:[28:20->28:38]
@@ -170,26 +172,15 @@ Path use
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type theVariant in env EnvCompletionOtherFile
-[extract_type]--> digging for type theVariant in EnvCompletionOtherFile
-[extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'Second'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: r1
-[extract_type]--> digging for type r1 in EnvCompletionOtherFile
-[extract_type]--> found record
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
-[{
-    "label": "{}",
-    "kind": 22,
-    "tags": [],
-    "detail": "r1",
-    "documentation": null,
-    "sortText": "A",
-    "insertText": "{$0}",
-    "insertTextFormat": 2
-  }]
+[nested_expr]--> extracting from type theVariant in env EnvCompletion
+[extract_type]--> digging for type theVariant in EnvCompletion
+[extract_type]--> found nothing when digging
+Completable: Cpath Value[()]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[()]
+Path ()
+[]
 
 Complete src/EnvCompletion.res 31:36
 posCursor:[31:36] posNoWhite:[31:35] Found pattern:[31:20->31:40]
@@ -206,24 +197,15 @@ Path use
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type theVariant in env EnvCompletionOtherFile
-[extract_type]--> digging for type theVariant in EnvCompletionOtherFile
-[extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'Second'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: r1
-[extract_type]--> digging for type r1 in EnvCompletionOtherFile
-[extract_type]--> found record
-[nested_expr]--> extracted type, continuing descent
-[extract_type]--> digging for type r1 in EnvCompletionOtherFile
-[extract_type]--> found record
-[{
-    "label": "age",
-    "kind": 5,
-    "tags": [],
-    "detail": "age: int\n\nr1",
-    "documentation": null
-  }]
+[nested_expr]--> extracting from type theVariant in env EnvCompletion
+[extract_type]--> digging for type theVariant in EnvCompletion
+[extract_type]--> found nothing when digging
+Completable: Cpath Value[Second]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Second]
+Path Second
+[]
 
 Complete src/EnvCompletion.res 34:25
 posCursor:[34:25] posNoWhite:[34:24] Found pattern:[34:20->34:29]
@@ -237,25 +219,25 @@ Path use
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type someResult<theVariant, string> in env EnvCompletionOtherFile
-[extract_type]--> digging for type someResult in EnvCompletionOtherFile
+[nested_expr]--> extracting from type someResult<theVariant, string> in env EnvCompletion
+[extract_type]--> digging for type someResult in EnvCompletion
 [extract_type]--> found variant
 [nested_expr]--> reached end of pattern, returning type
 [{
-    "label": "Okay(_)",
+    "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "Okay('a)\n\ntype someResult<'a, 'b> = Okay('a) | Failure('b)",
+    "detail": "One\n\ntype things = One | Two",
     "documentation": null,
-    "insertText": "Okay(${1:_})",
+    "insertText": "One",
     "insertTextFormat": 2
   }, {
-    "label": "Failure(_)",
+    "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Failure('b)\n\ntype someResult<'a, 'b> = Okay('a) | Failure('b)",
+    "detail": "Two\n\ntype things = One | Two",
     "documentation": null,
-    "insertText": "Failure(${1:_})",
+    "insertText": "Two",
     "insertTextFormat": 2
   }]
 
@@ -275,13 +257,10 @@ Path use
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type someResult<theVariant, string> in env EnvCompletionOtherFile
-[extract_type]--> digging for type someResult in EnvCompletionOtherFile
+[nested_expr]--> extracting from type someResult<theVariant, string> in env EnvCompletion
+[extract_type]--> digging for type someResult in EnvCompletion
 [extract_type]--> found variant
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Okay'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: 'a
-[extract_type]--> miss
 Completable: Cpath Value[()]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -307,13 +286,10 @@ Path use
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type someResult<theVariant, string> in env EnvCompletionOtherFile
-[extract_type]--> digging for type someResult in EnvCompletionOtherFile
+[nested_expr]--> extracting from type someResult<theVariant, string> in env EnvCompletion
+[extract_type]--> digging for type someResult in EnvCompletion
 [extract_type]--> found variant
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Okay'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: 'a
-[extract_type]--> miss
 Completable: Cpath Value[()]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -338,13 +314,10 @@ Path use
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type someResult<theVariant, string> in env EnvCompletionOtherFile
-[extract_type]--> digging for type someResult in EnvCompletionOtherFile
+[nested_expr]--> extracting from type someResult<theVariant, string> in env EnvCompletion
+[extract_type]--> digging for type someResult in EnvCompletion
 [extract_type]--> found variant
 [nested_expr]--> trying to move into variant payload $0 of constructor 'Okay'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: 'a
-[extract_type]--> miss
 Completable: Cpath Value[Second]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -382,7 +355,7 @@ ContextPath Value[res2]
 Path res2
 [extract_type]--> digging for type EnvCompletionOtherFile.someRecord in EnvCompletion
 [extract_type]--> found record
-[extract_type]--> digging for type EnvCompletionOtherFile.someRecord in EnvCompletionOtherFile
+[extract_type]--> digging for type EnvCompletionOtherFile.someRecord in EnvCompletion
 [extract_type]--> found record
 [{
     "label": "name",
@@ -415,7 +388,7 @@ Path res2
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type 'thing in env EnvCompletionOtherFile
+[nested_expr]--> extracting from type 'thing in env EnvCompletion
 [extract_type]--> miss
 []
 
@@ -430,25 +403,8 @@ Path res2
 [extract_type]--> found record
 [nested_expr]--> trying to move into record field
 [nested_expr]--> found record field type
-[nested_expr]--> extracting from type theVariant in env EnvCompletionOtherFile
-[extract_type]--> digging for type theVariant in EnvCompletionOtherFile
-[extract_type]--> found variant
-[nested_expr]--> reached end of pattern, returning type
-[{
-    "label": "First",
-    "kind": 4,
-    "tags": [],
-    "detail": "First\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
-    "insertText": "First",
-    "insertTextFormat": 2
-  }, {
-    "label": "Second(_)",
-    "kind": 4,
-    "tags": [],
-    "detail": "Second(r1)\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
-    "insertText": "Second(${1:_})",
-    "insertTextFormat": 2
-  }]
+[nested_expr]--> extracting from type theVariant in env EnvCompletion
+[extract_type]--> digging for type theVariant in EnvCompletion
+[extract_type]--> found nothing when digging
+[]
 
