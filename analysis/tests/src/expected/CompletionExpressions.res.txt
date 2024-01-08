@@ -1737,8 +1737,19 @@ XXX Not found!
 Completable: Cexpression Type[withIntLocal]->recordField(superInt)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath Type[withIntLocal]
 Path withIntLocal
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type SuperInt.t in env CompletionExpressions
+[extract_type]--> starting extraction of type: SuperInt.t, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: SuperInt.t, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> digging for type SuperInt.t in CompletionExpressions
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "SuperInt.make()",
     "kind": 12,
@@ -1755,9 +1766,16 @@ Pexp_apply ...[309:3->309:35] (...[309:36->309:37])
 Completable: Cexpression CArgument Value[CompletionSupport, makeTestHidden]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+--> expression completion
 ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
+--> function argument: $0
 ContextPath Value[CompletionSupport, makeTestHidden]
 Path CompletionSupport.makeTestHidden
+--> found function type
+--> found function argument!
+[nested]--> running nested in env: CompletionSupport. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "CompletionSupport.TestHidden.make()",
     "kind": 12,
@@ -1775,9 +1793,16 @@ Completable: Cexpression CArgument Value[CompletionSupport, makeTestHidden]($0)
 Raw opens: 1 CompletionSupport.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 2 pervasives CompletionSupport.res
+--> expression completion
 ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
+--> function argument: $0
 ContextPath Value[CompletionSupport, makeTestHidden]
 Path CompletionSupport.makeTestHidden
+--> found function type
+--> found function argument!
+[nested]--> running nested in env: CompletionSupport. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
+--> found type in nested expression completion
 [{
     "label": "TestHidden.make()",
     "kind": 12,

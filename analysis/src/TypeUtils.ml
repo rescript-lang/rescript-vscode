@@ -226,6 +226,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
            {env; constructors; variantName = name.txt; variantDecl = decl})
     | Some (env, {item = {kind = Record fields}}) ->
       Some (Trecord {env; fields; definition = `TypeExpr t})
+    | Some (env, {item = {name = "t"}}) -> Some (TtypeT {env; path})
     | None -> None
     | _ -> None)
   | Ttuple expressions -> Some (Tuple (env, expressions, t))
@@ -326,6 +327,13 @@ let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
         else None
       in
       Some (Trecord {env; fields; definition = `TypeExpr t}, typeArgContext)
+    | Some (env, {item = {name = "t"; decl = {type_params}}}) ->
+      let typeArgContext =
+        if List.length typeArgs > 0 then
+          Some {env; typeParams = type_params; typeArgs}
+        else None
+      in
+      Some (TtypeT {env; path}, typeArgContext)
     | None ->
       Debug.logVerbose "[extract_type]--> found nothing when digging";
       None
