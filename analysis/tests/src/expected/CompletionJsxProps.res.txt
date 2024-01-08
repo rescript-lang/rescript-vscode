@@ -53,8 +53,6 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] test
 Path CompletionSupport.TestComponent.make
-[extract_type]--> digging for type testVariant in CompletionSupport.TestComponent
-[extract_type]--> found variant
 [nested]--> running nested in env: CompletionSupport.TestComponent. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
@@ -220,8 +218,6 @@ Path Pervasives.JsxDOM.domProps
 [nested]--> running nested in env: CompletionJsxProps. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
-[extract_type]--> digging for type unit in CompletionJsxProps
-[extract_type]--> found nothing when digging
 [{
     "label": "event => {}",
     "kind": 12,

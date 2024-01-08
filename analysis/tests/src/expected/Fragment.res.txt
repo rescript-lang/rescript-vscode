@@ -17,10 +17,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 --> expression completion
 ContextPath CTypeAtPos()
-[extract_type]--> digging for type React.element in Fragment
-[extract_type]--> found type manifest
-[extract_type]--> digging for type Pervasives.Jsx.element in React
-[extract_type]--> found something else when digging
 --> could not get completions for context path
 null
 

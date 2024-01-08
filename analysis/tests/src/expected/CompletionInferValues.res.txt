@@ -446,8 +446,6 @@ Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
 [nested_pattern_path]
-[extract_type]--> digging for type someNestedRecord in CompletionInferValues
-[extract_type]--> found record
 [nested_pattern_path]
 [{
     "label": "name",
@@ -589,8 +587,6 @@ ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
 [nested_pattern_path]
 [nested_pattern_path]
-[extract_type]--> digging for type someVariant in CompletionInferValues
-[extract_type]--> found variant
 [nested_pattern_path]
 CPPipe env:CompletionInferValues
 Path Js.String2.slic
@@ -623,8 +619,6 @@ ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
 [nested_pattern_path]
 [nested_pattern_path]
-[extract_type]--> digging for type somePolyVariant in CompletionInferValues
-[extract_type]--> found type manifest
 [nested_pattern_path]
 CPPipe env:CompletionInferValues
 Path Js.String2.slic
@@ -658,8 +652,6 @@ Path otherNestedRecord
 [nested_pattern_path]
 [nested_pattern_path]
 [nested_pattern_path]
-[extract_type]--> digging for type someRecord in CompletionInferValues
-[extract_type]--> found record
 CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
@@ -791,8 +783,6 @@ Path fn2
 --> found function type
 --> found function argument!
 [nested_pattern_path]
-[extract_type]--> digging for type CompletionSupport.Nested.config in CompletionInferValues
-[extract_type]--> found record
 CPPipe env:CompletionInferValues
 CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
@@ -835,8 +825,6 @@ Path fn3
 --> found function type
 --> found function argument!
 [nested_pattern_path]
-[extract_type]--> digging for type sameFileRecord in CompletionInferValues
-[extract_type]--> found record
 CPPipe env:CompletionInferValues
 CPPipe type path:CompletionSupport.Test.t
 CPPipe pathFromEnv:CompletionSupport.Test found:false
@@ -929,8 +917,6 @@ Path CompletionSupport2.makeRenderer
 --> found function type
 --> found function argument!
 [nested_pattern_path]
-[extract_type]--> digging for type Internal.prepareProps in CompletionSupport2
-[extract_type]--> found record
 [{
     "label": "root",
     "kind": 5,
@@ -963,10 +949,6 @@ Path CompletionSupport2.makeRenderer
 --> found function type
 --> found function argument!
 [nested_pattern_path]
-[extract_type]--> digging for type Internal.prepareProps in CompletionSupport2
-[extract_type]--> found record
-[extract_type]--> digging for type CompletionSupport.Nested.config in CompletionSupport2.Internal
-[extract_type]--> found record
 [nested_pattern_path]
 CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2.Internal
 CPPipe type path:ReactDOM.Client.Root.t

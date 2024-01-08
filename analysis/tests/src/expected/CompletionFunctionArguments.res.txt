@@ -160,8 +160,6 @@ ContextPath Value[someFnTakingVariant]
 Path someFnTakingVariant
 --> found function type
 --> found function argument!
-[extract_type]--> digging for type someVariant in CompletionFunctionArguments
-[extract_type]--> found variant
 [nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
@@ -204,8 +202,6 @@ ContextPath Value[someFnTakingVariant]
 Path someFnTakingVariant
 --> found function type
 --> found function argument!
-[extract_type]--> digging for type someVariant in CompletionFunctionArguments
-[extract_type]--> found variant
 [nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
@@ -254,8 +250,6 @@ Path someFnTakingVariant
 [nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
-[extract_type]--> digging for type someVariant in CompletionFunctionArguments
-[extract_type]--> found variant
 [{
     "label": "Some(_)",
     "kind": 12,
@@ -286,8 +280,6 @@ ContextPath Value[someFnTakingVariant]
 Path someFnTakingVariant
 --> found function type
 --> found function argument!
-[extract_type]--> digging for type someVariant in CompletionFunctionArguments
-[extract_type]--> found variant
 [nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
@@ -449,8 +441,6 @@ ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
 --> found function type
 --> found function argument!
-[extract_type]--> digging for type someRecord in CompletionFunctionArguments
-[extract_type]--> found record
 [nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
 [extract_type]--> starting extraction of type: someRecord, in env: CompletionFunctionArguments. Has type arg ctx: false
 [extract_type]--> digging for type someRecord in CompletionFunctionArguments

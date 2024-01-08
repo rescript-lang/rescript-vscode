@@ -11,8 +11,6 @@ ContextPath Value[Query, use]
 Path Query.use
 --> found function type
 --> found function argument!
-[extract_type]--> digging for type QueryFile.Types.variables in Reprod.Query
-[extract_type]--> found record
 [nested]--> running nested in env: Reprod.Query. Has type arg ctx: false
 [nested]--> trying to move into record field
 [nested]--> found record field type
@@ -303,8 +301,6 @@ Path resOpt
 [nested]--> running nested in env: Belt_Result. Has type arg ctx: true
 [nested]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
 [nested]--> reached end of pattern, returning type
-[extract_type]--> digging for type someVariant in Reprod
-[extract_type]--> found variant
 [{
     "label": "None",
     "kind": 12,

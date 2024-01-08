@@ -6,9 +6,8 @@ type typeArgContext = {
   typeParams: Types.type_expr list;
 }
 
-let instantiateType ?(instantiateTypes = true) ~typeParams ~typeArgs
-    (t : Types.type_expr) =
-  if typeParams = [] || typeArgs = [] || instantiateTypes = false then t
+let instantiateType ~typeParams ~typeArgs (t : Types.type_expr) =
+  if typeParams = [] || typeArgs = [] then t
   else
     let rec applySub tp ta t =
       match (tp, ta) with
@@ -148,13 +147,13 @@ let rec extractObjectType ~env ~package (t : Types.type_expr) =
     | _ -> None)
   | _ -> None
 
-let rec extractFunctionType ?(instantiateTypes = true) ~env ~package typ =
+let rec extractFunctionType ~env ~package typ =
   let rec loop ~env acc (t : Types.type_expr) =
     match t.desc with
     | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop ~env acc t1
     | Tarrow (label, tArg, tRet, _) -> loop ~env ((label, tArg) :: acc) tRet
     | Tconstr (Pident {name = "function$"}, [t; _], _) ->
-      extractFunctionType ~instantiateTypes ~env ~package t
+      extractFunctionType ~env ~package t
     | Tconstr (path, typeArgs, _) -> (
       match References.digConstructor ~env ~package path with
       | Some
@@ -162,9 +161,7 @@ let rec extractFunctionType ?(instantiateTypes = true) ~env ~package typ =
             {
               item = {decl = {type_manifest = Some t1; type_params = typeParams}};
             } ) ->
-        let t1 =
-          t1 |> instantiateType ~instantiateTypes ~typeParams ~typeArgs
-        in
+        let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
         loop ~env acc t1
       | _ -> (List.rev acc, t))
     | _ -> (List.rev acc, t)
@@ -197,10 +194,7 @@ let rec extractFunctionType2 ?typeArgContext ~env ~package typ =
   loop ?typeArgContext ~env [] typ
 
 (** Pulls out a type we can complete from a type expr. *)
-let rec extractType ?(instantiateTypes = true) ~env ~package
-    (t : Types.type_expr) =
-  let extractType = extractType ~instantiateTypes in
-  let instantiateType = instantiateType ~instantiateTypes in
+let rec extractType ~env ~package (t : Types.type_expr) =
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
@@ -216,35 +210,24 @@ let rec extractType ?(instantiateTypes = true) ~env ~package
   | Tconstr (Path.Pident {name = "exn"}, [], _) -> Some (Texn env)
   | Tconstr (Pident {name = "function$"}, [t; _], _) -> (
     (* Uncurried functions. *)
-    match extractFunctionType ~instantiateTypes t ~env ~package with
+    match extractFunctionType t ~env ~package with
     | args, tRet when args <> [] ->
       Some (Tfunction {env; args; typ = t; uncurried = true; returnType = tRet})
     | _args, _tRet -> None)
   | Tconstr (path, typeArgs, _) -> (
-    Debug.logVerbose
-      (Printf.sprintf "[extract_type]--> digging for type %s in %s"
-         (Path.name path) (Debug.debugPrintEnv env));
     match References.digConstructor ~env ~package path with
     | Some (env, {item = {decl = {type_manifest = Some t1; type_params}}}) ->
-      Debug.logVerbose "[extract_type]--> found type manifest";
       t1
-      |> instantiateType ~typeParams:type_params
-           ~typeArgs (* TODO: Can remove instantiate here? *)
+      |> instantiateType ~typeParams:type_params ~typeArgs
       |> extractType ~env ~package
     | Some (env, {name; item = {decl; kind = Type.Variant constructors}}) ->
-      Debug.logVerbose "[extract_type]--> found variant";
       Some
         (Tvariant
            {env; constructors; variantName = name.txt; variantDecl = decl})
     | Some (env, {item = {kind = Record fields}}) ->
-      Debug.logVerbose "[extract_type]--> found record";
       Some (Trecord {env; fields; definition = `TypeExpr t})
-    | None ->
-      Debug.logVerbose "[extract_type]--> found nothing when digging";
-      None
-    | _ ->
-      Debug.logVerbose "[extract_type]--> found something else when digging";
-      None)
+    | None -> None
+    | _ -> None)
   | Ttuple expressions -> Some (Tuple (env, expressions, t))
   | Tvariant {row_fields} ->
     let constructors =
@@ -265,18 +248,12 @@ let rec extractType ?(instantiateTypes = true) ~env ~package
     in
     Some (Tpolyvariant {env; constructors; typeExpr = t})
   | Tarrow _ -> (
-    match extractFunctionType t ~instantiateTypes ~env ~package with
+    match extractFunctionType t ~env ~package with
     | args, tRet when args <> [] ->
       Some
         (Tfunction {env; args; typ = t; uncurried = false; returnType = tRet})
     | _args, _tRet -> None)
-  | Tvar (Some varName) ->
-    Debug.logVerbose
-      (Printf.sprintf "[extract_type]--> found type variable: '%s" varName);
-    None
-  | _ ->
-    Debug.logVerbose "[extract_type]--> miss";
-    None
+  | _ -> None
 
 let debugLogTypeArgContext {env; typeArgs; typeParams} =
   Printf.sprintf "Type arg context. env: %s, typeArgs: %s, typeParams: %s"

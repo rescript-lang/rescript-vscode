@@ -2219,8 +2219,6 @@ Path withUncurried
 [nested]--> running nested in env: Completion. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
-[extract_type]--> digging for type unit in Completion
-[extract_type]--> found nothing when digging
 [{
     "label": "(. v) => {}",
     "kind": 12,
