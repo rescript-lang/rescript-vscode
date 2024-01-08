@@ -1111,6 +1111,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
                (if expandOption then Utils.unwrapIfOption typ else typ));
       ])
   | CPatternPath {rootCtxPath; nested} -> (
+    (* TODO(env-stuff) Get rid of innerType etc *)
     match
       rootCtxPath
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
@@ -1823,9 +1824,10 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     | Some (typ, env) -> (
       match
         typ
-        |> TypeUtils.extractType ~env ~package:full.package
-        |> Utils.Option.flatMap (fun typ ->
-               typ |> TypeUtils.resolveNested ~env ~full ~nested)
+        |> TypeUtils.extractType2 ~env ~package:full.package
+        |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
+               typ
+               |> TypeUtils.resolveNested2 ?typeArgContext ~env ~full ~nested)
       with
       | None -> fallbackOrEmpty ()
       | Some (typ, _env, completionContext) ->
@@ -1858,7 +1860,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       Debug.logVerbose "--> could not get completions for context path";
       regularCompletions
     | Some (typ, env) -> (
-      match typ |> TypeUtils.resolveNested ~env ~full ~nested with
+      match typ |> TypeUtils.resolveNested2 ~env ~full ~nested with
       | None ->
         Debug.logVerbose "--> could not resolve nested expression path";
         regularCompletions

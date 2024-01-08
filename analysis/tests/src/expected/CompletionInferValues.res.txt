@@ -393,6 +393,7 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+[nested_pattern_path]
 [{
     "label": "name",
     "kind": 5,
@@ -421,6 +422,7 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+[nested_pattern_path]
 [{
     "label": "someRecord",
     "kind": 5,
@@ -443,8 +445,10 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+[nested_pattern_path]
 [extract_type]--> digging for type someNestedRecord in CompletionInferValues
 [extract_type]--> found record
+[nested_pattern_path]
 [{
     "label": "name",
     "kind": 5,
@@ -472,6 +476,7 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+[nested_pattern_path]
 CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
@@ -501,6 +506,7 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+[nested_pattern_path]
 CPPipe env:CompletionInferValues
 Path Belt.Int.toS
 [{
@@ -527,6 +533,8 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+[nested_pattern_path]
+[nested_pattern_path]
 CPPipe env:CompletionInferValues
 Path Belt.Int.toS
 [{
@@ -554,6 +562,8 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+[nested_pattern_path]
+[nested_pattern_path]
 CPPipe env:CompletionInferValues
 Path Belt.Int.toS
 [{
@@ -577,8 +587,11 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+[nested_pattern_path]
+[nested_pattern_path]
 [extract_type]--> digging for type someVariant in CompletionInferValues
 [extract_type]--> found variant
+[nested_pattern_path]
 CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
@@ -608,8 +621,11 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+[nested_pattern_path]
+[nested_pattern_path]
 [extract_type]--> digging for type somePolyVariant in CompletionInferValues
 [extract_type]--> found type manifest
+[nested_pattern_path]
 CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
@@ -639,6 +655,9 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+[nested_pattern_path]
+[nested_pattern_path]
+[nested_pattern_path]
 [extract_type]--> digging for type someRecord in CompletionInferValues
 [extract_type]--> found record
 CPPipe env:CompletionInferValues
@@ -672,6 +691,7 @@ Path x
 ContextPath array<Type[otherNestedRecord]>
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+[nested_pattern_path]
 [{
     "label": "someRecord",
     "kind": 5,
@@ -726,8 +746,11 @@ Path fnWithRecordCallback
 --> found function argument!
 --> found function type
 --> found function argument!
+[extract_type]--> starting extraction of type: someRecord, in env: CompletionInferValues. Has type arg ctx: false
 [extract_type]--> digging for type someRecord in CompletionInferValues
 [extract_type]--> found record
+[nested]--> running nested in env: CompletionInferValues. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someRecord, in env: CompletionInferValues. Has type arg ctx: false
 [extract_type]--> digging for type someRecord in CompletionInferValues
 [extract_type]--> found record
 [{
@@ -767,6 +790,7 @@ Path fn2
 --> found function argument!
 --> found function type
 --> found function argument!
+[nested_pattern_path]
 [extract_type]--> digging for type CompletionSupport.Nested.config in CompletionInferValues
 [extract_type]--> found record
 CPPipe env:CompletionInferValues
@@ -810,6 +834,7 @@ Path fn3
 --> found function argument!
 --> found function type
 --> found function argument!
+[nested_pattern_path]
 [extract_type]--> digging for type sameFileRecord in CompletionInferValues
 [extract_type]--> found record
 CPPipe env:CompletionInferValues
@@ -844,7 +869,9 @@ Resolved opens 1 pervasives
 ContextPath Value[Belt, Int, toString](Nolabel)
 ContextPath Value[Belt, Int, toString]
 Path Belt.Int.toString
-[nested_expr]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: string, in env: Belt_Int. Has type arg ctx: false
+[nested]--> running nested in env: Belt_Int. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 [{
     "label": "\"\"",
     "kind": 12,
@@ -864,7 +891,9 @@ Resolved opens 1 pervasives
 ContextPath Value[Js, String2, split](Nolabel, Nolabel)
 ContextPath Value[Js, String2, split]
 Path Js.String2.split
-[nested_expr]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: array<t>, in env: Js_string2. Has type arg ctx: false
+[nested]--> running nested in env: Js_string2. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 [{
     "label": "[]",
     "kind": 12,
@@ -899,6 +928,7 @@ Path CompletionSupport2.makeRenderer
 --> found function argument!
 --> found function type
 --> found function argument!
+[nested_pattern_path]
 [extract_type]--> digging for type Internal.prepareProps in CompletionSupport2
 [extract_type]--> found record
 [{
@@ -932,11 +962,13 @@ Path CompletionSupport2.makeRenderer
 --> found function argument!
 --> found function type
 --> found function argument!
+[nested_pattern_path]
 [extract_type]--> digging for type Internal.prepareProps in CompletionSupport2
 [extract_type]--> found record
-[extract_type]--> digging for type CompletionSupport.Nested.config in CompletionSupport2
+[extract_type]--> digging for type CompletionSupport.Nested.config in CompletionSupport2.Internal
 [extract_type]--> found record
-CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2
+[nested_pattern_path]
+CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2.Internal
 CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path ReactDOM.Client.Root.

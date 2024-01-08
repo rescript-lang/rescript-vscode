@@ -7,6 +7,8 @@ Resolved opens 1 pervasives
 ContextPath CTypeAtPos()
 [extract_type]--> digging for type optRecord in TypeAtPosCompletion
 [extract_type]--> found record
+[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> digging for type optRecord in TypeAtPosCompletion
 [extract_type]--> found record
 --> found type in nested expression completion
@@ -36,12 +38,16 @@ Resolved opens 1 pervasives
 ContextPath CTypeAtPos()
 [extract_type]--> digging for type someVariant in TypeAtPosCompletion
 [extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $1 of constructor 'One'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: optRecord
+[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
+[nested]--> trying to move into variant payload $1 of constructor 'One'
+[nested]--> found constructor (Args type)
+[nested]--> found arg of type: optRecord
+[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> digging for type optRecord in TypeAtPosCompletion
 [extract_type]--> found record
-[nested_expr]--> extracted type, continuing descent
+[nested]--> extracted type, continuing descent
+[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> digging for type optRecord in TypeAtPosCompletion
 [extract_type]--> found record
 --> found type in nested expression completion
@@ -66,9 +72,13 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 --> expression completion
 ContextPath CTypeAtPos()
+[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> digging for type optRecord in TypeAtPosCompletion
 [extract_type]--> found record
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "{}",

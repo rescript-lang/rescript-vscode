@@ -317,6 +317,7 @@ type polyVariantConstructor = {
   args: Types.type_expr list;
 }
 
+(* TODO(env-stuff) All envs for bool string etc can be removed. *)
 type innerType = TypeExpr of Types.type_expr | ExtractedType of completionType
 and completionType =
   | Tuple of QueryEnv.t * Types.type_expr list * Types.type_expr
@@ -337,8 +338,6 @@ and completionType =
       constructors: Constructor.t list;
       variantDecl: Types.type_declaration;
       variantName: string;
-      typeArgs: Types.type_expr list;
-      typeParams: Types.type_expr list;
     }
   | Tpolyvariant of {
       env: QueryEnv.t;

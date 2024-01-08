@@ -11,7 +11,8 @@ ContextPath Value[someFn]
 Path someFn
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -40,7 +41,8 @@ ContextPath Value[someFn]
 Path someFn
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -70,7 +72,8 @@ ContextPath Value[someFn]
 Path someFn
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -103,7 +106,8 @@ ContextPath Value[someFn]
 Path someFn
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -132,7 +136,8 @@ ContextPath Value[someOtherFn]
 Path someOtherFn
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "false",
@@ -157,7 +162,8 @@ Path someFnTakingVariant
 --> found function argument!
 [extract_type]--> digging for type someVariant in CompletionFunctionArguments
 [extract_type]--> found variant
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "One",
@@ -200,7 +206,8 @@ Path someFnTakingVariant
 --> found function argument!
 [extract_type]--> digging for type someVariant in CompletionFunctionArguments
 [extract_type]--> found variant
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "One",
@@ -244,7 +251,8 @@ ContextPath Value[someFnTakingVariant]
 Path someFnTakingVariant
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type someVariant in CompletionFunctionArguments
 [extract_type]--> found variant
@@ -280,7 +288,8 @@ Path someFnTakingVariant
 --> found function argument!
 [extract_type]--> digging for type someVariant in CompletionFunctionArguments
 [extract_type]--> found variant
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "One",
@@ -324,7 +333,8 @@ ContextPath Value[someOtherFn]
 Path someOtherFn
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -353,7 +363,8 @@ ContextPath Value[someOtherFn]
 Path someOtherFn
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -381,7 +392,8 @@ ContextPath Value[someOtherFn]
 Path someOtherFn
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -411,7 +423,8 @@ ContextPath Value[fnTakingTuple]
 Path fnTakingTuple
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "(_, _, _)",
@@ -438,6 +451,8 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionFunctionArguments
 [extract_type]--> found record
+[nested]--> running nested in env: CompletionFunctionArguments. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someRecord, in env: CompletionFunctionArguments. Has type arg ctx: false
 [extract_type]--> digging for type someRecord in CompletionFunctionArguments
 [extract_type]--> found record
 --> found type in nested expression completion

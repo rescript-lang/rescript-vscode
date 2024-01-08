@@ -12,7 +12,8 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [M] second
 Path M.make
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: Jsx2.M. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 []
 

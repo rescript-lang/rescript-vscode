@@ -259,6 +259,7 @@ Resolved opens 1 pervasives
 ContextPath CPatternPath(Value[x])->recordField(someField)
 ContextPath Value[x]
 Path x
+[nested_pattern_path]
 [extract_type]--> digging for type recordWithDocstringField in Hover
 [extract_type]--> found record
 {"contents": {"kind": "markdown", "value": "```rescript\nbool\n```"}}

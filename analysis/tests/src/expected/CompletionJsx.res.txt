@@ -482,7 +482,8 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [SomeComponent] someProp
 Path SomeComponent.make
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionJsx.SomeComponent. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "\"\"",

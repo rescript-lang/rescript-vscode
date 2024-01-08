@@ -521,7 +521,8 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [O, Comp] second
 Path O.Comp.make
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: Completion.O.Comp. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "zzz",
@@ -1745,6 +1746,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[x]
 Path x
+[extract_type]--> starting extraction of type: 'a, in env: Completion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: 'a, in env: Completion. Has type arg ctx: false
 [extract_type]--> miss
 Completable: Cpath Value[T]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
@@ -2148,7 +2151,8 @@ Resolved opens 3 pervasives Completion.res Completion.res
 --> expression completion
 ContextPath Type[someVariantWithDeprecated]
 Path someVariantWithDeprecated
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: Completion. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "DoNotUseMe",
@@ -2205,10 +2209,15 @@ Resolved opens 3 pervasives Completion.res Completion.res
 --> expression completion
 ContextPath Type[withUncurried]
 Path withUncurried
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type (. int) => unit in env Completion
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: Completion. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type (. int) => unit in env Completion
+[extract_type]--> starting extraction of type: (. int) => unit, in env: Completion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: (. int) => unit, in env: Completion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: int => unit, in env: Completion. Has type arg ctx: false
+[nested]--> running nested in env: Completion. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type unit in Completion
 [extract_type]--> found nothing when digging

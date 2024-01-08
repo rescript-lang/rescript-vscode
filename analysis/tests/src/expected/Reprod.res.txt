@@ -11,37 +11,71 @@ ContextPath Value[Query, use]
 Path Query.use
 --> found function type
 --> found function argument!
-[extract_type]--> digging for type QueryFile.Types.variables in Reprod
+[extract_type]--> digging for type QueryFile.Types.variables in Reprod.Query
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type location in env Reprod
-[extract_type]--> digging for type location in Reprod
-[extract_type]--> found nothing when digging
---> could not resolve nested expression path
-[]
+[nested]--> running nested in env: Reprod.Query. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type location in env QueryFile.Types
+[extract_type]--> starting extraction of type: location, in env: QueryFile.Types. Has type arg ctx: false
+[extract_type]--> starting extraction of type: location, in env: QueryFile.Types. Has type arg ctx: false
+[extract_type]--> digging for type location in QueryFile.Types
+[extract_type]--> found type manifest
+[extract_type]--> starting extraction of type: SchemaAssets.input_Location, in env: QueryFile.Types. Has type arg ctx: false
+[extract_type]--> digging for type SchemaAssets.input_Location in QueryFile.Types
+[extract_type]--> found variant
+[nested]--> running nested in env: QueryFile.Types. Has type arg ctx: false
+[nested]--> trying to move into variant payload $0 of constructor 'ByAddress'
+[nested]--> found constructor (Args type)
+[nested]--> found arg of type: input_ByAddress
+[extract_type]--> starting extraction of type: input_ByAddress, in env: SchemaAssets. Has type arg ctx: false
+[extract_type]--> digging for type input_ByAddress in SchemaAssets
+[extract_type]--> found record
+[nested]--> extracted type, continuing descent
+[nested]--> running nested in env: SchemaAssets. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
+--> found type in nested expression completion
+[{
+    "label": "{}",
+    "kind": 12,
+    "tags": [],
+    "detail": "input_ByAddress",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
 
-Complete src/Reprod.res 25:21
-posCursor:[25:21] posNoWhite:[25:20] Found pattern:[25:18->25:22]
-Ppat_construct Ok:[25:18->25:20]
-posCursor:[25:21] posNoWhite:[25:20] Found pattern:[25:20->25:22]
-Ppat_construct ():[25:20->25:22]
-Completable: Cpattern Value[res]->variantPayload::Ok($0)
+Complete src/Reprod.res 33:28
+posCursor:[33:28] posNoWhite:[33:27] Found pattern:[33:21->33:31]
+Completable: Cpattern Value[record]->recordField(first)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
-ContextPath Value[res]
-Path res
-[extract_type]--> digging for type Pervasives.result in Reprod
-[extract_type]--> found type manifest
-[extract_type]--> digging for type Belt.Result.t in Reprod
-[extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'Ok'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: 'a
+ContextPath Value[record]
+Path record
+[extract_type]--> starting extraction of type: paramRecord<someVariant, QueryFile.Types.byAddress>, in env: Reprod. Has type arg ctx: false
+[extract_type]--> digging for type paramRecord in Reprod
+[extract_type]--> found record
+[nested]--> running nested in env: Reprod. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type 'a in env Reprod
+[extract_type]--> starting extraction of type: 'a, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[extract_type]--> starting extraction of type: 'a, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[extract_type]--> starting extraction of type: 'a, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[extract_type]--> found type variable: 'a. Trying to instantiate with Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[extract_type]--> SUCCEEDED instantiation, new type is: someVariant
+[extract_type]--> starting extraction of type: someVariant, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
 [extract_type]--> digging for type someVariant in Reprod
 [extract_type]--> found variant
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: Reprod. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[nested]--> reached end of pattern, returning type
 [{
     "label": "One",
     "kind": 4,
@@ -68,27 +102,147 @@ Path res
     "insertTextFormat": 2
   }]
 
-Complete src/Reprod.res 28:24
-posCursor:[28:24] posNoWhite:[28:23] Found pattern:[28:18->28:25]
-Ppat_construct Error:[28:18->28:23]
-posCursor:[28:24] posNoWhite:[28:23] Found pattern:[28:23->28:25]
-Ppat_construct ():[28:23->28:25]
+Complete src/Reprod.res 36:29
+posCursor:[36:29] posNoWhite:[36:28] Found pattern:[36:21->36:32]
+Completable: Cpattern Value[record]->recordField(second)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[record]
+Path record
+[extract_type]--> starting extraction of type: paramRecord<someVariant, QueryFile.Types.byAddress>, in env: Reprod. Has type arg ctx: false
+[extract_type]--> digging for type paramRecord in Reprod
+[extract_type]--> found record
+[nested]--> running nested in env: Reprod. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type 'b in env Reprod
+[extract_type]--> starting extraction of type: 'b, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[extract_type]--> starting extraction of type: 'b, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[extract_type]--> starting extraction of type: 'b, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[extract_type]--> found type variable: 'b. Trying to instantiate with Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[extract_type]--> SUCCEEDED instantiation, new type is: QueryFile.Types.byAddress
+[extract_type]--> starting extraction of type: QueryFile.Types.byAddress, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, QueryFile.Types.byAddress, typeParams: 'a, 'b
+[extract_type]--> digging for type QueryFile.Types.byAddress in Reprod
+[extract_type]--> found type manifest
+[extract_type]--> starting extraction of type: SchemaAssets.input_ByAddress, in env: QueryFile.Types. Has type arg ctx: false
+[extract_type]--> digging for type SchemaAssets.input_ByAddress in QueryFile.Types
+[extract_type]--> found record
+[nested]--> running nested in env: Reprod. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
+[{
+    "label": "{}",
+    "kind": 22,
+    "tags": [],
+    "detail": "SchemaAssets.input_ByAddress",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/Reprod.res 43:21
+posCursor:[43:21] posNoWhite:[43:20] Found pattern:[43:18->43:22]
+Ppat_construct Ok:[43:18->43:20]
+posCursor:[43:21] posNoWhite:[43:20] Found pattern:[43:20->43:22]
+Ppat_construct ():[43:20->43:22]
+Completable: Cpattern Value[res]->variantPayload::Ok($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[res]
+Path res
+[extract_type]--> starting extraction of type: result<someVariant, somePolyVariant>, in env: Reprod. Has type arg ctx: false
+[extract_type]--> digging for type Pervasives.result in Reprod
+[extract_type]--> found type manifest
+[extract_type]--> starting extraction of type: Belt.Result.t<'a, 'b>, in env: Pervasives. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[extract_type]--> digging for type Belt.Result.t in Pervasives
+[extract_type]--> found variant
+[nested]--> running nested in env: Reprod. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[nested]--> trying to move into variant payload $0 of constructor 'Ok'
+[nested]--> found constructor (Args type)
+[nested]--> found arg of type: 'a
+[extract_type]--> starting extraction of type: 'a, in env: Belt_Result. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[extract_type]--> starting extraction of type: 'a, in env: Belt_Result. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[extract_type]--> found type variable: 'a. Trying to instantiate with Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[extract_type]--> SUCCEEDED instantiation, new type is: someVariant
+[extract_type]--> starting extraction of type: someVariant, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[extract_type]--> digging for type someVariant in Reprod
+[extract_type]--> found variant
+[nested]--> extracted type, continuing descent
+[nested]--> running nested in env: Belt_Result. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[nested]--> reached end of pattern, returning type
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/Reprod.res 46:24
+posCursor:[46:24] posNoWhite:[46:23] Found pattern:[46:18->46:25]
+Ppat_construct Error:[46:18->46:23]
+posCursor:[46:24] posNoWhite:[46:23] Found pattern:[46:23->46:25]
+Ppat_construct ():[46:23->46:25]
 Completable: Cpattern Value[res]->variantPayload::Error($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[res]
 Path res
+[extract_type]--> starting extraction of type: result<someVariant, somePolyVariant>, in env: Reprod. Has type arg ctx: false
 [extract_type]--> digging for type Pervasives.result in Reprod
 [extract_type]--> found type manifest
-[extract_type]--> digging for type Belt.Result.t in Reprod
+[extract_type]--> starting extraction of type: Belt.Result.t<'a, 'b>, in env: Pervasives. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[extract_type]--> digging for type Belt.Result.t in Pervasives
 [extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'Error'
-[nested_expr]--> found constructor (Args type)
-[nested_expr]--> found arg of type: 'b
+[nested]--> running nested in env: Reprod. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[nested]--> trying to move into variant payload $0 of constructor 'Error'
+[nested]--> found constructor (Args type)
+[nested]--> found arg of type: 'b
+[extract_type]--> starting extraction of type: 'b, in env: Belt_Result. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[extract_type]--> starting extraction of type: 'b, in env: Belt_Result. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[extract_type]--> found type variable: 'b. Trying to instantiate with Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
+[extract_type]--> SUCCEEDED instantiation, new type is: somePolyVariant
+[extract_type]--> starting extraction of type: somePolyVariant, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
 [extract_type]--> digging for type somePolyVariant in Reprod
 [extract_type]--> found type manifest
-[nested_expr]--> extracted type, continuing descent
-[nested_expr]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: Reprod. Has type arg ctx: false
+[nested]--> extracted type, continuing descent
+[nested]--> running nested in env: Belt_Result. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 [{
     "label": "#one",
     "kind": 4,
@@ -112,6 +266,151 @@ Path res
     "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
     "documentation": null,
     "insertText": "#two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/Reprod.res 51:24
+posCursor:[51:24] posNoWhite:[51:23] Found pattern:[51:21->51:25]
+Ppat_construct Ok:[51:21->51:23]
+posCursor:[51:24] posNoWhite:[51:23] Found pattern:[51:23->51:25]
+Ppat_construct ():[51:23->51:25]
+Completable: Cpattern Value[resOpt]->variantPayload::Ok($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[resOpt]
+Path resOpt
+[extract_type]--> starting extraction of type: result<option<someVariant>, unit>, in env: Reprod. Has type arg ctx: false
+[extract_type]--> digging for type Pervasives.result in Reprod
+[extract_type]--> found type manifest
+[extract_type]--> starting extraction of type: Belt.Result.t<'a, 'b>, in env: Pervasives. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[extract_type]--> digging for type Belt.Result.t in Pervasives
+[extract_type]--> found variant
+[nested]--> running nested in env: Reprod. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[nested]--> trying to move into variant payload $0 of constructor 'Ok'
+[nested]--> found constructor (Args type)
+[nested]--> found arg of type: 'a
+[extract_type]--> starting extraction of type: 'a, in env: Belt_Result. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[extract_type]--> starting extraction of type: 'a, in env: Belt_Result. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[extract_type]--> found type variable: 'a. Trying to instantiate with Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[extract_type]--> SUCCEEDED instantiation, new type is: option<someVariant>
+[extract_type]--> starting extraction of type: option<someVariant>, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[nested]--> extracted type, continuing descent
+[nested]--> running nested in env: Belt_Result. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[nested]--> reached end of pattern, returning type
+[extract_type]--> digging for type someVariant in Reprod
+[extract_type]--> found variant
+[{
+    "label": "None",
+    "kind": 12,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null
+  }, {
+    "label": "Some(_)",
+    "kind": 12,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": null,
+    "insertText": "Some(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(One)",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Some(One)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(Two(_))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Some(Two(${1:_}))",
+    "insertTextFormat": 2
+  }, {
+    "label": "Some(Three(_, _))",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Some(Three(${1:_}, ${2:_}))",
+    "insertTextFormat": 2
+  }]
+
+Complete src/Reprod.res 54:29
+posCursor:[54:29] posNoWhite:[54:28] Found pattern:[54:21->54:31]
+Ppat_construct Ok:[54:21->54:23]
+posCursor:[54:29] posNoWhite:[54:28] Found pattern:[54:24->54:30]
+Ppat_construct Some:[54:24->54:28]
+posCursor:[54:29] posNoWhite:[54:28] Found pattern:[54:28->54:30]
+Ppat_construct ():[54:28->54:30]
+Completable: Cpattern Value[resOpt]->variantPayload::Ok($0), variantPayload::Some($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[resOpt]
+Path resOpt
+[extract_type]--> starting extraction of type: result<option<someVariant>, unit>, in env: Reprod. Has type arg ctx: false
+[extract_type]--> digging for type Pervasives.result in Reprod
+[extract_type]--> found type manifest
+[extract_type]--> starting extraction of type: Belt.Result.t<'a, 'b>, in env: Pervasives. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[extract_type]--> digging for type Belt.Result.t in Pervasives
+[extract_type]--> found variant
+[nested]--> running nested in env: Reprod. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[nested]--> trying to move into variant payload $0 of constructor 'Ok'
+[nested]--> found constructor (Args type)
+[nested]--> found arg of type: 'a
+[extract_type]--> starting extraction of type: 'a, in env: Belt_Result. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[extract_type]--> starting extraction of type: 'a, in env: Belt_Result. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[extract_type]--> found type variable: 'a. Trying to instantiate with Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[extract_type]--> SUCCEEDED instantiation, new type is: option<someVariant>
+[extract_type]--> starting extraction of type: option<someVariant>, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[nested]--> extracted type, continuing descent
+[nested]--> running nested in env: Belt_Result. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[nested]--> moving into option Some
+[extract_type]--> starting extraction of type: someVariant, in env: Reprod. Has type arg ctx: true
+[extract_type]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[extract_type]--> digging for type someVariant in Reprod
+[extract_type]--> found variant
+[nested]--> running nested in env: Reprod. Has type arg ctx: true
+[nested]--> Type arg context. env: Reprod, typeArgs: option<someVariant>, unit, typeParams: 'a, 'b
+[nested]--> reached end of pattern, returning type
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
+    "documentation": null,
+    "insertText": "Three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }]
 

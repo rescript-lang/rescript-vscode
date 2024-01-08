@@ -8,7 +8,9 @@ ContextPath Value[s]
 Path s
 ContextPath Value[f]
 Path f
-[nested_expr]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: (bool, option<array<bool>>), in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 [{
     "label": "(_, _)",
     "kind": 12,
@@ -34,6 +36,8 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
 --> found type in nested expression completion
@@ -90,6 +94,8 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
 --> found type in nested expression completion
@@ -116,10 +122,14 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type bool in env CompletionExpressions
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type bool in env CompletionExpressions
+[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -150,6 +160,8 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
 --> found type in nested expression completion
@@ -200,6 +212,8 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
 --> found type in nested expression completion
@@ -244,10 +258,14 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type option<otherRecord> in env CompletionExpressions
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type option<otherRecord> in env CompletionExpressions
+[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type otherRecord in CompletionExpressions
 [extract_type]--> found record
@@ -298,9 +316,13 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type option<otherRecord> in env CompletionExpressions
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type option<otherRecord> in env CompletionExpressions
+[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
 --> could not resolve nested expression path
 []
 
@@ -319,12 +341,19 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type option<otherRecord> in env CompletionExpressions
-[nested_expr]--> moving into option Some
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type option<otherRecord> in env CompletionExpressions
+[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> moving into option Some
+[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type otherRecord in CompletionExpressions
 [extract_type]--> found record
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type otherRecord in CompletionExpressions
 [extract_type]--> found record
 --> found type in nested expression completion
@@ -357,12 +386,16 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type someVariant in env CompletionExpressions
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type someVariant in env CompletionExpressions
+[extract_type]--> starting extraction of type: someVariant, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someVariant, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type someVariant in CompletionExpressions
 [extract_type]--> found variant
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "One",
@@ -405,12 +438,16 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type someVariant in env CompletionExpressions
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type someVariant in env CompletionExpressions
+[extract_type]--> starting extraction of type: someVariant, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someVariant, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type someVariant in CompletionExpressions
 [extract_type]--> found variant
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "One",
@@ -437,14 +474,21 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type somePolyVariant in env CompletionExpressions
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type somePolyVariant in env CompletionExpressions
+[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type somePolyVariant in CompletionExpressions
 [extract_type]--> found type manifest
+[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "{}",
@@ -472,12 +516,19 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type somePolyVariant in env CompletionExpressions
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type somePolyVariant in env CompletionExpressions
+[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type somePolyVariant in CompletionExpressions
 [extract_type]--> found type manifest
-[nested_expr]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -508,12 +559,19 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type somePolyVariant in env CompletionExpressions
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type somePolyVariant in env CompletionExpressions
+[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type somePolyVariant in CompletionExpressions
 [extract_type]--> found type manifest
-[nested_expr]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -536,7 +594,8 @@ ContextPath Value[fnTakingArray]
 Path fnTakingArray
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "[]",
@@ -562,7 +621,10 @@ ContextPath Value[fnTakingArray]
 Path fnTakingArray
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<bool>, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "None",
@@ -605,7 +667,8 @@ ContextPath Value[fnTakingArray]
 Path fnTakingArray
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "s",
@@ -628,8 +691,13 @@ ContextPath Value[fnTakingArray]
 Path fnTakingArray
 --> found function type
 --> found function argument!
-[nested_expr]--> moving into option Some
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<bool>, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> moving into option Some
+[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -658,7 +726,10 @@ ContextPath Value[fnTakingArray]
 Path fnTakingArray
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<bool>, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "None",
@@ -701,7 +772,10 @@ ContextPath Value[fnTakingArray]
 Path fnTakingArray
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<bool>, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "None",
@@ -746,7 +820,8 @@ Path fnTakingRecord
 --> found function argument!
 [extract_type]--> digging for type someRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "someBoolVar",
@@ -771,10 +846,14 @@ Path fnTakingOtherRecord
 --> found function argument!
 [extract_type]--> digging for type otherRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type string in env CompletionExpressions
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type string in env CompletionExpressions
+[extract_type]--> starting extraction of type: string, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: string, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "\"\"",
@@ -802,10 +881,13 @@ Path fnTakingRecordWithOptionalField
 --> found function argument!
 [extract_type]--> digging for type recordWithOptionalField in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type bool in env CompletionExpressions
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type bool in env CompletionExpressions
+[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -836,10 +918,14 @@ Path fnTakingRecordWithOptVariant
 --> found function argument!
 [extract_type]--> digging for type recordWithOptVariant in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type option<someVariant> in env CompletionExpressions
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type option<someVariant> in env CompletionExpressions
+[extract_type]--> starting extraction of type: option<someVariant>, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<someVariant>, in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type someVariant in CompletionExpressions
 [extract_type]--> found variant
@@ -906,9 +992,11 @@ Path fnTakingInlineRecord
 --> found function argument!
 [extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
 [extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested_expr]--> found constructor (inline record)
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
+[nested]--> found constructor (inline record)
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "{}",
@@ -936,8 +1024,10 @@ Path fnTakingInlineRecord
 --> found function argument!
 [extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
 [extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested_expr]--> found constructor (inline record)
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
+[nested]--> found constructor (inline record)
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
 --> found type in nested expression completion
 [{
     "label": "someBoolField",
@@ -974,8 +1064,10 @@ Path fnTakingInlineRecord
 --> found function argument!
 [extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
 [extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested_expr]--> found constructor (inline record)
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
+[nested]--> found constructor (inline record)
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
 --> found type in nested expression completion
 [{
     "label": "someBoolField",
@@ -1000,14 +1092,19 @@ Path fnTakingInlineRecord
 --> found function argument!
 [extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
 [extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested_expr]--> found constructor (inline record)
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type otherRecord in env CompletionExpressions
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
+[nested]--> found constructor (inline record)
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type otherRecord in env CompletionExpressions
+[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type otherRecord in CompletionExpressions
 [extract_type]--> found record
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "{}",
@@ -1035,13 +1132,19 @@ Path fnTakingInlineRecord
 --> found function argument!
 [extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
 [extract_type]--> found variant
-[nested_expr]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested_expr]--> found constructor (inline record)
-[nested_expr]--> trying to move into record field
-[nested_expr]--> found record field type
-[nested_expr]--> extracting from type otherRecord in env CompletionExpressions
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
+[nested]--> found constructor (inline record)
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> trying to move into record field
+[nested]--> found record field type
+[nested]--> extracting from type otherRecord in env CompletionExpressions
+[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type otherRecord in CompletionExpressions
 [extract_type]--> found record
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
 [extract_type]--> digging for type otherRecord in CompletionExpressions
 [extract_type]--> found record
 --> found type in nested expression completion
@@ -1072,7 +1175,8 @@ ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type unit in CompletionExpressions
 [extract_type]--> found nothing when digging
@@ -1100,7 +1204,8 @@ ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 []
 
@@ -1117,7 +1222,8 @@ ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type unit in CompletionExpressions
 [extract_type]--> found nothing when digging
@@ -1145,7 +1251,8 @@ ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type unit in CompletionExpressions
 [extract_type]--> found nothing when digging
@@ -1173,7 +1280,8 @@ ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type int in CompletionExpressions
 [extract_type]--> found nothing when digging
@@ -1201,7 +1309,8 @@ ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type unit in CompletionExpressions
 [extract_type]--> found nothing when digging
@@ -1229,7 +1338,8 @@ ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type int in CompletionExpressions
 [extract_type]--> found nothing when digging
@@ -1261,7 +1371,7 @@ ContextPath Value[Js, log]
 Path Js.log
 --> found function type
 --> found function argument!
-[extract_type]--> miss
+[extract_type]--> found type variable: 'a
 --> could not get completions for context path
 [{
     "label": "second2",
@@ -1319,7 +1429,8 @@ ContextPath Value[takesCb]
 Path takesCb
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> miss
 [{
@@ -1346,7 +1457,8 @@ ContextPath Value[takesCb2]
 Path takesCb2
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> miss
 [{
@@ -1373,7 +1485,8 @@ ContextPath Value[takesCb3]
 Path takesCb3
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> miss
 [{
@@ -1400,7 +1513,8 @@ ContextPath Value[takesCb4]
 Path takesCb4
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> miss
 [{
@@ -1427,7 +1541,8 @@ ContextPath Value[takesCb5]
 Path takesCb5
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> miss
 [{
@@ -1454,7 +1569,8 @@ ContextPath Value[commitLocalUpdate]
 Path commitLocalUpdate
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type unit in CompletionExpressions
 [extract_type]--> found nothing when digging
@@ -1482,7 +1598,8 @@ ContextPath Value[fnTakingAsyncCallback]
 Path fnTakingAsyncCallback
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "async () => {}",
@@ -1507,9 +1624,10 @@ ContextPath Value[Belt, Array, map]
 Path Belt.Array.map
 --> found function type
 --> found function argument!
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: Belt_Array. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
-[extract_type]--> miss
+[extract_type]--> found type variable: 'b
 [{
     "label": "v => {}",
     "kind": 12,
@@ -1536,7 +1654,8 @@ Path takesExotic
 --> found function argument!
 [extract_type]--> digging for type exoticPolyvariant in CompletionExpressions
 [extract_type]--> found type manifest
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "#\"some exotic\"",
@@ -1563,7 +1682,8 @@ Path fnTakingPolyVariant
 --> found function argument!
 [extract_type]--> digging for type somePolyVariant in CompletionExpressions
 [extract_type]--> found type manifest
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "#one",
@@ -1606,7 +1726,8 @@ Path fnTakingPolyVariant
 --> found function argument!
 [extract_type]--> digging for type somePolyVariant in CompletionExpressions
 [extract_type]--> found type manifest
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "#one",
@@ -1649,7 +1770,8 @@ Path fnTakingPolyVariant
 --> found function argument!
 [extract_type]--> digging for type somePolyVariant in CompletionExpressions
 [extract_type]--> found type manifest
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "#one",
@@ -1676,7 +1798,8 @@ Path fnTakingPolyVariant
 --> found function argument!
 [extract_type]--> digging for type somePolyVariant in CompletionExpressions
 [extract_type]--> found type manifest
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "#one",

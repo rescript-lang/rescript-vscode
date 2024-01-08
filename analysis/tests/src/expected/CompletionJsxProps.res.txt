@@ -7,7 +7,8 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] on
 Path CompletionSupport.TestComponent.make
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionSupport.TestComponent. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -32,7 +33,8 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] on
 Path CompletionSupport.TestComponent.make
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionSupport.TestComponent. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -51,9 +53,10 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] test
 Path CompletionSupport.TestComponent.make
-[extract_type]--> digging for type testVariant in CompletionSupport
+[extract_type]--> digging for type testVariant in CompletionSupport.TestComponent
 [extract_type]--> found variant
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionSupport.TestComponent. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "Two",
@@ -102,7 +105,8 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] polyArg
 Path CompletionSupport.TestComponent.make
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionSupport.TestComponent. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "#one",
@@ -147,7 +151,8 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] polyArg
 Path CompletionSupport.TestComponent.make
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionSupport.TestComponent. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "#three(_, _)",
@@ -185,7 +190,8 @@ Resolved opens 1 pervasives
 ContextPath CJsxPropValue [div] muted
 Path ReactDOM.domProps
 Path Pervasives.JsxDOM.domProps
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionJsxProps. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "true",
@@ -211,7 +217,8 @@ Resolved opens 1 pervasives
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
 Path Pervasives.JsxDOM.domProps
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionJsxProps. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [extract_type]--> digging for type unit in CompletionJsxProps
 [extract_type]--> found nothing when digging
@@ -235,7 +242,8 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] testArr
 Path CompletionSupport.TestComponent.make
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionSupport.TestComponent. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "[]",
@@ -257,9 +265,12 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [CompletionSupport, TestComponent] testArr
 Path CompletionSupport.TestComponent.make
-[extract_type]--> digging for type testVariant in CompletionSupport
+[nested]--> running nested in env: CompletionSupport.TestComponent. Has type arg ctx: false
+[extract_type]--> starting extraction of type: testVariant, in env: CompletionSupport.TestComponent. Has type arg ctx: false
+[extract_type]--> digging for type testVariant in CompletionSupport.TestComponent
 [extract_type]--> found variant
-[nested_expr]--> reached end of pattern, returning type
+[nested]--> running nested in env: CompletionSupport.TestComponent. Has type arg ctx: false
+[nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
 [{
     "label": "One",

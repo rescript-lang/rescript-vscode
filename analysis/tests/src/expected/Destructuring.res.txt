@@ -5,8 +5,12 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type x in Destructuring
 [extract_type]--> found record
+[nested]--> running nested in env: Destructuring. Has type arg ctx: false
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type x in Destructuring
 [extract_type]--> found record
 [{
@@ -24,8 +28,12 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type x in Destructuring
 [extract_type]--> found record
+[nested]--> running nested in env: Destructuring. Has type arg ctx: false
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type x in Destructuring
 [extract_type]--> found record
 [{
@@ -51,8 +59,11 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type x in Destructuring
 [extract_type]--> found record
+[nested]--> running nested in env: Destructuring. Has type arg ctx: false
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type x in Destructuring
 [extract_type]--> found record
 [{
@@ -72,8 +83,11 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type x in Destructuring
 [extract_type]--> found record
+[nested]--> running nested in env: Destructuring. Has type arg ctx: false
+[extract_type]--> starting extraction of type: x, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type x in Destructuring
 [extract_type]--> found record
 [{
@@ -97,8 +111,11 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
+[extract_type]--> starting extraction of type: recordWithOptField, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type recordWithOptField in Destructuring
 [extract_type]--> found record
+[nested]--> running nested in env: Destructuring. Has type arg ctx: false
+[extract_type]--> starting extraction of type: recordWithOptField, in env: Destructuring. Has type arg ctx: false
 [extract_type]--> digging for type recordWithOptField in Destructuring
 [extract_type]--> found record
 [{
