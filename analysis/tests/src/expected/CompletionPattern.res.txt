@@ -9,10 +9,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
-[extract_type]--> starting extraction of type: (bool, option<bool>, (bool, bool)), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, (bool, bool)), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "(_, _, _)",
     "kind": 12,
@@ -31,14 +27,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
-[extract_type]--> starting extraction of type: (bool, option<bool>, (bool, bool)), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, (bool, bool)), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -56,18 +44,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
-[extract_type]--> starting extraction of type: (bool, option<bool>, (bool, bool)), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, (bool, bool)), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: (bool, bool), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, bool), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "false",
     "kind": 4,
@@ -83,10 +59,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -108,10 +80,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x]
 Path x
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -127,11 +95,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "{}",
     "kind": 22,
@@ -150,13 +113,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -190,13 +146,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "optThird",
     "kind": 5,
@@ -219,13 +168,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -243,18 +185,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
-[extract_type]--> starting extraction of type: (someRecord, bool), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (someRecord, bool), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "optThird",
     "kind": 5,
@@ -270,19 +200,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type nestedRecord in env CompletionPattern
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type nestedRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "{}",
     "kind": 22,
@@ -302,21 +219,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type nestedRecord in env CompletionPattern
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type nestedRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type nestedRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "nested",
     "kind": 5,
@@ -334,13 +236,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[nest]
 Path nest
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type nestedRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type nestedRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "nested",
     "kind": 5,
@@ -356,13 +251,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -398,21 +286,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[f]
 Path f
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type nestedRecord in env CompletionPattern
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type nestedRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: nestedRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type nestedRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "nested",
     "kind": 5,
@@ -431,18 +304,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $0 of constructor 'Two'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: bool
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -466,18 +327,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $0 of constructor 'Two'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: bool
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -495,22 +344,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $0 of constructor 'Three'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: someRecord
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -547,18 +380,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $1 of constructor 'Three'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: bool
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -576,14 +397,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -606,14 +419,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -630,18 +435,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionPattern
-[extract_type]--> found record
 [{
     "label": "first",
     "kind": 5,
@@ -677,14 +470,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -700,9 +485,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[c]
 Path c
-[extract_type]--> starting extraction of type: array<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "[]",
     "kind": 12,
@@ -721,11 +503,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[c]
 Path c
-[extract_type]--> starting extraction of type: array<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -750,14 +527,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[o]
 Path o
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> moving into option Some
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -780,18 +549,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[p]
 Path p
-[extract_type]--> starting extraction of type: multiPayloadVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: multiPayloadVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type multiPayloadVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $1 of constructor 'Test'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: bool
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -815,19 +572,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[p]
 Path p
-[extract_type]--> starting extraction of type: multiPayloadVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: multiPayloadVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type multiPayloadVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $2 of constructor 'Test'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: option<bool>
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -865,18 +609,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[p]
 Path p
-[extract_type]--> starting extraction of type: multiPayloadVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: multiPayloadVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type multiPayloadVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $1 of constructor 'Test'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: bool
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -900,18 +632,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[p]
 Path p
-[extract_type]--> starting extraction of type: multiPayloadVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: multiPayloadVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type multiPayloadVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $3 of constructor 'Test'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: array<bool>
-[extract_type]--> starting extraction of type: array<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "[]",
     "kind": 12,
@@ -930,14 +650,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
-[extract_type]--> starting extraction of type: multiPayloadPolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type multiPayloadPolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#test(int, bool, option<bool>, array<bool>)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -960,15 +672,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
-[extract_type]--> starting extraction of type: multiPayloadPolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type multiPayloadPolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#test(int, bool, option<bool>, array<bool>)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1005,14 +708,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
-[extract_type]--> starting extraction of type: multiPayloadPolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type multiPayloadPolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#test(int, bool, option<bool>, array<bool>)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -1035,14 +730,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[v]
 Path v
-[extract_type]--> starting extraction of type: multiPayloadPolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type multiPayloadPolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#test(int, bool, option<bool>, array<bool>)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: array<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "[]",
     "kind": 12,
@@ -1062,14 +749,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -1091,16 +770,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1136,16 +805,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1181,10 +840,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "(_, _, _)",
     "kind": 12,
@@ -1202,16 +857,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1247,12 +892,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "One",
     "kind": 4,
@@ -1288,18 +927,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $0 of constructor 'Two'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: bool
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -1324,18 +951,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[z]
 Path z
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into variant payload $1 of constructor 'Three'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: bool
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -1358,14 +973,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -1389,14 +996,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[b]
 Path b
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "true",
     "kind": 4,
@@ -1419,16 +1018,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[s]
 Path s
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, array<bool>), in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1464,17 +1053,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[ff]
 Path ff
-[extract_type]--> starting extraction of type: recordWithFn, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type recordWithFn in CompletionPattern
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type unit => unit in env CompletionPattern
-[extract_type]--> starting extraction of type: unit => unit, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: unit => unit, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 []
 
 Complete src/CompletionPattern.res 206:16
@@ -1484,9 +1062,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[xn]
 Path xn
-[extract_type]--> starting extraction of type: exn, in env: CompletionPattern. Has type arg ctx: false
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "Js.Exn.Error(error)",
     "kind": 4,
@@ -1504,13 +1079,6 @@ ContextPath await Value[getThing](Nolabel)
 ContextPath Value[getThing](Nolabel)
 ContextPath Value[getThing]
 Path getThing
-[extract_type]--> starting extraction of type: promise<someVariant>, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "One",
     "kind": 4,
@@ -1547,32 +1115,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[res]
 Path res
-[extract_type]--> starting extraction of type: result<someVariant, somePolyVariant>, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type Pervasives.result in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: Belt.Result.t<'a, 'b>, in env: Pervasives. Has type arg ctx: true
-[extract_type]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> digging for type Belt.Result.t in Pervasives
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: true
-[nested]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[nested]--> trying to move into variant payload $0 of constructor 'Ok'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: 'a
-[extract_type]--> starting extraction of type: 'a, in env: Belt_Result. Has type arg ctx: true
-[extract_type]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> starting extraction of type: 'a, in env: Belt_Result. Has type arg ctx: true
-[extract_type]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> found type variable: 'a. Trying to instantiate with Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> SUCCEEDED instantiation, new type is: someVariant
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: true
-[extract_type]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> digging for type someVariant in CompletionPattern
-[extract_type]--> found variant
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: Belt_Result. Has type arg ctx: true
-[nested]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[nested]--> reached end of pattern, returning type
 [{
     "label": "One",
     "kind": 4,
@@ -1609,32 +1151,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[res]
 Path res
-[extract_type]--> starting extraction of type: result<someVariant, somePolyVariant>, in env: CompletionPattern. Has type arg ctx: false
-[extract_type]--> digging for type Pervasives.result in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: Belt.Result.t<'a, 'b>, in env: Pervasives. Has type arg ctx: true
-[extract_type]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> digging for type Belt.Result.t in Pervasives
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionPattern. Has type arg ctx: true
-[nested]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[nested]--> trying to move into variant payload $0 of constructor 'Error'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: 'b
-[extract_type]--> starting extraction of type: 'b, in env: Belt_Result. Has type arg ctx: true
-[extract_type]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> starting extraction of type: 'b, in env: Belt_Result. Has type arg ctx: true
-[extract_type]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> found type variable: 'b. Trying to instantiate with Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> SUCCEEDED instantiation, new type is: somePolyVariant
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionPattern. Has type arg ctx: true
-[extract_type]--> Type arg context. env: CompletionPattern, typeArgs: someVariant, somePolyVariant, typeParams: 'a, 'b
-[extract_type]--> digging for type somePolyVariant in CompletionPattern
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionPattern. Has type arg ctx: false
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: Belt_Result. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "#one",
     "kind": 4,

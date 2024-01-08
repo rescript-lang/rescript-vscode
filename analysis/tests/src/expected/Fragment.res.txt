@@ -16,13 +16,5 @@ Completable: Cexpression CTypeAtPos()=[]->variantPayload::::($1)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CTypeAtPos()
-[extract_type]--> starting extraction of type: React.element, in env: Fragment. Has type arg ctx: false
-[extract_type]--> starting extraction of type: React.element, in env: Fragment. Has type arg ctx: false
-[extract_type]--> digging for type React.element in Fragment
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: Jsx.element, in env: React. Has type arg ctx: false
-[extract_type]--> digging for type Pervasives.Jsx.element in React
-[extract_type]--> found something else when digging
---> could not get completions for context path
 null
 

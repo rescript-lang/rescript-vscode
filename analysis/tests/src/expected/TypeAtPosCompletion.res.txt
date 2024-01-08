@@ -4,15 +4,6 @@ Completable: Cexpression CTypeAtPos()->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CTypeAtPos()
-[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> digging for type optRecord in TypeAtPosCompletion
-[extract_type]--> found record
-[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> digging for type optRecord in TypeAtPosCompletion
-[extract_type]--> found record
---> found type in nested expression completion
 [{
     "label": "age",
     "kind": 5,
@@ -36,23 +27,6 @@ Completable: Cexpression CTypeAtPos()->variantPayload::One($1), recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CTypeAtPos()
-[extract_type]--> starting extraction of type: someVariant, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in TypeAtPosCompletion
-[extract_type]--> found variant
-[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
-[nested]--> trying to move into variant payload $1 of constructor 'One'
-[nested]--> found constructor (Args type)
-[nested]--> found arg of type: optRecord
-[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> digging for type optRecord in TypeAtPosCompletion
-[extract_type]--> found record
-[nested]--> extracted type, continuing descent
-[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> digging for type optRecord in TypeAtPosCompletion
-[extract_type]--> found record
---> found type in nested expression completion
 [{
     "label": "age",
     "kind": 5,
@@ -73,16 +47,6 @@ Completable: Cexpression CTypeAtPos()->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CTypeAtPos()
-[extract_type]--> starting extraction of type: array<optRecord>, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> starting extraction of type: array<optRecord>, in env: TypeAtPosCompletion. Has type arg ctx: false
-[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
-[extract_type]--> digging for type optRecord in TypeAtPosCompletion
-[extract_type]--> found record
-[nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "{}",
     "kind": 12,

@@ -11,10 +11,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CJsxPropValue [M] second
 Path M.make
-[extract_type]--> starting extraction of type: string, in env: Jsx2.M. Has type arg ctx: false
-[nested]--> running nested in env: Jsx2.M. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 []
 
 Complete src/Jsx2.res 11:20

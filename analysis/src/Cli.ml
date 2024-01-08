@@ -195,7 +195,6 @@ let main () =
     Printf.printf "\"%s\"" (Json.escape (Commands.format ~path))
   | [_; "test"; path] ->
     Cfg.supportsSnippets := true;
-    Debug.debugLevel := Verbose;
     Commands.test ~path
   | args when List.mem "-h" args || List.mem "--help" args -> prerr_endline help
   | _ ->

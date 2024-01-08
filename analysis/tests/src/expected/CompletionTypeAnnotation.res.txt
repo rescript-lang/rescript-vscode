@@ -5,9 +5,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[someRecord]
 Path someRecord
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "{}",
     "kind": 12,
@@ -26,8 +23,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[someRecord]
 Path someRecord
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
---> found type in nested expression completion
 [{
     "label": "age",
     "kind": 5,
@@ -49,9 +44,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[someVariant]
 Path someVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -77,9 +69,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[someVariant]
 Path someVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -110,9 +99,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[somePolyVariant]
 Path somePolyVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "#one",
     "kind": 4,
@@ -138,9 +124,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[somePolyVariant]
 Path somePolyVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "#one",
     "kind": 4,
@@ -158,10 +141,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[someFunc]
 Path someFunc
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: bool, in env: CompletionTypeAnnotation. Has type arg ctx: false
 [{
     "label": "(v1, v2) => {}",
     "kind": 12,
@@ -180,9 +159,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[someTuple]
 Path someTuple
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "(_, _)",
     "kind": 12,
@@ -200,13 +176,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[someTuple]
 Path someTuple
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> trying to move into tuple
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: bool, in env: CompletionTypeAnnotation. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -243,9 +212,6 @@ Resolved opens 1 pervasives
 ContextPath option<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "None",
     "kind": 12,
@@ -286,11 +252,6 @@ Resolved opens 1 pervasives
 ContextPath option<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> moving into option Some
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -317,9 +278,6 @@ Resolved opens 1 pervasives
 ContextPath array<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "[]",
     "kind": 12,
@@ -339,10 +297,6 @@ Resolved opens 1 pervasives
 ContextPath array<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -370,9 +324,6 @@ ContextPath array<option<Type[someVariant]>>
 ContextPath option<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "[]",
     "kind": 12,
@@ -393,12 +344,6 @@ ContextPath option<array<Type[someVariant]>>
 ContextPath array<Type[someVariant]>
 ContextPath Type[someVariant]
 Path someVariant
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> moving into option Some
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,

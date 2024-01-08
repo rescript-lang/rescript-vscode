@@ -8,9 +8,6 @@ ContextPath Value[s]
 Path s
 ContextPath Value[f]
 Path f
-[extract_type]--> starting extraction of type: (bool, option<array<bool>>), in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
 [{
     "label": "(_, _)",
     "kind": 12,
@@ -28,20 +25,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
---> found type in nested expression completion
 [{
     "label": "age",
     "kind": 5,
@@ -87,20 +72,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)=n->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
---> found type in nested expression completion
 [{
     "label": "nested",
     "kind": 5,
@@ -116,24 +89,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(offlin
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type bool in env CompletionExpressions
-[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "true",
     "kind": 4,
@@ -155,20 +112,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
---> found type in nested expression completion
 [{
     "label": "offline",
     "kind": 5,
@@ -208,20 +153,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
---> found type in nested expression completion
 [{
     "label": "online",
     "kind": 5,
@@ -255,27 +188,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type option<otherRecord> in env CompletionExpressions
-[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type otherRecord in CompletionExpressions
-[extract_type]--> found record
 [{
     "label": "Some(nested)",
     "kind": 12,
@@ -315,23 +229,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type option<otherRecord> in env CompletionExpressions
-[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
---> could not resolve nested expression path
 []
 
 Complete src/CompletionExpressions.res 47:51
@@ -341,31 +240,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type option<otherRecord> in env CompletionExpressions
-[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<otherRecord>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> moving into option Some
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type otherRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type otherRecord in CompletionExpressions
-[extract_type]--> found record
---> found type in nested expression completion
 [{
     "label": "someField",
     "kind": 5,
@@ -387,26 +263,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(varian
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type someVariant in env CompletionExpressions
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionExpressions
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -440,26 +298,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)=O->recordField(vari
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type someVariant in env CompletionExpressions
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionExpressions
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "One",
     "kind": 4,
@@ -477,31 +317,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyva
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type somePolyVariant in env CompletionExpressions
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionExpressions
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "{}",
     "kind": 12,
@@ -520,29 +337,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyva
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type somePolyVariant in env CompletionExpressions
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionExpressions
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "true",
     "kind": 4,
@@ -564,29 +360,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)=t->recordField(poly
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type somePolyVariant in env CompletionExpressions
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionExpressions
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "true",
     "kind": 4,
@@ -602,16 +377,8 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingArray]($0)
---> function argument: $0
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "[]",
     "kind": 12,
@@ -630,19 +397,8 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingArray]($0)
---> function argument: $0
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -678,16 +434,8 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)=s
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingArray]($0)
---> function argument: $0
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "s",
     "kind": 12,
@@ -703,21 +451,8 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)->array, variantPaylo
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingArray]($0)
---> function argument: $0
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> moving into option Some
-[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "true",
     "kind": 4,
@@ -739,19 +474,8 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingArray]($0)
---> function argument: $0
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -787,19 +511,8 @@ Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingArray]($0)
---> function argument: $0
 ContextPath Value[fnTakingArray]
 Path fnTakingArray
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: array<option<bool>>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<bool>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -835,18 +548,8 @@ Completable: Cexpression CArgument Value[fnTakingRecord]($0)=so
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecord]
 Path fnTakingRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "someBoolVar",
     "kind": 12,
@@ -862,24 +565,8 @@ Completable: Cexpression CArgument Value[fnTakingOtherRecord]($0)->recordField(o
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingOtherRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingOtherRecord]
 Path fnTakingOtherRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type otherRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type string in env CompletionExpressions
-[extract_type]--> starting extraction of type: string, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: string, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "\"\"",
     "kind": 12,
@@ -898,23 +585,8 @@ Completable: Cexpression CArgument Value[fnTakingRecordWithOptionalField]($0)->r
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecordWithOptionalField]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecordWithOptionalField]
 Path fnTakingRecordWithOptionalField
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: recordWithOptionalField, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: recordWithOptionalField, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type recordWithOptionalField in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type bool in env CompletionExpressions
-[extract_type]--> starting extraction of type: bool, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "true",
     "kind": 4,
@@ -936,27 +608,8 @@ Completable: Cexpression CArgument Value[fnTakingRecordWithOptVariant]($0)->reco
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingRecordWithOptVariant]($0)
---> function argument: $0
 ContextPath Value[fnTakingRecordWithOptVariant]
 Path fnTakingRecordWithOptVariant
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: recordWithOptVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: recordWithOptVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type recordWithOptVariant in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type option<someVariant> in env CompletionExpressions
-[extract_type]--> starting extraction of type: option<someVariant>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<someVariant>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: someVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type someVariant in CompletionExpressions
-[extract_type]--> found variant
 [{
     "label": "Some(someVariant)",
     "kind": 12,
@@ -1012,21 +665,8 @@ Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPaylo
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested]--> found constructor (inline record)
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "{}",
     "kind": 4,
@@ -1045,20 +685,8 @@ Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPaylo
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested]--> found constructor (inline record)
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
---> found type in nested expression completion
 [{
     "label": "someBoolField",
     "kind": 4,
@@ -1086,20 +714,8 @@ Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPay
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested]--> found constructor (inline record)
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
---> found type in nested expression completion
 [{
     "label": "someBoolField",
     "kind": 4,
@@ -1115,29 +731,8 @@ Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPaylo
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested]--> found constructor (inline record)
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type otherRecord in env CompletionExpressions
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type otherRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "{}",
     "kind": 12,
@@ -1156,31 +751,8 @@ Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPaylo
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
---> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
 Path fnTakingInlineRecord
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: variantWithInlineRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type variantWithInlineRecord in CompletionExpressions
-[extract_type]--> found variant
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into variant payload $0 of constructor 'WithInlineRecord'
-[nested]--> found constructor (inline record)
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type otherRecord in env CompletionExpressions
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type otherRecord in CompletionExpressions
-[extract_type]--> found record
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: otherRecord, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type otherRecord in CompletionExpressions
-[extract_type]--> found record
---> found type in nested expression completion
 [{
     "label": "someField",
     "kind": 5,
@@ -1202,19 +774,8 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingCallback]($0)
---> function argument: $0
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: unit => unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: unit => unit, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type unit in CompletionExpressions
-[extract_type]--> found nothing when digging
 [{
     "label": "() => {}",
     "kind": 12,
@@ -1233,16 +794,8 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($0)=a
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingCallback]($0)
---> function argument: $0
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: unit => unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: unit => unit, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 []
 
 Complete src/CompletionExpressions.res 165:22
@@ -1252,19 +805,8 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($1)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingCallback]($1)
---> function argument: $1
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: bool => unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: bool => unit, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type unit in CompletionExpressions
-[extract_type]--> found nothing when digging
 [{
     "label": "v => {}",
     "kind": 12,
@@ -1283,19 +825,8 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($2)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingCallback]($2)
---> function argument: $2
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: ReactEvent.Mouse.t => unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: ReactEvent.Mouse.t => unit, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type unit in CompletionExpressions
-[extract_type]--> found nothing when digging
 [{
     "label": "event => {}",
     "kind": 12,
@@ -1314,19 +845,8 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($3)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingCallback]($3)
---> function argument: $3
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: (~on: bool, ~off: bool=?, variant) => int, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (~on: bool, ~off: bool=?, variant) => int, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: int, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type int in CompletionExpressions
-[extract_type]--> found nothing when digging
 [{
     "label": "(~on, ~off=?, variant) => {}",
     "kind": 12,
@@ -1345,19 +865,8 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($4)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingCallback]($4)
---> function argument: $4
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: (bool, option<bool>, bool) => unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (bool, option<bool>, bool) => unit, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type unit in CompletionExpressions
-[extract_type]--> found nothing when digging
 [{
     "label": "(v1, v2, v3) => {}",
     "kind": 12,
@@ -1376,19 +885,8 @@ Completable: Cexpression CArgument Value[fnTakingCallback]($5)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingCallback]($5)
---> function argument: $5
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: (~on: bool=?, ~off: bool=?, unit) => int, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: (~on: bool=?, ~off: bool=?, unit) => int, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: int, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type int in CompletionExpressions
-[extract_type]--> found nothing when digging
 [{
     "label": "(~on=?, ~off=?, ()) => {}",
     "kind": 12,
@@ -1411,16 +909,8 @@ Completable: Cexpression CArgument Value[Js, log]($0)=s
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[Js, log]($0)
---> function argument: $0
 ContextPath Value[Js, log]
 Path Js.log
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: 'a, in env: Js. Has type arg ctx: false
-[extract_type]--> starting extraction of type: 'a, in env: Js. Has type arg ctx: false
-[extract_type]--> found type variable: 'a. Trying to instantiate with no type args ctx
-[extract_type]--> could not instantiate 'a. Skipping.
---> could not get completions for context path
 [{
     "label": "second2",
     "kind": 12,
@@ -1471,18 +961,8 @@ Completable: Cexpression CArgument Value[takesCb]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb]($0)
---> function argument: $0
 ContextPath Value[takesCb]
 Path takesCb
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: someTyp => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: someTyp => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> miss
 [{
     "label": "someTyp => {}",
     "kind": 12,
@@ -1501,18 +981,8 @@ Completable: Cexpression CArgument Value[takesCb2]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb2]($0)
---> function argument: $0
 ContextPath Value[takesCb2]
 Path takesCb2
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: Environment.t => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: Environment.t => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> miss
 [{
     "label": "environment => {}",
     "kind": 12,
@@ -1531,18 +1001,8 @@ Completable: Cexpression CArgument Value[takesCb3]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb3]($0)
---> function argument: $0
 ContextPath Value[takesCb3]
 Path takesCb3
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: apiCallResult => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: apiCallResult => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> miss
 [{
     "label": "apiCallResult => {}",
     "kind": 12,
@@ -1561,18 +1021,8 @@ Completable: Cexpression CArgument Value[takesCb4]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb4]($0)
---> function argument: $0
 ContextPath Value[takesCb4]
 Path takesCb4
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: option<apiCallResult> => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: option<apiCallResult> => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> miss
 [{
     "label": "apiCallResult => {}",
     "kind": 12,
@@ -1591,18 +1041,8 @@ Completable: Cexpression CArgument Value[takesCb5]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[takesCb5]($0)
---> function argument: $0
 ContextPath Value[takesCb5]
 Path takesCb5
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: array<option<apiCallResult>> => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: array<option<apiCallResult>> => 'a, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: 'a, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> miss
 [{
     "label": "apiCallResults => {}",
     "kind": 12,
@@ -1621,18 +1061,8 @@ Completable: Cexpression CArgument Value[commitLocalUpdate](~updater)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[commitLocalUpdate](~updater)
---> function argument: updater
 ContextPath Value[commitLocalUpdate]
 Path commitLocalUpdate
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: RecordSourceSelectorProxy.t => unit, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: unit, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type unit in CompletionExpressions
-[extract_type]--> found nothing when digging
 [{
     "label": "recordSourceSelectorProxy => {}",
     "kind": 12,
@@ -1651,17 +1081,8 @@ Completable: Cexpression CArgument Value[fnTakingAsyncCallback]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingAsyncCallback]($0)
---> function argument: $0
 ContextPath Value[fnTakingAsyncCallback]
 Path fnTakingAsyncCallback
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: unit => promise<unit>, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: unit => promise<unit>, in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: promise<unit>, in env: CompletionExpressions. Has type arg ctx: false
 [{
     "label": "async () => {}",
     "kind": 12,
@@ -1679,18 +1100,8 @@ Completable: Cexpression CArgument Value[Belt, Array, map]($1)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[Belt, Array, map]($1)
---> function argument: $1
 ContextPath Value[Belt, Array, map]
 Path Belt.Array.map
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: 'a => 'b, in env: Belt_Array. Has type arg ctx: false
-[nested]--> running nested in env: Belt_Array. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
-[extract_type]--> starting extraction of type: 'b, in env: Belt_Array. Has type arg ctx: false
-[extract_type]--> found type variable: 'b. Trying to instantiate with no type args ctx
-[extract_type]--> could not instantiate 'b. Skipping.
 [{
     "label": "v => {}",
     "kind": 12,
@@ -1709,19 +1120,8 @@ Completable: Cexpression CArgument Value[takesExotic]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[takesExotic]($0)
---> function argument: $0
 ContextPath Value[takesExotic]
 Path takesExotic
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: exoticPolyvariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: exoticPolyvariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type exoticPolyvariant in CompletionExpressions
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#"some exotic"], in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "#\"some exotic\"",
     "kind": 4,
@@ -1739,19 +1139,8 @@ Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingPolyVariant]($0)
---> function argument: $0
 ContextPath Value[fnTakingPolyVariant]
 Path fnTakingPolyVariant
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionExpressions
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "#one",
     "kind": 4,
@@ -1785,19 +1174,8 @@ Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=#
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingPolyVariant]($0)
---> function argument: $0
 ContextPath Value[fnTakingPolyVariant]
 Path fnTakingPolyVariant
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionExpressions
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "#one",
     "kind": 4,
@@ -1831,19 +1209,8 @@ Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=#o
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingPolyVariant]($0)
---> function argument: $0
 ContextPath Value[fnTakingPolyVariant]
 Path fnTakingPolyVariant
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionExpressions
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "#one",
     "kind": 4,
@@ -1861,19 +1228,8 @@ Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=o
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[fnTakingPolyVariant]($0)
---> function argument: $0
 ContextPath Value[fnTakingPolyVariant]
 Path fnTakingPolyVariant
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: somePolyVariant, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type somePolyVariant in CompletionExpressions
-[extract_type]--> found type manifest
-[extract_type]--> starting extraction of type: [#one | #three(someRecord, bool) | #two(bool)], in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "#one",
     "kind": 4,
@@ -1891,16 +1247,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Type[withIntLocal]
 Path withIntLocal
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> trying to move into record field
-[nested]--> found record field type
-[nested]--> extracting from type SuperInt.t in env CompletionExpressions
-[extract_type]--> starting extraction of type: SuperInt.t, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> starting extraction of type: SuperInt.t, in env: CompletionExpressions. Has type arg ctx: false
-[extract_type]--> digging for type SuperInt.t in CompletionExpressions
-[nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "SuperInt.make()",
     "kind": 12,
@@ -1918,17 +1264,8 @@ Completable: Cexpression CArgument Value[CompletionSupport, makeTestHidden]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
---> function argument: $0
 ContextPath Value[CompletionSupport, makeTestHidden]
 Path CompletionSupport.makeTestHidden
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: TestHidden.t, in env: CompletionSupport. Has type arg ctx: false
-[extract_type]--> starting extraction of type: TestHidden.t, in env: CompletionSupport. Has type arg ctx: false
-[extract_type]--> digging for type TestHidden.t in CompletionSupport
-[nested]--> running nested in env: CompletionSupport. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "CompletionSupport.TestHidden.make()",
     "kind": 12,
@@ -1947,17 +1284,8 @@ Raw opens: 1 CompletionSupport.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 2 pervasives CompletionSupport.res
 ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
---> function argument: $0
 ContextPath Value[CompletionSupport, makeTestHidden]
 Path CompletionSupport.makeTestHidden
---> found function type
---> found function argument!
-[extract_type]--> starting extraction of type: TestHidden.t, in env: CompletionSupport. Has type arg ctx: false
-[extract_type]--> starting extraction of type: TestHidden.t, in env: CompletionSupport. Has type arg ctx: false
-[extract_type]--> digging for type TestHidden.t in CompletionSupport
-[nested]--> running nested in env: CompletionSupport. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "TestHidden.make()",
     "kind": 12,

@@ -259,7 +259,6 @@ Resolved opens 1 pervasives
 ContextPath CPatternPath(Value[x])->recordField(someField)
 ContextPath Value[x]
 Path x
-[nested_pattern_path]
 {"contents": {"kind": "markdown", "value": "```rescript\nbool\n```"}}
 
 Hover src/Hover.res 263:8

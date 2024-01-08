@@ -481,10 +481,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CJsxPropValue [SomeComponent] someProp
 Path SomeComponent.make
-[extract_type]--> starting extraction of type: string, in env: CompletionJsx.SomeComponent. Has type arg ctx: false
-[nested]--> running nested in env: CompletionJsx.SomeComponent. Has type arg ctx: false
-[nested]--> reached end of pattern, returning type
---> found type in nested expression completion
 [{
     "label": "\"\"",
     "kind": 12,
