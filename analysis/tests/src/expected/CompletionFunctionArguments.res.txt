@@ -4,7 +4,6 @@ Pexp_apply ...[10:11->10:17] (~isOn10:19->10:23=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[someFn](~isOn)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someFn](~isOn)
 --> function argument: isOn
 ContextPath Value[someFn]
@@ -36,7 +35,6 @@ Pexp_apply ...[13:11->13:17] (~isOn13:19->13:23=...[13:24->13:25])
 Completable: Cexpression CArgument Value[someFn](~isOn)=t
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someFn](~isOn)
 --> function argument: isOn
 ContextPath Value[someFn]
@@ -69,7 +67,6 @@ Pexp_apply ...[16:11->16:17] (~isOff16:19->16:24=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[someFn](~isOff)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someFn](~isOff)
 --> function argument: isOff
 ContextPath Value[someFn]
@@ -105,7 +102,6 @@ Pexp_apply ...[21:14->21:20] (~isOn21:22->21:26=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[someFn](~isOn)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someFn](~isOn)
 --> function argument: isOn
 ContextPath Value[someFn]
@@ -137,7 +133,6 @@ Pexp_apply ...[34:11->34:22] (...[34:23->34:24])
 Completable: Cexpression CArgument Value[someOtherFn]($0)=f
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someOtherFn]($0)
 --> function argument: $0
 ContextPath Value[someOtherFn]
@@ -163,7 +158,6 @@ Pexp_apply ...[51:11->51:30] (~config51:32->51:38=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[someFnTakingVariant](~config)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someFnTakingVariant](~config)
 --> function argument: config
 ContextPath Value[someFnTakingVariant]
@@ -209,7 +203,6 @@ Pexp_apply ...[54:11->54:30] (~config54:32->54:38=...[54:39->54:40])
 Completable: Cexpression CArgument Value[someFnTakingVariant](~config)=O
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someFnTakingVariant](~config)
 --> function argument: config
 ContextPath Value[someFnTakingVariant]
@@ -258,7 +251,6 @@ Pexp_apply ...[57:11->57:30] (...[57:31->57:33])
 Completable: Cexpression CArgument Value[someFnTakingVariant]($0)=So
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someFnTakingVariant]($0)
 --> function argument: $0
 ContextPath Value[someFnTakingVariant]
@@ -296,7 +288,6 @@ Pexp_apply ...[60:11->60:30] (~configOpt260:32->60:42=...[60:43->60:44])
 Completable: Cexpression CArgument Value[someFnTakingVariant](~configOpt2)=O
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someFnTakingVariant](~configOpt2)
 --> function argument: configOpt2
 ContextPath Value[someFnTakingVariant]
@@ -345,7 +336,6 @@ Pexp_apply ...[63:11->63:22] (...[63:23->63:24])
 Completable: Cexpression CArgument Value[someOtherFn]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someOtherFn]($0)
 --> function argument: $0
 ContextPath Value[someOtherFn]
@@ -377,7 +367,6 @@ Pexp_apply ...[66:11->66:22] (...[66:23->66:24], ...[66:26->66:27])
 Completable: Cexpression CArgument Value[someOtherFn]($2)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someOtherFn]($2)
 --> function argument: $2
 ContextPath Value[someOtherFn]
@@ -408,7 +397,6 @@ posCursor:[69:30] posNoWhite:[69:29] Found expr:[69:11->69:31]
 Completable: Cexpression CArgument Value[someOtherFn]($2)=t
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[someOtherFn]($2)
 --> function argument: $2
 ContextPath Value[someOtherFn]
@@ -441,7 +429,6 @@ Pexp_apply ...[76:11->76:24] (...[76:25->76:26])
 Completable: Cexpression CArgument Value[fnTakingTuple]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingTuple]($0)
 --> function argument: $0
 ContextPath Value[fnTakingTuple]
@@ -469,7 +456,6 @@ Pexp_apply ...[89:11->89:25] (...[89:26->89:28])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]

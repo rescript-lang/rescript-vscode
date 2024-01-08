@@ -479,7 +479,6 @@ JSX <SomeComponent:[48:4->48:17] someProp[48:18->48:26]=...[48:18->48:26]> _chil
 Completable: Cexpression CJsxPropValue [SomeComponent] someProp
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CJsxPropValue [SomeComponent] someProp
 Path SomeComponent.make
 [extract_type]--> starting extraction of type: string, in env: CompletionJsx.SomeComponent. Has type arg ctx: false

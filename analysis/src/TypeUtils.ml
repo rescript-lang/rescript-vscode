@@ -262,25 +262,25 @@ let rec extractType ~env ~package (t : Types.type_expr) =
   | _ -> None
 
 let debugLogTypeArgContext {env; typeArgs; typeParams} =
-  Printf.sprintf "Type arg context. env: %s, typeArgs: %s, typeParams: %s"
+  Printf.sprintf "Type arg context. env: %s, typeArgs: %s, typeParams: %s\n"
     (Debug.debugPrintEnv env)
     (typeArgs |> List.map Shared.typeToString |> String.concat ", ")
     (typeParams |> List.map Shared.typeToString |> String.concat ", ")
 
 let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
     (t : Types.type_expr) =
-  Debug.logVerbose
-    (Printf.sprintf
-       "[extract_type]--> starting extraction of type: %s, in env: %s. Has \
-        type arg ctx: %b"
-       (Shared.typeToString t) (Debug.debugPrintEnv env)
-       (Option.is_some typeArgContext));
+  if Debug.verbose () then
+    Printf.printf
+      "[extract_type]--> starting extraction of type: %s, in env: %s. Has type \
+       arg ctx: %b\n"
+      (Shared.typeToString t) (Debug.debugPrintEnv env)
+      (Option.is_some typeArgContext);
   (match typeArgContext with
   | None -> ()
   | Some typeArgContext ->
-    Debug.logVerbose
-      (Printf.sprintf "[extract_type]--> %s"
-         (debugLogTypeArgContext typeArgContext)));
+    if Debug.verbose () then
+      Printf.printf "[extract_type]--> %s"
+        (debugLogTypeArgContext typeArgContext));
   let extractType = extractType2 in
   let instantiateType = instantiateType2 in
   match t.desc with
@@ -315,14 +315,15 @@ let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
           typeArgContext )
     | _args, _tRet, _typeArgContext -> None)
   | Tconstr (path, typeArgs, _) -> (
-    Debug.logVerbose
-      (Printf.sprintf "[extract_type]--> digging for type %s in %s"
-         (Path.name path) (Debug.debugPrintEnv env));
+    if Debug.verbose () then
+      Printf.printf "[extract_type]--> digging for type %s in %s\n"
+        (Path.name path) (Debug.debugPrintEnv env);
     match References.digConstructor ~env ~package path with
     | Some
         ( envFromDeclaration,
           {item = {decl = {type_manifest = Some t1; type_params}}} ) ->
-      Debug.logVerbose "[extract_type]--> found type manifest";
+      if Debug.verbose () then
+        print_endline "[extract_type]--> found type manifest";
       let typeArgContext =
         if List.length type_params > 0 then
           Some {env; typeParams = type_params; typeArgs}
@@ -330,13 +331,13 @@ let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
       in
       t1 |> extractType ?typeArgContext ~env:envFromDeclaration ~package
     | Some (env, {name; item = {decl; kind = Type.Variant constructors}}) ->
-      Debug.logVerbose "[extract_type]--> found variant";
+      if Debug.verbose () then print_endline "[extract_type]--> found variant";
       Some
         ( Tvariant
             {env; constructors; variantName = name.txt; variantDecl = decl},
           typeArgContext )
     | Some (env, {item = {kind = Record fields; decl}}) ->
-      Debug.logVerbose "[extract_type]--> found record";
+      if Debug.verbose () then print_endline "[extract_type]--> found record";
       (* Need to create a new type arg context here because we're sending along a type expr that might have type vars. *)
       let typeArgContext =
         if List.length typeArgs > 0 then
@@ -352,10 +353,12 @@ let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
       in
       Some (TtypeT {env; path}, typeArgContext)
     | None ->
-      Debug.logVerbose "[extract_type]--> found nothing when digging";
+      if Debug.verbose () then
+        print_endline "[extract_type]--> found nothing when digging";
       None
     | _ ->
-      Debug.logVerbose "[extract_type]--> found something else when digging";
+      if Debug.verbose () then
+        print_endline "[extract_type]--> found something else when digging";
       None)
   | Ttuple expressions -> Some (Tuple (env, expressions, t), typeArgContext)
   | Tvariant {row_fields} ->
@@ -377,14 +380,14 @@ let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
     in
     Some (Tpolyvariant {env; constructors; typeExpr = t}, typeArgContext)
   | Tvar (Some varName) -> (
-    Debug.logVerbose
-      (Printf.sprintf
-         "[extract_type]--> found type variable: '%s. Trying to instantiate %s"
-         varName
-         (match typeArgContext with
-         | None -> "with no type args ctx"
-         | Some typeArgContext ->
-           Printf.sprintf "with %s" (debugLogTypeArgContext typeArgContext)));
+    if Debug.verbose () then
+      Printf.printf
+        "[extract_type]--> found type variable: '%s. Trying to instantiate %s"
+        varName
+        (match typeArgContext with
+        | None -> "with no type args ctx\n"
+        | Some typeArgContext ->
+          Printf.sprintf "with %s" (debugLogTypeArgContext typeArgContext));
 
     let instantiated = t |> instantiateType ?typeArgContext in
     let rec extractInstantiated t =
@@ -394,15 +397,15 @@ let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
     in
     match extractInstantiated instantiated with
     | {desc = Tvar _} ->
-      Debug.logVerbose
-        (Printf.sprintf "[extract_type]--> could not instantiate '%s. Skipping."
-           varName);
+      if Debug.verbose () then
+        Printf.printf "[extract_type]--> could not instantiate '%s. Skipping.\n"
+          varName;
       None
     | _ ->
-      Debug.logVerbose
-        (Printf.sprintf
-           "[extract_type]--> SUCCEEDED instantiation, new type is: %s"
-           (Shared.typeToString instantiated));
+      if Debug.verbose () then
+        Printf.printf
+          "[extract_type]--> SUCCEEDED instantiation, new type is: %s\n"
+          (Shared.typeToString instantiated);
 
       (* Use the env from instantiation if we managed to instantiate the type param *)
       let nextEnv =
@@ -412,7 +415,7 @@ let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
       in
       instantiated |> extractType ?typeArgContext ~env:nextEnv ~package)
   | _ ->
-    Debug.logVerbose "[extract_type]--> miss";
+    if Debug.verbose () then print_endline "[extract_type]--> miss";
     None
 
 let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
@@ -544,7 +547,8 @@ type ctx = Rfield of string  (** A record field of name *)
 let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
   match nested with
   | [] ->
-    Debug.logVerbose "[nested]--> reached end of pattern, returning type";
+    if Debug.verbose () then
+      print_endline "[nested]--> reached end of pattern, returning type";
     Some
       ( typ,
         env,
@@ -555,10 +559,12 @@ let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
   | patternPath :: nested -> (
     match (patternPath, typ) with
     | Completable.NTupleItem {itemNum}, Tuple (env, tupleItems, _) -> (
-      Debug.logVerbose "[nested]--> trying to move into tuple";
+      if Debug.verbose () then
+        print_endline "[nested]--> trying to move into tuple";
       match List.nth_opt tupleItems itemNum with
       | None ->
-        Debug.logVerbose "[nested]--> tuple element not found";
+        if Debug.verbose () then
+          print_endline "[nested]--> tuple element not found";
         None
       | Some typ ->
         typ
@@ -567,21 +573,25 @@ let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
                typ |> resolveNested ~env ~full ~nested))
     | ( NFollowRecordField {fieldName},
         (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
-      Debug.logVerbose "[nested]--> trying to move into record field";
+      if Debug.verbose () then
+        print_endline "[nested]--> trying to move into record field";
       match
         fields
         |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
       with
       | None ->
-        Debug.logVerbose "[nested]--> did not find record field";
+        if Debug.verbose () then
+          print_endline "[nested]--> did not find record field";
         None
       | Some {typ; optional} ->
-        Debug.logVerbose "[nested]--> found record field type";
+        if Debug.verbose () then
+          print_endline "[nested]--> found record field type";
         let typ = if optional then Utils.unwrapIfOption typ else typ in
 
-        Debug.logVerbose
-          (Printf.sprintf "[nested]--> extracting from type %s in env %s"
-             (Shared.typeToString typ) (Debug.debugPrintEnv env));
+        if Debug.verbose () then
+          print_endline
+            (Printf.sprintf "[nested]--> extracting from type %s in env %s"
+               (Shared.typeToString typ) (Debug.debugPrintEnv env));
         typ
         |> extractType ~env ~package:full.package
         |> Utils.Option.flatMap (fun typ ->
@@ -602,56 +612,63 @@ let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
           Some (Completable.RecordField {seenFields}) )
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Toption (env, ExtractedType typ) ) ->
-      Debug.logVerbose "[nested]--> moving into option Some";
+      if Debug.verbose () then
+        print_endline "[nested]--> moving into option Some";
       typ |> resolveNested ~env ~full ~nested
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Toption (env, TypeExpr typ) ) ->
-      Debug.logVerbose "[nested]--> moving into option Some";
+      if Debug.verbose () then
+        print_endline "[nested]--> moving into option Some";
       typ
       |> extractType ~env ~package:full.package
       |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
     | NVariantPayload {constructorName = "Ok"; itemNum = 0}, Tresult {okType} ->
-      Debug.logVerbose "[nested]--> moving into result Ok";
+      if Debug.verbose () then print_endline "[nested]--> moving into result Ok";
       okType
       |> extractType ~env ~package:full.package
       |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
     | ( NVariantPayload {constructorName = "Error"; itemNum = 0},
         Tresult {errorType} ) ->
-      Debug.logVerbose "[nested]--> moving into result Error";
+      if Debug.verbose () then
+        print_endline "[nested]--> moving into result Error";
       errorType
       |> extractType ~env ~package:full.package
       |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
     | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
       -> (
-      Debug.logVerbose
-        (Printf.sprintf
-           "[nested]--> trying to move into variant payload $%i of constructor \
-            '%s'"
-           itemNum constructorName);
+      if Debug.verbose () then
+        Printf.printf
+          "[nested]--> trying to move into variant payload $%i of constructor \
+           '%s'\n"
+          itemNum constructorName;
       match
         constructors
         |> List.find_opt (fun (c : Constructor.t) ->
                c.cname.txt = constructorName)
       with
       | Some {args = Args args} -> (
-        Debug.logVerbose "[nested]--> found constructor (Args type)";
+        if Debug.verbose () then
+          print_endline "[nested]--> found constructor (Args type)";
         match List.nth_opt args itemNum with
         | None ->
-          Debug.logVerbose "[nested]--> did not find relevant args num";
+          if Debug.verbose () then
+            print_endline "[nested]--> did not find relevant args num";
           None
         | Some (typ, _) ->
-          Debug.logVerbose
-            (Printf.sprintf "[nested]--> found arg of type: %s"
-               (Shared.typeToString typ));
+          if Debug.verbose () then
+            Printf.printf "[nested]--> found arg of type: %s\n"
+              (Shared.typeToString typ);
 
           typ
           |> extractType ~env ~package:full.package
           |> Utils.Option.flatMap (fun typ ->
-                 Debug.logVerbose
-                   "[nested]--> extracted type, continuing descent";
+                 if Debug.verbose () then
+                   print_endline
+                     "[nested]--> extracted type, continuing descent";
                  typ |> resolveNested ~env ~full ~nested))
       | Some {args = InlineRecord fields} when itemNum = 0 ->
-        Debug.logVerbose "[nested]--> found constructor (inline record)";
+        if Debug.verbose () then
+          print_endline "[nested]--> found constructor (inline record)";
         TinlineRecord {env; fields} |> resolveNested ~env ~full ~nested
       | _ -> None)
     | ( NPolyvariantPayload {constructorName; itemNum},
@@ -683,19 +700,20 @@ let rec resolveNested2 ?typeArgContext ~env ~full ~nested ?ctx
     (typ : completionType) =
   let extractType = extractType2 ?typeArgContext in
   let resolveNested = resolveNested2 in
-  Debug.logVerbose
-    (Printf.sprintf
-       "[nested]--> running nested in env: %s. Has type arg ctx: %b"
-       (Debug.debugPrintEnv env)
-       (Option.is_some typeArgContext));
+  if Debug.verbose () then
+    Printf.printf
+      "[nested]--> running nested in env: %s. Has type arg ctx: %b\n"
+      (Debug.debugPrintEnv env)
+      (Option.is_some typeArgContext);
   (match typeArgContext with
   | None -> ()
   | Some typeArgContext ->
-    Debug.logVerbose
-      (Printf.sprintf "[nested]--> %s" (debugLogTypeArgContext typeArgContext)));
+    if Debug.verbose () then
+      Printf.printf "[nested]--> %s" (debugLogTypeArgContext typeArgContext));
   match nested with
   | [] ->
-    Debug.logVerbose "[nested]--> reached end of pattern, returning type";
+    if Debug.verbose () then
+      print_endline "[nested]--> reached end of pattern, returning type";
     Some
       ( typ,
         env,
@@ -706,10 +724,12 @@ let rec resolveNested2 ?typeArgContext ~env ~full ~nested ?ctx
   | patternPath :: nested -> (
     match (patternPath, typ) with
     | Completable.NTupleItem {itemNum}, Tuple (env, tupleItems, _) -> (
-      Debug.logVerbose "[nested]--> trying to move into tuple";
+      if Debug.verbose () then
+        print_endline "[nested]--> trying to move into tuple";
       match List.nth_opt tupleItems itemNum with
       | None ->
-        Debug.logVerbose "[nested]--> tuple element not found";
+        if Debug.verbose () then
+          print_endline "[nested]--> tuple element not found";
         None
       | Some typ ->
         typ
@@ -718,21 +738,24 @@ let rec resolveNested2 ?typeArgContext ~env ~full ~nested ?ctx
                typ |> resolveNested ?typeArgContext ~env ~full ~nested))
     | ( NFollowRecordField {fieldName},
         (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
-      Debug.logVerbose "[nested]--> trying to move into record field";
+      if Debug.verbose () then
+        print_endline "[nested]--> trying to move into record field";
       match
         fields
         |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
       with
       | None ->
-        Debug.logVerbose "[nested]--> did not find record field";
+        if Debug.verbose () then
+          print_endline "[nested]--> did not find record field";
         None
       | Some {typ; optional} ->
-        Debug.logVerbose "[nested]--> found record field type";
+        if Debug.verbose () then
+          print_endline "[nested]--> found record field type";
         let typ = if optional then Utils.unwrapIfOption typ else typ in
 
-        Debug.logVerbose
-          (Printf.sprintf "[nested]--> extracting from type %s in env %s"
-             (Shared.typeToString typ) (Debug.debugPrintEnv env));
+        if Debug.verbose () then
+          Printf.printf "[nested]--> extracting from type %s in env %s\n"
+            (Shared.typeToString typ) (Debug.debugPrintEnv env);
         typ
         |> extractType ~env ~package:full.package
         |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
@@ -744,7 +767,6 @@ let rec resolveNested2 ?typeArgContext ~env ~full ~nested ?ctx
       typeExpr
       |> extractType ~env ~package:full.package
       |> Option.map (fun (typ, _typeArgContext) ->
-             (* TODO: Do we need to do anything here with typeArgContext? *)
              (typ, env, Some (Completable.RecordField {seenFields})))
     | ( NRecordBody {seenFields},
         (Trecord {env; definition = `NameOnly _} as extractedType) ) ->
@@ -756,59 +778,66 @@ let rec resolveNested2 ?typeArgContext ~env ~full ~nested ?ctx
           Some (Completable.RecordField {seenFields}) )
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Toption (env, ExtractedType typ) ) ->
-      Debug.logVerbose "[nested]--> moving into option Some";
+      if Debug.verbose () then
+        print_endline "[nested]--> moving into option Some";
       typ |> resolveNested ~env ~full ~nested
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Toption (env, TypeExpr typ) ) ->
-      Debug.logVerbose "[nested]--> moving into option Some";
+      if Debug.verbose () then
+        print_endline "[nested]--> moving into option Some";
       typ
       |> extractType ~env ~package:full.package
       |> Utils.Option.flatMap (fun (t, typeArgContext) ->
              t |> resolveNested ?typeArgContext ~env ~full ~nested)
     | NVariantPayload {constructorName = "Ok"; itemNum = 0}, Tresult {okType} ->
-      Debug.logVerbose "[nested]--> moving into result Ok";
+      if Debug.verbose () then print_endline "[nested]--> moving into result Ok";
       okType
       |> extractType ~env ~package:full.package
       |> Utils.Option.flatMap (fun (t, typeArgContext) ->
              t |> resolveNested ?typeArgContext ~env ~full ~nested)
     | ( NVariantPayload {constructorName = "Error"; itemNum = 0},
         Tresult {errorType} ) ->
-      Debug.logVerbose "[nested]--> moving into result Error";
+      if Debug.verbose () then
+        print_endline "[nested]--> moving into result Error";
       errorType
       |> extractType ~env ~package:full.package
       |> Utils.Option.flatMap (fun (t, typeArgContext) ->
              t |> resolveNested ?typeArgContext ~env ~full ~nested)
     | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
       -> (
-      Debug.logVerbose
-        (Printf.sprintf
-           "[nested]--> trying to move into variant payload $%i of constructor \
-            '%s'"
-           itemNum constructorName);
+      if Debug.verbose () then
+        Printf.printf
+          "[nested]--> trying to move into variant payload $%i of constructor \
+           '%s'\n"
+          itemNum constructorName;
       match
         constructors
         |> List.find_opt (fun (c : Constructor.t) ->
                c.cname.txt = constructorName)
       with
       | Some {args = Args args} -> (
-        Debug.logVerbose "[nested]--> found constructor (Args type)";
+        if Debug.verbose () then
+          print_endline "[nested]--> found constructor (Args type)";
         match List.nth_opt args itemNum with
         | None ->
-          Debug.logVerbose "[nested]--> did not find relevant args num";
+          if Debug.verbose () then
+            print_endline "[nested]--> did not find relevant args num";
           None
         | Some (typ, _) ->
-          Debug.logVerbose
-            (Printf.sprintf "[nested]--> found arg of type: %s"
-               (Shared.typeToString typ));
+          if Debug.verbose () then
+            Printf.printf "[nested]--> found arg of type: %s\n"
+              (Shared.typeToString typ);
 
           typ
           |> extractType ~env ~package:full.package
           |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
-                 Debug.logVerbose
-                   "[nested]--> extracted type, continuing descent";
+                 if Debug.verbose () then
+                   print_endline
+                     "[nested]--> extracted type, continuing descent";
                  typ |> resolveNested ?typeArgContext ~env ~full ~nested))
       | Some {args = InlineRecord fields} when itemNum = 0 ->
-        Debug.logVerbose "[nested]--> found constructor (inline record)";
+        if Debug.verbose () then
+          print_endline "[nested]--> found constructor (inline record)";
         TinlineRecord {env; fields} |> resolveNested ~env ~full ~nested
       | _ -> None)
     | ( NPolyvariantPayload {constructorName; itemNum},
@@ -871,7 +900,7 @@ let findTypeOfPolyvariantArg constructors ~constructorName ~payloadNum =
   | None -> None
 
 let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
-  Debug.logVerbose "[nested_pattern_path]";
+  if Debug.verbose () then print_endline "[nested_pattern_path]";
   let t =
     match typ with
     | TypeExpr t -> t |> extractType ~env ~package:full.package

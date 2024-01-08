@@ -4,7 +4,6 @@ Pexp_apply ...[7:11->7:20] (~variables7:22->7:31=...[7:32->7:55])
 Completable: Cexpression CArgument Value[Query, use](~variables)->recordField(location), variantPayload::ByAddress($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[Query, use](~variables)
 --> function argument: variables
 ContextPath Value[Query, use]

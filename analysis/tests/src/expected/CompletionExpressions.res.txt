@@ -27,7 +27,6 @@ Pexp_apply ...[26:11->26:25] (...[26:26->26:28])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -87,7 +86,6 @@ Pexp_apply ...[29:11->29:25] (...[29:27->29:28])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=n->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -117,7 +115,6 @@ Pexp_apply ...[32:11->32:25] (...[32:26->32:38])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(offline)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -157,7 +154,6 @@ Pexp_apply ...[35:11->35:25] (...[35:26->35:38])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -211,7 +207,6 @@ Pexp_apply ...[38:11->38:25] (...[38:26->38:52])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -259,7 +254,6 @@ Pexp_apply ...[41:11->41:25] (...[41:26->41:47])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -320,7 +314,6 @@ Pexp_apply ...[44:11->44:25] (...[44:26->44:48])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested), recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -347,7 +340,6 @@ Pexp_apply ...[47:11->47:25] (...[47:26->47:54])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(nested), variantPayload::Some($0), recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -394,7 +386,6 @@ Pexp_apply ...[50:11->50:25] (...[50:26->50:48])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(variant)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -448,7 +439,6 @@ Pexp_apply ...[53:11->53:25] (...[53:26->53:49])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=O->recordField(variant)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -486,7 +476,6 @@ Pexp_apply ...[56:11->56:25] (...[56:26->56:60])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyvariant), polyvariantPayload::three($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -530,7 +519,6 @@ Pexp_apply ...[59:11->59:25] (...[59:26->59:64])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)->recordField(polyvariant), polyvariantPayload::three($1)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -575,7 +563,6 @@ Pexp_apply ...[62:11->62:25] (...[62:26->62:65])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=t->recordField(polyvariant), polyvariantPayload::three($1)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -614,7 +601,6 @@ Pexp_apply ...[69:11->69:24] (...[69:25->69:26])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingArray]($0)
 --> function argument: $0
 ContextPath Value[fnTakingArray]
@@ -643,7 +629,6 @@ Pexp_apply ...[72:11->72:24] (...[72:25->72:27])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingArray]($0)
 --> function argument: $0
 ContextPath Value[fnTakingArray]
@@ -692,7 +677,6 @@ Pexp_apply ...[75:11->75:24] (...[75:25->75:26])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)=s
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingArray]($0)
 --> function argument: $0
 ContextPath Value[fnTakingArray]
@@ -718,7 +702,6 @@ Pexp_apply ...[78:11->78:24] (...[78:25->78:33])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array, variantPayload::Some($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingArray]($0)
 --> function argument: $0
 ContextPath Value[fnTakingArray]
@@ -755,7 +738,6 @@ Pexp_apply ...[81:11->81:24] (...[81:25->81:33])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingArray]($0)
 --> function argument: $0
 ContextPath Value[fnTakingArray]
@@ -804,7 +786,6 @@ Pexp_apply ...[84:11->84:24] (...[84:25->84:39])
 Completable: Cexpression CArgument Value[fnTakingArray]($0)->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingArray]($0)
 --> function argument: $0
 ContextPath Value[fnTakingArray]
@@ -853,7 +834,6 @@ Pexp_apply ...[89:11->89:25] (...[89:26->89:40])
 Completable: Cexpression CArgument Value[fnTakingRecord]($0)=so
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecord]
@@ -881,7 +861,6 @@ Pexp_apply ...[96:11->96:30] (...[96:31->96:46])
 Completable: Cexpression CArgument Value[fnTakingOtherRecord]($0)->recordField(otherField)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingOtherRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingOtherRecord]
@@ -918,7 +897,6 @@ Pexp_apply ...[108:11->108:42] (...[108:43->108:60])
 Completable: Cexpression CArgument Value[fnTakingRecordWithOptionalField]($0)->recordField(someOptField)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecordWithOptionalField]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecordWithOptionalField]
@@ -957,7 +935,6 @@ Pexp_apply ...[116:11->116:39] (...[116:40->116:56])
 Completable: Cexpression CArgument Value[fnTakingRecordWithOptVariant]($0)->recordField(someVariant)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingRecordWithOptVariant]($0)
 --> function argument: $0
 ContextPath Value[fnTakingRecordWithOptVariant]
@@ -1034,7 +1011,6 @@ Pexp_apply ...[126:11->126:31] (...[126:32->126:50])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
@@ -1068,7 +1044,6 @@ Pexp_apply ...[129:11->129:31] (...[129:32->129:52])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
@@ -1110,7 +1085,6 @@ Pexp_apply ...[132:11->132:31] (...[132:32->132:53])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)=s->variantPayload::WithInlineRecord($0), recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
@@ -1140,7 +1114,6 @@ Pexp_apply ...[135:11->135:31] (...[135:32->135:66])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordField(nestedRecord)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
@@ -1182,7 +1155,6 @@ Pexp_apply ...[138:11->138:31] (...[138:32->138:69])
 Completable: Cexpression CArgument Value[fnTakingInlineRecord]($0)->variantPayload::WithInlineRecord($0), recordField(nestedRecord), recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingInlineRecord]($0)
 --> function argument: $0
 ContextPath Value[fnTakingInlineRecord]
@@ -1229,7 +1201,6 @@ Pexp_apply ...[159:3->159:19] (...[159:20->159:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingCallback]($0)
 --> function argument: $0
 ContextPath Value[fnTakingCallback]
@@ -1261,7 +1232,6 @@ Pexp_apply ...[162:3->162:19] (...[162:20->162:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($0)=a
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingCallback]($0)
 --> function argument: $0
 ContextPath Value[fnTakingCallback]
@@ -1281,7 +1251,6 @@ Pexp_apply ...[165:3->165:19] (...[165:20->165:21])
 Completable: Cexpression CArgument Value[fnTakingCallback]($1)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingCallback]($1)
 --> function argument: $1
 ContextPath Value[fnTakingCallback]
@@ -1313,7 +1282,6 @@ Pexp_apply ...[168:3->168:19] (...[168:20->168:21], ...[168:23->168:24])
 Completable: Cexpression CArgument Value[fnTakingCallback]($2)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingCallback]($2)
 --> function argument: $2
 ContextPath Value[fnTakingCallback]
@@ -1345,7 +1313,6 @@ Pexp_apply ...[171:3->171:19] (...[171:20->171:21], ...[171:23->171:24], ...[171
 Completable: Cexpression CArgument Value[fnTakingCallback]($3)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingCallback]($3)
 --> function argument: $3
 ContextPath Value[fnTakingCallback]
@@ -1377,7 +1344,6 @@ Pexp_apply ...[174:3->174:19] (...[174:20->174:21], ...[174:23->174:24], ...[174
 Completable: Cexpression CArgument Value[fnTakingCallback]($4)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingCallback]($4)
 --> function argument: $4
 ContextPath Value[fnTakingCallback]
@@ -1409,7 +1375,6 @@ Pexp_apply ...[177:3->177:19] (...[177:20->177:21], ...[177:23->177:24], ...[177
 Completable: Cexpression CArgument Value[fnTakingCallback]($5)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingCallback]($5)
 --> function argument: $5
 ContextPath Value[fnTakingCallback]
@@ -1445,7 +1410,6 @@ Pexp_apply ...[185:2->185:8] (...[185:9->185:10])
 Completable: Cexpression CArgument Value[Js, log]($0)=s
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[Js, log]($0)
 --> function argument: $0
 ContextPath Value[Js, log]
@@ -1506,7 +1470,6 @@ Pexp_apply ...[205:3->205:10] (...[205:11->205:12])
 Completable: Cexpression CArgument Value[takesCb]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[takesCb]($0)
 --> function argument: $0
 ContextPath Value[takesCb]
@@ -1537,7 +1500,6 @@ Pexp_apply ...[216:3->216:11] (...[216:12->216:13])
 Completable: Cexpression CArgument Value[takesCb2]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[takesCb2]($0)
 --> function argument: $0
 ContextPath Value[takesCb2]
@@ -1568,7 +1530,6 @@ Pexp_apply ...[225:3->225:11] (...[225:12->225:13])
 Completable: Cexpression CArgument Value[takesCb3]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[takesCb3]($0)
 --> function argument: $0
 ContextPath Value[takesCb3]
@@ -1599,7 +1560,6 @@ Pexp_apply ...[232:3->232:11] (...[232:12->232:13])
 Completable: Cexpression CArgument Value[takesCb4]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[takesCb4]($0)
 --> function argument: $0
 ContextPath Value[takesCb4]
@@ -1630,7 +1590,6 @@ Pexp_apply ...[239:3->239:11] (...[239:12->239:13])
 Completable: Cexpression CArgument Value[takesCb5]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[takesCb5]($0)
 --> function argument: $0
 ContextPath Value[takesCb5]
@@ -1661,7 +1620,6 @@ Pexp_apply ...[250:3->250:20] (~updater250:22->250:29=...__ghost__[0:-1->0:-1])
 Completable: Cexpression CArgument Value[commitLocalUpdate](~updater)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[commitLocalUpdate](~updater)
 --> function argument: updater
 ContextPath Value[commitLocalUpdate]
@@ -1692,7 +1650,6 @@ Pexp_apply ...[257:3->257:24] (...[257:25->257:26])
 Completable: Cexpression CArgument Value[fnTakingAsyncCallback]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingAsyncCallback]($0)
 --> function argument: $0
 ContextPath Value[fnTakingAsyncCallback]
@@ -1721,7 +1678,6 @@ posCursor:[262:23] posNoWhite:[262:22] Found expr:[262:3->262:24]
 Completable: Cexpression CArgument Value[Belt, Array, map]($1)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[Belt, Array, map]($1)
 --> function argument: $1
 ContextPath Value[Belt, Array, map]
@@ -1752,7 +1708,6 @@ Pexp_apply ...[271:3->271:14] (...[271:15->271:16])
 Completable: Cexpression CArgument Value[takesExotic]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[takesExotic]($0)
 --> function argument: $0
 ContextPath Value[takesExotic]
@@ -1783,7 +1738,6 @@ Pexp_apply ...[278:3->278:22] (...[278:23->278:24])
 Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingPolyVariant]($0)
 --> function argument: $0
 ContextPath Value[fnTakingPolyVariant]
@@ -1830,7 +1784,6 @@ Pexp_apply ...[281:3->281:22] (...[281:23->281:25], ...[290:0->290:16])
 Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=#
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingPolyVariant]($0)
 --> function argument: $0
 ContextPath Value[fnTakingPolyVariant]
@@ -1877,7 +1830,6 @@ Pexp_apply ...[284:3->284:22] (...[284:23->284:25])
 Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=#o
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingPolyVariant]($0)
 --> function argument: $0
 ContextPath Value[fnTakingPolyVariant]
@@ -1908,7 +1860,6 @@ Pexp_apply ...[287:3->287:22] (...[287:23->287:24])
 Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=o
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[fnTakingPolyVariant]($0)
 --> function argument: $0
 ContextPath Value[fnTakingPolyVariant]
@@ -1938,7 +1889,6 @@ XXX Not found!
 Completable: Cexpression Type[withIntLocal]->recordField(superInt)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath Type[withIntLocal]
 Path withIntLocal
 [nested]--> running nested in env: CompletionExpressions. Has type arg ctx: false
@@ -1967,7 +1917,6 @@ Pexp_apply ...[309:3->309:35] (...[309:36->309:37])
 Completable: Cexpression CArgument Value[CompletionSupport, makeTestHidden]($0)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
 --> function argument: $0
 ContextPath Value[CompletionSupport, makeTestHidden]
@@ -1997,7 +1946,6 @@ Completable: Cexpression CArgument Value[CompletionSupport, makeTestHidden]($0)
 Raw opens: 1 CompletionSupport.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 2 pervasives CompletionSupport.res
---> expression completion
 ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
 --> function argument: $0
 ContextPath Value[CompletionSupport, makeTestHidden]

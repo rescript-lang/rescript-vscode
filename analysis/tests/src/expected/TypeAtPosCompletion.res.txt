@@ -3,7 +3,6 @@ posCursor:[7:17] posNoWhite:[7:15] Found expr:[6:16->9:1]
 Completable: Cexpression CTypeAtPos()->recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CTypeAtPos()
 [extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
@@ -36,7 +35,6 @@ posCursor:[16:18] posNoWhite:[16:16] Found expr:[15:2->18:3]
 Completable: Cexpression CTypeAtPos()->variantPayload::One($1), recordBody
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CTypeAtPos()
 [extract_type]--> starting extraction of type: someVariant, in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> starting extraction of type: someVariant, in env: TypeAtPosCompletion. Has type arg ctx: false
@@ -74,7 +72,6 @@ posCursor:[22:12] posNoWhite:[22:11] Found expr:[21:10->24:1]
 Completable: Cexpression CTypeAtPos()->array
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CTypeAtPos()
 [extract_type]--> starting extraction of type: array<optRecord>, in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> starting extraction of type: array<optRecord>, in env: TypeAtPosCompletion. Has type arg ctx: false

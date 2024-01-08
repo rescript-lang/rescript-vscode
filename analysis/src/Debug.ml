@@ -7,8 +7,6 @@ let log s =
   | Regular | Verbose -> print_endline s
   | Off -> ()
 
-let logVerbose s = if !debugLevel = Verbose then print_endline s
-
 let debugPrintEnv (env : SharedTypes.QueryEnv.t) =
   env.pathRev @ [env.file.moduleName] |> List.rev |> String.concat "."
 

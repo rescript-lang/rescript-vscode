@@ -9,7 +9,6 @@ JSX <M:[8:4->8:5] second[8:6->8:12]=...[8:13->8:15]> _children:None
 Completable: Cexpression CJsxPropValue [M] second=fi
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CJsxPropValue [M] second
 Path M.make
 [extract_type]--> starting extraction of type: string, in env: Jsx2.M. Has type arg ctx: false

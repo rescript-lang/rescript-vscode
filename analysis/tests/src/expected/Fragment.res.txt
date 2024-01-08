@@ -15,7 +15,6 @@ Pexp_construct []:__ghost__[9:10->9:67] None
 Completable: Cexpression CTypeAtPos()=[]->variantPayload::::($1)
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CTypeAtPos()
 [extract_type]--> starting extraction of type: React.element, in env: Fragment. Has type arg ctx: false
 [extract_type]--> starting extraction of type: React.element, in env: Fragment. Has type arg ctx: false

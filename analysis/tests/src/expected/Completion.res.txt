@@ -518,7 +518,6 @@ JSX <O.Comp:[59:15->59:21] second[59:22->59:28]=...[59:29->59:30]> _children:Non
 Completable: Cexpression CJsxPropValue [O, Comp] second=z
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
---> expression completion
 ContextPath CJsxPropValue [O, Comp] second
 Path O.Comp.make
 [extract_type]--> starting extraction of type: string, in env: Completion.O.Comp. Has type arg ctx: false
@@ -2149,7 +2148,6 @@ Completable: Cexpression Type[someVariantWithDeprecated]
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
---> expression completion
 ContextPath Type[someVariantWithDeprecated]
 Path someVariantWithDeprecated
 [nested]--> running nested in env: Completion. Has type arg ctx: false
@@ -2207,7 +2205,6 @@ Completable: Cexpression Type[withUncurried]->recordField(fn)
 Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
---> expression completion
 ContextPath Type[withUncurried]
 Path withUncurried
 [nested]--> running nested in env: Completion. Has type arg ctx: false

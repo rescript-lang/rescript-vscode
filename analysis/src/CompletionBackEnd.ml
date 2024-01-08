@@ -1061,11 +1061,11 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
           ~kind:(Completion.Value (Utils.unwrapIfOption typ));
       ])
   | CArgument {functionContextPath; argumentLabel} -> (
-    Debug.logVerbose
-      (Printf.sprintf "--> function argument: %s"
-         (match argumentLabel with
-         | Labelled n | Optional n -> n
-         | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition));
+    if Debug.verbose () then
+      Printf.printf "--> function argument: %s\n"
+        (match argumentLabel with
+        | Labelled n | Optional n -> n
+        | Unlabelled {argumentPosition} -> "$" ^ string_of_int argumentPosition);
 
     let labels, env =
       match
@@ -1075,10 +1075,11 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         |> completionsGetCompletionType2 ~debug ~full ~opens ~rawOpens ~pos
       with
       | Some ((TypeExpr typ | ExtractedType (Tfunction {typ})), env) ->
-        Debug.logVerbose "--> found function type";
+        if Debug.verbose () then print_endline "--> found function type";
         (typ |> TypeUtils.getArgs ~full ~env, env)
       | _ ->
-        Debug.logVerbose "--> could not find function type";
+        if Debug.verbose () then
+          print_endline "--> could not find function type";
         ([], env)
     in
     let targetLabel =
@@ -1100,10 +1101,11 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     in
     match targetLabel with
     | None ->
-      Debug.logVerbose "--> could not look up function argument";
+      if Debug.verbose () then
+        print_endline "--> could not look up function argument";
       []
     | Some (_, typ) ->
-      Debug.logVerbose "--> found function argument!";
+      if Debug.verbose () then print_endline "--> found function argument!";
       [
         Completion.create "dummy" ~env
           ~kind:
@@ -1839,7 +1841,6 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())
   | Cexpression {contextPath; prefix; nested} -> (
-    Debug.logVerbose "--> expression completion";
     (* Completions for local things like variables in scope, modules in the
        project, etc. We only add completions when there's a prefix of some sort
        we can filter on, since we know we're in some sort of context, and
@@ -1857,15 +1858,18 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       |> completionsGetCompletionType ~full
     with
     | None ->
-      Debug.logVerbose "--> could not get completions for context path";
+      if Debug.verbose () then
+        print_endline "--> could not get completions for context path";
       regularCompletions
     | Some (typ, env) -> (
       match typ |> TypeUtils.resolveNested2 ~env ~full ~nested with
       | None ->
-        Debug.logVerbose "--> could not resolve nested expression path";
+        if Debug.verbose () then
+          print_endline "--> could not resolve nested expression path";
         regularCompletions
       | Some (typ, _env, completionContext) -> (
-        Debug.logVerbose "--> found type in nested expression completion";
+        if Debug.verbose () then
+          print_endline "--> found type in nested expression completion";
         (* Wrap the insert text in braces when we're completing the root of a
            JSX prop value. *)
         let wrapInsertTextInBraces =
