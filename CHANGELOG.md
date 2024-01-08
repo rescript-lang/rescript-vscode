@@ -15,6 +15,7 @@
 - Better error recovery when analysis fails. https://github.com/rescript-lang/rescript-vscode/pull/880
 - Expand type aliases in hovers. https://github.com/rescript-lang/rescript-vscode/pull/881
 - Include fields when completing a braced expr that's an ID, where it the path likely starts with a module. https://github.com/rescript-lang/rescript-vscode/pull/882
+- Complete domProps for lowercase JSX components from `ReactDOM.domProps` if possible. https://github.com/rescript-lang/rescript-vscode/pull/883
 
 ## 1.32.0
 
