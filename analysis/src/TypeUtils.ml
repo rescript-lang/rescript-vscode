@@ -149,6 +149,7 @@ let rec extractType ~env ~package (t : Types.type_expr) =
            })
     | Some (env, {item = {kind = Record fields}}) ->
       Some (Trecord {env; fields; definition = `TypeExpr t})
+    | Some (env, {item = {name = "t"}}) -> Some (TtypeT {env; path})
     | _ -> None)
   | Ttuple expressions -> Some (Tuple (env, expressions, t))
   | Tvariant {row_fields} ->
@@ -631,6 +632,7 @@ let rec extractedTypeToString ?(inner = false) = function
     else Shared.typeToString typ
   | Tbool _ -> "bool"
   | Tstring _ -> "string"
+  | TtypeT _ -> "type t"
   | Tarray (_, TypeExpr innerTyp) ->
     "array<" ^ Shared.typeToString innerTyp ^ ">"
   | Tarray (_, ExtractedType innerTyp) ->
@@ -757,3 +759,48 @@ module Codegen = struct
         |> List.map (fun (pat : Parsetree.pattern) ->
                Ast_helper.Exp.case pat (mkFailWithExp ())))
 end
+
+let getPathRelativeToEnv ~debug ~(env : QueryEnv.t) ~envFromItem path =
+  match path with
+  | _ :: pathRev ->
+    (* type path is relative to the completion environment
+       express it from the root of the file *)
+    let found, pathFromEnv =
+      QueryEnv.pathFromEnv envFromItem (List.rev pathRev)
+    in
+    if debug then
+      Printf.printf "CPPipe pathFromEnv:%s found:%b\n"
+        (pathFromEnv |> String.concat ".")
+        found;
+    if pathFromEnv = [] then None
+    else if
+      env.file.moduleName <> envFromItem.file.moduleName && found
+      (* If the module names are different, then one needs to qualify the path.
+         But only if the path belongs to the env from completion *)
+    then Some (envFromItem.file.moduleName :: pathFromEnv)
+    else Some pathFromEnv
+  | _ -> None
+
+let removeOpensFromCompletionPath ~rawOpens ~package completionPath =
+  let rec removeRawOpen rawOpen modulePath =
+    match (rawOpen, modulePath) with
+    | [_], _ -> Some modulePath
+    | s :: inner, first :: restPath when s = first ->
+      removeRawOpen inner restPath
+    | _ -> None
+  in
+  let rec removeRawOpens rawOpens modulePath =
+    match rawOpens with
+    | rawOpen :: restOpens -> (
+      let newModulePath = removeRawOpens restOpens modulePath in
+      match removeRawOpen rawOpen newModulePath with
+      | None -> newModulePath
+      | Some mp -> mp)
+    | [] -> modulePath
+  in
+  let completionPathMinusOpens =
+    completionPath |> Utils.flattenAnyNamespaceInPath
+    |> removeRawOpens package.opens
+    |> removeRawOpens rawOpens
+  in
+  completionPathMinusOpens
