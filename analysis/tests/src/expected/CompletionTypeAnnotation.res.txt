@@ -168,6 +168,7 @@ Path someFunc
 [nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
+[extract_type]--> starting extraction of type: bool, in env: CompletionTypeAnnotation. Has type arg ctx: false
 [{
     "label": "(v1, v2) => {}",
     "kind": 12,
@@ -214,6 +215,7 @@ Path someTuple
 [nested]--> running nested in env: CompletionTypeAnnotation. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
+[extract_type]--> starting extraction of type: bool, in env: CompletionTypeAnnotation. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,

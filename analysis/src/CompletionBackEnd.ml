@@ -637,8 +637,8 @@ let completionsGetCompletionType ~full = function
   | {Completion.kind = ObjLabel typ; env} :: _
   | {Completion.kind = Field ({typ}, _); env} :: _ ->
     typ
-    |> TypeUtils.extractType ~env ~package:full.package
-    |> Option.map (fun typ -> (typ, env))
+    |> TypeUtils.extractType2 ~env ~package:full.package
+    |> Option.map (fun (typ, _) -> (typ, env))
   | {Completion.kind = Type typ; env} :: _ -> (
     match TypeUtils.extractTypeFromResolvedType typ ~env ~full with
     | None -> None
@@ -1311,13 +1311,13 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
   | Toption (env, t) ->
     let innerType =
       match t with
-      | ExtractedType t -> Some t
-      | TypeExpr t -> t |> TypeUtils.extractType ~env ~package:full.package
+      | ExtractedType t -> Some (t, None)
+      | TypeExpr t -> t |> TypeUtils.extractType2 ~env ~package:full.package
     in
     let expandedCompletions =
       match innerType with
       | None -> []
-      | Some innerType ->
+      | Some (innerType, _typeArgsContext) ->
         innerType
         |> completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
         |> List.map (fun (c : Completion.t) ->
@@ -1355,15 +1355,15 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     completions @ expandedCompletions |> filterItems ~prefix
   | Tresult {env; okType; errorType} ->
     let okInnerType =
-      okType |> TypeUtils.extractType ~env ~package:full.package
+      okType |> TypeUtils.extractType2 ~env ~package:full.package
     in
     let errorInnerType =
-      errorType |> TypeUtils.extractType ~env ~package:full.package
+      errorType |> TypeUtils.extractType2 ~env ~package:full.package
     in
     let expandedOkCompletions =
       match okInnerType with
       | None -> []
-      | Some innerType ->
+      | Some (innerType, _) ->
         innerType
         |> completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
         |> List.map (fun (c : Completion.t) ->
@@ -1380,7 +1380,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     let expandedErrorCompletions =
       match errorInnerType with
       | None -> []
-      | Some innerType ->
+      | Some (innerType, _) ->
         innerType
         |> completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
         |> List.map (fun (c : Completion.t) ->
@@ -1557,8 +1557,8 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
         "(" ^ if shouldPrintAsUncurried then ". " else "" ^ argsText ^ ")"
     in
     let isAsync =
-      match TypeUtils.extractType ~env ~package:full.package returnType with
-      | Some (Tpromise _) -> true
+      match TypeUtils.extractType2 ~env ~package:full.package returnType with
+      | Some (Tpromise _, _) -> true
       | _ -> false
     in
     let asyncPrefix = if isAsync then "async " else "" in
@@ -1944,8 +1944,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     |> List.map (fun (c : Completion.t) ->
            match c.kind with
            | Value typExpr -> (
-             match typExpr |> TypeUtils.extractType ~env:c.env ~package with
-             | Some (Tvariant v) ->
+             match typExpr |> TypeUtils.extractType2 ~env:c.env ~package with
+             | Some (Tvariant v, _) ->
                withExhaustiveItem c
                  ~cases:
                    (v.constructors
@@ -1955,7 +1955,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                           match constructor.args with
                           | Args [] -> ""
                           | _ -> "(_)"))
-             | Some (Tpolyvariant v) ->
+             | Some (Tpolyvariant v, _) ->
                withExhaustiveItem c
                  ~cases:
                    (v.constructors
@@ -1965,11 +1965,12 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                           match constructor.args with
                           | [] -> ""
                           | _ -> "(_)"))
-             | Some (Toption (_env, _typ)) ->
+             | Some (Toption (_env, _typ), _) ->
                withExhaustiveItem c ~cases:["Some($1)"; "None"] ~startIndex:1
-             | Some (Tresult _) ->
+             | Some (Tresult _, _) ->
                withExhaustiveItem c ~cases:["Ok($1)"; "Error($1)"] ~startIndex:1
-             | Some (Tbool _) -> withExhaustiveItem c ~cases:["true"; "false"]
+             | Some (Tbool _, _) ->
+               withExhaustiveItem c ~cases:["true"; "false"]
              | _ -> [c])
            | _ -> [c])
     |> List.flatten

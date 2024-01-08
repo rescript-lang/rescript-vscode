@@ -827,6 +827,7 @@ Path p
 [nested]--> extracted type, continuing descent
 [nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -967,6 +968,7 @@ Path v
 [extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
 [nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1097,6 +1099,8 @@ Path s
 [extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
 [nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1140,6 +1144,8 @@ Path s
 [extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
 [nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1204,6 +1210,8 @@ Path s
 [extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
 [nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1419,6 +1427,8 @@ Path s
 [extract_type]--> starting extraction of type: option<bool>, in env: CompletionPattern. Has type arg ctx: false
 [nested]--> running nested in env: CompletionPattern. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
+[extract_type]--> starting extraction of type: bool, in env: CompletionPattern. Has type arg ctx: false
 [{
     "label": "None",
     "kind": 12,
@@ -1494,6 +1504,7 @@ ContextPath await Value[getThing](Nolabel)
 ContextPath Value[getThing](Nolabel)
 ContextPath Value[getThing]
 Path getThing
+[extract_type]--> starting extraction of type: promise<someVariant>, in env: CompletionPattern. Has type arg ctx: false
 [extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
 [extract_type]--> starting extraction of type: someVariant, in env: CompletionPattern. Has type arg ctx: false
 [extract_type]--> digging for type someVariant in CompletionPattern

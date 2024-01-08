@@ -6,6 +6,11 @@ type typeArgContext = {
   typeParams: Types.type_expr list;
 }
 
+let getExtractedType maybeRes =
+  match maybeRes with
+  | None -> None
+  | Some (extractedType, _) -> Some extractedType
+
 let instantiateType ~typeParams ~typeArgs (t : Types.type_expr) =
   if typeParams = [] || typeArgs = [] then t
   else
@@ -295,8 +300,20 @@ let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
     Some (Tstring env, typeArgContext)
   | Tconstr (Path.Pident {name = "exn"}, [], _) ->
     Some (Texn env, typeArgContext)
-  | Tconstr (Pident {name = "function$"}, [t; _], _) ->
-    extractType ?typeArgContext ~env ~package t
+  | Tconstr (Pident {name = "function$"}, [t; _], _) -> (
+    match extractFunctionType2 ?typeArgContext t ~env ~package with
+    | args, tRet, typeArgContext when args <> [] ->
+      Some
+        ( Tfunction {env; args; typ = t; uncurried = true; returnType = tRet},
+          typeArgContext )
+    | _args, _tRet, _typeArgContext -> None)
+  | Tarrow _ -> (
+    match extractFunctionType2 ?typeArgContext t ~env ~package with
+    | args, tRet, typeArgContext when args <> [] ->
+      Some
+        ( Tfunction {env; args; typ = t; uncurried = false; returnType = tRet},
+          typeArgContext )
+    | _args, _tRet, _typeArgContext -> None)
   | Tconstr (path, typeArgs, _) -> (
     Debug.logVerbose
       (Printf.sprintf "[extract_type]--> digging for type %s in %s"
@@ -359,13 +376,6 @@ let rec extractType2 ?(typeArgContext : typeArgContext option) ~env ~package
              })
     in
     Some (Tpolyvariant {env; constructors; typeExpr = t}, typeArgContext)
-  | Tarrow _ -> (
-    match extractFunctionType2 ?typeArgContext t ~env ~package with
-    | args, tRet, typeArgContext when args <> [] ->
-      Some
-        ( Tfunction {env; args; typ = t; uncurried = true; returnType = tRet},
-          typeArgContext )
-    | _args, _tRet, _typeArgContext -> None)
   | Tvar (Some varName) -> (
     Debug.logVerbose
       (Printf.sprintf

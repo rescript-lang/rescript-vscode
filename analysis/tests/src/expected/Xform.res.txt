@@ -7,6 +7,8 @@ ContextPath Value[kind]
 Path kind
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+[extract_type]--> starting extraction of type: 'a, in env: Xform. Has type arg ctx: false
+[extract_type]--> miss
 Hit: Replace with switch
 {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}}
 newText:
@@ -108,6 +110,8 @@ ContextPath Value[name]
 Path name
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+[extract_type]--> starting extraction of type: string, in env: Xform. Has type arg ctx: false
+[extract_type]--> starting extraction of type: string, in env: Xform. Has type arg ctx: false
 Hit: Add braces to function
 {"start": {"line": 48, "character": 0}, "end": {"line": 48, "character": 25}}
 newText:

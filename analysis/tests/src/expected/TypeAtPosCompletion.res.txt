@@ -5,6 +5,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 --> expression completion
 ContextPath CTypeAtPos()
+[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
+[extract_type]--> digging for type optRecord in TypeAtPosCompletion
+[extract_type]--> found record
 [nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> digging for type optRecord in TypeAtPosCompletion
@@ -34,6 +38,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 --> expression completion
 ContextPath CTypeAtPos()
+[extract_type]--> starting extraction of type: someVariant, in env: TypeAtPosCompletion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someVariant, in env: TypeAtPosCompletion. Has type arg ctx: false
+[extract_type]--> digging for type someVariant in TypeAtPosCompletion
+[extract_type]--> found variant
 [nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
 [nested]--> trying to move into variant payload $1 of constructor 'One'
 [nested]--> found constructor (Args type)
@@ -68,6 +76,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 --> expression completion
 ContextPath CTypeAtPos()
+[extract_type]--> starting extraction of type: array<optRecord>, in env: TypeAtPosCompletion. Has type arg ctx: false
+[extract_type]--> starting extraction of type: array<optRecord>, in env: TypeAtPosCompletion. Has type arg ctx: false
 [nested]--> running nested in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false
 [extract_type]--> starting extraction of type: optRecord, in env: TypeAtPosCompletion. Has type arg ctx: false

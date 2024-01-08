@@ -5,6 +5,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[withSomeVarian]
 Path withSomeVarian
+[extract_type]--> starting extraction of type: someVariant, in env: ExhaustiveSwitch. Has type arg ctx: false
+[extract_type]--> starting extraction of type: someVariant, in env: ExhaustiveSwitch. Has type arg ctx: false
+[extract_type]--> digging for type someVariant in ExhaustiveSwitch
+[extract_type]--> found variant
 [{
     "label": "withSomeVariant",
     "kind": 12,
@@ -29,6 +33,16 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[withSomePol]
 Path withSomePol
+[extract_type]--> starting extraction of type: somePolyVariant, in env: ExhaustiveSwitch. Has type arg ctx: false
+[extract_type]--> digging for type somePolyVariant in ExhaustiveSwitch
+[extract_type]--> found type manifest
+[extract_type]--> starting extraction of type: [
+  | #"exotic ident"
+  | #one
+  | #"switch"
+  | #three(option<bool>)
+  | #two
+], in env: ExhaustiveSwitch. Has type arg ctx: false
 [{
     "label": "withSomePoly",
     "kind": 12,
@@ -42,7 +56,7 @@ Path withSomePol
     "detail": "insert exhaustive switch for value",
     "documentation": null,
     "filterText": "withSomePoly",
-    "insertText": "withSomePoly {\n   | #\"switch\" => ${1:failwith(\"todo\")}\n   | #one => ${2:failwith(\"todo\")}\n   | #three(_) => ${3:failwith(\"todo\")}\n   | #two => ${4:failwith(\"todo\")}\n   | #\"exotic ident\" => ${5:failwith(\"todo\")}\n   }",
+    "insertText": "withSomePoly {\n   | #\"exotic ident\" => ${1:failwith(\"todo\")}\n   | #one => ${2:failwith(\"todo\")}\n   | #\"switch\" => ${3:failwith(\"todo\")}\n   | #three(_) => ${4:failwith(\"todo\")}\n   | #two => ${5:failwith(\"todo\")}\n   }",
     "insertTextFormat": 2
   }]
 
@@ -53,6 +67,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[someBoo]
 Path someBoo
+[extract_type]--> starting extraction of type: bool, in env: ExhaustiveSwitch. Has type arg ctx: false
+[extract_type]--> starting extraction of type: bool, in env: ExhaustiveSwitch. Has type arg ctx: false
 [{
     "label": "someBool",
     "kind": 12,
@@ -77,6 +93,8 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[someOp]
 Path someOp
+[extract_type]--> starting extraction of type: option<bool>, in env: ExhaustiveSwitch. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<bool>, in env: ExhaustiveSwitch. Has type arg ctx: false
 [{
     "label": "someOpt",
     "kind": 12,
@@ -118,6 +136,9 @@ ContextPath Value[getV]
 Path getV
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+[extract_type]--> starting extraction of type: someVariant, in env: ExhaustiveSwitch. Has type arg ctx: false
+[extract_type]--> digging for type someVariant in ExhaustiveSwitch
+[extract_type]--> found variant
 Hit: Exhaustive switch
 {"start": {"line": 33, "character": 3}, "end": {"line": 33, "character": 10}}
 newText:
@@ -137,6 +158,8 @@ ContextPath Value[vvv]
 Path vvv
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
+[extract_type]--> starting extraction of type: option<someVariant>, in env: ExhaustiveSwitch. Has type arg ctx: false
+[extract_type]--> starting extraction of type: option<someVariant>, in env: ExhaustiveSwitch. Has type arg ctx: false
 Hit: Exhaustive switch
 {"start": {"line": 36, "character": 3}, "end": {"line": 36, "character": 6}}
 newText:

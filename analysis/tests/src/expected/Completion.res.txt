@@ -521,6 +521,7 @@ Resolved opens 1 pervasives
 --> expression completion
 ContextPath CJsxPropValue [O, Comp] second
 Path O.Comp.make
+[extract_type]--> starting extraction of type: string, in env: Completion.O.Comp. Has type arg ctx: false
 [nested]--> running nested in env: Completion.O.Comp. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
@@ -2215,10 +2216,12 @@ Path withUncurried
 [nested]--> extracting from type (. int) => unit in env Completion
 [extract_type]--> starting extraction of type: (. int) => unit, in env: Completion. Has type arg ctx: false
 [extract_type]--> starting extraction of type: (. int) => unit, in env: Completion. Has type arg ctx: false
-[extract_type]--> starting extraction of type: int => unit, in env: Completion. Has type arg ctx: false
 [nested]--> running nested in env: Completion. Has type arg ctx: false
 [nested]--> reached end of pattern, returning type
 --> found type in nested expression completion
+[extract_type]--> starting extraction of type: unit, in env: Completion. Has type arg ctx: false
+[extract_type]--> digging for type unit in Completion
+[extract_type]--> found nothing when digging
 [{
     "label": "(. v) => {}",
     "kind": 12,
