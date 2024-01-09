@@ -14,7 +14,7 @@
 
 #### :bug: Bug Fix
 
-- Support inline record fields in constructors.
+- Support inline record fields in constructors. https://github.com/rescript-lang/rescript-vscode/pull/889
 - Fix docstrings for module alias. Get internal docstrings of module file. https://github.com/rescript-lang/rescript-vscode/pull/878
 - Fix extracted docs of types include escaped linebreaks in signature. https://github.com/rescript-lang/rescript-vscode/pull/891
 
