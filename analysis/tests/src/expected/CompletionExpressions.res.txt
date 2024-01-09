@@ -1163,7 +1163,7 @@ Path fnTakingPolyVariant
     "tags": [],
     "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
     "documentation": null,
-    "insertText": "#two(${1:_})",
+    "insertText": "#two($0)",
     "insertTextFormat": 2
   }]
 
@@ -1198,7 +1198,7 @@ Path fnTakingPolyVariant
     "tags": [],
     "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
     "documentation": null,
-    "insertText": "two(${1:_})",
+    "insertText": "two($0)",
     "insertTextFormat": 2
   }]
 

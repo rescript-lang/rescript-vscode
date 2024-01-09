@@ -1168,24 +1168,32 @@ let filterItems items ~prefix =
     |> List.filter (fun (item : Completion.t) ->
            Utils.startsWith item.name prefix)
 
-let printConstructorArgs argsLen ~asSnippet =
+type completionMode = Pattern of Completable.patternMode | Expression
+
+let emptyCase ~mode num =
+  match mode with
+  | Expression -> "$" ^ string_of_int (num - 1)
+  | Pattern _ -> "${" ^ string_of_int num ^ ":_}"
+
+let printConstructorArgs ~mode ~asSnippet argsLen =
   let args = ref [] in
   for argNum = 1 to argsLen do
     args :=
-      !args @ [(if asSnippet then Printf.sprintf "${%i:_}" argNum else "_")]
+      !args
+      @ [
+          (match (asSnippet, argsLen) with
+          | true, l when l > 1 -> Printf.sprintf "${%i:_}" argNum
+          | true, l when l > 0 -> emptyCase ~mode argNum
+          | _ -> "_");
+        ]
   done;
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
-type completionMode = Pattern of Completable.patternMode | Expression
-
 let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     (t : SharedTypes.completionType) =
-  let emptyCase num =
-    match mode with
-    | Expression -> "$" ^ string_of_int (num - 1)
-    | Pattern _ -> "${" ^ string_of_int num ^ ":_}"
-  in
+  let emptyCase = emptyCase ~mode in
+  let printConstructorArgs = printConstructorArgs ~mode in
   match t with
   | TtypeT {env; path} ->
     (* Find all functions in the module that returns type t *)
