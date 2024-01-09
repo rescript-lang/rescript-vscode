@@ -125,7 +125,7 @@ extracting docs for src/DocExtractionRes.res
       "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
       "kind": "type",
       "name": "someVariantWithInlineRecords",
-      "signature": "type someVariantWithInlineRecords =\n  | SomeStuff({offline: bool})",
+      "signature": "type someVariantWithInlineRecords =\n  | SomeStuff({offline: bool, online?: bool})",
       "docstrings": ["Trying how it looks with an inline record in a variant."],
       "detail": 
       {
@@ -134,7 +134,18 @@ extracting docs for src/DocExtractionRes.res
         {
           "name": "SomeStuff",
           "docstrings": ["This has inline records..."],
-          "signature": "SomeStuff"
+          "signature": "SomeStuff({offline: bool, online?: bool})",
+          "inlineRecordFields": [{
+            "name": "offline",
+            "optional": false,
+            "docstrings": [],
+            "signature": "bool"
+          }, {
+            "name": "online",
+            "optional": true,
+            "docstrings": ["Is the user online?"],
+            "signature": "option<bool>"
+          }]
         }]
       }
     }, 

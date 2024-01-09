@@ -10,6 +10,7 @@ type constructor = {
   docstrings: array<string>,
   signature: string,
   deprecated?: string,
+  inlineRecordFields?: array<field>,
 }
 @tag("kind")
 type detail =
@@ -54,9 +55,4 @@ type rec item =
 
 type doc = {name: string, deprecated: option<string>, docstrings: array<string>, items: array<item>}
 
-let decodeValue: Js.Dict.t<Js.Json.t> => item
-let decodeType: Js.Dict.t<Js.Json.t> => item
-let decodeModule: Js.Dict.t<Js.Json.t> => item
-let decodeModuleAlias: Js.Dict.t<Js.Json.t> => item
-let decodeItem: Js.Json.t => item
 let decodeFromJson: Js.Json.t => doc
