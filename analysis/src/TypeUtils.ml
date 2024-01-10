@@ -1,5 +1,69 @@
 open SharedTypes
 
+let debugLogTypeArgContext {env; typeArgs; typeParams} =
+  Printf.sprintf "Type arg context. env: %s, typeArgs: %s, typeParams: %s\n"
+    (Debug.debugPrintEnv env)
+    (typeArgs |> List.map Shared.typeToString |> String.concat ", ")
+    (typeParams |> List.map Shared.typeToString |> String.concat ", ")
+
+let rec pathFromTypeExpr (t : Types.type_expr) =
+  match t.desc with
+  | Tconstr (Pident {name = "function$"}, [t; _], _) -> pathFromTypeExpr t
+  | Tconstr (path, _typeArgs, _)
+  | Tlink {desc = Tconstr (path, _typeArgs, _)}
+  | Tsubst {desc = Tconstr (path, _typeArgs, _)}
+  | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) ->
+    Some path
+  | _ -> None
+
+let printRecordFromFields ?name (fields : field list) =
+  (match name with
+  | None -> ""
+  | Some name -> "type " ^ name ^ " = ")
+  ^ "{"
+  ^ (fields
+    |> List.map (fun f -> f.fname.txt ^ ": " ^ Shared.typeToString f.typ)
+    |> String.concat ", ")
+  ^ "}"
+
+let rec extractedTypeToString ?(inner = false) = function
+  | Tuple (_, _, typ)
+  | Tpolyvariant {typeExpr = typ}
+  | Tfunction {typ}
+  | Trecord {definition = `TypeExpr typ} ->
+    if inner then
+      match pathFromTypeExpr typ with
+      | None -> "record" (* Won't happen *)
+      | Some p -> p |> SharedTypes.pathIdentToString
+    else Shared.typeToString typ
+  | Tbool _ -> "bool"
+  | Tstring _ -> "string"
+  | TtypeT _ -> "type t"
+  | Tarray (_, TypeExpr innerTyp) ->
+    "array<" ^ Shared.typeToString innerTyp ^ ">"
+  | Tarray (_, ExtractedType innerTyp) ->
+    "array<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
+  | Toption (_, TypeExpr innerTyp) ->
+    "option<" ^ Shared.typeToString innerTyp ^ ">"
+  | Tresult {okType; errorType} ->
+    "result<" ^ Shared.typeToString okType ^ ", "
+    ^ Shared.typeToString errorType
+    ^ ">"
+  | Toption (_, ExtractedType innerTyp) ->
+    "option<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
+  | Tpromise (_, innerTyp) -> "promise<" ^ Shared.typeToString innerTyp ^ ">"
+  | Tvariant {variantDecl; variantName} ->
+    if inner then variantName else Shared.declToString variantName variantDecl
+  | Trecord {definition = `NameOnly name; fields} ->
+    if inner then name else printRecordFromFields ~name fields
+  | TinlineRecord {fields} -> printRecordFromFields fields
+  | Texn _ -> "exn"
+
+let getExtractedType maybeRes =
+  match maybeRes with
+  | None -> None
+  | Some (extractedType, _) -> Some extractedType
+
 let instantiateType ~typeParams ~typeArgs (t : Types.type_expr) =
   if typeParams = [] || typeArgs = [] then t
   else
@@ -13,6 +77,59 @@ let instantiateType ~typeParams ~typeArgs (t : Types.type_expr) =
       match t.desc with
       | Tlink t -> loop t
       | Tvar _ -> applySub typeParams typeArgs t
+      | Tunivar _ -> t
+      | Tconstr (path, args, memo) ->
+        {t with desc = Tconstr (path, args |> List.map loop, memo)}
+      | Tsubst t -> loop t
+      | Tvariant rd -> {t with desc = Tvariant (rowDesc rd)}
+      | Tnil -> t
+      | Tarrow (lbl, t1, t2, c) ->
+        {t with desc = Tarrow (lbl, loop t1, loop t2, c)}
+      | Ttuple tl -> {t with desc = Ttuple (tl |> List.map loop)}
+      | Tobject (t, r) -> {t with desc = Tobject (loop t, r)}
+      | Tfield (n, k, t1, t2) -> {t with desc = Tfield (n, k, loop t1, loop t2)}
+      | Tpoly (t, []) -> loop t
+      | Tpoly (t, tl) -> {t with desc = Tpoly (loop t, tl |> List.map loop)}
+      | Tpackage (p, l, tl) ->
+        {t with desc = Tpackage (p, l, tl |> List.map loop)}
+    and rowDesc (rd : Types.row_desc) =
+      let row_fields =
+        rd.row_fields |> List.map (fun (l, rf) -> (l, rowField rf))
+      in
+      let row_more = loop rd.row_more in
+      let row_name =
+        match rd.row_name with
+        | None -> None
+        | Some (p, tl) -> Some (p, tl |> List.map loop)
+      in
+      {rd with row_fields; row_more; row_name}
+    and rowField (rf : Types.row_field) =
+      match rf with
+      | Rpresent None -> rf
+      | Rpresent (Some t) -> Rpresent (Some (loop t))
+      | Reither (b1, tl, b2, r) -> Reither (b1, tl |> List.map loop, b2, r)
+      | Rabsent -> Rabsent
+    in
+    loop t
+
+let instantiateType2 ?(typeArgContext : typeArgContext option)
+    (t : Types.type_expr) =
+  match typeArgContext with
+  | None | Some {typeArgs = []} | Some {typeParams = []} -> t
+  | Some {typeArgs; typeParams} ->
+    let rec applySub tp ta name =
+      match (tp, ta) with
+      | {Types.desc = Tvar (Some varName)} :: tRest1, t2 :: tRest2 ->
+        if varName = name then t2 else applySub tRest1 tRest2 name
+      | _ :: tRest1, _ :: tRest2 -> applySub tRest1 tRest2 name
+      | [], _ | _, [] -> t
+    in
+
+    let rec loop (t : Types.type_expr) =
+      match t.desc with
+      | Tlink t -> loop t
+      | Tvar (Some name) -> applySub typeParams typeArgs name
+      | Tvar _ -> t
       | Tunivar _ -> t
       | Tconstr (path, args, memo) ->
         {t with desc = Tconstr (path, args |> List.map loop, memo)}
@@ -109,49 +226,153 @@ let rec extractFunctionType ~env ~package typ =
   in
   loop ~env [] typ
 
-(** Pulls out a type we can complete from a type expr. *)
-let rec extractType ~env ~package (t : Types.type_expr) =
+let maybeSetTypeArgCtx ?typeArgContextFromTypeManifest ~typeParams ~typeArgs env
+    =
+  match typeArgContextFromTypeManifest with
+  | Some typeArgContextFromTypeManifest -> Some typeArgContextFromTypeManifest
+  | None ->
+    let typeArgContext =
+      if List.length typeParams > 0 then Some {env; typeParams; typeArgs}
+      else None
+    in
+    (match typeArgContext with
+    | None -> ()
+    | Some typeArgContext ->
+      if Debug.verbose () then
+        Printf.printf "[#type_arg_ctx]--> setting new type arg ctx: %s"
+          (debugLogTypeArgContext typeArgContext));
+    typeArgContext
+
+(* TODO(env-stuff) Maybe this could be removed entirely if we can guarantee that we don't have to look up functions from in here. *)
+let rec extractFunctionType2 ?typeArgContext ~env ~package typ =
+  let rec loop ?typeArgContext ~env acc (t : Types.type_expr) =
+    match t.desc with
+    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop ?typeArgContext ~env acc t1
+    | Tarrow (label, tArg, tRet, _) ->
+      loop ?typeArgContext ~env ((label, tArg) :: acc) tRet
+    | Tconstr (Pident {name = "function$"}, [t; _], _) ->
+      extractFunctionType2 ?typeArgContext ~env ~package t
+    | Tconstr (path, typeArgs, _) -> (
+      match References.digConstructor ~env ~package path with
+      | Some
+          ( env,
+            {
+              item = {decl = {type_manifest = Some t1; type_params = typeParams}};
+            } ) ->
+        let typeArgContext = maybeSetTypeArgCtx ~typeParams ~typeArgs env in
+        loop ?typeArgContext ~env acc t1
+      | _ -> (List.rev acc, t, typeArgContext))
+    | _ -> (List.rev acc, t, typeArgContext)
+  in
+  loop ?typeArgContext ~env [] typ
+
+let rec extractType ?(printOpeningDebug = true)
+    ?(typeArgContext : typeArgContext option)
+    ?(typeArgContextFromTypeManifest : typeArgContext option) ~env ~package
+    (t : Types.type_expr) =
+  let maybeSetTypeArgCtx = maybeSetTypeArgCtx ?typeArgContextFromTypeManifest in
+  if Debug.verbose () && printOpeningDebug then
+    Printf.printf
+      "[extract_type]--> starting extraction of type: %s, in env: %s. Has type \
+       arg ctx: %b\n"
+      (Shared.typeToString t) (Debug.debugPrintEnv env)
+      (Option.is_some typeArgContext);
+  (match typeArgContext with
+  | None -> ()
+  | Some typeArgContext ->
+    if Debug.verbose () && printOpeningDebug then
+      Printf.printf "[extract_type]--> %s"
+        (debugLogTypeArgContext typeArgContext));
+  let instantiateType = instantiateType2 in
   match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+    extractType ?typeArgContext ~printOpeningDebug:false ~env ~package t1
   | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
-    Some (Toption (env, TypeExpr payloadTypeExpr))
+    Some (Toption (env, TypeExpr payloadTypeExpr), typeArgContext)
   | Tconstr (Path.Pident {name = "promise"}, [payloadTypeExpr], _) ->
-    Some (Tpromise (env, payloadTypeExpr))
+    Some (Tpromise (env, payloadTypeExpr), typeArgContext)
   | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
-    Some (Tarray (env, TypeExpr payloadTypeExpr))
+    Some (Tarray (env, TypeExpr payloadTypeExpr), typeArgContext)
   | Tconstr (Path.Pident {name = "result"}, [okType; errorType], _) ->
-    Some (Tresult {env; okType; errorType})
-  | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
-  | Tconstr (Path.Pident {name = "string"}, [], _) -> Some (Tstring env)
-  | Tconstr (Path.Pident {name = "exn"}, [], _) -> Some (Texn env)
+    Some (Tresult {env; okType; errorType}, typeArgContext)
+  | Tconstr (Path.Pident {name = "bool"}, [], _) ->
+    Some (Tbool env, typeArgContext)
+  | Tconstr (Path.Pident {name = "string"}, [], _) ->
+    Some (Tstring env, typeArgContext)
+  | Tconstr (Path.Pident {name = "exn"}, [], _) ->
+    Some (Texn env, typeArgContext)
   | Tconstr (Pident {name = "function$"}, [t; _], _) -> (
-    (* Uncurried functions. *)
-    match extractFunctionType t ~env ~package with
-    | args, tRet when args <> [] ->
-      Some (Tfunction {env; args; typ = t; uncurried = true; returnType = tRet})
-    | _args, _tRet -> None)
-  | Tconstr (path, typeArgs, _) -> (
-    match References.digConstructor ~env ~package path with
-    | Some (_env, {item = {decl = {type_manifest = Some t1; type_params}}}) ->
-      t1
-      |> instantiateType ~typeParams:type_params ~typeArgs
-      |> extractType ~env ~package
-    | Some (_env, {name; item = {decl; kind = Type.Variant constructors}}) ->
+    match extractFunctionType2 ?typeArgContext t ~env ~package with
+    | args, tRet, typeArgContext when args <> [] ->
       Some
-        (Tvariant
-           {
-             env;
-             constructors;
-             variantName = name.txt;
-             variantDecl = decl;
-             typeArgs;
-             typeParams = decl.type_params;
-           })
-    | Some (env, {item = {kind = Record fields}}) ->
-      Some (Trecord {env; fields; definition = `TypeExpr t})
-    | Some (env, {item = {name = "t"}}) -> Some (TtypeT {env; path})
-    | _ -> None)
-  | Ttuple expressions -> Some (Tuple (env, expressions, t))
+        ( Tfunction {env; args; typ = t; uncurried = true; returnType = tRet},
+          typeArgContext )
+    | _args, _tRet, _typeArgContext -> None)
+  | Tarrow _ -> (
+    match extractFunctionType2 ?typeArgContext t ~env ~package with
+    | args, tRet, typeArgContext when args <> [] ->
+      Some
+        ( Tfunction {env; args; typ = t; uncurried = false; returnType = tRet},
+          typeArgContext )
+    | _args, _tRet, _typeArgContext -> None)
+  | Tconstr (path, typeArgs, _) -> (
+    if Debug.verbose () then
+      Printf.printf "[extract_type]--> digging for type %s in %s\n"
+        (Path.name path) (Debug.debugPrintEnv env);
+    match References.digConstructor ~env ~package path with
+    | Some
+        ( envFromDeclaration,
+          {item = {decl = {type_manifest = Some t1; type_params}}} ) ->
+      if Debug.verbose () then
+        print_endline "[extract_type]--> found type manifest";
+
+      (* Type manifests inherit the last type args ctx that wasn't for a type manifest.
+         This is because the manifest itself doesn't have type args and an env that can
+         be used to instantiate. *)
+      let typeArgContext =
+        maybeSetTypeArgCtx ~typeParams:type_params ~typeArgs env
+      in
+      t1
+      |> extractType ?typeArgContextFromTypeManifest:typeArgContext
+           ~env:envFromDeclaration ~package
+    | Some (envFromItem, {name; item = {decl; kind = Type.Variant constructors}})
+      ->
+      if Debug.verbose () then print_endline "[extract_type]--> found variant";
+      let typeArgContext =
+        maybeSetTypeArgCtx ~typeParams:decl.type_params ~typeArgs env
+      in
+      Some
+        ( Tvariant
+            {
+              env = envFromItem;
+              constructors;
+              variantName = name.txt;
+              variantDecl = decl;
+            },
+          typeArgContext )
+    | Some (envFromDeclaration, {item = {kind = Record fields; decl}}) ->
+      if Debug.verbose () then print_endline "[extract_type]--> found record";
+      (* Need to create a new type arg context here because we're sending along a type expr that might have type vars. *)
+      let typeArgContext =
+        maybeSetTypeArgCtx ~typeParams:decl.type_params ~typeArgs env
+      in
+      Some
+        ( Trecord {env = envFromDeclaration; fields; definition = `TypeExpr t},
+          typeArgContext )
+    | Some (envFromDeclaration, {item = {name = "t"; decl = {type_params}}}) ->
+      let typeArgContext =
+        maybeSetTypeArgCtx ~typeParams:type_params ~typeArgs env
+      in
+      Some (TtypeT {env = envFromDeclaration; path}, typeArgContext)
+    | None ->
+      if Debug.verbose () then
+        print_endline "[extract_type]--> found nothing when digging";
+      None
+    | _ ->
+      if Debug.verbose () then
+        print_endline "[extract_type]--> found something else when digging";
+      None)
+  | Ttuple expressions -> Some (Tuple (env, expressions, t), typeArgContext)
   | Tvariant {row_fields} ->
     let constructors =
       row_fields
@@ -169,14 +390,45 @@ let rec extractType ~env ~package (t : Types.type_expr) =
                  | _ -> []);
              })
     in
-    Some (Tpolyvariant {env; constructors; typeExpr = t})
-  | Tarrow _ -> (
-    match extractFunctionType t ~env ~package with
-    | args, tRet when args <> [] ->
-      Some
-        (Tfunction {env; args; typ = t; uncurried = false; returnType = tRet})
-    | _args, _tRet -> None)
-  | _ -> None
+    Some (Tpolyvariant {env; constructors; typeExpr = t}, typeArgContext)
+  | Tvar (Some varName) -> (
+    if Debug.verbose () then
+      Printf.printf
+        "[extract_type]--> found type variable: '%s. Trying to instantiate %s"
+        varName
+        (match typeArgContext with
+        | None -> "with no type args ctx\n"
+        | Some typeArgContext ->
+          Printf.sprintf "with %s" (debugLogTypeArgContext typeArgContext));
+
+    let instantiated = t |> instantiateType ?typeArgContext in
+    let rec extractInstantiated t =
+      match t.Types.desc with
+      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractInstantiated t1
+      | _ -> t
+    in
+    match extractInstantiated instantiated with
+    | {desc = Tvar _} ->
+      if Debug.verbose () then
+        Printf.printf "[extract_type]--> could not instantiate '%s. Skipping.\n"
+          varName;
+      None
+    | _ ->
+      if Debug.verbose () then
+        Printf.printf
+          "[extract_type]--> SUCCEEDED instantiation, new type is: %s\n"
+          (Shared.typeToString instantiated);
+
+      (* Use the env from instantiation if we managed to instantiate the type param *)
+      let nextEnv =
+        match typeArgContext with
+        | Some {env} -> env
+        | None -> env
+      in
+      instantiated |> extractType ?typeArgContext ~env:nextEnv ~package)
+  | _ ->
+    if Debug.verbose () then print_endline "[extract_type]--> miss";
+    None
 
 let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
   match References.getLocItem ~full ~pos:(loc |> Loc.end_) ~debug with
@@ -217,16 +469,6 @@ let getBuiltinFromTypePath path =
   | Pdot (Pident id, "result", _)
     when Ident.name id = "Pervasives" || Ident.name id = "PervasivesU" ->
     Some Result
-  | _ -> None
-
-let rec pathFromTypeExpr (t : Types.type_expr) =
-  match t.desc with
-  | Tconstr (Pident {name = "function$"}, [t; _], _) -> pathFromTypeExpr t
-  | Tconstr (path, _typeArgs, _)
-  | Tlink {desc = Tconstr (path, _typeArgs, _)}
-  | Tsubst {desc = Tconstr (path, _typeArgs, _)}
-  | Tpoly ({desc = Tconstr (path, _typeArgs, _)}, []) ->
-    Some path
   | _ -> None
 
 let rec digToRelevantTemplateNameType ~env ~package ?(suffix = "")
@@ -294,104 +536,167 @@ let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
   | Variant constructors ->
     Some
       (Tvariant
-         {
-           env;
-           constructors;
-           variantName = typ.name;
-           variantDecl = typ.decl;
-           typeParams = typ.decl.type_params;
-           typeArgs = [];
-         })
+         {env; constructors; variantName = typ.name; variantDecl = typ.decl})
   | Abstract _ | Open -> (
     match typ.decl.type_manifest with
     | None -> None
-    | Some t -> t |> extractType ~env ~package:full.package)
+    | Some t -> t |> extractType ~env ~package:full.package |> getExtractedType)
 
 (** The context we just came from as we resolve the nested structure. *)
 type ctx = Rfield of string  (** A record field of name *)
 
-(** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
-let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
+let rec resolveNested ?typeArgContext ~env ~full ~nested ?ctx
+    (typ : completionType) =
+  let extractType = extractType ?typeArgContext in
+  if Debug.verbose () then
+    Printf.printf
+      "[nested]--> running nested in env: %s. Has type arg ctx: %b\n"
+      (Debug.debugPrintEnv env)
+      (Option.is_some typeArgContext);
+  (match typeArgContext with
+  | None -> ()
+  | Some typeArgContext ->
+    if Debug.verbose () then
+      Printf.printf "[nested]--> %s" (debugLogTypeArgContext typeArgContext));
   match nested with
   | [] ->
+    if Debug.verbose () then
+      print_endline "[nested]--> reached end of pattern, returning type";
     Some
       ( typ,
         env,
-        match ctx with
+        (match ctx with
         | None -> None
         | Some (Rfield fieldName) ->
-          Some (Completable.CameFromRecordField fieldName) )
+          Some (Completable.CameFromRecordField fieldName)),
+        typeArgContext )
   | patternPath :: nested -> (
     match (patternPath, typ) with
     | Completable.NTupleItem {itemNum}, Tuple (env, tupleItems, _) -> (
+      if Debug.verbose () then
+        print_endline "[nested]--> trying to move into tuple";
       match List.nth_opt tupleItems itemNum with
-      | None -> None
+      | None ->
+        if Debug.verbose () then
+          print_endline "[nested]--> tuple element not found";
+        None
       | Some typ ->
         typ
         |> extractType ~env ~package:full.package
-        |> Utils.Option.flatMap (fun typ ->
-               typ |> resolveNested ~env ~full ~nested))
+        |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
+               typ |> resolveNested ?typeArgContext ~env ~full ~nested))
     | ( NFollowRecordField {fieldName},
         (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
+      if Debug.verbose () then
+        print_endline "[nested]--> trying to move into record field";
       match
         fields
         |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
       with
-      | None -> None
+      | None ->
+        if Debug.verbose () then
+          print_endline "[nested]--> did not find record field";
+        None
       | Some {typ; optional} ->
+        if Debug.verbose () then
+          print_endline "[nested]--> found record field type";
         let typ = if optional then Utils.unwrapIfOption typ else typ in
+
+        if Debug.verbose () then
+          Printf.printf "[nested]--> extracting from type %s in env %s\n"
+            (Shared.typeToString typ) (Debug.debugPrintEnv env);
         typ
         |> extractType ~env ~package:full.package
-        |> Utils.Option.flatMap (fun typ ->
-               typ |> resolveNested ~ctx:(Rfield fieldName) ~env ~full ~nested))
+        |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
+               typ
+               |> resolveNested ?typeArgContext ~ctx:(Rfield fieldName) ~env
+                    ~full ~nested))
     | NRecordBody {seenFields}, Trecord {env; definition = `TypeExpr typeExpr}
       ->
       typeExpr
       |> extractType ~env ~package:full.package
-      |> Option.map (fun typ ->
-             (typ, env, Some (Completable.RecordField {seenFields})))
+      |> Option.map (fun (typ, typeArgContext) ->
+             ( typ,
+               env,
+               Some (Completable.RecordField {seenFields}),
+               typeArgContext ))
     | ( NRecordBody {seenFields},
         (Trecord {env; definition = `NameOnly _} as extractedType) ) ->
-      Some (extractedType, env, Some (Completable.RecordField {seenFields}))
+      Some
+        ( extractedType,
+          env,
+          Some (Completable.RecordField {seenFields}),
+          typeArgContext )
     | NRecordBody {seenFields}, TinlineRecord {env; fields} ->
       Some
         ( TinlineRecord {fields; env},
           env,
-          Some (Completable.RecordField {seenFields}) )
+          Some (Completable.RecordField {seenFields}),
+          typeArgContext )
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Toption (env, ExtractedType typ) ) ->
+      if Debug.verbose () then
+        print_endline "[nested]--> moving into option Some";
       typ |> resolveNested ~env ~full ~nested
     | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
         Toption (env, TypeExpr typ) ) ->
+      if Debug.verbose () then
+        print_endline "[nested]--> moving into option Some";
       typ
       |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
+      |> Utils.Option.flatMap (fun (t, typeArgContext) ->
+             t |> resolveNested ?typeArgContext ~env ~full ~nested)
     | NVariantPayload {constructorName = "Ok"; itemNum = 0}, Tresult {okType} ->
+      if Debug.verbose () then print_endline "[nested]--> moving into result Ok";
       okType
       |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
+      |> Utils.Option.flatMap (fun (t, typeArgContext) ->
+             t |> resolveNested ?typeArgContext ~env ~full ~nested)
     | ( NVariantPayload {constructorName = "Error"; itemNum = 0},
         Tresult {errorType} ) ->
+      if Debug.verbose () then
+        print_endline "[nested]--> moving into result Error";
       errorType
       |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
-    | ( NVariantPayload {constructorName; itemNum},
-        Tvariant {env; constructors; typeParams; typeArgs} ) -> (
+      |> Utils.Option.flatMap (fun (t, typeArgContext) ->
+             t |> resolveNested ?typeArgContext ~env ~full ~nested)
+    | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
+      -> (
+      if Debug.verbose () then
+        Printf.printf
+          "[nested]--> trying to move into variant payload $%i of constructor \
+           '%s'\n"
+          itemNum constructorName;
       match
         constructors
         |> List.find_opt (fun (c : Constructor.t) ->
                c.cname.txt = constructorName)
       with
       | Some {args = Args args} -> (
+        if Debug.verbose () then
+          print_endline "[nested]--> found constructor (Args type)";
         match List.nth_opt args itemNum with
-        | None -> None
+        | None ->
+          if Debug.verbose () then
+            print_endline "[nested]--> did not find relevant args num";
+          None
         | Some (typ, _) ->
+          if Debug.verbose () then
+            Printf.printf "[nested]--> found arg of type: %s\n"
+              (Shared.typeToString typ);
+
           typ
-          |> instantiateType ~typeParams ~typeArgs
           |> extractType ~env ~package:full.package
-          |> Utils.Option.flatMap (fun typ ->
-                 typ |> resolveNested ~env ~full ~nested))
+          |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
+                 if Debug.verbose () then
+                   Printf.printf
+                     "[nested]--> extracted %s, continuing descent of %i items\n"
+                     (extractedTypeToString typ)
+                     (List.length nested);
+                 typ |> resolveNested ?typeArgContext ~env ~full ~nested))
       | Some {args = InlineRecord fields} when itemNum = 0 ->
+        if Debug.verbose () then
+          print_endline "[nested]--> found constructor (inline record)";
         TinlineRecord {env; fields} |> resolveNested ~env ~full ~nested
       | _ -> None)
     | ( NPolyvariantPayload {constructorName; itemNum},
@@ -408,15 +713,15 @@ let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
         | Some typ ->
           typ
           |> extractType ~env ~package:full.package
-          |> Utils.Option.flatMap (fun typ ->
-                 typ |> resolveNested ~env ~full ~nested)))
+          |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
+                 typ |> resolveNested ?typeArgContext ~env ~full ~nested)))
     | NArray, Tarray (env, ExtractedType typ) ->
       typ |> resolveNested ~env ~full ~nested
     | NArray, Tarray (env, TypeExpr typ) ->
       typ
       |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun typ ->
-             typ |> resolveNested ~env ~full ~nested)
+      |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
+             typ |> resolveNested ?typeArgContext ~env ~full ~nested)
     | _ -> None)
 
 let findTypeOfRecordField fields ~fieldName =
@@ -454,9 +759,11 @@ let findTypeOfPolyvariantArg constructors ~constructorName ~payloadNum =
   | None -> None
 
 let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
+  if Debug.verbose () then print_endline "[nested_pattern_path]";
   let t =
     match typ with
-    | TypeExpr t -> t |> extractType ~env ~package:full.package
+    | TypeExpr t ->
+      t |> extractType ~env ~package:full.package |> getExtractedType
     | ExtractedType t -> Some t
   in
   match nested with
@@ -514,6 +821,7 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
         | Some typ ->
           typ
           |> extractType ~env ~package:full.package
+          |> getExtractedType
           |> Utils.Option.flatMap (fun typ ->
                  ExtractedType typ
                  |> resolveNestedPatternPath ~env ~full ~nested))
@@ -523,6 +831,7 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
         | Some typ ->
           typ
           |> extractType ~env ~package:full.package
+          |> getExtractedType
           |> Utils.Option.flatMap (fun typ ->
                  ExtractedType typ
                  |> resolveNestedPatternPath ~env ~full ~nested))
@@ -610,49 +919,6 @@ let rec contextPathFromCoreType (coreType : Parsetree.core_type) =
     Some (CPId (lid.txt |> Utils.flattenLongIdent, Type))
   | _ -> None
 
-let printRecordFromFields ?name (fields : field list) =
-  (match name with
-  | None -> ""
-  | Some name -> "type " ^ name ^ " = ")
-  ^ "{"
-  ^ (fields
-    |> List.map (fun f -> f.fname.txt ^ ": " ^ Shared.typeToString f.typ)
-    |> String.concat ", ")
-  ^ "}"
-
-let rec extractedTypeToString ?(inner = false) = function
-  | Tuple (_, _, typ)
-  | Tpolyvariant {typeExpr = typ}
-  | Tfunction {typ}
-  | Trecord {definition = `TypeExpr typ} ->
-    if inner then
-      match pathFromTypeExpr typ with
-      | None -> "record" (* Won't happen *)
-      | Some p -> p |> SharedTypes.pathIdentToString
-    else Shared.typeToString typ
-  | Tbool _ -> "bool"
-  | Tstring _ -> "string"
-  | TtypeT _ -> "type t"
-  | Tarray (_, TypeExpr innerTyp) ->
-    "array<" ^ Shared.typeToString innerTyp ^ ">"
-  | Tarray (_, ExtractedType innerTyp) ->
-    "array<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
-  | Toption (_, TypeExpr innerTyp) ->
-    "option<" ^ Shared.typeToString innerTyp ^ ">"
-  | Tresult {okType; errorType} ->
-    "result<" ^ Shared.typeToString okType ^ ", "
-    ^ Shared.typeToString errorType
-    ^ ">"
-  | Toption (_, ExtractedType innerTyp) ->
-    "option<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
-  | Tpromise (_, innerTyp) -> "promise<" ^ Shared.typeToString innerTyp ^ ">"
-  | Tvariant {variantDecl; variantName} ->
-    if inner then variantName else Shared.declToString variantName variantDecl
-  | Trecord {definition = `NameOnly name; fields} ->
-    if inner then name else printRecordFromFields ~name fields
-  | TinlineRecord {fields} -> printRecordFromFields fields
-  | Texn _ -> "exn"
-
 let unwrapCompletionTypeIfOption (t : SharedTypes.completionType) =
   match t with
   | Toption (_, ExtractedType unwrapped) -> unwrapped
@@ -699,7 +965,8 @@ module Codegen = struct
       let extractedType =
         match innerType with
         | ExtractedType t -> Some t
-        | TypeExpr t -> extractType t ~env ~package:full.package
+        | TypeExpr t ->
+          extractType t ~env ~package:full.package |> getExtractedType
       in
       let expandedBranches =
         match extractedType with
@@ -718,9 +985,11 @@ module Codegen = struct
           |> List.map (fun (pat : Parsetree.pattern) ->
                  mkConstructPat ~payload:pat "Some")))
     | Tresult {okType; errorType} ->
-      let extractedOkType = okType |> extractType ~env ~package:full.package in
+      let extractedOkType =
+        okType |> extractType ~env ~package:full.package |> getExtractedType
+      in
       let extractedErrorType =
-        errorType |> extractType ~env ~package:full.package
+        errorType |> extractType ~env ~package:full.package |> getExtractedType
       in
       let expandedOkBranches =
         match extractedOkType with

@@ -144,10 +144,11 @@ let main () =
       ~maxLength ~debug
   | [_; "codeLens"; path] -> Commands.codeLens ~path ~debug
   | [_; "extractDocs"; path] ->
-
-    let () = match Sys.getenv_opt "FROM_COMPILER" with
-    | Some("true") -> Cfg.isDocGenFromCompiler := true
-    | _ -> () in
+    let () =
+      match Sys.getenv_opt "FROM_COMPILER" with
+      | Some "true" -> Cfg.isDocGenFromCompiler := true
+      | _ -> ()
+    in
 
     DocExtraction.extractDocs ~path ~debug
   | [_; "codeAction"; path; startLine; startCol; endLine; endCol; currentFile]

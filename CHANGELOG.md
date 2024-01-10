@@ -24,6 +24,10 @@
 - Complete for maker-style functions (functions returning type `t` of a module) when encountering a `type t` in relevant scenarios. https://github.com/rescript-lang/rescript-vscode/pull/884
 - Expand type aliases in hovers. https://github.com/rescript-lang/rescript-vscode/pull/881
 
+#### :bug: Bug Fix
+
+- Many bugfixes around nested pattern and expression completion. https://github.com/rescript-lang/rescript-vscode/pull/892
+
 #### :nail_care: Polish
 
 - Better error recovery when analysis fails. https://github.com/rescript-lang/rescript-vscode/pull/880
