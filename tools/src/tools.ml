@@ -1,3 +1,5 @@
+open Analysis
+
 type fieldDoc = {
   fieldName: string;
   docstrings: string list;
@@ -117,8 +119,7 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           match deprecated with
           | Some d -> Some (wrapInQuotes d)
           | None -> None );
-        ( "signature",
-          Some (signature |> String.trim |> wrapInQuotes) );
+        ("signature", Some (signature |> String.trim |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
       ]
   | Type {id; docstring; signature; name; deprecated; detail} ->
@@ -312,7 +313,9 @@ let extractDocs ~path ~debug =
                           id;
                           name = item.name;
                           items;
-                          docstring = item.docstring @ internalDocstrings |> List.map String.trim;
+                          docstring =
+                            item.docstring @ internalDocstrings
+                            |> List.map String.trim;
                         })
                  | Module (Structure m) ->
                    (* module Whatever = {} in res or module Whatever: {} in resi. *)

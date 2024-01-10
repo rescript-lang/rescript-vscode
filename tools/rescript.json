@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "sources": [
     {
-      "dir": "src"
+      "dir": "npm"
     }
   ],
   "suffix": ".bs.js",

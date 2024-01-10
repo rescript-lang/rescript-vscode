@@ -38,13 +38,14 @@ let main () =
   | "doc" :: rest -> (
     match rest with
     | ["-h"] | ["--help"] -> logAndExit ~log:docHelp ~code:`Ok
-    | [path] -> (
+    | [path] ->
       (* NOTE: Internal use to generate docs from compiler *)
-      let () = match Sys.getenv_opt "FROM_COMPILER" with
-      | Some("true") -> Analysis.Cfg.isDocGenFromCompiler := true
-      | _ -> () in
-      Analysis.DocExtraction.extractDocs ~path ~debug:false
-    )
+      let () =
+        match Sys.getenv_opt "FROM_COMPILER" with
+        | Some "true" -> Analysis.Cfg.isDocGenFromCompiler := true
+        | _ -> ()
+      in
+      Tools.extractDocs ~path ~debug:false
     | _ -> logAndExit ~log:docHelp ~code:`Error)
   | "reanalyze" :: _ ->
     let len = Array.length Sys.argv in

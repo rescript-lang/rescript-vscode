@@ -4,6 +4,6 @@
  (modes byte exe)
  ; The main module that will become the binary.
  (name main)
- (libraries analysis)
+ (libraries tools)
  (flags
   (-w "+6+26+27+32+33+39")))

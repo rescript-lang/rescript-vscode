@@ -9,7 +9,9 @@ analysis/tests/.merlin
 
 tools/node_modules
 tools/lib
-tools/**/*.bs.js
+tools/**/*.res.js
+tools/tests/node_modules
+tools/tests/lib
 
 rescript-editor-analysis.exe
 rescript-tools.exe
