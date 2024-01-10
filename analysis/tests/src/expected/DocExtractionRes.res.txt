@@ -42,6 +42,13 @@ extracting docs for src/DocExtractionRes.res
     "docstrings": ["Stuff goes offline."]
   }, 
   {
+    "id": "DocExtractionRes.SomeConstant\\",
+    "kind": "value",
+    "name": "SomeConstant\\",
+    "signature": "let SomeConstant\\: int",
+    "docstrings": ["exotic identifier"]
+  }, 
+  {
     "id": "DocExtractionRes.SomeInnerModule",
     "name": "SomeInnerModule",
     "kind": "module",

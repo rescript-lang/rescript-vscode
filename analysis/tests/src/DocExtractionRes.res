@@ -22,6 +22,9 @@ let make = name => {
 /** Stuff goes offline.*/
 let asOffline = (t: t) => {...t, online: false}
 
+/** exotic identifier */
+let \"SomeConstant\" = 12
+
 module SomeInnerModule = {
   /*** Another module level docstring here.*/
   type status =
