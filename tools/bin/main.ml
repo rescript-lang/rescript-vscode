@@ -1,4 +1,3 @@
-(* Update here and package.json *)
 let docHelp =
   {|ReScript Tools
 

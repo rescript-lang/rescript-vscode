@@ -7,12 +7,12 @@ build:
 
 test:
 	make -C analysis test
-	make -C tools test
+	make -C tools/tests test
 
 clean:
 	dune clean
 	make -C analysis clean
-	make -C tools clean
+	make -C tools/tests clean
 
 format:
 	dune build @fmt --auto-promote

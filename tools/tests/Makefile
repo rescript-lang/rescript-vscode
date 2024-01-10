@@ -7,7 +7,7 @@ build: node_modules/.bin/rescript
 	node_modules/.bin/rescript
 
 test: build
-	cd tests && ./test.sh
+	./test.sh
 
 clean:
 	rm -r node_modules lib
