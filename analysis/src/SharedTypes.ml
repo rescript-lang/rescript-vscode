@@ -311,6 +311,12 @@ end = struct
     {env with exported = structure.exported; pathRev; parent = Some env}
 end
 
+type typeArgContext = {
+  env: QueryEnv.t;
+  typeArgs: Types.type_expr list;
+  typeParams: Types.type_expr list;
+}
+
 type polyVariantConstructor = {
   name: string;
   displayName: string;
@@ -779,10 +785,11 @@ module Completion = struct
     docstring: string list;
     kind: kind;
     detail: string option;
+    typeArgContext: typeArgContext option;
   }
 
-  let create ~kind ~env ?(docstring = []) ?filterText ?detail ?deprecated
-      ?insertText name =
+  let create ~kind ~env ?typeArgContext ?(docstring = []) ?filterText ?detail
+      ?deprecated ?insertText name =
     {
       name;
       env;
@@ -794,10 +801,11 @@ module Completion = struct
       insertTextFormat = None;
       filterText;
       detail;
+      typeArgContext;
     }
 
-  let createWithSnippet ~name ?insertText ~kind ~env ?sortText ?deprecated
-      ?filterText ?detail ?(docstring = []) () =
+  let createWithSnippet ~name ?typeArgContext ?insertText ~kind ~env ?sortText
+      ?deprecated ?filterText ?detail ?(docstring = []) () =
     {
       name;
       env;
@@ -809,6 +817,7 @@ module Completion = struct
       insertTextFormat = Some Protocol.Snippet;
       filterText;
       detail;
+      typeArgContext;
     }
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)

@@ -1205,12 +1205,15 @@ let printConstructorArgs ~mode ~asSnippet argsLen =
   if List.length !args > 0 then "(" ^ (!args |> String.concat ", ") ^ ")"
   else ""
 
-let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
-    (t : SharedTypes.completionType) =
+let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
+    ~full ~prefix ~completionContext ~mode (t : SharedTypes.completionType) =
   let emptyCase = emptyCase ~mode in
   let printConstructorArgs = printConstructorArgs ~mode in
+  let createWithSnippet = Completion.createWithSnippet ?typeArgContext in
+  let create = Completion.create ?typeArgContext in
   match t with
   | TtypeT {env; path} ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> TtypeT";
     (* Find all functions in the module that returns type t *)
     let rec fnReturnsTypeT t =
       match t.Types.desc with
@@ -1258,18 +1261,20 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
                    item));
     Hashtbl.fold
       (fun fnName typeExpr all ->
-        Completion.createWithSnippet
+        createWithSnippet
           ~name:(Printf.sprintf "%s()" fnName)
           ~insertText:(fnName ^ "($0)") ~kind:(Value typeExpr) ~env ()
         :: all)
       functionsReturningTypeT []
   | Tbool env ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Tbool";
     [
-      Completion.create "true" ~kind:(Label "bool") ~env;
-      Completion.create "false" ~kind:(Label "bool") ~env;
+      create "true" ~kind:(Label "bool") ~env;
+      create "false" ~kind:(Label "bool") ~env;
     ]
     |> filterItems ~prefix
   | Tvariant {env; constructors; variantDecl; variantName} ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Tvariant";
     constructors
     |> List.map (fun (constructor : Constructor.t) ->
            let numArgs =
@@ -1277,7 +1282,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
              | InlineRecord _ -> 1
              | Args args -> List.length args
            in
-           Completion.createWithSnippet ?deprecated:constructor.deprecated
+           createWithSnippet ?deprecated:constructor.deprecated
              ~name:
                (constructor.cname.txt
                ^ printConstructorArgs numArgs ~asSnippet:false)
@@ -1290,9 +1295,11 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
              ~env ())
     |> filterItems ~prefix
   | Tpolyvariant {env; constructors; typeExpr} ->
+    if Debug.verbose () then
+      print_endline "[complete_typed_value]--> Tpolyvariant";
     constructors
     |> List.map (fun (constructor : polyVariantConstructor) ->
-           Completion.createWithSnippet
+           createWithSnippet
              ~name:
                ("#" ^ constructor.displayName
                ^ printConstructorArgs
@@ -1311,6 +1318,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     |> filterItems
          ~prefix:(if Utils.startsWith prefix "#" then prefix else "#" ^ prefix)
   | Toption (env, t) ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Toption";
     let innerType =
       match t with
       | ExtractedType t -> Some (t, None)
@@ -1335,8 +1343,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     in
     let noneCase = Completion.create "None" ~kind:(kindFromInnerType t) ~env in
     let someAnyCase =
-      Completion.createWithSnippet ~name:"Some(_)" ~kind:(kindFromInnerType t)
-        ~env
+      createWithSnippet ~name:"Some(_)" ~kind:(kindFromInnerType t) ~env
         ~insertText:(Printf.sprintf "Some(%s)" (emptyCase 1))
         ()
     in
@@ -1344,7 +1351,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
       match completionContext with
       | Some (Completable.CameFromRecordField fieldName) ->
         [
-          Completion.createWithSnippet
+          createWithSnippet
             ~name:("Some(" ^ fieldName ^ ")")
             ~kind:(kindFromInnerType t) ~env
             ~insertText:("Some(" ^ fieldName ^ ")$0")
@@ -1356,6 +1363,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     in
     completions @ expandedCompletions |> filterItems ~prefix
   | Tresult {env; okType; errorType} ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Tresult";
     let okInnerType =
       okType |> TypeUtils.extractType2 ~env ~package:full.package
     in
@@ -1397,12 +1405,12 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
                })
     in
     let okAnyCase =
-      Completion.createWithSnippet ~name:"Ok(_)" ~kind:(Value okType) ~env
+      createWithSnippet ~name:"Ok(_)" ~kind:(Value okType) ~env
         ~insertText:(Printf.sprintf "Ok(%s)" (emptyCase 1))
         ()
     in
     let errorAnyCase =
-      Completion.createWithSnippet ~name:"Error(_)" ~kind:(Value errorType) ~env
+      createWithSnippet ~name:"Error(_)" ~kind:(Value errorType) ~env
         ~insertText:(Printf.sprintf "Error(%s)" (emptyCase 1))
         ()
     in
@@ -1410,7 +1418,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
       match completionContext with
       | Some (Completable.CameFromRecordField fieldName) ->
         [
-          Completion.createWithSnippet
+          createWithSnippet
             ~name:("Ok(" ^ fieldName ^ ")")
             ~kind:(Value okType) ~env
             ~insertText:("Ok(" ^ fieldName ^ ")$0")
@@ -1423,14 +1431,16 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     completions @ expandedOkCompletions @ expandedErrorCompletions
     |> filterItems ~prefix
   | Tuple (env, exprs, typ) ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Tuple";
     let numExprs = List.length exprs in
     [
-      Completion.createWithSnippet
+      createWithSnippet
         ~name:(printConstructorArgs numExprs ~asSnippet:false)
         ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
         ~kind:(Value typ) ~env ();
     ]
   | Trecord {env; fields} as extractedType -> (
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Trecord";
     (* As we're completing for a record, we'll need a hint (completionContext)
        here to figure out whether we should complete for a record field, or
        the record body itself. *)
@@ -1442,8 +1452,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
       |> List.map (fun (field : field) ->
              match (field.optional, mode) with
              | true, Pattern Destructuring ->
-               Completion.create ("?" ^ field.fname.txt)
-                 ?deprecated:field.deprecated
+               create ("?" ^ field.fname.txt) ?deprecated:field.deprecated
                  ~docstring:
                    [
                      field.fname.txt
@@ -1454,7 +1463,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
                    (Field (field, TypeUtils.extractedTypeToString extractedType))
                  ~env
              | _ ->
-               Completion.create field.fname.txt ?deprecated:field.deprecated
+               create field.fname.txt ?deprecated:field.deprecated
                  ~kind:
                    (Field (field, TypeUtils.extractedTypeToString extractedType))
                  ~env)
@@ -1462,7 +1471,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     | _ ->
       if prefix = "" then
         [
-          Completion.createWithSnippet ~name:"{}"
+          createWithSnippet ~name:"{}"
             ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
             ~sortText:"A"
             ~kind:
@@ -1475,27 +1484,30 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
         ]
       else [])
   | TinlineRecord {env; fields} -> (
+    if Debug.verbose () then
+      print_endline "[complete_typed_value]--> TinlineRecord";
     match completionContext with
     | Some (Completable.RecordField {seenFields}) ->
       fields
       |> List.filter (fun (field : field) ->
              List.mem field.fname.txt seenFields = false)
       |> List.map (fun (field : field) ->
-             Completion.create field.fname.txt ~kind:(Label "Inline record")
+             create field.fname.txt ~kind:(Label "Inline record")
                ?deprecated:field.deprecated ~env)
       |> filterItems ~prefix
     | _ ->
       if prefix = "" then
         [
-          Completion.createWithSnippet ~name:"{}"
+          createWithSnippet ~name:"{}"
             ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
             ~sortText:"A" ~kind:(Label "Inline record") ~env ();
         ]
       else [])
   | Tarray (env, typ) ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Tarray";
     if prefix = "" then
       [
-        Completion.createWithSnippet ~name:"[]"
+        createWithSnippet ~name:"[]"
           ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
           ~sortText:"A"
           ~kind:
@@ -1511,9 +1523,10 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
       ]
     else []
   | Tstring env ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Tstring";
     if prefix = "" then
       [
-        Completion.createWithSnippet ~name:"\"\""
+        createWithSnippet ~name:"\"\""
           ~insertText:(if !Cfg.supportsSnippets then "\"$0\"" else "\"\"")
           ~sortText:"A"
           ~kind:
@@ -1523,6 +1536,8 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     else []
   | Tfunction {env; typ; args; uncurried; returnType}
     when prefix = "" && mode = Expression ->
+    if Debug.verbose () then
+      print_endline "[complete_typed_value]--> Tfunction #1";
     let shouldPrintAsUncurried = uncurried && !Config.uncurried <> Uncurried in
     let mkFnArgs ~asSnippet =
       match args with
@@ -1565,7 +1580,7 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
     in
     let asyncPrefix = if isAsync then "async " else "" in
     [
-      Completion.createWithSnippet
+      createWithSnippet
         ~name:(asyncPrefix ^ mkFnArgs ~asSnippet:false ^ " => {}")
         ~insertText:
           (asyncPrefix
@@ -1574,10 +1589,14 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
           ^ if !Cfg.supportsSnippets then "{$0}" else "{}")
         ~sortText:"A" ~kind:(Value typ) ~env ();
     ]
-  | Tfunction _ -> []
+  | Tfunction _ ->
+    if Debug.verbose () then
+      print_endline "[complete_typed_value]--> Tfunction #other";
+    []
   | Texn env ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Texn";
     [
-      Completion.create
+      create
         (full.package.builtInCompletionModules.exnModulePath @ ["Error(error)"]
         |> ident)
         ~kind:(Label "Catches errors from JavaScript errors.")
@@ -1589,7 +1608,9 @@ let rec completeTypedValue ~rawOpens ~full ~prefix ~completionContext ~mode
           ]
         ~env;
     ]
-  | Tpromise _ -> []
+  | Tpromise _ ->
+    if Debug.verbose () then print_endline "[complete_typed_value]--> Tpromise";
+    []
 
 module StringSet = Set.Make (String)
 
@@ -1832,11 +1853,11 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                |> TypeUtils.resolveNested2 ?typeArgContext ~env ~full ~nested)
       with
       | None -> fallbackOrEmpty ()
-      | Some (typ, _env, completionContext) ->
+      | Some (typ, _env, completionContext, typeArgContext) ->
         let items =
           typ
-          |> completeTypedValue ~rawOpens ~mode:(Pattern patternMode) ~full
-               ~prefix ~completionContext
+          |> completeTypedValue ?typeArgContext ~rawOpens
+               ~mode:(Pattern patternMode) ~full ~prefix ~completionContext
         in
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())
@@ -1867,7 +1888,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         if Debug.verbose () then
           print_endline "--> could not resolve nested expression path";
         regularCompletions
-      | Some (typ, _env, completionContext) -> (
+      | Some (typ, _env, completionContext, typeArgContext) -> (
         if Debug.verbose () then
           print_endline "--> found type in nested expression completion";
         (* Wrap the insert text in braces when we're completing the root of a
@@ -1881,8 +1902,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         in
         let items =
           typ
-          |> completeTypedValue ~rawOpens ~mode:Expression ~full ~prefix
-               ~completionContext
+          |> completeTypedValue ?typeArgContext ~rawOpens ~mode:Expression ~full
+               ~prefix ~completionContext
           |> List.map (fun (c : Completion.t) ->
                  if wrapInsertTextInBraces then
                    {

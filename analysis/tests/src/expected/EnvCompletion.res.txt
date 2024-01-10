@@ -33,12 +33,23 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[res]
 Path res
-Completable: Cpath Value[()]
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-ContextPath Value[()]
-Path ()
-[]
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One\n\ntype things = One | Two",
+    "documentation": null,
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two\n\ntype things = One | Two",
+    "documentation": null,
+    "insertText": "Two",
+    "insertTextFormat": 2
+  }]
 
 Complete src/EnvCompletion.res 16:26
 posCursor:[16:26] posNoWhite:[16:25] Found pattern:[16:18->16:27]
@@ -50,12 +61,16 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[res]
 Path res
-Completable: Cpath Value[()]
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-ContextPath Value[()]
-Path ()
-[]
+[{
+    "label": "\"\"",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "\"$0\"",
+    "insertTextFormat": 2
+  }]
 
 Complete src/EnvCompletion.res 19:19
 XXX Not found!
@@ -204,12 +219,23 @@ Resolved opens 1 pervasives
 ContextPath Value[use](Nolabel)
 ContextPath Value[use]
 Path use
-Completable: Cpath Value[()]
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-ContextPath Value[()]
-Path ()
-[]
+[{
+    "label": "First",
+    "kind": 4,
+    "tags": [],
+    "detail": "First\n\ntype theVariant = First | Second(r1)",
+    "documentation": null,
+    "insertText": "First",
+    "insertTextFormat": 2
+  }, {
+    "label": "Second(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Second(r1)\n\ntype theVariant = First | Second(r1)",
+    "documentation": null,
+    "insertText": "Second(${1:_})",
+    "insertTextFormat": 2
+  }]
 
 Complete src/EnvCompletion.res 40:38
 posCursor:[40:38] posNoWhite:[40:37] Found pattern:[40:20->40:42]
@@ -225,12 +251,16 @@ Resolved opens 1 pervasives
 ContextPath Value[use](Nolabel)
 ContextPath Value[use]
 Path use
-Completable: Cpath Value[()]
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-ContextPath Value[()]
-Path ()
-[]
+[{
+    "label": "{}",
+    "kind": 22,
+    "tags": [],
+    "detail": "r1",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
 
 Complete src/EnvCompletion.res 43:39
 posCursor:[43:39] posNoWhite:[43:38] Found pattern:[43:20->43:44]
@@ -245,12 +275,13 @@ Resolved opens 1 pervasives
 ContextPath Value[use](Nolabel)
 ContextPath Value[use]
 Path use
-Completable: Cpath Value[Second]
-Package opens Pervasives.JsxModules.place holder
-Resolved opens 1 pervasives
-ContextPath Value[Second]
-Path Second
-[]
+[{
+    "label": "age",
+    "kind": 5,
+    "tags": [],
+    "detail": "age: int\n\nr1",
+    "documentation": null
+  }]
 
 Complete src/EnvCompletion.res 52:18
 XXX Not found!
@@ -305,13 +336,20 @@ Resolved opens 1 pervasives
 ContextPath Value[res2]
 Path res2
 [{
-    "label": "{}",
-    "kind": 22,
+    "label": "Four",
+    "kind": 4,
     "tags": [],
-    "detail": "things2",
+    "detail": "Four\n\ntype things2 = Four | Five",
     "documentation": null,
-    "sortText": "A",
-    "insertText": "{$0}",
+    "insertText": "Four",
+    "insertTextFormat": 2
+  }, {
+    "label": "Five",
+    "kind": 4,
+    "tags": [],
+    "detail": "Five\n\ntype things2 = Four | Five",
+    "documentation": null,
+    "insertText": "Five",
     "insertTextFormat": 2
   }]
 
