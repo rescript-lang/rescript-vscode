@@ -12,6 +12,10 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- More cases of not emitting `_` when completing in expressions. https://github.com/rescript-lang/rescript-vscode/pull/890
+
 ## 1.34.0
 
 #### :rocket: New Feature
@@ -23,7 +27,7 @@
 #### :nail_care: Polish
 
 - Better error recovery when analysis fails. https://github.com/rescript-lang/rescript-vscode/pull/880
-- Do not emit `_` when completing in patterns. https://github.com/rescript-lang/rescript-vscode/pull/885
+- Do not emit `_` when completing in expressions. https://github.com/rescript-lang/rescript-vscode/pull/885
 - Include fields when completing a braced expr that's an ID, where it the path likely starts with a module. https://github.com/rescript-lang/rescript-vscode/pull/882
 
 ## 1.32.0
