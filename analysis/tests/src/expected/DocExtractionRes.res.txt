@@ -42,6 +42,13 @@ extracting docs for src/DocExtractionRes.res
     "docstrings": ["Stuff goes offline."]
   }, 
   {
+    "id": "DocExtractionRes.SomeConstant\\",
+    "kind": "value",
+    "name": "SomeConstant\\",
+    "signature": "let SomeConstant\\: int",
+    "docstrings": ["exotic identifier"]
+  }, 
+  {
     "id": "DocExtractionRes.SomeInnerModule",
     "name": "SomeInnerModule",
     "kind": "module",
@@ -77,7 +84,7 @@ extracting docs for src/DocExtractionRes.res
       "id": "DocExtractionRes.SomeInnerModule.validInputs",
       "kind": "type",
       "name": "validInputs",
-      "signature": "type validInputs = [\\n  | #\\\"needs-escaping\\\"\\n  | #something\\n  | #status(status)\\n  | #withPayload(int)\\n]",
+      "signature": "type validInputs = [\n  | #\"needs-escaping\"\n  | #something\n  | #status(status)\n  | #withPayload(int)\n]",
       "docstrings": ["These are all the valid inputs."]
     }, 
     {
@@ -118,7 +125,7 @@ extracting docs for src/DocExtractionRes.res
       "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
       "kind": "type",
       "name": "someVariantWithInlineRecords",
-      "signature": "type someVariantWithInlineRecords =\\n  | SomeStuff({offline: bool})",
+      "signature": "type someVariantWithInlineRecords =\n  | SomeStuff({offline: bool})",
       "docstrings": ["Trying how it looks with an inline record in a variant."],
       "detail": 
       {

@@ -287,3 +287,29 @@ let fnTakingPolyVariant = (a: somePolyVariant) => {
 
 // fnTakingPolyVariant(o)
 //                      ^com
+
+module SuperInt: {
+  type t
+  let increment: (t, int) => t
+  let decrement: (t, int => int) => t
+  let make: int => t
+  let toInt: t => int
+} = {
+  type t = int
+  let increment = (t, num) => t + num
+  let decrement = (t, decrementer) => decrementer(t)
+  let make = t => t
+  let toInt = t => t
+}
+
+type withIntLocal = {superInt: SuperInt.t}
+
+// let withInt: withIntLocal = {superInt: }
+//                                       ^com
+
+// CompletionSupport.makeTestHidden()
+//                                  ^com
+
+open CompletionSupport
+// CompletionSupport.makeTestHidden()
+//                                  ^com

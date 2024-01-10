@@ -736,7 +736,21 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
           Printf.printf "Attribute id:%s:%s label:%s\n" id.txt
             (Loc.toString id.loc) label;
         setResult (Completable.Cdecorator label)
-      | _ -> ());
+      | _ -> ()
+    else if id.txt = "module" then
+      (match payload with
+      | PStr
+          [
+            {
+              pstr_desc =
+                Pstr_eval
+                  ( {pexp_loc; pexp_desc = Pexp_constant (Pconst_string (s, _))},
+                    _ );
+            };
+          ]
+        when locHasCursor pexp_loc ->
+        setResult (Completable.CdecoratorPayload (Module s))
+      | _ -> ()));
     Ast_iterator.default_iterator.attribute iterator (id, payload)
   in
   let rec iterateFnArguments ~args ~iterator ~isPipe
@@ -852,7 +866,23 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
               (lidPath |> String.concat ".")
               (Loc.toString lid.loc);
           if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
-            setResult (Cpath (CPId (lidPath, Value)))
+            let isLikelyModulePath =
+              match lidPath with
+              | head :: _
+                when String.length head > 0
+                     && head.[0] == Char.uppercase_ascii head.[0] ->
+                true
+              | _ -> false
+            in
+            setResult
+              (Cpath
+                 (CPId
+                    ( lidPath,
+                      if
+                        isLikelyModulePath
+                        && expr |> Res_parsetree_viewer.isBracedExpr
+                      then ValueOrField
+                      else Value )))
         | Pexp_construct (lid, eOpt) ->
           let lidPath = flattenLidCheckDot lid in
           if debug && lid.txt <> Lident "Function$" then

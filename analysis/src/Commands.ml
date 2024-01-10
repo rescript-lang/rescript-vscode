@@ -163,7 +163,7 @@ let references ~path ~pos ~debug =
   in
   print_endline
     (if allLocs = [] then Protocol.null
-    else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
+     else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
 
 let rename ~path ~pos ~newName ~debug =
   let result =
@@ -304,6 +304,8 @@ let test ~path =
           (match String.sub rest 0 3 with
           | "db+" -> Log.verbose := true
           | "db-" -> Log.verbose := false
+          | "dv+" -> Debug.debugLevel := Verbose
+          | "dv-" -> Debug.debugLevel := Off
           | "def" ->
             print_endline
               ("Definition " ^ path ^ " " ^ string_of_int line ^ ":"

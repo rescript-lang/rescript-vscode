@@ -204,7 +204,7 @@ Path fnTakingRecord
     "tags": [],
     "detail": "otherRecord",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "None",
@@ -411,7 +411,7 @@ Path fnTakingArray
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -488,7 +488,7 @@ Path fnTakingArray
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -525,7 +525,7 @@ Path fnTakingArray
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -624,7 +624,7 @@ Path fnTakingRecordWithOptVariant
     "tags": [],
     "detail": "someVariant",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "None",
@@ -1163,13 +1163,13 @@ Path fnTakingPolyVariant
     "tags": [],
     "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
     "documentation": null,
-    "insertText": "#two(${1:_})",
+    "insertText": "#two($0)",
     "insertTextFormat": 2
   }]
 
 Complete src/CompletionExpressions.res 281:24
-posCursor:[281:24] posNoWhite:[281:23] Found expr:[281:3->281:25]
-Pexp_apply ...[281:3->281:22] (...[281:23->281:25])
+posCursor:[281:24] posNoWhite:[281:23] Found expr:[281:3->290:18]
+Pexp_apply ...[281:3->281:22] (...[281:23->281:25], ...[290:0->290:16])
 Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=#
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -1198,7 +1198,7 @@ Path fnTakingPolyVariant
     "tags": [],
     "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
     "documentation": null,
-    "insertText": "two(${1:_})",
+    "insertText": "two($0)",
     "insertTextFormat": 2
   }]
 
@@ -1237,6 +1237,62 @@ Path fnTakingPolyVariant
     "detail": "#one\n\n[#one | #three(someRecord, bool) | #two(bool)]",
     "documentation": null,
     "insertText": "#one",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 306:41
+XXX Not found!
+Completable: Cexpression Type[withIntLocal]->recordField(superInt)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[withIntLocal]
+Path withIntLocal
+[{
+    "label": "SuperInt.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null,
+    "insertText": "SuperInt.make($0)",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 309:36
+posCursor:[309:36] posNoWhite:[309:35] Found expr:[309:3->309:37]
+Pexp_apply ...[309:3->309:35] (...[309:36->309:37])
+Completable: Cexpression CArgument Value[CompletionSupport, makeTestHidden]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
+ContextPath Value[CompletionSupport, makeTestHidden]
+Path CompletionSupport.makeTestHidden
+[{
+    "label": "CompletionSupport.TestHidden.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null,
+    "insertText": "CompletionSupport.TestHidden.make($0)",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 313:36
+posCursor:[313:36] posNoWhite:[313:35] Found expr:[313:3->313:37]
+Pexp_apply ...[313:3->313:35] (...[313:36->313:37])
+Completable: Cexpression CArgument Value[CompletionSupport, makeTestHidden]($0)
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
+ContextPath Value[CompletionSupport, makeTestHidden]
+Path CompletionSupport.makeTestHidden
+[{
+    "label": "TestHidden.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null,
+    "insertText": "TestHidden.make($0)",
     "insertTextFormat": 2
   }]
 

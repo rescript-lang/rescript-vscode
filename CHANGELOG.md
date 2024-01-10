@@ -12,9 +12,31 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- More cases of not emitting `_` when completing in expressions. https://github.com/rescript-lang/rescript-vscode/pull/890
+
 #### :house: Internal
 
 - Move `rescript-tools` to OCaml code and make `analysis` an library. https://github.com/rescript-lang/rescript-vscode/pull/855
+
+## 1.34.0
+
+#### :rocket: New Feature
+
+- Complete domProps for lowercase JSX components from `ReactDOM.domProps` if possible. https://github.com/rescript-lang/rescript-vscode/pull/883
+- Complete for maker-style functions (functions returning type `t` of a module) when encountering a `type t` in relevant scenarios. https://github.com/rescript-lang/rescript-vscode/pull/884
+- Expand type aliases in hovers. https://github.com/rescript-lang/rescript-vscode/pull/881
+
+#### :bug: Bug Fix
+
+- Many bugfixes around nested pattern and expression completion. https://github.com/rescript-lang/rescript-vscode/pull/892
+
+#### :nail_care: Polish
+
+- Better error recovery when analysis fails. https://github.com/rescript-lang/rescript-vscode/pull/880
+- Do not emit `_` when completing in expressions. https://github.com/rescript-lang/rescript-vscode/pull/885
+- Include fields when completing a braced expr that's an ID, where it the path likely starts with a module. https://github.com/rescript-lang/rescript-vscode/pull/882
 
 ## 1.32.0
 

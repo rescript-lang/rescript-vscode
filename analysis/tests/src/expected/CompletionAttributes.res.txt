@@ -1,0 +1,19 @@
+Complete src/CompletionAttributes.res 0:12
+XXX Not found!
+Completable: CdecoratorPayload(module=)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "@rescript/react",
+    "kind": 4,
+    "tags": [],
+    "detail": "Package",
+    "documentation": null
+  }, {
+    "label": "./tst.js",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }]
+

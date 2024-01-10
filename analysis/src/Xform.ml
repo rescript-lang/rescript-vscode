@@ -297,7 +297,9 @@ module ExhaustiveSwitch = struct
             let extractedType =
               match typ with
               | ExtractedType t -> Some t
-              | TypeExpr t -> TypeUtils.extractType t ~env ~package:full.package
+              | TypeExpr t ->
+                TypeUtils.extractType t ~env ~package:full.package
+                |> TypeUtils.getExtractedType
             in
             extractedType
           | None -> None)
@@ -326,13 +328,13 @@ module ExhaustiveSwitch = struct
       let expEndPos = Pos.ofLexing exp.pexp_loc.loc_end in
 
       (if expStartPos = startPos then
-       match !foundSelection with
-       | None, endExpr -> foundSelection := (Some exp, endExpr)
-       | _ -> ());
+         match !foundSelection with
+         | None, endExpr -> foundSelection := (Some exp, endExpr)
+         | _ -> ());
 
       (if expEndPos = endPos then
-       match !foundSelection with
-       | startExp, _ -> foundSelection := (startExp, Some exp));
+         match !foundSelection with
+         | startExp, _ -> foundSelection := (startExp, Some exp));
 
       Ast_iterator.default_iterator.expr iterator exp
     in
@@ -668,7 +670,7 @@ let extractCodeActions ~path ~startPos ~endPos ~currentFile ~debug =
         ExhaustiveSwitch.xform ~printExpr ~path
           ~pos:
             (if startPos = endPos then Single startPos
-            else Range (startPos, endPos))
+             else Range (startPos, endPos))
           ~full ~structure ~codeActions ~debug ~currentFile
       | None -> ()
     in

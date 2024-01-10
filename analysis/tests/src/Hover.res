@@ -263,3 +263,6 @@ let coolVariant = CoolVariant
 
 module Arr = Belt.Array
 //      ^hov
+
+type aliased = variant
+//    ^hov

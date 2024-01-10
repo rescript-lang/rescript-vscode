@@ -60,7 +60,7 @@ Path CompletionSupport.TestComponent.make
     "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
     "sortText": "A Three(_)",
-    "insertText": "{Three(${1:_})}",
+    "insertText": "{Three($0)}",
     "insertTextFormat": 2
   }, {
     "label": "TableclothMap",
@@ -250,7 +250,7 @@ Path CompletionSupport.TestComponent.make
     "tags": [],
     "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
     "documentation": null,
-    "insertText": "Three(${1:_})",
+    "insertText": "Three($0)",
     "insertTextFormat": 2
   }]
 

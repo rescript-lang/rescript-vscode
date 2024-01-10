@@ -492,3 +492,19 @@ Path SomeComponent.make
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionJsx.res 51:11
+posCursor:[51:11] posNoWhite:[51:10] Found expr:[51:4->51:11]
+JSX <h1:[51:4->51:6] hidd[51:7->51:11]=...[51:7->51:11]> _children:None
+Completable: Cjsx([h1], hidd, [hidd])
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path ReactDOM.domProps
+Path Pervasives.JsxDOM.domProps
+[{
+    "label": "hidden",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }]
+
