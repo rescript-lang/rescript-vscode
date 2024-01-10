@@ -15,6 +15,7 @@
 #### :bug: Bug Fix
 
 - Fix docstrings for module alias. Get internal docstrings of module file. https://github.com/rescript-lang/rescript-vscode/pull/878
+- Fix extracted docs of types include escaped linebreaks in signature. https://github.com/rescript-lang/rescript-vscode/pull/891
 
 ## 0.3.0
 
