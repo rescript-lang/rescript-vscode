@@ -298,7 +298,7 @@ module ExhaustiveSwitch = struct
               match typ with
               | ExtractedType t -> Some t
               | TypeExpr t ->
-                TypeUtils.extractType2 t ~env ~package:full.package
+                TypeUtils.extractType t ~env ~package:full.package
                 |> TypeUtils.getExtractedType
             in
             extractedType

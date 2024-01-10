@@ -266,70 +266,7 @@ let rec extractFunctionType2 ?typeArgContext ~env ~package typ =
   in
   loop ?typeArgContext ~env [] typ
 
-(** Pulls out a type we can complete from a type expr. *)
-let rec extractType ~env ~package (t : Types.type_expr) =
-  match t.desc with
-  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractType ~env ~package t1
-  | Tconstr (Path.Pident {name = "option"}, [payloadTypeExpr], _) ->
-    Some (Toption (env, TypeExpr payloadTypeExpr))
-  | Tconstr (Path.Pident {name = "promise"}, [payloadTypeExpr], _) ->
-    Some (Tpromise (env, payloadTypeExpr))
-  | Tconstr (Path.Pident {name = "array"}, [payloadTypeExpr], _) ->
-    Some (Tarray (env, TypeExpr payloadTypeExpr))
-  | Tconstr (Path.Pident {name = "result"}, [okType; errorType], _) ->
-    Some (Tresult {env; okType; errorType})
-  | Tconstr (Path.Pident {name = "bool"}, [], _) -> Some (Tbool env)
-  | Tconstr (Path.Pident {name = "string"}, [], _) -> Some (Tstring env)
-  | Tconstr (Path.Pident {name = "exn"}, [], _) -> Some (Texn env)
-  | Tconstr (Pident {name = "function$"}, [t; _], _) -> (
-    (* Uncurried functions. *)
-    match extractFunctionType t ~env ~package with
-    | args, tRet when args <> [] ->
-      Some (Tfunction {env; args; typ = t; uncurried = true; returnType = tRet})
-    | _args, _tRet -> None)
-  | Tconstr (path, typeArgs, _) -> (
-    match References.digConstructor ~env ~package path with
-    | Some (env, {item = {decl = {type_manifest = Some t1; type_params}}}) ->
-      t1
-      |> instantiateType ~typeParams:type_params ~typeArgs
-      |> extractType ~env ~package
-    | Some (env, {name; item = {decl; kind = Type.Variant constructors}}) ->
-      Some
-        (Tvariant
-           {env; constructors; variantName = name.txt; variantDecl = decl})
-    | Some (env, {item = {kind = Record fields}}) ->
-      Some (Trecord {env; fields; definition = `TypeExpr t})
-    | Some (env, {item = {name = "t"}}) -> Some (TtypeT {env; path})
-    | None -> None
-    | _ -> None)
-  | Ttuple expressions -> Some (Tuple (env, expressions, t))
-  | Tvariant {row_fields} ->
-    let constructors =
-      row_fields
-      |> List.map (fun (label, field) ->
-             {
-               name = label;
-               displayName = Utils.printMaybeExoticIdent ~allowUident:true label;
-               args =
-                 (* Multiple arguments are represented as a Ttuple, while a single argument is just the type expression itself. *)
-                 (match field with
-                 | Types.Rpresent (Some typeExpr) -> (
-                   match typeExpr.desc with
-                   | Ttuple args -> args
-                   | _ -> [typeExpr])
-                 | _ -> []);
-             })
-    in
-    Some (Tpolyvariant {env; constructors; typeExpr = t})
-  | Tarrow _ -> (
-    match extractFunctionType t ~env ~package with
-    | args, tRet when args <> [] ->
-      Some
-        (Tfunction {env; args; typ = t; uncurried = false; returnType = tRet})
-    | _args, _tRet -> None)
-  | _ -> None
-
-let rec extractType2 ?(printOpeningDebug = true)
+let rec extractType ?(printOpeningDebug = true)
     ?(typeArgContext : typeArgContext option)
     ?(typeArgContextFromTypeManifest : typeArgContext option) ~env ~package
     (t : Types.type_expr) =
@@ -346,7 +283,6 @@ let rec extractType2 ?(printOpeningDebug = true)
     if Debug.verbose () && printOpeningDebug then
       Printf.printf "[extract_type]--> %s"
         (debugLogTypeArgContext typeArgContext));
-  let extractType = extractType2 in
   let instantiateType = instantiateType2 in
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
@@ -604,14 +540,14 @@ let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
   | Abstract _ | Open -> (
     match typ.decl.type_manifest with
     | None -> None
-    | Some t -> t |> extractType ~env ~package:full.package)
+    | Some t -> t |> extractType ~env ~package:full.package |> getExtractedType)
 
 (** The context we just came from as we resolve the nested structure. *)
 type ctx = Rfield of string  (** A record field of name *)
 
 let rec resolveNested ?typeArgContext ~env ~full ~nested ?ctx
     (typ : completionType) =
-  let extractType = extractType2 ?typeArgContext in
+  let extractType = extractType ?typeArgContext in
   if Debug.verbose () then
     Printf.printf
       "[nested]--> running nested in env: %s. Has type arg ctx: %b\n"
@@ -826,7 +762,8 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
   if Debug.verbose () then print_endline "[nested_pattern_path]";
   let t =
     match typ with
-    | TypeExpr t -> t |> extractType ~env ~package:full.package
+    | TypeExpr t ->
+      t |> extractType ~env ~package:full.package |> getExtractedType
     | ExtractedType t -> Some t
   in
   match nested with
@@ -884,6 +821,7 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
         | Some typ ->
           typ
           |> extractType ~env ~package:full.package
+          |> getExtractedType
           |> Utils.Option.flatMap (fun typ ->
                  ExtractedType typ
                  |> resolveNestedPatternPath ~env ~full ~nested))
@@ -893,6 +831,7 @@ let rec resolveNestedPatternPath (typ : innerType) ~env ~full ~nested =
         | Some typ ->
           typ
           |> extractType ~env ~package:full.package
+          |> getExtractedType
           |> Utils.Option.flatMap (fun typ ->
                  ExtractedType typ
                  |> resolveNestedPatternPath ~env ~full ~nested))
@@ -1026,7 +965,8 @@ module Codegen = struct
       let extractedType =
         match innerType with
         | ExtractedType t -> Some t
-        | TypeExpr t -> extractType t ~env ~package:full.package
+        | TypeExpr t ->
+          extractType t ~env ~package:full.package |> getExtractedType
       in
       let expandedBranches =
         match extractedType with
@@ -1045,9 +985,11 @@ module Codegen = struct
           |> List.map (fun (pat : Parsetree.pattern) ->
                  mkConstructPat ~payload:pat "Some")))
     | Tresult {okType; errorType} ->
-      let extractedOkType = okType |> extractType ~env ~package:full.package in
+      let extractedOkType =
+        okType |> extractType ~env ~package:full.package |> getExtractedType
+      in
       let extractedErrorType =
-        errorType |> extractType ~env ~package:full.package
+        errorType |> extractType ~env ~package:full.package |> getExtractedType
       in
       let expandedOkBranches =
         match extractedOkType with

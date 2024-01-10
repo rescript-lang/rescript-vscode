@@ -637,7 +637,7 @@ let completionsGetCompletionType ~full = function
   | {Completion.kind = ObjLabel typ; env} :: _
   | {Completion.kind = Field ({typ}, _); env} :: _ ->
     typ
-    |> TypeUtils.extractType2 ~env ~package:full.package
+    |> TypeUtils.extractType ~env ~package:full.package
     |> Option.map (fun (typ, _) -> (typ, env))
   | {Completion.kind = Type typ; env} :: _ -> (
     match TypeUtils.extractTypeFromResolvedType typ ~env ~full with
@@ -1322,7 +1322,7 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
     let innerType =
       match t with
       | ExtractedType t -> Some (t, None)
-      | TypeExpr t -> t |> TypeUtils.extractType2 ~env ~package:full.package
+      | TypeExpr t -> t |> TypeUtils.extractType ~env ~package:full.package
     in
     let expandedCompletions =
       match innerType with
@@ -1365,10 +1365,10 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
   | Tresult {env; okType; errorType} ->
     if Debug.verbose () then print_endline "[complete_typed_value]--> Tresult";
     let okInnerType =
-      okType |> TypeUtils.extractType2 ~env ~package:full.package
+      okType |> TypeUtils.extractType ~env ~package:full.package
     in
     let errorInnerType =
-      errorType |> TypeUtils.extractType2 ~env ~package:full.package
+      errorType |> TypeUtils.extractType ~env ~package:full.package
     in
     let expandedOkCompletions =
       match okInnerType with
@@ -1574,7 +1574,7 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
         "(" ^ if shouldPrintAsUncurried then ". " else "" ^ argsText ^ ")"
     in
     let isAsync =
-      match TypeUtils.extractType2 ~env ~package:full.package returnType with
+      match TypeUtils.extractType ~env ~package:full.package returnType with
       | Some (Tpromise _, _) -> true
       | _ -> false
     in
@@ -1847,7 +1847,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     | Some (typ, env) -> (
       match
         typ
-        |> TypeUtils.extractType2 ~env ~package:full.package
+        |> TypeUtils.extractType ~env ~package:full.package
         |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
                typ |> TypeUtils.resolveNested ?typeArgContext ~env ~full ~nested)
       with
@@ -1968,7 +1968,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     |> List.map (fun (c : Completion.t) ->
            match c.kind with
            | Value typExpr -> (
-             match typExpr |> TypeUtils.extractType2 ~env:c.env ~package with
+             match typExpr |> TypeUtils.extractType ~env:c.env ~package with
              | Some (Tvariant v, _) ->
                withExhaustiveItem c
                  ~cases:
