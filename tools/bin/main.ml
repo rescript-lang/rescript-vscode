@@ -19,16 +19,13 @@ reanalyze             Reanalyze
 -v, --version         Print version
 -h, --help            Print help|}
 
-type exitCode = [`Ok | `Error]
-
-let logAndExit ~log ~code =
-  print_endline log |> ignore;
-  let code =
-    match code with
-    | `Ok -> 0
-    | `Error -> 1
-  in
-  exit code
+let logAndExit = function
+  | Ok log ->
+    Printf.printf "%s\n" log;
+    exit 0
+  | Error log ->
+    Printf.eprintf "%s\n" log;
+    exit 1
 
 let version = Version.version
 
@@ -36,7 +33,7 @@ let main () =
   match Sys.argv |> Array.to_list |> List.tl with
   | "doc" :: rest -> (
     match rest with
-    | ["-h"] | ["--help"] -> logAndExit ~log:docHelp ~code:`Ok
+    | ["-h"] | ["--help"] -> logAndExit (Ok docHelp)
     | [path] ->
       (* NOTE: Internal use to generate docs from compiler *)
       let () =
@@ -44,8 +41,8 @@ let main () =
         | Some "true" -> Analysis.Cfg.isDocGenFromCompiler := true
         | _ -> ()
       in
-      Tools.extractDocs ~path ~debug:false
-    | _ -> logAndExit ~log:docHelp ~code:`Error)
+      logAndExit (Tools.extractDocs ~path ~debug:false)
+    | _ -> logAndExit (Error docHelp))
   | "reanalyze" :: _ ->
     let len = Array.length Sys.argv in
     for i = 1 to len - 2 do
@@ -53,8 +50,8 @@ let main () =
     done;
     Sys.argv.(len - 1) <- "";
     Reanalyze.cli ()
-  | ["-h"] | ["--help"] -> logAndExit ~log:help ~code:`Ok
-  | ["-v"] | ["--version"] -> logAndExit ~log:version ~code:`Ok
-  | _ -> logAndExit ~log:help ~code:`Error
+  | ["-h"] | ["--help"] -> logAndExit (Ok help)
+  | ["-v"] | ["--version"] -> logAndExit (Ok version)
+  | _ -> logAndExit (Error help)
 
 let () = main ()
