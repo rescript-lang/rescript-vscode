@@ -1849,8 +1849,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         typ
         |> TypeUtils.extractType2 ~env ~package:full.package
         |> Utils.Option.flatMap (fun (typ, typeArgContext) ->
-               typ
-               |> TypeUtils.resolveNested2 ?typeArgContext ~env ~full ~nested)
+               typ |> TypeUtils.resolveNested ?typeArgContext ~env ~full ~nested)
       with
       | None -> fallbackOrEmpty ()
       | Some (typ, _env, completionContext, typeArgContext) ->
@@ -1883,7 +1882,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         print_endline "--> could not get completions for context path";
       regularCompletions
     | Some (typ, env) -> (
-      match typ |> TypeUtils.resolveNested2 ~env ~full ~nested with
+      match typ |> TypeUtils.resolveNested ~env ~full ~nested with
       | None ->
         if Debug.verbose () then
           print_endline "--> could not resolve nested expression path";

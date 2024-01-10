@@ -243,6 +243,7 @@ let maybeSetTypeArgCtx ?typeArgContextFromTypeManifest ~typeParams ~typeArgs env
           (debugLogTypeArgContext typeArgContext));
     typeArgContext
 
+(* TODO(env-stuff) Maybe this could be removed entirely if we can guarantee that we don't have to look up functions from in here. *)
 let rec extractFunctionType2 ?typeArgContext ~env ~package typ =
   let rec loop ?typeArgContext ~env acc (t : Types.type_expr) =
     match t.desc with
@@ -608,119 +609,9 @@ let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
 (** The context we just came from as we resolve the nested structure. *)
 type ctx = Rfield of string  (** A record field of name *)
 
-(** This moves through a nested path via a set of instructions, trying to resolve the type at the end of the path. *)
-let rec resolveNested ~env ~full ~nested ?ctx (typ : completionType) =
-  match nested with
-  | [] ->
-    Some
-      ( typ,
-        env,
-        match ctx with
-        | None -> None
-        | Some (Rfield fieldName) ->
-          Some (Completable.CameFromRecordField fieldName) )
-  | patternPath :: nested -> (
-    match (patternPath, typ) with
-    | Completable.NTupleItem {itemNum}, Tuple (env, tupleItems, _) -> (
-      match List.nth_opt tupleItems itemNum with
-      | None -> None
-      | Some typ ->
-        typ
-        |> extractType ~env ~package:full.package
-        |> Utils.Option.flatMap (fun typ ->
-               typ |> resolveNested ~env ~full ~nested))
-    | ( NFollowRecordField {fieldName},
-        (TinlineRecord {env; fields} | Trecord {env; fields}) ) -> (
-      match
-        fields
-        |> List.find_opt (fun (field : field) -> field.fname.txt = fieldName)
-      with
-      | None -> None
-      | Some {typ; optional} ->
-        let typ = if optional then Utils.unwrapIfOption typ else typ in
-
-        typ
-        |> extractType ~env ~package:full.package
-        |> Utils.Option.flatMap (fun typ ->
-               typ |> resolveNested ~ctx:(Rfield fieldName) ~env ~full ~nested))
-    | NRecordBody {seenFields}, Trecord {env; definition = `TypeExpr typeExpr}
-      ->
-      typeExpr
-      |> extractType ~env ~package:full.package
-      |> Option.map (fun typ ->
-             (typ, env, Some (Completable.RecordField {seenFields})))
-    | ( NRecordBody {seenFields},
-        (Trecord {env; definition = `NameOnly _} as extractedType) ) ->
-      Some (extractedType, env, Some (Completable.RecordField {seenFields}))
-    | NRecordBody {seenFields}, TinlineRecord {env; fields} ->
-      Some
-        ( TinlineRecord {fields; env},
-          env,
-          Some (Completable.RecordField {seenFields}) )
-    | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
-        Toption (env, ExtractedType typ) ) ->
-      typ |> resolveNested ~env ~full ~nested
-    | ( NVariantPayload {constructorName = "Some"; itemNum = 0},
-        Toption (env, TypeExpr typ) ) ->
-      typ
-      |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
-    | NVariantPayload {constructorName = "Ok"; itemNum = 0}, Tresult {okType} ->
-      okType
-      |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
-    | ( NVariantPayload {constructorName = "Error"; itemNum = 0},
-        Tresult {errorType} ) ->
-      errorType
-      |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun t -> t |> resolveNested ~env ~full ~nested)
-    | NVariantPayload {constructorName; itemNum}, Tvariant {env; constructors}
-      -> (
-      match
-        constructors
-        |> List.find_opt (fun (c : Constructor.t) ->
-               c.cname.txt = constructorName)
-      with
-      | Some {args = Args args} -> (
-        match List.nth_opt args itemNum with
-        | None -> None
-        | Some (typ, _) ->
-          typ
-          |> extractType ~env ~package:full.package
-          |> Utils.Option.flatMap (fun typ ->
-                 typ |> resolveNested ~env ~full ~nested))
-      | Some {args = InlineRecord fields} when itemNum = 0 ->
-        TinlineRecord {env; fields} |> resolveNested ~env ~full ~nested
-      | _ -> None)
-    | ( NPolyvariantPayload {constructorName; itemNum},
-        Tpolyvariant {env; constructors} ) -> (
-      match
-        constructors
-        |> List.find_opt (fun (c : polyVariantConstructor) ->
-               c.name = constructorName)
-      with
-      | None -> None
-      | Some constructor -> (
-        match List.nth_opt constructor.args itemNum with
-        | None -> None
-        | Some typ ->
-          typ
-          |> extractType ~env ~package:full.package
-          |> Utils.Option.flatMap (fun typ ->
-                 typ |> resolveNested ~env ~full ~nested)))
-    | NArray, Tarray (env, ExtractedType typ) ->
-      typ |> resolveNested ~env ~full ~nested
-    | NArray, Tarray (env, TypeExpr typ) ->
-      typ
-      |> extractType ~env ~package:full.package
-      |> Utils.Option.flatMap (fun typ ->
-             typ |> resolveNested ~env ~full ~nested)
-    | _ -> None)
-
-let rec resolveNested2 ?typeArgContext ~env ~full ~nested ?ctx
+let rec resolveNested ?typeArgContext ~env ~full ~nested ?ctx
     (typ : completionType) =
   let extractType = extractType2 ?typeArgContext in
-  let resolveNested = resolveNested2 in
   if Debug.verbose () then
     Printf.printf
       "[nested]--> running nested in env: %s. Has type arg ctx: %b\n"
