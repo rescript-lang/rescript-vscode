@@ -24,6 +24,7 @@ preferring found resi file for impl: src/DocExtraction2.resi
     "id": "DocExtraction2.InnerModule",
     "name": "InnerModule",
     "kind": "module",
+    "docstrings": [],
     "items": [
     {
       "id": "DocExtraction2.InnerModule.t",

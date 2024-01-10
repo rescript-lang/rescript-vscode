@@ -52,6 +52,7 @@ extracting docs for src/DocExtractionRes.res
     "id": "DocExtractionRes.SomeInnerModule",
     "name": "SomeInnerModule",
     "kind": "module",
+    "docstrings": ["Another module level docstring here."],
     "items": [
     {
       "id": "DocExtractionRes.SomeInnerModule.status",
@@ -99,6 +100,7 @@ extracting docs for src/DocExtractionRes.res
     "id": "DocExtractionRes.AnotherModule",
     "name": "AnotherModule",
     "kind": "module",
+    "docstrings": ["Mighty fine module here too!"],
     "items": [
     {
       "id": "DocExtractionRes.LinkedModule",
@@ -161,6 +163,7 @@ extracting docs for src/DocExtractionRes.res
     "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported",
     "name": "ModuleWithThingsThatShouldNotBeExported",
     "kind": "module",
+    "docstrings": [],
     "items": [
     {
       "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.t",

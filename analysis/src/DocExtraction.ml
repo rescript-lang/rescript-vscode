@@ -156,6 +156,7 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("id", Some (wrapInQuotes m.id));
         ("name", Some (wrapInQuotes m.name));
         ("kind", Some (wrapInQuotes "module"));
+        ("docstrings", Some (stringifyDocstrings m.docstring));
         ( "items",
           Some
             (m.items
