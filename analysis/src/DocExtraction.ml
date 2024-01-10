@@ -112,13 +112,13 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
       [
         ("id", Some (wrapInQuotes id));
         ("kind", Some (wrapInQuotes "value"));
-        ("name", Some (name |> Json.escape |> wrapInQuotes));
+        ("name", Some (name |> wrapInQuotes));
         ( "deprecated",
           match deprecated with
           | Some d -> Some (wrapInQuotes d)
           | None -> None );
         ( "signature",
-          Some (signature |> String.trim |> Json.escape |> wrapInQuotes) );
+          Some (signature |> String.trim |> wrapInQuotes) );
         ("docstrings", Some (stringifyDocstrings docstring));
       ]
   | Type {id; docstring; signature; name; deprecated; detail} ->
@@ -126,12 +126,12 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
       [
         ("id", Some (wrapInQuotes id));
         ("kind", Some (wrapInQuotes "type"));
-        ("name", Some (name |> Json.escape |> wrapInQuotes));
+        ("name", Some (name |> wrapInQuotes));
         ( "deprecated",
           match deprecated with
           | Some d -> Some (wrapInQuotes d)
           | None -> None );
-        ("signature", Some (signature |> Json.escape |> wrapInQuotes));
+        ("signature", Some (signature |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
         ( "detail",
           match detail with
