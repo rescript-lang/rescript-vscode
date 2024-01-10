@@ -6,12 +6,14 @@ type fieldDoc = {
   deprecated: string option;
 }
 
+type constructorPayload = InlineRecord of {fieldDocs: fieldDoc list}
+
 type constructorDoc = {
   constructorName: string;
   docstrings: string list;
   signature: string;
   deprecated: string option;
-  inlineRecordFields: fieldDoc list option;
+  items: constructorPayload option;
 }
 
 type docItemDetail =
@@ -69,6 +71,21 @@ let stringifyFieldDoc ~indentation (fieldDoc : fieldDoc) =
       ("signature", Some (wrapInQuotes fieldDoc.signature));
     ]
 
+let stringifyConstructorPayload ~indentation
+    (constructorPayload : constructorPayload) =
+  let open Protocol in
+  match constructorPayload with
+  | InlineRecord {fieldDocs} ->
+    stringifyObject ~indentation:(indentation + 1)
+      [
+        ("kind", Some (wrapInQuotes "inlineRecord"));
+        ( "fields",
+          Some
+            (fieldDocs
+            |> List.map (stringifyFieldDoc ~indentation:(indentation + 1))
+            |> array) );
+      ]
+
 let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
   let open Protocol in
   match detail with
@@ -101,16 +118,14 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                          Some (stringifyDocstrings constructorDoc.docstrings) );
                        ( "signature",
                          Some (wrapInQuotes constructorDoc.signature) );
-                       ( "inlineRecordFields",
-                         match constructorDoc.inlineRecordFields with
+                       ( "items",
+                         match constructorDoc.items with
                          | None -> None
-                         | Some fieldDocs ->
+                         | Some constructorPayload ->
                            Some
-                             (fieldDocs
-                             |> List.map
-                                  (stringifyFieldDoc
-                                     ~indentation:(indentation + 1))
-                             |> array) );
+                             (stringifyConstructorPayload
+                                ~indentation:(indentation + 1)
+                                constructorPayload) );
                      ])
             |> array) );
       ]
@@ -223,10 +238,12 @@ let typeDetail typ ~env ~full =
                       docstrings = c.docstring;
                       signature = CompletionBackEnd.showConstructor c;
                       deprecated = c.deprecated;
-                      inlineRecordFields =
+                      items =
                         (match c.args with
                         | InlineRecord fields ->
-                          Some (fields |> List.map fieldToFieldDoc)
+                          Some
+                            (InlineRecord
+                               {fieldDocs = fields |> List.map fieldToFieldDoc})
                         | _ -> None);
                     });
          })
@@ -325,7 +342,9 @@ let extractDocs ~path ~debug =
                           id;
                           name = item.name;
                           items;
-                          docstring = item.docstring @ internalDocstrings |> List.map String.trim;
+                          docstring =
+                            item.docstring @ internalDocstrings
+                            |> List.map String.trim;
                         })
                  | Module (Structure m) ->
                    (* module Whatever = {} in res or module Whatever: {} in resi. *)

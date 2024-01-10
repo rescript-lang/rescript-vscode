@@ -137,17 +137,20 @@ extracting docs for src/DocExtractionRes.res
           "name": "SomeStuff",
           "docstrings": ["This has inline records..."],
           "signature": "SomeStuff({offline: bool, online?: bool})",
-          "inlineRecordFields": [{
-            "name": "offline",
-            "optional": false,
-            "docstrings": [],
-            "signature": "bool"
-          }, {
-            "name": "online",
-            "optional": true,
-            "docstrings": ["Is the user online?"],
-            "signature": "option<bool>"
-          }]
+          "items": {
+            "kind": "inlineRecord",
+            "fields": [{
+              "name": "offline",
+              "optional": false,
+              "docstrings": [],
+              "signature": "bool"
+            }, {
+              "name": "online",
+              "optional": true,
+              "docstrings": ["Is the user online?"],
+              "signature": "option<bool>"
+            }]
+          }
         }]
       }
     }, 

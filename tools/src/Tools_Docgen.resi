@@ -5,12 +5,16 @@ type field = {
   optional: bool,
   deprecated?: string,
 }
+
+@tag("kind")
+type constructorPayload = | @as("inlineRecord") InlineRecord({fields: array<field>})
+
 type constructor = {
   name: string,
   docstrings: array<string>,
   signature: string,
   deprecated?: string,
-  inlineRecordFields?: array<field>,
+  constructorPayload?: constructorPayload,
 }
 @tag("kind")
 type detail =
