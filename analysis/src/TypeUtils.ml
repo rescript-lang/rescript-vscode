@@ -388,13 +388,16 @@ let rec extractType2 ?(printOpeningDebug = true)
           {item = {decl = {type_manifest = Some t1; type_params}}} ) ->
       if Debug.verbose () then
         print_endline "[extract_type]--> found type manifest";
-      (* Type manifests inherit the last type args ctx that wasn't for a type manifest *)
+
+      (* Type manifests inherit the last type args ctx that wasn't for a type manifest.
+         This is because the manifest itself doesn't have type args and an env that can
+         be used to instantiate. *)
       let typeArgContext =
         maybeSetTypeArgCtx ~typeParams:type_params ~typeArgs env
       in
       t1
       |> extractType ?typeArgContextFromTypeManifest:typeArgContext
-           ?typeArgContext ~env:envFromDeclaration ~package
+           ~env:envFromDeclaration ~package
     | Some (envFromItem, {name; item = {decl; kind = Type.Variant constructors}})
       ->
       if Debug.verbose () then print_endline "[extract_type]--> found variant";
