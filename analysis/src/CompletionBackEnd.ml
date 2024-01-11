@@ -3,7 +3,18 @@ open SharedTypes
 let showConstructor {Constructor.cname = {txt}; args; res} =
   txt
   ^ (match args with
-    | Args [] | InlineRecord _ -> ""
+    | Args [] -> ""
+    | InlineRecord fields ->
+      "({"
+      ^ (fields
+        |> List.map (fun (field : field) ->
+               Printf.sprintf "%s%s: %s" field.fname.txt
+                 (if field.optional then "?" else "")
+                 (Shared.typeToString
+                    (if field.optional then Utils.unwrapIfOption field.typ
+                     else field.typ)))
+        |> String.concat ", ")
+      ^ "})"
     | Args args ->
       "("
       ^ (args
