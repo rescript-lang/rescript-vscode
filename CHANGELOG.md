@@ -14,7 +14,7 @@
 
 #### :bug: Bug Fix
 
-- Fix issue with ambigious wraps in JSX prop values (`<SomeComp someProp={<com>}`) - need to figure out if we're completing for a record body or if `{}` are just wraps for the type of `someProp`. https://github.com/rescript-lang/rescript-vscode/pull/894
+- Fix issue with ambigious wraps in JSX prop values (`<SomeComp someProp={<com>}`) - need to figure out if we're completing for a record body or if `{}` are just wraps for the type of `someProp`. In the case of ambiguity, completions for both scenarios are provided. https://github.com/rescript-lang/rescript-vscode/pull/894
 
 #### :nail_care: Polish
 
