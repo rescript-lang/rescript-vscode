@@ -118,7 +118,7 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                          Some (stringifyDocstrings constructorDoc.docstrings) );
                        ( "signature",
                          Some (wrapInQuotes constructorDoc.signature) );
-                       ( "items",
+                       ( "payload",
                          match constructorDoc.items with
                          | None -> None
                          | Some constructorPayload ->

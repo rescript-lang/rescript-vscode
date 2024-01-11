@@ -14,7 +14,7 @@ type constructor = {
   docstrings: array<string>,
   signature: string,
   deprecated?: string,
-  constructorPayload?: constructorPayload,
+  payload?: constructorPayload,
 }
 
 @tag("kind")

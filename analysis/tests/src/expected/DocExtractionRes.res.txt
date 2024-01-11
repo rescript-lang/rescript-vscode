@@ -137,7 +137,7 @@ extracting docs for src/DocExtractionRes.res
           "name": "SomeStuff",
           "docstrings": ["This has inline records..."],
           "signature": "SomeStuff({offline: bool, online?: bool})",
-          "items": {
+          "payload": {
             "kind": "inlineRecord",
             "fields": [{
               "name": "offline",
