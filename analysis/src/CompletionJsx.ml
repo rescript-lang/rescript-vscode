@@ -816,20 +816,27 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
   let rec loop props =
     match props with
     | prop :: rest ->
-      if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
-        (* Cursor on the prop name *)
+      if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then (
+        if Debug.verbose () then
+          print_endline "[jsx_props_completable]--> Cursor on the prop name";
+
         Some
           (Completable.Cjsx
              ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
                prop.name,
-               allLabels ))
+               allLabels )))
       else if
         prop.posEnd <= posBeforeCursor
         && posBeforeCursor < Loc.start prop.exp.pexp_loc
-      then (* Cursor between the prop name and expr assigned *)
-        None
-      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
-        (* Cursor on expr assigned *)
+      then (
+        if Debug.verbose () then
+          print_endline
+            "[jsx_props_completable]--> Cursor between the prop name and expr \
+             assigned";
+        None)
+      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
+        if Debug.verbose () then
+          print_endline "[jsx_props_completable]--> Cursor on expr assigned";
         match
           CompletionExpressions.traverseExpr prop.exp ~exprPath:[]
             ~pos:posBeforeCursor ~firstCharBeforeCursorNoWhite
@@ -848,9 +855,13 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                  nested = List.rev nested;
                  prefix;
                })
-        | _ -> None
-      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
-        if CompletionExpressions.isExprHole prop.exp then
+        | _ -> None)
+      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
+        if Debug.verbose () then
+          print_endline "[jsx_props_completable]--> Loc is broken";
+        if CompletionExpressions.isExprHole prop.exp then (
+          if Debug.verbose () then
+            print_endline "[jsx_props_completable]--> Expr was expr hole";
           Some
             (Cexpression
                {
@@ -863,13 +874,17 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                      };
                  prefix = "";
                  nested = [];
-               })
-        else None
-      else if rest = [] && beforeChildrenStart && charAtCursor = '>' then
+               }))
+        else None)
+      else if rest = [] && beforeChildrenStart && charAtCursor = '>' then (
         (* This is a special case for: <SomeComponent someProp=> (completing directly after the '=').
            The completion comes at the end of the component, after the equals sign, but before any
            children starts, and '>' marks that it's at the end of the component JSX.
            This little heuristic makes sure we pick up this special case. *)
+        if Debug.verbose () then
+          print_endline
+            "[jsx_props_completable]--> Special case: last prop, '>' after \
+             cursor";
         Some
           (Cexpression
              {
@@ -882,16 +897,18 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                    };
                prefix = "";
                nested = [];
-             })
+             }))
       else loop rest
     | [] ->
       let afterCompName = posBeforeCursor >= posAfterCompName in
-      if afterCompName && beforeChildrenStart then
+      if afterCompName && beforeChildrenStart then (
+        if Debug.verbose () then
+          print_endline "[jsx_props_completable]--> Complete for JSX prop name";
         Some
           (Cjsx
              ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
                "",
-               allLabels ))
+               allLabels )))
       else None
   in
   loop jsxProps.props
