@@ -1931,6 +1931,11 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         if Debug.verbose () then
           print_endline
             "[process_completable]--> could not resolve nested expression path";
+        (* This happens in this scenario: `<SomeComponent someProp={<com>}`
+           Here, we don't know whether `{}` is just wraps for the type of
+           `someProp`, or if it's a record body where we want to complete
+            for the fields in the record. We need to look up what the type is
+           first before deciding what completions to show. So we do that here.*)
         if isAmbigiousRecordBodyOrJsxWrap then (
           if Debug.verbose () then
             print_endline
