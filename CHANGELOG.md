@@ -15,6 +15,7 @@
 #### :bug: Bug Fix
 
 - Fix issue with ambigious wraps in JSX prop values (`<SomeComp someProp={<com>}`) - need to figure out if we're completing for a record body or if `{}` are just wraps for the type of `someProp`. In the case of ambiguity, completions for both scenarios are provided. https://github.com/rescript-lang/rescript-vscode/pull/894
+- Many bugfixes around nested pattern and expression completion. https://github.com/rescript-lang/rescript-vscode/pull/892
 
 #### :nail_care: Polish
 
@@ -27,10 +28,6 @@
 - Complete domProps for lowercase JSX components from `ReactDOM.domProps` if possible. https://github.com/rescript-lang/rescript-vscode/pull/883
 - Complete for maker-style functions (functions returning type `t` of a module) when encountering a `type t` in relevant scenarios. https://github.com/rescript-lang/rescript-vscode/pull/884
 - Expand type aliases in hovers. https://github.com/rescript-lang/rescript-vscode/pull/881
-
-#### :bug: Bug Fix
-
-- Many bugfixes around nested pattern and expression completion. https://github.com/rescript-lang/rescript-vscode/pull/892
 
 #### :nail_care: Polish
 
