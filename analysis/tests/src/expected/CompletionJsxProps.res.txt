@@ -254,3 +254,67 @@ Path CompletionSupport.TestComponent.make
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionJsxProps.res 31:53
+posCursor:[31:53] posNoWhite:[31:52] Found expr:[31:12->31:54]
+JSX <CompletionSupport.TestComponent:[31:12->31:43] polyArg[31:44->31:51]=...[31:52->31:54]> _children:None
+Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyArg->recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [CompletionSupport, TestComponent] polyArg
+Path CompletionSupport.TestComponent.make
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one\n\n[#one | #three(int, bool) | #two | #two2]",
+    "documentation": null,
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three(int, bool)\n\n[#one | #three(int, bool) | #two | #two2]",
+    "documentation": null,
+    "insertText": "#three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two\n\n[#one | #three(int, bool) | #two | #two2]",
+    "documentation": null,
+    "insertText": "#two",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two2",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two2\n\n[#one | #three(int, bool) | #two | #two2]",
+    "documentation": null,
+    "insertText": "#two2",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionJsxProps.res 34:49
+posCursor:[34:49] posNoWhite:[34:48] Found expr:[34:12->34:50]
+JSX <CompletionSupport.TestComponent:[34:12->34:43] on[34:44->34:46]=...[34:48->34:49]> _children:None
+Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] on=t->recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [CompletionSupport, TestComponent] on
+Path CompletionSupport.TestComponent.make
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "tsomeVar",
+    "kind": 12,
+    "tags": [],
+    "detail": "[> #two]",
+    "documentation": null
+  }]
+
