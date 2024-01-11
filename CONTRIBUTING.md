@@ -76,7 +76,7 @@ opam install ocaml-lsp-server
 
   <img width="359" alt="image" src="https://user-images.githubusercontent.com/1909539/97448639-19db0800-18ee-11eb-875a-d17cd1b141d1.png">
 
-- For the native analysis binary tests: `make test`.
+- For the native analysis and tools binary tests: `make test`.
 
 ## Change the Grammar
 
