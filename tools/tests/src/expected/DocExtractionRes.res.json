@@ -50,6 +50,7 @@
     "id": "DocExtractionRes.SomeInnerModule",
     "name": "SomeInnerModule",
     "kind": "module",
+    "docstrings": ["Another module level docstring here."],
     "items": [
     {
       "id": "DocExtractionRes.SomeInnerModule.status",
@@ -97,6 +98,7 @@
     "id": "DocExtractionRes.AnotherModule",
     "name": "AnotherModule",
     "kind": "module",
+    "docstrings": ["Mighty fine module here too!"],
     "items": [
     {
       "id": "DocExtractionRes.LinkedModule",
@@ -123,7 +125,7 @@
       "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
       "kind": "type",
       "name": "someVariantWithInlineRecords",
-      "signature": "type someVariantWithInlineRecords =\n  | SomeStuff({offline: bool})",
+      "signature": "type someVariantWithInlineRecords =\n  | SomeStuff({offline: bool, online?: bool})",
       "docstrings": ["Trying how it looks with an inline record in a variant."],
       "detail": 
       {
@@ -132,7 +134,21 @@
         {
           "name": "SomeStuff",
           "docstrings": ["This has inline records..."],
-          "signature": "SomeStuff"
+          "signature": "SomeStuff({offline: bool, online?: bool})",
+          "payload": {
+            "kind": "inlineRecord",
+            "fields": [{
+              "name": "offline",
+              "optional": false,
+              "docstrings": [],
+              "signature": "bool"
+            }, {
+              "name": "online",
+              "optional": true,
+              "docstrings": ["Is the user online?"],
+              "signature": "option<bool>"
+            }]
+          }
         }]
       }
     }, 
@@ -148,6 +164,7 @@
     "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported",
     "name": "ModuleWithThingsThatShouldNotBeExported",
     "kind": "module",
+    "docstrings": [],
     "items": [
     {
       "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.t",

@@ -21,6 +21,7 @@
     "id": "DocExtraction2.InnerModule",
     "name": "InnerModule",
     "kind": "module",
+    "docstrings": [],
     "items": [
     {
       "id": "DocExtraction2.InnerModule.t",
