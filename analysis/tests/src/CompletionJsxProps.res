@@ -27,3 +27,10 @@
 // let _ = <CompletionSupport.TestComponent testArr={[]}
 //                                                    ^com
 
+let tsomeVar = #two
+
+// let _ = <CompletionSupport.TestComponent polyArg={}
+//                                                   ^com
+
+// let _ = <CompletionSupport.TestComponent on={t}
+//                                               ^com

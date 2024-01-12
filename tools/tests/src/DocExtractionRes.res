@@ -49,7 +49,12 @@ module AnotherModule = {
   let isGoodStatus = (status: SomeInnerModule.status) => status == Stopped
 
   /** Trying how it looks with an inline record in a variant. */
-  type someVariantWithInlineRecords = | /** This has inline records...*/ SomeStuff({offline: bool})
+  type someVariantWithInlineRecords =
+    | /** This has inline records...*/
+    SomeStuff({
+        offline: bool,
+        /** Is the user online? */ online?: bool,
+      })
 
   open ReactDOM
 

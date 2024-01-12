@@ -5,11 +5,16 @@ type field = {
   optional: bool,
   deprecated?: string,
 }
+
+@tag("kind")
+type constructorPayload = | @as("inlineRecord") InlineRecord({fields: array<field>})
+
 type constructor = {
   name: string,
   docstrings: array<string>,
   signature: string,
   deprecated?: string,
+  payload?: constructorPayload,
 }
 @tag("kind")
 type detail =
@@ -54,9 +59,4 @@ type rec item =
 
 type doc = {name: string, deprecated: option<string>, docstrings: array<string>, items: array<item>}
 
-let decodeValue: Js.Dict.t<Js.Json.t> => item
-let decodeType: Js.Dict.t<Js.Json.t> => item
-let decodeModule: Js.Dict.t<Js.Json.t> => item
-let decodeModuleAlias: Js.Dict.t<Js.Json.t> => item
-let decodeItem: Js.Json.t => item
 let decodeFromJson: Js.Json.t => doc

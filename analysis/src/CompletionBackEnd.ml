@@ -3,7 +3,18 @@ open SharedTypes
 let showConstructor {Constructor.cname = {txt}; args; res} =
   txt
   ^ (match args with
-    | Args [] | InlineRecord _ -> ""
+    | Args [] -> ""
+    | InlineRecord fields ->
+      "({"
+      ^ (fields
+        |> List.map (fun (field : field) ->
+               Printf.sprintf "%s%s: %s" field.fname.txt
+                 (if field.optional then "?" else "")
+                 (Shared.typeToString
+                    (if field.optional then Utils.unwrapIfOption field.typ
+                     else field.typ)))
+        |> String.concat ", ")
+      ^ "})"
     | Args args ->
       "("
       ^ (args
@@ -686,6 +697,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
   let package = full.package in
   match contextPath with
   | CPString ->
+    if Debug.verbose () then print_endline "[ctx_path]--> CPString";
     [
       Completion.create "dummy" ~env
         ~kind:
@@ -693,6 +705,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
              (Ctype.newconstr (Path.Pident (Ident.create "string")) []));
     ]
   | CPBool ->
+    if Debug.verbose () then print_endline "[ctx_path]--> CPBool";
     [
       Completion.create "dummy" ~env
         ~kind:
@@ -700,6 +713,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
              (Ctype.newconstr (Path.Pident (Ident.create "bool")) []));
     ]
   | CPInt ->
+    if Debug.verbose () then print_endline "[ctx_path]--> CPInt";
     [
       Completion.create "dummy" ~env
         ~kind:
@@ -707,6 +721,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
              (Ctype.newconstr (Path.Pident (Ident.create "int")) []));
     ]
   | CPFloat ->
+    if Debug.verbose () then print_endline "[ctx_path]--> CPFloat";
     [
       Completion.create "dummy" ~env
         ~kind:
@@ -714,6 +729,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
              (Ctype.newconstr (Path.Pident (Ident.create "float")) []));
     ]
   | CPArray None ->
+    if Debug.verbose () then print_endline "[ctx_path]--> CPArray (no payload)";
     [
       Completion.create "array" ~env
         ~kind:
@@ -721,6 +737,8 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
              (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
     ]
   | CPArray (Some cp) -> (
+    if Debug.verbose () then
+      print_endline "[ctx_path]--> CPArray (with payload)";
     match mode with
     | Regular -> (
       match
@@ -746,6 +764,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
                (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
       ])
   | CPOption cp -> (
+    if Debug.verbose () then print_endline "[ctx_path]--> CPOption";
     match
       cp
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
@@ -760,6 +779,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
             (Completion.ExtractedType (Toption (env, ExtractedType typ), `Type));
       ])
   | CPAwait cp -> (
+    if Debug.verbose () then print_endline "[ctx_path]--> CPAwait";
     match
       cp
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
@@ -770,10 +790,12 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       [Completion.create "dummy" ~env ~kind:(Completion.Value typ)]
     | _ -> [])
   | CPId (path, completionContext) ->
+    if Debug.verbose () then print_endline "[ctx_path]--> CPId";
     path
     |> getCompletionsForPath ~debug ~opens ~full ~pos ~exact ~completionContext
          ~env ~scope
   | CPApply (cp, labels) -> (
+    if Debug.verbose () then print_endline "[ctx_path]--> CPApply";
     match
       cp
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
@@ -815,11 +837,13 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       | _ -> [])
     | _ -> [])
   | CPField (CPId (path, Module), fieldName) ->
+    if Debug.verbose () then print_endline "[ctx_path]--> CPField: M.field";
     (* M.field *)
     path @ [fieldName]
     |> getCompletionsForPath ~debug ~opens ~full ~pos ~exact
          ~completionContext:Field ~env ~scope
   | CPField (cp, fieldName) -> (
+    if Debug.verbose () then print_endline "[ctx_path]--> CPField";
     let completionsForCtxPath =
       cp
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
@@ -858,6 +882,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
              else None))
   | CPObj (cp, label) -> (
     (* TODO: Also needs to support ExtractedType *)
+    if Debug.verbose () then print_endline "[ctx_path]--> CPObj";
     match
       cp
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
@@ -885,6 +910,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       | None -> [])
     | None -> [])
   | CPPipe {contextPath = cp; id = funNamePrefix; lhsLoc; inJsx} -> (
+    if Debug.verbose () then print_endline "[ctx_path]--> CPPipe";
     match
       cp
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
@@ -997,6 +1023,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         | _ -> completions)
       | None -> []))
   | CTuple ctxPaths ->
+    if Debug.verbose () then print_endline "[ctx_path]--> CTuple";
     (* Turn a list of context paths into a list of type expressions. *)
     let typeExrps =
       ctxPaths
@@ -1016,6 +1043,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       ]
     else []
   | CJsxPropValue {pathToComponent; propName} -> (
+    if Debug.verbose () then print_endline "[ctx_path]--> CJsxPropValue";
     let findTypeOfValue path =
       path
       |> getCompletionsForPath ~debug ~completionContext:Value ~exact:true
@@ -1027,6 +1055,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       | [elName] when Char.lowercase_ascii elName.[0] = elName.[0] -> true
       | _ -> false
     in
+    (* TODO(env-stuff) Does this need to potentially be instantiated with type args too? *)
     let targetLabel =
       if lowercaseComponent then
         let rec digToTypeForCompletion path =
@@ -1061,6 +1090,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
           ~kind:(Completion.Value (Utils.unwrapIfOption typ));
       ])
   | CArgument {functionContextPath; argumentLabel} -> (
+    if Debug.verbose () then print_endline "[ctx_path]--> CArgument";
     if Debug.verbose () then
       Printf.printf "--> function argument: %s\n"
         (match argumentLabel with
@@ -1113,6 +1143,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
                (if expandOption then Utils.unwrapIfOption typ else typ));
       ])
   | CPatternPath {rootCtxPath; nested} -> (
+    if Debug.verbose () then print_endline "[ctx_path]--> CPatternPath";
     (* TODO(env-stuff) Get rid of innerType etc *)
     match
       rootCtxPath
@@ -1127,6 +1158,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       | None -> [])
     | None -> [])
   | CTypeAtPos loc -> (
+    if Debug.verbose () then print_endline "[ctx_path]--> CTypeAtPos";
     match
       References.getLocItem ~full ~pos:(Pos.ofLexing loc.loc_start) ~debug
     with
@@ -1861,6 +1893,22 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         fallbackOrEmpty ~items ())
     | None -> fallbackOrEmpty ())
   | Cexpression {contextPath; prefix; nested} -> (
+    let isAmbigiousRecordBodyOrJsxWrap =
+      match (contextPath, nested) with
+      | CJsxPropValue _, [NRecordBody _] -> true
+      | _ -> false
+    in
+    if Debug.verbose () then
+      (* This happens in this scenario: `<SomeComponent someProp={<com>}`
+           Here, we don't know whether `{}` is just wraps for the type of
+           `someProp`, or if it's a record body where we want to complete
+            for the fields in the record. We need to look up what the type is
+           first before deciding what completions to show. So we do that here.*)
+      if isAmbigiousRecordBodyOrJsxWrap then
+        print_endline
+          "[process_completable]--> Cexpression special case: JSX prop value \
+           that might be record body or JSX wrap"
+      else print_endline "[process_completable]--> Cexpression";
     (* Completions for local things like variables in scope, modules in the
        project, etc. We only add completions when there's a prefix of some sort
        we can filter on, since we know we're in some sort of context, and
@@ -1879,17 +1927,32 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     with
     | None ->
       if Debug.verbose () then
-        print_endline "--> could not get completions for context path";
+        print_endline
+          "[process_completable]--> could not get completions for context path";
       regularCompletions
     | Some (typ, env) -> (
       match typ |> TypeUtils.resolveNested ~env ~full ~nested with
       | None ->
         if Debug.verbose () then
-          print_endline "--> could not resolve nested expression path";
-        regularCompletions
+          print_endline
+            "[process_completable]--> could not resolve nested expression path";
+        if isAmbigiousRecordBodyOrJsxWrap then (
+          if Debug.verbose () then
+            print_endline
+              "[process_completable]--> case is ambigious Jsx prop vs record \
+               body case, complete also for the JSX prop value directly";
+          let itemsForRawJsxPropValue =
+            typ
+            |> completeTypedValue ~rawOpens ~mode:Expression ~full ~prefix
+                 ~completionContext:None
+          in
+          itemsForRawJsxPropValue @ regularCompletions)
+        else regularCompletions
       | Some (typ, _env, completionContext, typeArgContext) -> (
         if Debug.verbose () then
-          print_endline "--> found type in nested expression completion";
+          print_endline
+            "[process_completable]--> found type in nested expression \
+             completion";
         (* Wrap the insert text in braces when we're completing the root of a
            JSX prop value. *)
         let wrapInsertTextInBraces =

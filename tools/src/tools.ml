@@ -8,11 +8,14 @@ type fieldDoc = {
   deprecated: string option;
 }
 
+type constructorPayload = InlineRecord of {fieldDocs: fieldDoc list}
+
 type constructorDoc = {
   constructorName: string;
   docstrings: string list;
   signature: string;
   deprecated: string option;
+  items: constructorPayload option;
 }
 
 type docItemDetail =
@@ -56,6 +59,35 @@ let stringifyDocstrings docstrings =
   |> List.map (fun docstring -> docstring |> String.trim |> wrapInQuotes)
   |> array
 
+let stringifyFieldDoc ~indentation (fieldDoc : fieldDoc) =
+  let open Protocol in
+  stringifyObject ~indentation:(indentation + 1)
+    [
+      ("name", Some (wrapInQuotes fieldDoc.fieldName));
+      ( "deprecated",
+        match fieldDoc.deprecated with
+        | Some d -> Some (wrapInQuotes d)
+        | None -> None );
+      ("optional", Some (string_of_bool fieldDoc.optional));
+      ("docstrings", Some (stringifyDocstrings fieldDoc.docstrings));
+      ("signature", Some (wrapInQuotes fieldDoc.signature));
+    ]
+
+let stringifyConstructorPayload ~indentation
+    (constructorPayload : constructorPayload) =
+  let open Protocol in
+  match constructorPayload with
+  | InlineRecord {fieldDocs} ->
+    stringifyObject ~indentation:(indentation + 1)
+      [
+        ("kind", Some (wrapInQuotes "inlineRecord"));
+        ( "fields",
+          Some
+            (fieldDocs
+            |> List.map (stringifyFieldDoc ~indentation:(indentation + 1))
+            |> array) );
+      ]
+
 let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
   let open Protocol in
   match detail with
@@ -64,22 +96,8 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
       [
         ("kind", Some (wrapInQuotes "record"));
         ( "items",
-          Some
-            (fieldDocs
-            |> List.map (fun fieldDoc ->
-                   stringifyObject ~indentation:(indentation + 1)
-                     [
-                       ("name", Some (wrapInQuotes fieldDoc.fieldName));
-                       ( "deprecated",
-                         match fieldDoc.deprecated with
-                         | Some d -> Some (wrapInQuotes d)
-                         | None -> None );
-                       ("optional", Some (string_of_bool fieldDoc.optional));
-                       ( "docstrings",
-                         Some (stringifyDocstrings fieldDoc.docstrings) );
-                       ("signature", Some (wrapInQuotes fieldDoc.signature));
-                     ])
-            |> array) );
+          Some (fieldDocs |> List.map (stringifyFieldDoc ~indentation) |> array)
+        );
       ]
   | Variant {constructorDocs} ->
     stringifyObject ~startOnNewline:true ~indentation
@@ -102,6 +120,14 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                          Some (stringifyDocstrings constructorDoc.docstrings) );
                        ( "signature",
                          Some (wrapInQuotes constructorDoc.signature) );
+                       ( "payload",
+                         match constructorDoc.items with
+                         | None -> None
+                         | Some constructorPayload ->
+                           Some
+                             (stringifyConstructorPayload
+                                ~indentation:(indentation + 1)
+                                constructorPayload) );
                      ])
             |> array) );
       ]
@@ -146,6 +172,7 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("id", Some (wrapInQuotes m.id));
         ("name", Some (wrapInQuotes m.name));
         ("kind", Some (wrapInQuotes "module"));
+        ("docstrings", Some (stringifyDocstrings m.docstring));
         ( "items",
           Some
             (m.items
@@ -186,24 +213,20 @@ and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
           |> array) );
     ]
 
+let fieldToFieldDoc (field : SharedTypes.field) : fieldDoc =
+  {
+    fieldName = field.fname.txt;
+    docstrings = field.docstring;
+    optional = field.optional;
+    signature = Shared.typeToString field.typ;
+    deprecated = field.deprecated;
+  }
+
 let typeDetail typ ~env ~full =
   let open SharedTypes in
   match TypeUtils.extractTypeFromResolvedType ~env ~full typ with
   | Some (Trecord {fields}) ->
-    Some
-      (Record
-         {
-           fieldDocs =
-             fields
-             |> List.map (fun (field : field) ->
-                    {
-                      fieldName = field.fname.txt;
-                      docstrings = field.docstring;
-                      optional = field.optional;
-                      signature = Shared.typeToString field.typ;
-                      deprecated = field.deprecated;
-                    });
-         })
+    Some (Record {fieldDocs = fields |> List.map fieldToFieldDoc})
   | Some (Tvariant {constructors}) ->
     Some
       (Variant
@@ -216,6 +239,13 @@ let typeDetail typ ~env ~full =
                       docstrings = c.docstring;
                       signature = CompletionBackEnd.showConstructor c;
                       deprecated = c.deprecated;
+                      items =
+                        (match c.args with
+                        | InlineRecord fields ->
+                          Some
+                            (InlineRecord
+                               {fieldDocs = fields |> List.map fieldToFieldDoc})
+                        | _ -> None);
                     });
          })
   | _ -> None
