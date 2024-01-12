@@ -18,7 +18,6 @@ export let bscNativeReScriptPartialPath = path.join(
 export let analysisDevPath = path.join(
   path.dirname(__dirname),
   "..",
-  "analysis",
   "rescript-editor-analysis.exe"
 );
 export let analysisProdPath = path.join(

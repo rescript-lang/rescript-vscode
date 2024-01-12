@@ -2,24 +2,31 @@
 
 (generate_opam_files true)
 
-(authors "Cristiano Calcagno")
+(authors "ReScript Team")
 
-(maintainers "Cristiano Calcagno")
+(maintainers "ReScript Team")
 
 (homepage "https://github.com/rescript-lang/rescript-vscode")
 
 (bug_reports "https://github.com/rescript-lang/rescript-vscode/issues")
 
 (package
- (name rescript-vscode)
- (synopsis "ReScript vscode support")
+ (name analysis)
+ (synopsis "ReScript Analysis")
  (depends
   (ocaml
    (>= 4.10))
-  (ocamlformat
-   (= 0.26.1))
   (cppo
    (= 1.6.9))
-  (reanalyze
-   (= 2.23.0))
+  dune))
+
+(package
+ (name tools)
+ (synopsis "ReScript Tools")
+ (depends
+  (ocaml
+   (>= 4.10))
+  (cppo
+   (= 1.6.9))
+  analysis
   dune))

@@ -21,6 +21,10 @@
 
 - More cases of not emitting `_` when completing in expressions. https://github.com/rescript-lang/rescript-vscode/pull/890
 
+#### :house: Internal
+
+- Move `rescript-tools` to OCaml code and make `analysis` an library. https://github.com/rescript-lang/rescript-vscode/pull/855
+
 ## 1.34.0
 
 #### :rocket: New Feature

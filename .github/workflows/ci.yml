@@ -68,23 +68,25 @@ jobs:
     # - run: opam pin add rescript-editor-analysis.dev . --no-action
     # - run: opam install . --deps-only --with-doc --with-test
 
-    - name: Build and test
+    - name: Build
+      run: opam exec -- make
+
+    - name: Test
       run: opam exec -- make test
-      working-directory: analysis
 
     # Also avoids artifacts upload permission loss:
     # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
     - name: Compress files
       run: |
-        cd analysis
         mkdir ${{matrix.artifact-folder}}
         mv rescript-editor-analysis.exe ${{matrix.artifact-folder}}
+        mv rescript-tools.exe ${{matrix.artifact-folder}}
         tar -cvf binary.tar ${{matrix.artifact-folder}}
 
     - uses: actions/upload-artifact@v3
       with:
         name: ${{matrix.os}}
-        path: analysis/binary.tar
+        path: binary.tar
 
   package:
     needs: test
@@ -106,37 +108,51 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: macos-latest
-        path: ./server/analysis_binaries
+        path: binaries
     - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
 
     - name: Download MacOS ARM binary
       uses: actions/download-artifact@v3
       with:
         name: macos-arm
-        path: ./server/analysis_binaries
+        path: binaries
     - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
 
     - name: Download Linux binary
       uses: actions/download-artifact@v3
       with:
         name: ubuntu-20.04
-        path: ./server/analysis_binaries
+        path: binaries
     - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
 
     - name: Download Windows binary
       uses: actions/download-artifact@v3
       with:
         name: windows-latest
-        path: ./server/analysis_binaries
+        path: binaries
     - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
 
     - name: Cleanup tar file
       run: rm binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
+
+    - name: Move binaries to folders
+      run: |
+        declare -a platforms=("darwin" "darwinarm64" "linux" "win32")
+
+        for platform in "${platforms[@]}"; do
+            mkdir server/analysis_binaries/"$platform"
+            mv binaries/"$platform"/rescript-editor-analysis.exe server/analysis_binaries/"$platform"
+        done
+
+        for platform in "${platforms[@]}"; do
+            mkdir tools/binaries/"$platform"
+            mv binaries/"$platform"/rescript-tools.exe tools/binaries/"$platform"
+        done
 
     - name: Store short commit SHA for filename
       id: vars
@@ -220,9 +236,6 @@ jobs:
       run: npm publish --access public
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-    - name: Copy analysis binaries to tools folder
-      run: cp -r server/analysis_binaries/* tools/analysis_binaries
 
     - name: Build @rescript/tools package
       working-directory: tools

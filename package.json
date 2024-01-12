@@ -218,7 +218,7 @@
 		"vscode:prepublish": "npm run clean && npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"postinstall": "cd server && npm i && cd ../client && npm i && cd ../analysis/tests && npm i && cd ../reanalyze/examples/deadcode && npm i && cd ../termination && npm i"
+		"postinstall": "cd server && npm i && cd ../client && npm i && cd ../tools && npm i && cd ../tools/tests && npm i && cd ../../analysis/tests && npm i && cd ../reanalyze/examples/deadcode && npm i && cd ../termination && npm i"
 	},
 	"devDependencies": {
 		"@types/node": "^14.14.41",

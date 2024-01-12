@@ -10,14 +10,21 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 │   └── src
 │       └── extension.ts // Language Client entry point
 ├── analysis // Native binary powering hover, autocomplete, etc.
-│   ├── src
-│   └── rescript-editor-analysis.exe // Dev-time analysis binary
+│   ├── src // Analysis library
+│   ├── bin // Analysis binary
 ├── package.json // The extension manifest
-└── server // Language Server. Usable standalone
-    ├── src
-    │   ├── server.ts // Language Server Module
-    │   ├── cli.ts // LSP CLI
-    └── analysis_binaries // Prod-time platform-specific analysis binaries
+├── server // Language Server. Usable standalone
+│   ├── src
+│   │   ├── server.ts // Language Server Module
+│   │   ├── cli.ts // LSP CLI
+│   └── analysis_binaries // Prod-time platform-specific analysis binaries
+│       ├── darwin
+│       ├── linux
+│       └── win32
+└── tools // ReScript Tools
+    ├── bin // OCaml Binary
+    ├── src // ReScript Tools library
+    └── binaries // Prod-time platform-specific binaries
         ├── darwin
         ├── linux
         └── win32
@@ -27,9 +34,11 @@ Thanks for your interest. Below is an informal spec of how the plugin's server c
 
 - Run `npm install` at the root. This will also install the npm modules for both the `client` and `server` folders.
 
-## Analysis Binary
+## OCaml Code
 
-This is needed for the `analysis` folder, which is native code.
+This is needed for the `analysis` and `tools` folder, which is native code.
+
+At the root:
 
 ```sh
 # If you haven't created the switch, do it. OPAM(https://opam.ocaml.org)
@@ -38,14 +47,14 @@ opam switch 4.14.0 # can also create local switch with opam switch create . 4.14
 # Install dev dependencies from OPAM
 opam install . --deps-only
 
-# For IDE support, install the OCaml language server
-opam install ocaml-lsp-server
+# For IDE support, install the OCaml language server and OCaml Formatter
+opam install ocaml-lsp-server ocamlformat
 ```
 
 ## Build & Run
 
 - `npm run compile`. You don't need this if you're developing this repo in VSCode. The compilation happens automatically in the background.
-- `cd analysis && make`.
+- `make`.
 
 ## Test
 
@@ -67,7 +76,7 @@ opam install ocaml-lsp-server
 
   <img width="359" alt="image" src="https://user-images.githubusercontent.com/1909539/97448639-19db0800-18ee-11eb-875a-d17cd1b141d1.png">
 
-- For the native analysis binary tests: `cd analysis && make test`.
+- For the native analysis and tools binary tests: `make test`.
 
 ## Change the Grammar
 
@@ -96,7 +105,7 @@ We call a few binaries and it's tricky to call them properly cross-platform. Her
 
 ## General Coding Guidance
 
-- `server/` is a standalone folder that can be vendored by e.g. Vim and Sublime Text. Keep it light, don't add deps unless absolutely necessarily, and don't accidentally use a runtime dep from the top level `package.json`.
+- `server/` is a standalone LSP server. Keep it light, don't add deps unless absolutely necessarily, and don't accidentally use a runtime dep from the top level `package.json`.
 - This codebase stayed alive by not trying to babysit long-living processes. Be fast, call a binary and shut down.
 
 ## Rough Description Of How The Plugin Works
@@ -197,9 +206,8 @@ We're happy to gather more resources over time here, including more in-depth get
 _This below will automatically release the LSP package as well._
 
 1. Bump the version to an _even minor_ version number in `package.json` and `server/package.json` and their lockfiles. It's very important that it's an even minor like `1.8.0`, and not `1.7.0`. This is because even minors are reserved for actual releases, and uneven minors for pre-releases. Commit and push the version bump.
-2. Make sure @ryyppy is aware of your changes. He needs to sync them over to the vim plugin.
-3. Let CI build your version bump commit.
-4. Tag the commit with the version number (e.g. `git tag 1.6.0`) and push the tag (e.g. `git push origin 1.6.0`). Another build will trigger, which should automatically:
+2. Let CI build your version bump commit.
+3. Tag the commit with the version number (e.g. `git tag 1.6.0`) and push the tag (e.g. `git push origin 1.6.0`). Another build will trigger, which should automatically:
    - create a `rescript-vscode-<version-number>.vsix` file
    - publish that extension version to the VSCode marketplace
    - create an automatic release on GitHub
@@ -214,4 +222,4 @@ For beta releases, ask folks to use the pre-release version installable from the
 
 ## Releasing the `@rescript/tools` package
 
-The tools package is released by bumping the version in `tools/package.json`, running `npm i` in the `tools/` folder, and then pushing those changes with the commit message `publish tools`.
+The tools package is released by bumping the version in `tools/package.json` and run `node scripts/updateVersion.js`, running `npm i` in the `tools/` folder, and then pushing those changes with the commit message `publish tools`.

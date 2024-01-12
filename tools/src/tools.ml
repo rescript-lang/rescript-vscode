@@ -1,3 +1,5 @@
+open Analysis
+
 type fieldDoc = {
   fieldName: string;
   docstrings: string list;
@@ -143,8 +145,7 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           match deprecated with
           | Some d -> Some (wrapInQuotes d)
           | None -> None );
-        ( "signature",
-          Some (signature |> String.trim |> wrapInQuotes) );
+        ("signature", Some (signature |> String.trim |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
       ]
   | Type {id; docstring; signature; name; deprecated; detail} ->
@@ -254,113 +255,125 @@ let makeId modulePath ~identifier =
 
 let extractDocs ~path ~debug =
   if debug then Printf.printf "extracting docs for %s\n" path;
-  if
-    FindFiles.isImplementation path = false
-    && FindFiles.isInterface path = false
-  then (
-    Printf.eprintf "error: failed to read %s, expected an .res or .resi file\n"
-      path;
-    exit 1);
-  let path =
-    if FindFiles.isImplementation path then
-      let pathAsResi =
-        (path |> Filename.dirname) ^ "/"
-        ^ (path |> Filename.basename |> Filename.chop_extension)
-        ^ ".resi"
+  let result =
+    match
+      FindFiles.isImplementation path = false
+      && FindFiles.isInterface path = false
+    with
+    | false -> (
+      let path =
+        if FindFiles.isImplementation path then
+          let pathAsResi =
+            (path |> Filename.dirname) ^ "/"
+            ^ (path |> Filename.basename |> Filename.chop_extension)
+            ^ ".resi"
+          in
+          if Sys.file_exists pathAsResi then (
+            if debug then
+              Printf.printf "preferring found resi file for impl: %s\n"
+                pathAsResi;
+            pathAsResi)
+          else path
+        else path
       in
-      if Sys.file_exists pathAsResi then (
-        if debug then
-          Printf.printf "preferring found resi file for impl: %s\n" pathAsResi;
-        pathAsResi)
-      else path
-    else path
-  in
-  match Cmt.loadFullCmtFromPath ~path with
-  | None ->
-    Printf.eprintf
-      "error: failed to generate doc for %s, try to build the project\n" path;
-    exit 1
-  | Some full ->
-    let file = full.file in
-    let structure = file.structure in
-    let open SharedTypes in
-    let env = QueryEnv.fromFile file in
-    let rec extractDocsForModule ?(modulePath = [env.file.moduleName])
-        (structure : Module.structure) =
-      {
-        id = modulePath |> List.rev |> ident;
-        docstring = structure.docstring |> List.map String.trim;
-        name = structure.name;
-        deprecated = structure.deprecated;
-        items =
-          structure.items
-          |> List.filter_map (fun (item : Module.item) ->
-                 match item.kind with
-                 | Value typ ->
-                   Some
-                     (Value
-                        {
-                          id = modulePath |> makeId ~identifier:item.name;
-                          docstring = item.docstring |> List.map String.trim;
-                          signature =
-                            "let " ^ item.name ^ ": " ^ Shared.typeToString typ;
-                          name = item.name;
-                          deprecated = item.deprecated;
-                        })
-                 | Type (typ, _) ->
-                   Some
-                     (Type
-                        {
-                          id = modulePath |> makeId ~identifier:item.name;
-                          docstring = item.docstring |> List.map String.trim;
-                          signature = typ.decl |> Shared.declToString item.name;
-                          name = item.name;
-                          deprecated = item.deprecated;
-                          detail = typeDetail typ ~full ~env;
-                        })
-                 | Module (Ident p) ->
-                   (* module Whatever = OtherModule *)
-                   let aliasToModule = p |> pathIdentToString in
-                   let id =
-                     (modulePath |> List.rev |> List.hd) ^ "." ^ item.name
-                   in
-                   let items, internalDocstrings =
-                     match
-                       ProcessCmt.fileForModule ~package:full.package
-                         aliasToModule
-                     with
-                     | None -> ([], [])
-                     | Some file ->
-                       let docs =
-                         extractDocsForModule ~modulePath:[id] file.structure
+      match Cmt.loadFullCmtFromPath ~path with
+      | None ->
+        Error
+          (Printf.sprintf
+             "error: failed to generate doc for %s, try to build the project"
+             path)
+      | Some full ->
+        let file = full.file in
+        let structure = file.structure in
+        let open SharedTypes in
+        let env = QueryEnv.fromFile file in
+        let rec extractDocsForModule ?(modulePath = [env.file.moduleName])
+            (structure : Module.structure) =
+          {
+            id = modulePath |> List.rev |> ident;
+            docstring = structure.docstring |> List.map String.trim;
+            name = structure.name;
+            deprecated = structure.deprecated;
+            items =
+              structure.items
+              |> List.filter_map (fun (item : Module.item) ->
+                     match item.kind with
+                     | Value typ ->
+                       Some
+                         (Value
+                            {
+                              id = modulePath |> makeId ~identifier:item.name;
+                              docstring = item.docstring |> List.map String.trim;
+                              signature =
+                                "let " ^ item.name ^ ": "
+                                ^ Shared.typeToString typ;
+                              name = item.name;
+                              deprecated = item.deprecated;
+                            })
+                     | Type (typ, _) ->
+                       Some
+                         (Type
+                            {
+                              id = modulePath |> makeId ~identifier:item.name;
+                              docstring = item.docstring |> List.map String.trim;
+                              signature =
+                                typ.decl |> Shared.declToString item.name;
+                              name = item.name;
+                              deprecated = item.deprecated;
+                              detail = typeDetail typ ~full ~env;
+                            })
+                     | Module (Ident p) ->
+                       (* module Whatever = OtherModule *)
+                       let aliasToModule = p |> pathIdentToString in
+                       let id =
+                         (modulePath |> List.rev |> List.hd) ^ "." ^ item.name
                        in
-                       (docs.items, docs.docstring)
-                   in
-                   Some
-                     (ModuleAlias
-                        {
-                          id;
-                          name = item.name;
-                          items;
-                          docstring =
-                            item.docstring @ internalDocstrings
-                            |> List.map String.trim;
-                        })
-                 | Module (Structure m) ->
-                   (* module Whatever = {} in res or module Whatever: {} in resi. *)
-                   Some
-                     (Module
-                        (extractDocsForModule ~modulePath:(m.name :: modulePath)
-                           m))
-                 | Module (Constraint (Structure _impl, Structure interface)) ->
-                   (* module Whatever: { <interface> } = { <impl> }. Prefer the interface. *)
-                   Some
-                     (Module
-                        (extractDocsForModule
-                           ~modulePath:(interface.name :: modulePath)
-                           interface))
-                 | _ -> None);
-      }
-    in
-    let docs = extractDocsForModule structure in
-    print_endline (stringifyDocsForModule ~originalEnv:env docs)
+                       let items, internalDocstrings =
+                         match
+                           ProcessCmt.fileForModule ~package:full.package
+                             aliasToModule
+                         with
+                         | None -> ([], [])
+                         | Some file ->
+                           let docs =
+                             extractDocsForModule ~modulePath:[id]
+                               file.structure
+                           in
+                           (docs.items, docs.docstring)
+                       in
+                       Some
+                         (ModuleAlias
+                            {
+                              id;
+                              name = item.name;
+                              items;
+                              docstring =
+                                item.docstring @ internalDocstrings
+                                |> List.map String.trim;
+                            })
+                     | Module (Structure m) ->
+                       (* module Whatever = {} in res or module Whatever: {} in resi. *)
+                       Some
+                         (Module
+                            (extractDocsForModule
+                               ~modulePath:(m.name :: modulePath) m))
+                     | Module
+                         (Constraint (Structure _impl, Structure interface)) ->
+                       (* module Whatever: { <interface> } = { <impl> }. Prefer the interface. *)
+                       Some
+                         (Module
+                            (extractDocsForModule
+                               ~modulePath:(interface.name :: modulePath)
+                               interface))
+                     | _ -> None);
+          }
+        in
+        let docs = extractDocsForModule structure in
+        Ok (stringifyDocsForModule ~originalEnv:env docs))
+    | true ->
+      Error
+        (Printf.sprintf
+           "error: failed to read %s, expected an .res or .resi file" path)
+  in
+
+  result

@@ -1,0 +1,6 @@
+(executable
+ (public_name rescript-editor-analysis)
+ (package analysis)
+ (modes byte exe)
+ (name main)
+ (libraries analysis))
