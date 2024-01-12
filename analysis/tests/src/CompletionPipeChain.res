@@ -92,3 +92,9 @@ let renderer = CompletionSupport2.makeRenderer(
   },
   (),
 )
+
+// Console.log(int->)
+//                  ^com
+
+// Console.log(int->t)
+//                   ^com

@@ -490,3 +490,66 @@ Path ReactDOM.Client.Root.ren
     "documentation": null
   }]
 
+Complete src/CompletionPipeChain.res 95:20
+posCursor:[95:20] posNoWhite:[95:19] Found expr:[95:3->95:21]
+Pexp_apply ...[95:3->95:14] (...[95:15->0:-1])
+posCursor:[95:20] posNoWhite:[95:19] Found expr:[95:15->0:-1]
+posCursor:[95:20] posNoWhite:[95:19] Found expr:[95:15->0:-1]
+Completable: Cpath Value[int]->
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[int]->
+ContextPath Value[int]
+Path int
+CPPipe env:CompletionPipeChain
+CPPipe type path:Integer.t
+CPPipe pathFromEnv:Integer found:true
+Path Integer.
+[{
+    "label": "Integer.toInt",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => int",
+    "documentation": null
+  }, {
+    "label": "Integer.increment",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int) => t",
+    "documentation": null
+  }, {
+    "label": "Integer.decrement",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, int => int) => t",
+    "documentation": null
+  }, {
+    "label": "Integer.make",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null
+  }]
+
+Complete src/CompletionPipeChain.res 98:21
+posCursor:[98:21] posNoWhite:[98:20] Found expr:[98:3->98:22]
+Pexp_apply ...[98:3->98:14] (...[98:15->98:21])
+posCursor:[98:21] posNoWhite:[98:20] Found expr:[98:15->98:21]
+Completable: Cpath Value[int]->t
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[int]->t
+ContextPath Value[int]
+Path int
+CPPipe env:CompletionPipeChain
+CPPipe type path:Integer.t
+CPPipe pathFromEnv:Integer found:true
+Path Integer.t
+[{
+    "label": "Integer.toInt",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => int",
+    "documentation": null
+  }]
+
