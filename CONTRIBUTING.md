@@ -47,8 +47,8 @@ opam switch 4.14.0 # can also create local switch with opam switch create . 4.14
 # Install dev dependencies from OPAM
 opam install . --deps-only
 
-# For IDE support, install the OCaml language server
-opam install ocaml-lsp-server
+# For IDE support, install the OCaml language server and OCaml Formatter
+opam install ocaml-lsp-server ocamlformat
 ```
 
 ## Build & Run
