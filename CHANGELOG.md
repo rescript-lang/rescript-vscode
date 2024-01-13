@@ -16,6 +16,7 @@
 
 - Fix issue with ambigious wraps in JSX prop values (`<SomeComp someProp={<com>}`) - need to figure out if we're completing for a record body or if `{}` are just wraps for the type of `someProp`. In the case of ambiguity, completions for both scenarios are provided. https://github.com/rescript-lang/rescript-vscode/pull/894
 - Many bugfixes around nested pattern and expression completion. https://github.com/rescript-lang/rescript-vscode/pull/892
+- Fix (very annoying) issue where empty pipe completion wouldn't work inside of a parenthesised function call: `Console.log(someArray->)` completing at the pipe. https://github.com/rescript-lang/rescript-vscode/pull/895
 
 #### :nail_care: Polish
 
