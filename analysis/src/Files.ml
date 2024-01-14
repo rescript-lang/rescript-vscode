@@ -20,7 +20,7 @@ let relpath base path =
     let baselen = String.length base in
     let rest = String.sub path baselen (String.length path - baselen) in
     (if rest <> "" && rest.[0] = Filename.dir_sep.[0] then sliceToEnd rest 1
-    else rest)
+     else rest)
     |> removeExtraDots
   else
     let rec loop bp pp =
