@@ -12,6 +12,8 @@
 
 ## master
 
+## 0.4.0
+
 #### :bug: Bug Fix
 
 - Support inline record fields in constructors. https://github.com/rescript-lang/rescript-vscode/pull/889
