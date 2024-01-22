@@ -1,0 +1,20 @@
+
+{
+  "name": "ModC",
+  "docstrings": [],
+  "items": [
+  {
+    "id": "ModC.User",
+    "name": "User",
+    "kind": "module",
+    "docstrings": ["User Module from interface file"],
+    "items": [
+    {
+      "id": "ModC.User.name",
+      "kind": "value",
+      "name": "name",
+      "signature": "let name: string",
+      "docstrings": []
+    }]
+  }]
+}

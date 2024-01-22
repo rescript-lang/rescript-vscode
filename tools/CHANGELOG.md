@@ -12,6 +12,11 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Print docstrings for nested submodules. https://github.com/rescript-lang/rescript-vscode/pull/897
+- Print `deprecated` field for module. https://github.com/rescript-lang/rescript-vscode/pull/897
+
 ## 0.4.0
 
 #### :bug: Bug Fix

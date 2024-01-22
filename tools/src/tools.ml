@@ -172,6 +172,10 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("id", Some (wrapInQuotes m.id));
         ("name", Some (wrapInQuotes m.name));
         ("kind", Some (wrapInQuotes "module"));
+        ( "deprecated",
+          match m.deprecated with
+          | Some d -> Some (wrapInQuotes d)
+          | None -> None );
         ("docstrings", Some (stringifyDocstrings m.docstring));
         ( "items",
           Some
@@ -353,10 +357,17 @@ let extractDocs ~path ~debug =
                             })
                      | Module (Structure m) ->
                        (* module Whatever = {} in res or module Whatever: {} in resi. *)
+                       let modulePath = m.name :: modulePath in
+                       let docs = extractDocsForModule ~modulePath m in
                        Some
                          (Module
-                            (extractDocsForModule
-                               ~modulePath:(m.name :: modulePath) m))
+                            {
+                              id = modulePath |> List.rev |> ident;
+                              name = m.name;
+                              docstring = item.docstring @ m.docstring;
+                              deprecated = item.deprecated;
+                              items = docs.items;
+                            })
                      | Module
                          (Constraint (Structure _impl, Structure interface)) ->
                        (* module Whatever: { <interface> } = { <impl> }. Prefer the interface. *)
