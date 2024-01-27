@@ -302,12 +302,15 @@ let findRelativePath ~rootPath ~path =
 
 let getSource ~rootPath ({loc_start} : Location.t) =
   let line, col = Pos.ofLexing loc_start in
-
   let filepath = findRelativePath ~rootPath ~path:loc_start.pos_fname in
-
   {filepath; line = line + 1; col = col + 1}
 
-let extractDocs ~path ~debug =
+let extractDocs ~entryPointFile ~debug =
+  let path =
+    match Filename.is_relative entryPointFile with
+    | true -> Unix.realpath entryPointFile
+    | false -> entryPointFile
+  in
   if debug then Printf.printf "extracting docs for %s\n" path;
   let result =
     match
@@ -362,9 +365,9 @@ let extractDocs ~path ~debug =
             items =
               structure.items
               |> List.filter_map (fun (item : Module.item) ->
+                     let source = getSource ~rootPath item.loc in
                      match item.kind with
                      | Value typ ->
-                       let source = getSource ~rootPath item.loc in
                        Some
                          (Value
                             {
@@ -376,8 +379,6 @@ let extractDocs ~path ~debug =
                               name = item.name;
                               deprecated = item.deprecated;
                               source;
-                              (* source = *)
-                              (*   getSource ~stamp:typ.id ~full ~name:item.name; *)
                             })
                      | Type (typ, _) ->
                        Some
@@ -390,7 +391,7 @@ let extractDocs ~path ~debug =
                               name = item.name;
                               deprecated = item.deprecated;
                               detail = typeDetail typ ~full ~env;
-                              source = getSource ~rootPath item.loc;
+                              source;
                             })
                      | Module (Ident p) ->
                        (* module Whatever = OtherModule *)
@@ -416,7 +417,7 @@ let extractDocs ~path ~debug =
                             {
                               id;
                               name = item.name;
-                              source = getSource ~rootPath item.loc;
+                              source;
                               items;
                               docstring =
                                 item.docstring @ internalDocstrings
@@ -433,7 +434,7 @@ let extractDocs ~path ~debug =
                               name = m.name;
                               docstring = item.docstring @ m.docstring;
                               deprecated = item.deprecated;
-                              source = getSource ~rootPath item.loc;
+                              source;
                               items = docs.items;
                             })
                      | Module
