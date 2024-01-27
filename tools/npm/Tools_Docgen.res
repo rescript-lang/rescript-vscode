@@ -22,6 +22,12 @@ type detail =
   | @as("record") Record({items: array<field>})
   | @as("variant") Variant({items: array<constructor>})
 
+type source = {
+  filepath: string,
+  line: int,
+  col: int,
+}
+
 @tag("kind")
 type rec item =
   | @as("value")
@@ -31,6 +37,7 @@ type rec item =
       signature: string,
       name: string,
       deprecated?: string,
+      source: source,
     })
   | @as("type")
   Type({
@@ -39,6 +46,7 @@ type rec item =
       signature: string,
       name: string,
       deprecated?: string,
+      source: source,
       /** Additional documentation for constructors and record fields, if available. */
       detail?: detail,
     })
@@ -48,6 +56,7 @@ type rec item =
       docstrings: array<string>,
       deprecated?: string,
       name: string,
+      source: source,
       items: array<item>,
     })
   | @as("moduleAlias")
@@ -55,6 +64,7 @@ type rec item =
       id: string,
       docstrings: array<string>,
       name: string,
+      source: source,
       items: array<item>,
     })
 
@@ -62,6 +72,7 @@ type doc = {
   name: string,
   deprecated: option<string>,
   docstrings: array<string>,
+  source: source,
   items: array<item>,
 }
 

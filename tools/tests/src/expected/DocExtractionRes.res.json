@@ -4,8 +4,8 @@
   "docstrings": ["Module level documentation goes here."],
   "source": {
     "filepath": "src/DocExtractionRes.res",
-    "line": 0,
-    "col": 0
+    "line": 1,
+    "col": 1
   },
   "items": [
   {
@@ -242,8 +242,8 @@
     "docstrings": [],
     "source": {
       "filepath": "src/DocExtractionRes.res",
-      "line": 0,
-      "col": 0
+      "line": 1,
+      "col": 1
     },
     "items": [
     {
