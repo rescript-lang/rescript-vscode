@@ -280,32 +280,9 @@ let typeDetail typ ~env ~full =
 let makeId modulePath ~identifier =
   identifier :: modulePath |> List.rev |> SharedTypes.ident
 
-(**
-Get relative path to res/resi file
-*)
-let findRelativePath ~rootPath ~path =
-  let open Filename in
-  let realPath =
-    match rootPath = "." with
-    | true -> Sys.getcwd ()
-    | false ->
-      if is_relative rootPath then concat (Sys.getcwd ()) rootPath else rootPath
-  in
-  let rec loop dirPath acc =
-    match dirname dirPath = realPath with
-    | true -> basename dirPath :: acc |> String.concat "/"
-    | false -> (
-      match dirPath with
-      | "/" -> failwith "Failed to find relative path of package"
-      | "." -> path
-      | _ -> loop (dirname dirPath) (basename dirPath :: acc))
-  in
-
-  loop path []
-
 let getSource ~rootPath ({loc_start} : Location.t) =
   let line, col = Pos.ofLexing loc_start in
-  let filepath = findRelativePath ~rootPath ~path:loc_start.pos_fname in
+  let filepath = Files.relpath rootPath loc_start.pos_fname in
   {filepath; line = line + 1; col = col + 1}
 
 let extractDocs ~entryPointFile ~debug =
@@ -360,8 +337,7 @@ let extractDocs ~entryPointFile ~debug =
                 filepath =
                   (match rootPath = "." with
                   | true -> file.uri |> Uri.toPath
-                  | false ->
-                    findRelativePath ~rootPath ~path:(file.uri |> Uri.toPath));
+                  | false -> Files.relpath rootPath (file.uri |> Uri.toPath));
                 line = 1;
                 col = 1;
               };
