@@ -18,9 +18,12 @@ type constructorDoc = {
   items: constructorPayload option;
 }
 
+type source = {filepath: string; line: int; col: int}
+
 type docItemDetail =
   | Record of {fieldDocs: fieldDoc list}
   | Variant of {constructorDocs: constructorDoc list}
+
 type docItem =
   | Value of {
       id: string;
@@ -28,6 +31,7 @@ type docItem =
       signature: string;
       name: string;
       deprecated: string option;
+      source: source;
     }
   | Type of {
       id: string;
@@ -36,6 +40,7 @@ type docItem =
       name: string;
       deprecated: string option;
       detail: docItemDetail option;
+      source: source;
           (** Additional documentation for constructors and record fields, if available. *)
     }
   | Module of docsForModule
@@ -43,6 +48,7 @@ type docItem =
       id: string;
       docstring: string list;
       name: string;
+      source: source;
       items: docItem list;
     }
 and docsForModule = {
@@ -50,6 +56,7 @@ and docsForModule = {
   docstring: string list;
   deprecated: string option;
   name: string;
+  source: source;
   items: docItem list;
 }
 
@@ -132,10 +139,19 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
             |> array) );
       ]
 
+let stringifySource ~indentation source =
+  let open Protocol in
+  stringifyObject ~startOnNewline:false ~indentation
+    [
+      ("filepath", Some (source.filepath |> wrapInQuotes));
+      ("line", Some (source.line |> string_of_int));
+      ("col", Some (source.col |> string_of_int));
+    ]
+
 let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
   let open Protocol in
   match item with
-  | Value {id; docstring; signature; name; deprecated} ->
+  | Value {id; docstring; signature; name; deprecated; source} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes id));
@@ -147,8 +163,9 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           | None -> None );
         ("signature", Some (signature |> String.trim |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
+        ("source", Some (stringifySource ~indentation:(indentation + 1) source));
       ]
-  | Type {id; docstring; signature; name; deprecated; detail} ->
+  | Type {id; docstring; signature; name; deprecated; detail; source} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes id));
@@ -160,6 +177,7 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           | None -> None );
         ("signature", Some (signature |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
+        ("source", Some (stringifySource ~indentation:(indentation + 1) source));
         ( "detail",
           match detail with
           | None -> None
@@ -177,6 +195,8 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           | Some d -> Some (wrapInQuotes d)
           | None -> None );
         ("docstrings", Some (stringifyDocstrings m.docstring));
+        ( "source",
+          Some (stringifySource ~indentation:(indentation + 1) m.source) );
         ( "items",
           Some
             (m.items
@@ -191,6 +211,8 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("kind", Some (wrapInQuotes "moduleAlias"));
         ("name", Some (wrapInQuotes m.name));
         ("docstrings", Some (stringifyDocstrings m.docstring));
+        ( "source",
+          Some (stringifySource ~indentation:(indentation + 1) m.source) );
         ( "items",
           Some
             (m.items
@@ -209,6 +231,7 @@ and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
         | Some d -> Some (wrapInQuotes d)
         | None -> None );
       ("docstrings", Some (stringifyDocstrings d.docstring));
+      ("source", Some (stringifySource ~indentation:(indentation + 1) d.source));
       ( "items",
         Some
           (d.items
@@ -257,6 +280,33 @@ let typeDetail typ ~env ~full =
 let makeId modulePath ~identifier =
   identifier :: modulePath |> List.rev |> SharedTypes.ident
 
+let findRelativePath ~rootPath ~path =
+  let open Filename in
+  let realPath =
+    match rootPath = "." with
+    | true -> Sys.getcwd ()
+    | false ->
+      if is_relative rootPath then concat (Sys.getcwd ()) rootPath else rootPath
+  in
+  let rec loop dirPath acc =
+    match dirname dirPath = realPath with
+    | true -> basename dirPath :: acc |> String.concat dir_sep
+    | false -> (
+      match dirPath with
+      | "/" -> failwith "Failed to find relative path of package"
+      | "." -> path
+      | _ -> loop (dirname dirPath) (basename dirPath :: acc))
+  in
+
+  loop path []
+
+let getSource ~rootPath ({loc_start} : Location.t) =
+  let line, col = Pos.ofLexing loc_start in
+
+  let filepath = findRelativePath ~rootPath ~path:loc_start.pos_fname in
+
+  {filepath; line = line + 1; col = col + 1}
+
 let extractDocs ~path ~debug =
   if debug then Printf.printf "extracting docs for %s\n" path;
   let result =
@@ -289,6 +339,7 @@ let extractDocs ~path ~debug =
       | Some full ->
         let file = full.file in
         let structure = file.structure in
+        let rootPath = full.package.rootPath in
         let open SharedTypes in
         let env = QueryEnv.fromFile file in
         let rec extractDocsForModule ?(modulePath = [env.file.moduleName])
@@ -298,11 +349,22 @@ let extractDocs ~path ~debug =
             docstring = structure.docstring |> List.map String.trim;
             name = structure.name;
             deprecated = structure.deprecated;
+            source =
+              {
+                filepath =
+                  (match rootPath = "." with
+                  | true -> file.uri |> Uri.toPath
+                  | false ->
+                    findRelativePath ~rootPath ~path:(file.uri |> Uri.toPath));
+                line = 0;
+                col = 0;
+              };
             items =
               structure.items
               |> List.filter_map (fun (item : Module.item) ->
                      match item.kind with
                      | Value typ ->
+                       let source = getSource ~rootPath item.loc in
                        Some
                          (Value
                             {
@@ -313,6 +375,9 @@ let extractDocs ~path ~debug =
                                 ^ Shared.typeToString typ;
                               name = item.name;
                               deprecated = item.deprecated;
+                              source;
+                              (* source = *)
+                              (*   getSource ~stamp:typ.id ~full ~name:item.name; *)
                             })
                      | Type (typ, _) ->
                        Some
@@ -325,6 +390,7 @@ let extractDocs ~path ~debug =
                               name = item.name;
                               deprecated = item.deprecated;
                               detail = typeDetail typ ~full ~env;
+                              source = getSource ~rootPath item.loc;
                             })
                      | Module (Ident p) ->
                        (* module Whatever = OtherModule *)
@@ -350,6 +416,7 @@ let extractDocs ~path ~debug =
                             {
                               id;
                               name = item.name;
+                              source = getSource ~rootPath item.loc;
                               items;
                               docstring =
                                 item.docstring @ internalDocstrings
@@ -366,6 +433,7 @@ let extractDocs ~path ~debug =
                               name = m.name;
                               docstring = item.docstring @ m.docstring;
                               deprecated = item.deprecated;
+                              source = getSource ~rootPath item.loc;
                               items = docs.items;
                             })
                      | Module

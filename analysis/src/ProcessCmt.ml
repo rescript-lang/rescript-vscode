@@ -60,6 +60,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
+        loc = declared.extentLoc;
       };
     ]
   | Sig_type
@@ -134,6 +135,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
+        loc = declared.extentLoc;
       };
     ]
   | Sig_module (ident, {md_type; md_attributes; md_loc}, _) ->
@@ -152,6 +154,7 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
+        loc = declared.extentLoc;
       };
     ]
   | _ -> []
@@ -316,6 +319,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
     name = declared.name.txt;
     docstring = declared.docstring;
     deprecated = declared.deprecated;
+    loc = declared.extentLoc;
   }
 
 let rec forSignatureItem ~env ~(exported : Exported.t)
@@ -335,6 +339,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
+        loc = declared.extentLoc;
       };
     ]
   | Tsig_type (recFlag, decls) ->
@@ -366,6 +371,7 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
+        loc = declared.extentLoc;
       };
     ]
   | Tsig_recmodule modDecls ->
@@ -443,6 +449,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
             name = declared.name.txt;
             docstring = declared.docstring;
             deprecated = declared.deprecated;
+            loc = declared.extentLoc;
           }
           :: !items
       | Tpat_tuple pats | Tpat_array pats | Tpat_construct (_, _, pats) ->
@@ -478,6 +485,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
+        loc = declared.extentLoc;
       };
     ]
   | Tstr_recmodule modDecls ->
@@ -509,6 +517,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
+        loc = declared.extentLoc;
       };
     ]
   | Tstr_include {incl_mod; incl_type} ->
@@ -538,6 +547,7 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
+        loc = declared.extentLoc;
       };
     ]
   | Tstr_type (recFlag, decls) ->

@@ -125,6 +125,7 @@ module Module = struct
   and item = {
     kind: kind;
     name: string;
+    loc: Location.t;
     docstring: string list;
     deprecated: string option;
   }
