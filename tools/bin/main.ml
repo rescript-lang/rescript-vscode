@@ -41,7 +41,7 @@ let main () =
         | Some "true" -> Analysis.Cfg.isDocGenFromCompiler := true
         | _ -> ()
       in
-      logAndExit (Tools.extractDocs ~path ~debug:false)
+      logAndExit (Tools.extractDocs ~entryPointFile:path ~debug:false)
     | _ -> logAndExit (Error docHelp))
   | "reanalyze" :: _ ->
     let len = Array.length Sys.argv in

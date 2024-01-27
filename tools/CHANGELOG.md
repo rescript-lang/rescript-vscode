@@ -12,6 +12,10 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Add `source` property to type, value, module and module alias. https://github.com/rescript-lang/rescript-vscode/pull/900.
+
 #### :bug: Bug Fix
 
 - Print docstrings for nested submodules. https://github.com/rescript-lang/rescript-vscode/pull/897

@@ -2,6 +2,11 @@
 {
   "name": "DocExtractionRes",
   "docstrings": ["Module level documentation goes here."],
+  "source": {
+    "filepath": "src/DocExtractionRes.res",
+    "line": 1,
+    "col": 1
+  },
   "items": [
   {
     "id": "DocExtractionRes.t",
@@ -9,6 +14,11 @@
     "name": "t",
     "signature": "type t = {name: string, online: bool}",
     "docstrings": ["This type represents stuff."],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 4,
+      "col": 1
+    },
     "detail": 
     {
       "kind": "record",
@@ -30,27 +40,47 @@
     "kind": "value",
     "name": "make",
     "signature": "let make: (. string) => t",
-    "docstrings": ["Create stuff.\n\n```rescript example\nlet stuff = make(\"My name\")\n```"]
+    "docstrings": ["Create stuff.\n\n```rescript example\nlet stuff = make(\"My name\")\n```"],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 17,
+      "col": 5
+    }
   }, 
   {
     "id": "DocExtractionRes.asOffline",
     "kind": "value",
     "name": "asOffline",
     "signature": "let asOffline: (. t) => t",
-    "docstrings": ["Stuff goes offline."]
+    "docstrings": ["Stuff goes offline."],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 23,
+      "col": 5
+    }
   }, 
   {
     "id": "DocExtractionRes.SomeConstant\\",
     "kind": "value",
     "name": "SomeConstant\\",
     "signature": "let SomeConstant\\: int",
-    "docstrings": ["exotic identifier"]
+    "docstrings": ["exotic identifier"],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 26,
+      "col": 5
+    }
   }, 
   {
     "id": "DocExtractionRes.SomeInnerModule",
     "name": "SomeInnerModule",
     "kind": "module",
     "docstrings": ["Another module level docstring here."],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 28,
+      "col": 8
+    },
     "items": [
     {
       "id": "DocExtractionRes.SomeInnerModule.status",
@@ -58,6 +88,11 @@
       "name": "status",
       "signature": "type status = Started(t) | Stopped | Idle",
       "docstrings": [],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 30,
+        "col": 3
+      },
       "detail": 
       {
         "kind": "variant",
@@ -84,14 +119,24 @@
       "kind": "type",
       "name": "validInputs",
       "signature": "type validInputs = [\n  | #\"needs-escaping\"\n  | #something\n  | #status(status)\n  | #withPayload(int)\n]",
-      "docstrings": ["These are all the valid inputs."]
+      "docstrings": ["These are all the valid inputs."],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 34,
+        "col": 3
+      }
     }, 
     {
       "id": "DocExtractionRes.SomeInnerModule.callback",
       "kind": "type",
       "name": "callback",
       "signature": "type callback = (. t, ~status: status) => unit",
-      "docstrings": []
+      "docstrings": [],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 36,
+        "col": 3
+      }
     }]
   }, 
   {
@@ -99,12 +144,22 @@
     "name": "AnotherModule",
     "kind": "module",
     "docstrings": ["Mighty fine module here too!"],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 39,
+      "col": 8
+    },
     "items": [
     {
       "id": "DocExtractionRes.LinkedModule",
       "kind": "moduleAlias",
       "name": "LinkedModule",
       "docstrings": ["This links another module. Neat."],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 43,
+        "col": 10
+      },
       "items": []
     }, 
     {
@@ -112,14 +167,24 @@
       "kind": "type",
       "name": "callback",
       "signature": "type callback = (. SomeInnerModule.status) => unit",
-      "docstrings": ["Testing what this looks like."]
+      "docstrings": ["Testing what this looks like."],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 47,
+        "col": 3
+      }
     }, 
     {
       "id": "DocExtractionRes.AnotherModule.isGoodStatus",
       "kind": "value",
       "name": "isGoodStatus",
       "signature": "let isGoodStatus: (. SomeInnerModule.status) => bool",
-      "docstrings": []
+      "docstrings": [],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 49,
+        "col": 7
+      }
     }, 
     {
       "id": "DocExtractionRes.AnotherModule.someVariantWithInlineRecords",
@@ -127,6 +192,11 @@
       "name": "someVariantWithInlineRecords",
       "signature": "type someVariantWithInlineRecords =\n  | SomeStuff({offline: bool, online?: bool})",
       "docstrings": ["Trying how it looks with an inline record in a variant."],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 52,
+        "col": 3
+      },
       "detail": 
       {
         "kind": "variant",
@@ -157,7 +227,12 @@
       "kind": "type",
       "name": "domRoot",
       "signature": "type domRoot = (. unit) => ReactDOM.Client.Root.t",
-      "docstrings": ["Callback to get the DOM root..."]
+      "docstrings": ["Callback to get the DOM root..."],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 62,
+        "col": 3
+      }
     }]
   }, 
   {
@@ -165,20 +240,35 @@
     "name": "ModuleWithThingsThatShouldNotBeExported",
     "kind": "module",
     "docstrings": [],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 1,
+      "col": 1
+    },
     "items": [
     {
       "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.t",
       "kind": "type",
       "name": "t",
       "signature": "type t",
-      "docstrings": ["The type t is stuff."]
+      "docstrings": ["The type t is stuff."],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 69,
+        "col": 3
+      }
     }, 
     {
       "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.make",
       "kind": "value",
       "name": "make",
       "signature": "let make: (. unit) => t",
-      "docstrings": ["The maker of stuff!"]
+      "docstrings": ["The maker of stuff!"],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 71,
+        "col": 3
+      }
     }]
   }]
 }
