@@ -282,7 +282,11 @@ let makeId modulePath ~identifier =
 
 let getSource ~rootPath ({loc_start} : Location.t) =
   let line, col = Pos.ofLexing loc_start in
-  let filepath = Files.relpath rootPath loc_start.pos_fname in
+  let filepath =
+    Files.relpath rootPath loc_start.pos_fname
+    |> Files.split Filename.dir_sep
+    |> String.concat "/"
+  in
   {filepath; line = line + 1; col = col + 1}
 
 let extractDocs ~entryPointFile ~debug =
@@ -337,7 +341,10 @@ let extractDocs ~entryPointFile ~debug =
                 filepath =
                   (match rootPath = "." with
                   | true -> file.uri |> Uri.toPath
-                  | false -> Files.relpath rootPath (file.uri |> Uri.toPath));
+                  | false ->
+                    Files.relpath rootPath (file.uri |> Uri.toPath)
+                    |> Files.split Filename.dir_sep
+                    |> String.concat "/");
                 line = 1;
                 col = 1;
               };
