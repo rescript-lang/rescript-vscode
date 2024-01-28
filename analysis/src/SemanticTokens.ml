@@ -283,18 +283,18 @@ let command ~debug ~emitter ~path =
         (* there's an off-by one somehow in the AST *)
       in
       (if not selfClosing then
-       let lineStart, colStart = Loc.start pexp_loc in
-       let lineEnd, colEnd = Loc.end_ pexp_loc in
-       let length = if lineStart = lineEnd then colEnd - colStart else 0 in
-       let lineEndWhole, colEndWhole = Loc.end_ e.pexp_loc in
-       if length > 0 && colEndWhole > length then (
-         emitter
-         |> emitJsxClose ~debug ~lid:lident.txt
-              ~pos:(lineEndWhole, colEndWhole - 1);
-         emitter (* <foo ...props > <-- *)
-         |> emitJsxTag ~debug ~name:">" ~pos:posOfGreatherthanAfterProps;
-         emitter (* <foo> ... </foo> <-- *)
-         |> emitJsxTag ~debug ~name:">" ~pos:posOfFinalGreatherthan));
+         let lineStart, colStart = Loc.start pexp_loc in
+         let lineEnd, colEnd = Loc.end_ pexp_loc in
+         let length = if lineStart = lineEnd then colEnd - colStart else 0 in
+         let lineEndWhole, colEndWhole = Loc.end_ e.pexp_loc in
+         if length > 0 && colEndWhole > length then (
+           emitter
+           |> emitJsxClose ~debug ~lid:lident.txt
+                ~pos:(lineEndWhole, colEndWhole - 1);
+           emitter (* <foo ...props > <-- *)
+           |> emitJsxTag ~debug ~name:">" ~pos:posOfGreatherthanAfterProps;
+           emitter (* <foo> ... </foo> <-- *)
+           |> emitJsxTag ~debug ~name:">" ~pos:posOfFinalGreatherthan));
 
       args |> List.iter (fun (_lbl, arg) -> iterator.expr iterator arg)
     | Pexp_apply

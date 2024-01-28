@@ -32,9 +32,10 @@ let newBsPackage ~rootPath =
   let bsconfigJson = Filename.concat rootPath "bsconfig.json" in
 
   let parseRaw raw =
-    let libBs = match !Cfg.isDocGenFromCompiler with
-    | true -> BuildSystem.getStdlib rootPath
-    | false -> BuildSystem.getLibBs rootPath
+    let libBs =
+      match !Cfg.isDocGenFromCompiler with
+      | true -> BuildSystem.getStdlib rootPath
+      | false -> BuildSystem.getLibBs rootPath
     in
     match Json.parse raw with
     | Some config -> (
@@ -48,10 +49,10 @@ let newBsPackage ~rootPath =
             (let namespace = FindFiles.getNamespace config in
              let rescriptVersion = getReScriptVersion () in
              let suffix =
-              match config |> Json.get "suffix" with
-              | Some (String suffix) -> suffix
-              | _ -> ".js"
-            in
+               match config |> Json.get "suffix" with
+               | Some (String suffix) -> suffix
+               | _ -> ".js"
+             in
              let uncurried =
                let ns = config |> Json.get "uncurried" in
                match (rescriptVersion, ns) with
@@ -132,55 +133,55 @@ let newBsPackage ~rootPath =
                namespace;
                builtInCompletionModules =
                  (if
-                  opens_from_bsc_flags
-                  |> List.find_opt (fun opn ->
-                         match opn with
-                         | ["RescriptCore"] -> true
-                         | _ -> false)
-                  |> Option.is_some
-                 then
-                  {
-                    arrayModulePath = ["Array"];
-                    optionModulePath = ["Option"];
-                    stringModulePath = ["String"];
-                    intModulePath = ["Int"];
-                    floatModulePath = ["Float"];
-                    promiseModulePath = ["Promise"];
-                    listModulePath = ["List"];
-                    resultModulePath = ["Result"];
-                    exnModulePath = ["Exn"];
-                  }
-                 else if
-                 opens_from_bsc_flags
-                 |> List.find_opt (fun opn ->
-                        match opn with
-                        | ["Belt"] -> true
-                        | _ -> false)
-                 |> Option.is_some
-                then
-                   {
-                     arrayModulePath = ["Array"];
-                     optionModulePath = ["Option"];
-                     stringModulePath = ["Js"; "String2"];
-                     intModulePath = ["Int"];
-                     floatModulePath = ["Float"];
-                     promiseModulePath = ["Js"; "Promise"];
-                     listModulePath = ["List"];
-                     resultModulePath = ["Result"];
-                     exnModulePath = ["Js"; "Exn"];
-                   }
-                 else
-                   {
-                     arrayModulePath = ["Js"; "Array2"];
-                     optionModulePath = ["Belt"; "Option"];
-                     stringModulePath = ["Js"; "String2"];
-                     intModulePath = ["Belt"; "Int"];
-                     floatModulePath = ["Belt"; "Float"];
-                     promiseModulePath = ["Js"; "Promise"];
-                     listModulePath = ["Belt"; "List"];
-                     resultModulePath = ["Belt"; "Result"];
-                     exnModulePath = ["Js"; "Exn"];
-                   });
+                    opens_from_bsc_flags
+                    |> List.find_opt (fun opn ->
+                           match opn with
+                           | ["RescriptCore"] -> true
+                           | _ -> false)
+                    |> Option.is_some
+                  then
+                    {
+                      arrayModulePath = ["Array"];
+                      optionModulePath = ["Option"];
+                      stringModulePath = ["String"];
+                      intModulePath = ["Int"];
+                      floatModulePath = ["Float"];
+                      promiseModulePath = ["Promise"];
+                      listModulePath = ["List"];
+                      resultModulePath = ["Result"];
+                      exnModulePath = ["Exn"];
+                    }
+                  else if
+                    opens_from_bsc_flags
+                    |> List.find_opt (fun opn ->
+                           match opn with
+                           | ["Belt"] -> true
+                           | _ -> false)
+                    |> Option.is_some
+                  then
+                    {
+                      arrayModulePath = ["Array"];
+                      optionModulePath = ["Option"];
+                      stringModulePath = ["Js"; "String2"];
+                      intModulePath = ["Int"];
+                      floatModulePath = ["Float"];
+                      promiseModulePath = ["Js"; "Promise"];
+                      listModulePath = ["List"];
+                      resultModulePath = ["Result"];
+                      exnModulePath = ["Js"; "Exn"];
+                    }
+                  else
+                    {
+                      arrayModulePath = ["Js"; "Array2"];
+                      optionModulePath = ["Belt"; "Option"];
+                      stringModulePath = ["Js"; "String2"];
+                      intModulePath = ["Belt"; "Int"];
+                      floatModulePath = ["Belt"; "Float"];
+                      promiseModulePath = ["Js"; "Promise"];
+                      listModulePath = ["Belt"; "List"];
+                      resultModulePath = ["Belt"; "Result"];
+                      exnModulePath = ["Js"; "Exn"];
+                    });
                uncurried;
              })))
     | None -> None

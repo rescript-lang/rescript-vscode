@@ -71,11 +71,11 @@ let inlay ~path ~pos ~maxLength ~debug =
   in
   let iterator = {Ast_iterator.default_iterator with value_binding} in
   (if Files.classifySourceFile path = Res then
-   let parser =
-     Res_driver.parsingEngine.parseImplementation ~forPrinter:false
-   in
-   let {Res_driver.parsetree = structure} = parser ~filename:path in
-   iterator.structure iterator structure |> ignore);
+     let parser =
+       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+     in
+     let {Res_driver.parsetree = structure} = parser ~filename:path in
+     iterator.structure iterator structure |> ignore);
   match Cmt.loadFullCmtFromPath ~path with
   | None -> None
   | Some full ->
@@ -135,11 +135,11 @@ let codeLens ~path ~debug =
   (* We only print code lenses in implementation files. This is because they'd be redundant in interface files,
      where the definition itself will be the same thing as what would've been printed in the code lens. *)
   (if Files.classifySourceFile path = Res then
-   let parser =
-     Res_driver.parsingEngine.parseImplementation ~forPrinter:false
-   in
-   let {Res_driver.parsetree = structure} = parser ~filename:path in
-   iterator.structure iterator structure |> ignore);
+     let parser =
+       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+     in
+     let {Res_driver.parsetree = structure} = parser ~filename:path in
+     iterator.structure iterator structure |> ignore);
   match Cmt.loadFullCmtFromPath ~path with
   | None -> None
   | Some full ->

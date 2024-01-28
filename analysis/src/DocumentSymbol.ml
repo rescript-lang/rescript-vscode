@@ -135,15 +135,15 @@ let command ~path =
   in
 
   (if Filename.check_suffix path ".res" then
-   let parser =
-     Res_driver.parsingEngine.parseImplementation ~forPrinter:false
-   in
-   let {Res_driver.parsetree = structure} = parser ~filename:path in
-   iterator.structure iterator structure |> ignore
-  else
-    let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
-    let {Res_driver.parsetree = signature} = parser ~filename:path in
-    iterator.signature iterator signature |> ignore);
+     let parser =
+       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+     in
+     let {Res_driver.parsetree = structure} = parser ~filename:path in
+     iterator.structure iterator structure |> ignore
+   else
+     let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
+     let {Res_driver.parsetree = signature} = parser ~filename:path in
+     iterator.signature iterator signature |> ignore);
   let isInside
       ({
          range =
