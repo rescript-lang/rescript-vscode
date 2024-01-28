@@ -941,6 +941,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
             promiseModulePath;
             listModulePath;
             resultModulePath;
+            regexpModulePath;
           } =
             package.builtInCompletionModules
           in
@@ -954,6 +955,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
             | Promise -> promiseModulePath
             | List -> listModulePath
             | Result -> resultModulePath
+            | RegExp -> regexpModulePath
             | Lazy -> ["Lazy"]
             | Char -> ["Char"])
         | TypExpr t -> (
@@ -1291,13 +1293,27 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
                  Hashtbl.add functionsReturningTypeT
                    ((base |> String.concat ".") ^ "." ^ name)
                    item));
-    Hashtbl.fold
-      (fun fnName typeExpr all ->
-        createWithSnippet
-          ~name:(Printf.sprintf "%s()" fnName)
-          ~insertText:(fnName ^ "($0)") ~kind:(Value typeExpr) ~env ()
-        :: all)
-      functionsReturningTypeT []
+
+    let completionItems =
+      Hashtbl.fold
+        (fun fnName typeExpr all ->
+          createWithSnippet
+            ~name:(Printf.sprintf "%s()" fnName)
+            ~insertText:(fnName ^ "($0)") ~kind:(Value typeExpr) ~env ()
+          :: all)
+        functionsReturningTypeT []
+    in
+    (* Special casing for things where we want extra things in the completions *)
+    let completionItems =
+      match path with
+      | Pdot (Pdot (Pident m, "Re", _), "t", _) when Ident.name m = "Js" ->
+        (* regexps *)
+        createWithSnippet ~name:"%re()" ~insertText:"%re(\"/$0/g\")"
+          ~kind:(Label "Regular expression") ~env ()
+        :: completionItems
+      | _ -> completionItems
+    in
+    completionItems
   | Tbool env ->
     if Debug.verbose () then print_endline "[complete_typed_value]--> Tbool";
     [

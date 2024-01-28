@@ -449,6 +449,7 @@ type builtinType =
   | Result
   | Lazy
   | Char
+  | RegExp
 
 type pipeCompletionType =
   | Builtin of builtinType * Types.type_expr
@@ -456,16 +457,21 @@ type pipeCompletionType =
 
 let getBuiltinFromTypePath path =
   match path with
-  | Path.Pident id when Ident.name id = "array" -> Some Array
-  | Path.Pident id when Ident.name id = "option" -> Some Option
-  | Path.Pident id when Ident.name id = "string" -> Some String
-  | Path.Pident id when Ident.name id = "int" -> Some Int
-  | Path.Pident id when Ident.name id = "float" -> Some Float
-  | Path.Pident id when Ident.name id = "promise" -> Some Promise
-  | Path.Pident id when Ident.name id = "list" -> Some List
-  | Path.Pident id when Ident.name id = "result" -> Some Result
-  | Path.Pident id when Ident.name id = "lazy_t" -> Some Lazy
-  | Path.Pident id when Ident.name id = "char" -> Some Char
+  | Path.Pident _ -> (
+    match Path.name path with
+    | "array" -> Some Array
+    | "option" -> Some Option
+    | "string" -> Some String
+    | "int" -> Some Int
+    | "float" -> Some Float
+    | "promise" -> Some Promise
+    | "list" -> Some List
+    | "result" -> Some Result
+    | "lazy_t" -> Some Lazy
+    | "char" -> Some Char
+    | _ -> None)
+  | Pdot (Pdot (Pident m, "Re", _), "t", _) when Ident.name m = "Js" ->
+    Some RegExp
   | Pdot (Pident id, "result", _)
     when Ident.name id = "Pervasives" || Ident.name id = "PervasivesU" ->
     Some Result
