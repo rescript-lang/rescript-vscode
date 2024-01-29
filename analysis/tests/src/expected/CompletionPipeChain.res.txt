@@ -553,3 +553,21 @@ Path Integer.t
     "documentation": null
   }]
 
+Complete src/CompletionPipeChain.res 103:8
+posCursor:[103:8] posNoWhite:[103:7] Found expr:[103:3->103:8]
+Completable: Cpath Value[r]->la
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[r]->la
+ContextPath Value[r]
+Path r
+CPPipe env:CompletionPipeChain
+Path Js.Re.la
+[{
+    "label": "Js.Re.lastIndex",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => int",
+    "documentation": {"kind": "markdown", "value": "\n  Returns the index where the next match will start its search. This property\n  will be modified when the RegExp object is used, if the global (\"g\") flag is\n  set.\n\n  ```res example\n  let re = %re(\"/ab*/g\")\n  let str = \"abbcdefabh\"\n\n  let break = ref(false)\n  while !break.contents {\n    switch Js.Re.exec_(re, str) {\n    | Some(result) => Js.Nullable.iter(Js.Re.captures(result)[0], (. match_) => {\n        let next = Belt.Int.toString(Js.Re.lastIndex(re))\n        Js.log(\"Found \" ++ (match_ ++ (\". Next match starts at \" ++ next)))\n      })\n    | None => break := true\n    }\n  }\n  ```\n\n  See\n  [`RegExp: lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex)\n  on MDN.\n"}
+  }]
+

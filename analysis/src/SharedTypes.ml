@@ -493,6 +493,7 @@ type builtInCompletionModules = {
   listModulePath: string list;
   resultModulePath: string list;
   exnModulePath: string list;
+  regexpModulePath: string list;
 }
 
 type package = {

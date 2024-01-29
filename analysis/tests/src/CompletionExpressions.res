@@ -313,3 +313,11 @@ type withIntLocal = {superInt: SuperInt.t}
 open CompletionSupport
 // CompletionSupport.makeTestHidden()
 //                                  ^com
+
+let mkStuff = (r: Js.Re.t) => {
+  ignore(r)
+  "hello"
+}
+
+// mkStuff()
+//         ^com

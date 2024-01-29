@@ -12,6 +12,11 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- Prefer Core's `RegExp` when Core is open and completing for regexp functions. https://github.com/rescript-lang/rescript-vscode/pull/903
+- Add `%re("")` to the completions list when completing in a position where a regexp value is expected. https://github.com/rescript-lang/rescript-vscode/pull/903
+
 ## 1.36.0
 
 #### :bug: Bug Fix
