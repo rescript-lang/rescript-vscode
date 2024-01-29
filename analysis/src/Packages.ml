@@ -13,7 +13,7 @@ let makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths =
 
 let getReScriptVersion () =
   (* TODO: Include patch stuff when needed *)
-  let defaultVersion = (10, 1) in
+  let defaultVersion = (11, 0) in
   try
     let value = Sys.getenv "RESCRIPT_VERSION" in
     let version =

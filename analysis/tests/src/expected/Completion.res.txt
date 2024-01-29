@@ -11,66 +11,66 @@ Path MyList.m
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n  Equivalent to:\n\n  ```res\n  map(someList, f)->reverse\n  ```\n\n  ```res example\n  list{3, 4, 5}->Belt.List.mapReverse(x => x * x) /* list{25, 16, 9} */\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nEquivalent to:\n\n```res\nmap(someList, f)->reverse\n```\n\n## Examples\n\n```rescript\nlist{3, 4, 5}->Belt.List.mapReverse(x => x * x) /* list{25, 16, 9} */\n```\n"}
   }, {
     "label": "makeBy",
     "kind": 12,
     "tags": [],
     "detail": "(int, int => 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": "\nReturn a list of length `numItems` with element `i` initialized with `f(i)`.\nReturns an empty list if `numItems` is negative.\n\n```res example\nBelt.List.makeBy(5, i => i) // list{0, 1, 2, 3, 4}\n\nBelt.List.makeBy(5, i => i * i) // list{0, 1, 4, 9, 16}\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nReturn a list of length `numItems` with element `i` initialized with `f(i)`.\nReturns an empty list if `numItems` is negative.\n\n## Examples\n\n```rescript\nBelt.List.makeBy(5, i => i) // list{0, 1, 2, 3, 4}\n\nBelt.List.makeBy(5, i => i * i) // list{0, 1, 4, 9, 16}\n```\n"}
   }, {
     "label": "make",
     "kind": 12,
     "tags": [],
     "detail": "(int, 'a) => t<'a>",
-    "documentation": {"kind": "markdown", "value": "\n  Returns a list of length `numItems` with each element filled with value `v`. Returns an empty list if `numItems` is negative.\n\n  ```res example\n  Belt.List.make(3, 1) // list{1, 1, 1}\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nReturns a list of length `numItems` with each element filled with value `v`. Returns an empty list if `numItems` is negative.\n\n## Examples\n\n```rescript\nBelt.List.make(3, 1) // list{1, 1, 1}\n```\n"}
   }, {
     "label": "mapReverse2U",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, t<'b>, (. 'a, 'b) => 'c) => t<'c>",
+    "detail": "(t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse2](#mapReverse2). "}
   }, {
     "label": "map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n  Returns a new list with `f` applied to each element of `someList`.\n\n  ```res example\n  list{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nReturns a new list with `f` applied to each element of `someList`.\n\n## Examples\n\n```rescript\nlist{1, 2}->Belt.List.map(x => x + 1) // list{3, 4}\n```\n"}
   }, {
     "label": "mapWithIndexU",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, (. int, 'a) => 'b) => t<'b>",
+    "detail": "(t<'a>, (int, 'a) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [mapWithIndex](#mapWithIndex). "}
   }, {
     "label": "mapU",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [map](#map). "}
   }, {
     "label": "makeByU",
     "kind": 12,
     "tags": [],
-    "detail": "(int, (. int) => 'a) => t<'a>",
+    "detail": "(int, int => 'a) => t<'a>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [makeBy](#makeBy) "}
   }, {
     "label": "mapReverse2",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>",
-    "documentation": {"kind": "markdown", "value": "\n  Equivalent to: `zipBy(xs, ys, f)->reverse`\n\n  ```res example\n\n  Belt.List.mapReverse2(list{1, 2, 3}, list{1, 2}, (a, b) => a + b) // list{4, 2}\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nEquivalent to: `zipBy(xs, ys, f)->reverse`\n\n## Examples\n\n```rescript\n\nBelt.List.mapReverse2(list{1, 2, 3}, list{1, 2}, (a, b) => a + b) // list{4, 2}\n```\n"}
   }, {
     "label": "mapWithIndex",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, (int, 'a) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\n  Applies `f` to each element of `someList`.\n  Function `f` takes two arguments: the index starting from 0 and the element from `someList`, in that order.\n\n  ```res example\n  list{1, 2, 3}->Belt.List.mapWithIndex((index, x) => index + x) // list{1, 3, 5}\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nApplies `f` to each element of `someList`.\nFunction `f` takes two arguments: the index starting from 0 and the element from `someList`, in that order.\n\n## Examples\n\n```rescript\nlist{1, 2, 3}->Belt.List.mapWithIndex((index, x) => index + x) // list{1, 3, 5}\n```\n"}
   }, {
     "label": "mapReverseU",
     "kind": 12,
     "tags": [],
-    "detail": "(t<'a>, (. 'a) => 'b) => t<'b>",
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": " Uncurried version of [mapReverse](#mapReverse). "}
   }]
 
@@ -169,9 +169,9 @@ Path Array.
   }, {
     "label": "make_float",
     "kind": 12,
-    "tags": [],
+    "tags": [1],
     "detail": "int => array<float>",
-    "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use Array.create_float instead.\n\n @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
   }, {
     "label": "fold_right",
     "kind": 12,
@@ -253,9 +253,9 @@ Path Array.
   }, {
     "label": "create_matrix",
     "kind": 12,
-    "tags": [],
+    "tags": [1],
     "detail": "(int, int, 'a) => array<array<'a>>",
-    "documentation": {"kind": "markdown", "value": " @deprecated [Array.create_matrix] is an alias for {!Array.make_matrix}. "}
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use Array.make_matrix instead.\n\n @deprecated [Array.create_matrix] is an alias for {!Array.make_matrix}. "}
   }, {
     "label": "create_float",
     "kind": 12,
@@ -265,9 +265,9 @@ Path Array.
   }, {
     "label": "create",
     "kind": 12,
-    "tags": [],
+    "tags": [1],
     "detail": "(int, 'a) => array<'a>",
-    "documentation": {"kind": "markdown", "value": " @deprecated [Array.create] is an alias for {!Array.make}. "}
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use Array.make instead.\n\n @deprecated [Array.create] is an alias for {!Array.make}. "}
   }, {
     "label": "init",
     "kind": 12,
@@ -335,9 +335,9 @@ Path Array.m
   }, {
     "label": "make_float",
     "kind": 12,
-    "tags": [],
+    "tags": [1],
     "detail": "int => array<float>",
-    "documentation": {"kind": "markdown", "value": " @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
+    "documentation": {"kind": "markdown", "value": "Deprecated: Use Array.create_float instead.\n\n @deprecated [Array.make_float] is an alias for {!Array.create_float}. "}
   }, {
     "label": "map",
     "kind": 12,
@@ -411,13 +411,13 @@ Path Js.Array2.m
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
   }, {
     "label": "Js.Array2.map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
   }]
 
 Complete src/Completion.res 29:13
@@ -434,7 +434,7 @@ Path Js.String2.toU
     "kind": 12,
     "tags": [],
     "detail": "t => t",
-    "documentation": {"kind": "markdown", "value": "\n`toUpperCase(str)` converts `str` to upper case using the locale-insensitive\ncase mappings in the Unicode Character Database. Notice that the conversion can\nexpand the number of letters in the result; for example the German ß\ncapitalizes to two Ses in a row.\n\nSee [`String.toUpperCase`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase)\non MDN.\n\n```res example\nJs.String2.toUpperCase(\"abc\") == \"ABC\"\nJs.String2.toUpperCase(`Straße`) == `STRASSE`\nJs.String2.toUpperCase(`πς`) == `ΠΣ`\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`toUpperCase(str)` converts `str` to upper case using the locale-insensitive\ncase mappings in the Unicode Character Database. Notice that the conversion can\nexpand the number of letters in the result; for example the German ß\ncapitalizes to two Ses in a row.\n\nSee [`String.toUpperCase`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase)\non MDN.\n\n## Examples\n\n```rescript\nJs.String2.toUpperCase(\"abc\") == \"ABC\"\nJs.String2.toUpperCase(`Straße`) == `STRASSE`\nJs.String2.toUpperCase(`πς`) == `ΠΣ`\n```\n"}
   }]
 
 Complete src/Completion.res 34:8
@@ -451,14 +451,14 @@ Path Belt.Option.e
     "label": "Belt.Option.eqU",
     "kind": 12,
     "tags": [],
-    "detail": "(option<'a>, option<'b>, (. 'a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n   Uncurried version of `eq`\n"}
+    "detail": "(option<'a>, option<'b>, ('a, 'b) => bool) => bool",
+    "documentation": {"kind": "markdown", "value": "\nUncurried version of `eq`\n"}
   }, {
     "label": "Belt.Option.eq",
     "kind": 12,
     "tags": [],
     "detail": "(option<'a>, option<'b>, ('a, 'b) => bool) => bool",
-    "documentation": {"kind": "markdown", "value": "\n   Evaluates two optional values for equality with respect to a predicate\n   function. If both `optValue1` and `optValue2` are `None`, returns `true`.\n   If one of the arguments is `Some(value)` and the other is `None`, returns\n   `false`.\n\n   If arguments are `Some(value1)` and `Some(value2)`, returns the result of\n   `predicate(value1, value2)`; the predicate function must return a bool.\n\n   ```res example\n   let clockEqual = (a, b) => mod(a, 12) == mod(b, 12)\n\n   open Belt.Option\n\n   eq(Some(3), Some(15), clockEqual) /* true */\n\n   eq(Some(3), None, clockEqual) /* false */\n\n   eq(None, Some(3), clockEqual) /* false */\n\n   eq(None, None, clockEqual) /* true */\n   ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nEvaluates two optional values for equality with respect to a predicate\nfunction. If both `optValue1` and `optValue2` are `None`, returns `true`.\nIf one of the arguments is `Some(value)` and the other is `None`, returns\n`false`.\n\nIf arguments are `Some(value1)` and `Some(value2)`, returns the result of\n`predicate(value1, value2)`; the predicate function must return a bool.\n\n## Examples\n\n```rescript\nlet clockEqual = (a, b) => mod(a, 12) == mod(b, 12)\n\nopen Belt.Option\n\neq(Some(3), Some(15), clockEqual) /* true */\n\neq(Some(3), None, clockEqual) /* false */\n\neq(None, Some(3), clockEqual) /* false */\n\neq(None, None, clockEqual) /* true */\n```\n"}
   }]
 
 Complete src/Completion.res 44:7
@@ -503,12 +503,12 @@ Path Js.Dict.u
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, key) => 'a",
-    "documentation": {"kind": "markdown", "value": "\n`Js.Dict.unsafeGet(key)` returns the value if the key exists, otherwise an `undefined` value is returned. Use this only when you are sure the key exists (i.e. when having used the `keys()` function to check that the key is valid).\n\n```res example\nJs.Dict.unsafeGet(ages, \"Fred\") == 49\nJs.Dict.unsafeGet(ages, \"Paul\") // returns undefined\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`Js.Dict.unsafeGet(key)` returns the value if the key exists, otherwise an `undefined` value is returned. Use this only when you are sure the key exists (i.e. when having used the `keys()` function to check that the key is valid).\n\n## Examples\n\n```rescript\nJs.Dict.unsafeGet(ages, \"Fred\") == 49\nJs.Dict.unsafeGet(ages, \"Paul\") // returns undefined\n```\n"}
   }, {
     "label": "unsafeDeleteKey",
     "kind": 12,
     "tags": [],
-    "detail": "(. t<string>, string) => unit",
+    "detail": "(t<string>, string) => unit",
     "documentation": {"kind": "markdown", "value": " Experimental internal function "}
   }]
 
@@ -765,6 +765,7 @@ Path Objects.Rec.recordVal
 
 Complete src/Completion.res 120:7
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[119:11->123:1]
+posCursor:[120:7] posNoWhite:[120:6] Found expr:[119:11->123:1]
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->122:5]
 posCursor:[120:7] posNoWhite:[120:6] Found expr:[120:5->120:7]
 Pexp_ident my:[120:5->120:7]
@@ -918,13 +919,13 @@ Path Js.n
     "label": "nullable",
     "kind": 22,
     "tags": [],
-    "detail": "type nullable<+'a>",
-    "documentation": {"kind": "markdown", "value": "\n  A value of this type can be undefined, null or 'a. This type is equivalent to Js.Null_undefined.t.\n"}
+    "detail": "type nullable<'a> = Value('a) | Null | Undefined",
+    "documentation": null
   }, {
     "label": "null",
     "kind": 22,
     "tags": [],
-    "detail": "type null<+'a>",
+    "detail": "type null<'a> = Value('a) | Null",
     "documentation": {"kind": "markdown", "value": "\n  Nullable value of this type can be either null or 'a. This type is equivalent to Js.Null.t.\n"}
   }]
 
@@ -1285,6 +1286,7 @@ Path SomeLocal
 
 Complete src/Completion.res 275:15
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[274:11->278:1]
+posCursor:[275:15] posNoWhite:[275:14] Found expr:[274:11->278:1]
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:5->277:3]
 posCursor:[275:15] posNoWhite:[275:14] Found expr:[275:13->275:15]
 Pexp_ident _w:[275:13->275:15]
@@ -1597,14 +1599,8 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[withCallback](~a)
 ContextPath Value[withCallback]
 Path withCallback
-Found type for function (~b: int) => int
-[{
-    "label": "b",
-    "kind": 4,
-    "tags": [],
-    "detail": "int",
-    "documentation": null
-  }]
+Found type for function int
+[]
 
 Complete src/Completion.res 329:21
 posCursor:[329:21] posNoWhite:[329:20] Found expr:[329:3->329:21]
@@ -1629,6 +1625,7 @@ Complete src/Completion.res 336:26
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[333:3->346:23]
 JSX <div:[333:3->333:6] onClick[334:4->334:11]=...[334:13->346:23]> _children:None
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->346:23]
+posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[334:13->338:6]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[335:6->338:5]
 posCursor:[336:26] posNoWhite:[336:25] Found expr:[336:16->338:5]
@@ -1685,7 +1682,7 @@ Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
 Path ReactDOM.domProps
-Path Pervasives.JsxDOM.domProps
+Path PervasivesU.JsxDOM.domProps
 {"contents": {"kind": "markdown", "value": "```rescript\nstring\n```"}}
 
 Hover src/Completion.res 349:17
@@ -1732,6 +1729,7 @@ posCursor:[355:23] posNoWhite:[355:22] Found expr:[355:12->355:23]
 []
 
 Complete src/Completion.res 362:8
+posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found expr:[360:8->365:3]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->364:5]
 posCursor:[362:8] posNoWhite:[362:7] Found pattern:[362:7->362:8]
@@ -1781,6 +1779,7 @@ Path T
   }]
 
 Complete src/Completion.res 373:21
+posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found expr:[371:8->376:3]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->375:5]
 posCursor:[373:21] posNoWhite:[373:20] Found pattern:[373:7->373:21]
@@ -1884,6 +1883,7 @@ Path funRecord
 
 Complete src/Completion.res 389:12
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[387:8->392:1]
+posCursor:[389:12] posNoWhite:[389:11] Found expr:[387:8->392:1]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[388:2->391:4]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->391:4]
 posCursor:[389:12] posNoWhite:[389:11] Found expr:[389:6->389:12]
@@ -1900,13 +1900,13 @@ Path Js.Array2.ma
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"}
   }, {
     "label": "Array2.map",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
-    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n```res example\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"}
   }]
 
 Complete src/Completion.res 397:14
@@ -1987,6 +1987,7 @@ Path r
 
 Complete src/Completion.res 409:21
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[408:14->415:1]
+posCursor:[409:21] posNoWhite:[409:20] Found expr:[408:14->415:1]
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->414:17]
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->411:42]
 posCursor:[409:21] posNoWhite:[409:20] Found expr:[409:5->411:5]
@@ -2012,6 +2013,7 @@ Path SomeLocalModule.
   }]
 
 Complete src/Completion.res 412:21
+posCursor:[412:21] posNoWhite:[412:20] Found expr:[408:14->415:1]
 posCursor:[412:21] posNoWhite:[412:20] Found expr:[408:14->415:1]
 posCursor:[412:21] posNoWhite:[412:20] Found expr:[411:2->414:17]
 posCursor:[412:21] posNoWhite:[412:20] Found expr:[412:5->414:17]
@@ -2053,13 +2055,13 @@ Path Belt.Int.t
     "kind": 12,
     "tags": [],
     "detail": "int => string",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toString(1) === \"1\") /* true */\n```\n"}
   }, {
     "label": "Belt.Int.toFloat",
     "kind": 12,
     "tags": [],
     "detail": "int => float",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `float`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toFloat(1) === 1.0) /* true */\n```\n"}
   }]
 
 Complete src/Completion.res 420:19
@@ -2077,13 +2079,13 @@ Path Belt.Float.t
     "kind": 12,
     "tags": [],
     "detail": "float => int",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to an `int`.\n\n```res example\nJs.log(Belt.Float.toInt(1.0) === 1) /* true */\n```\n"}
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to an `int`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Float.toInt(1.0) === 1) /* true */\n```\n"}
   }, {
     "label": "Belt.Float.toString",
     "kind": 12,
     "tags": [],
     "detail": "float => string",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `float` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Float.toString(1.0) === \"1.0\") /* true */\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n## Examples\n\n```rescript\nJs.log(Belt.Float.toString(1.0) === \"1.0\") /* true */\n```\n"}
   }]
 
 Complete src/Completion.res 425:8
@@ -2102,13 +2104,13 @@ Path Belt.Result.g
     "kind": 12,
     "tags": [],
     "detail": "t<'a, 'b> => 'a",
-    "documentation": {"kind": "markdown", "value": "\n  `getExn(res)`: when `res` is `Ok(n)`, returns `n` when `res` is `Error(m)`, raise an exception\n\n  ```res example\n  Belt.Result.getExn(Belt.Result.Ok(42)) == 42\n\n  Belt.Result.getExn(Belt.Result.Error(\"Invalid data\")) /* raises exception */\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`getExn(res)`: when `res` is `Ok(n)`, returns `n` when `res` is `Error(m)`, raise an exception\n\n## Examples\n\n```rescript\nBelt.Result.getExn(Belt.Result.Ok(42)) == 42\n\nBelt.Result.getExn(Belt.Result.Error(\"Invalid data\")) /* raises exception */\n```\n"}
   }, {
     "label": "Belt.Result.getWithDefault",
     "kind": 12,
     "tags": [],
     "detail": "(t<'a, 'b>, 'a) => 'a",
-    "documentation": {"kind": "markdown", "value": "\n  `getWithDefault(res, defaultValue)`: If `res` is `Ok(n)`, returns `n`,\n  otherwise `default`\n\n  ```res example\n  Belt.Result.getWithDefault(Ok(42), 0) == 42\n\n  Belt.Result.getWithDefault(Error(\"Invalid Data\"), 0) == 0\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\n`getWithDefault(res, defaultValue)`: If `res` is `Ok(n)`, returns `n`,\notherwise `default`\n\n## Examples\n\n```rescript\nBelt.Result.getWithDefault(Ok(42), 0) == 42\n\nBelt.Result.getWithDefault(Error(\"Invalid Data\"), 0) == 0\n```\n"}
   }]
 
 Complete src/Completion.res 443:15
@@ -2186,7 +2188,7 @@ Path Belt.Int.toS
     "kind": 12,
     "tags": [],
     "detail": "int => string",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toString(1) === \"1\") /* true */\n```\n"}
   }]
 
 Complete src/Completion.res 462:30
@@ -2198,13 +2200,13 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[withUncurried]
 Path withUncurried
 [{
-    "label": "(. v) => {}",
+    "label": "v => {}",
     "kind": 12,
     "tags": [],
     "detail": "int => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(. ${1:v}) => {$0}",
+    "insertText": "${1:v} => {$0}",
     "insertTextFormat": 2
   }]
 
