@@ -154,13 +154,69 @@
       "id": "DocExtractionRes.LinkedModule",
       "kind": "moduleAlias",
       "name": "LinkedModule",
-      "docstrings": ["This links another module. Neat."],
+      "docstrings": ["This links another module. Neat.", "Another module level docstring here."],
       "source": {
         "filepath": "src/DocExtractionRes.res",
         "line": 43,
         "col": 10
       },
-      "items": []
+      "items": [
+      {
+        "id": "DocExtractionRes.LinkedModule.status",
+        "kind": "type",
+        "name": "status",
+        "signature": "type status = Started(t) | Stopped | Idle",
+        "docstrings": [],
+        "source": {
+          "filepath": "src/DocExtractionRes.res",
+          "line": 30,
+          "col": 3
+        },
+        "detail": 
+        {
+          "kind": "variant",
+          "items": [
+          {
+            "name": "Started",
+            "docstrings": ["If this is started or not"],
+            "signature": "Started(t)"
+          }, 
+          {
+            "name": "Stopped",
+            "docstrings": ["Stopped?"],
+            "signature": "Stopped"
+          }, 
+          {
+            "name": "Idle",
+            "docstrings": ["Now idle."],
+            "signature": "Idle"
+          }]
+        }
+      }, 
+      {
+        "id": "DocExtractionRes.LinkedModule.validInputs",
+        "kind": "type",
+        "name": "validInputs",
+        "signature": "type validInputs = [\n  | #\"needs-escaping\"\n  | #something\n  | #status(status)\n  | #withPayload(int)\n]",
+        "docstrings": ["These are all the valid inputs."],
+        "source": {
+          "filepath": "src/DocExtractionRes.res",
+          "line": 34,
+          "col": 3
+        }
+      }, 
+      {
+        "id": "DocExtractionRes.LinkedModule.callback",
+        "kind": "type",
+        "name": "callback",
+        "signature": "type callback = (. t, ~status: status) => unit",
+        "docstrings": [],
+        "source": {
+          "filepath": "src/DocExtractionRes.res",
+          "line": 36,
+          "col": 3
+        }
+      }]
     }, 
     {
       "id": "DocExtractionRes.AnotherModule.callback",

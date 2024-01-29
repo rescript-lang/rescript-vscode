@@ -390,7 +390,29 @@ let extractDocs ~entryPointFile ~debug =
                            ProcessCmt.fileForModule ~package:full.package
                              aliasToModule
                          with
-                         | None -> ([], [])
+                         | None -> (
+                           let localModuleAliasDocs =
+                             match
+                               Exported.find env.exported Module aliasToModule
+                             with
+                             | None -> None
+                             | Some stamp -> (
+                               match
+                                 SharedTypes.Stamps.findModule full.file.stamps
+                                   stamp
+                               with
+                               | None -> None
+                               | Some {item} -> (
+                                 match item with
+                                 | Structure struc ->
+                                   Some
+                                     (extractDocsForModule ~modulePath:[id]
+                                        struc)
+                                 | _ -> None))
+                           in
+                           match localModuleAliasDocs with
+                           | Some {items; docstring} -> (items, docstring)
+                           | None -> ([], []))
                          | Some file ->
                            let docs =
                              extractDocsForModule ~modulePath:[id]
