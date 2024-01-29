@@ -363,13 +363,13 @@ Path Belt.Int.t
     "kind": 12,
     "tags": [],
     "detail": "int => string",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n  ```res example\n  Js.log(Belt.Int.toString(1) === \"1\") /* true */\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toString(1) === \"1\") /* true */\n```\n"}
   }, {
     "label": "Belt.Int.toFloat",
     "kind": 12,
     "tags": [],
     "detail": "int => float",
-    "documentation": {"kind": "markdown", "value": "\n  Converts a given `int` to a `float`.\n\n  ```res example\n  Js.log(Belt.Int.toFloat(1) === 1.0) /* true */\n  ```\n"}
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `float`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toFloat(1) === 1.0) /* true */\n```\n"}
   }]
 
 Complete src/CompletionPipeChain.res 70:12
@@ -440,6 +440,7 @@ Complete src/CompletionPipeChain.res 82:30
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[76:15->93:1]
 Pexp_apply ...[76:15->76:46] (~prepare77:3->77:10=...[77:11->77:24], ~render78:3->78:9=...[78:10->91:3], ...[92:2->92:4])
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[78:10->91:3]
+posCursor:[82:30] posNoWhite:[82:29] Found expr:[78:10->91:3]
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[79:4->90:14]
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[82:7->90:14]
 posCursor:[82:30] posNoWhite:[82:29] Found expr:[82:7->82:30]
@@ -466,6 +467,7 @@ Path ReactDOM.Client.Root.ren
 Complete src/CompletionPipeChain.res 88:16
 posCursor:[88:16] posNoWhite:[88:15] Found expr:[76:15->93:1]
 Pexp_apply ...[76:15->76:46] (~prepare77:3->77:10=...[77:11->77:24], ~render78:3->78:9=...[78:10->91:3], ...[92:2->92:4])
+posCursor:[88:16] posNoWhite:[88:15] Found expr:[78:10->91:3]
 posCursor:[88:16] posNoWhite:[88:15] Found expr:[78:10->91:3]
 posCursor:[88:16] posNoWhite:[88:15] Found expr:[79:4->90:14]
 posCursor:[88:16] posNoWhite:[88:15] Found expr:[84:4->90:14]
@@ -568,6 +570,6 @@ Path Js.Re.la
     "kind": 12,
     "tags": [],
     "detail": "t => int",
-    "documentation": {"kind": "markdown", "value": "\n  Returns the index where the next match will start its search. This property\n  will be modified when the RegExp object is used, if the global (\"g\") flag is\n  set.\n\n  ```res example\n  let re = %re(\"/ab*/g\")\n  let str = \"abbcdefabh\"\n\n  let break = ref(false)\n  while !break.contents {\n    switch Js.Re.exec_(re, str) {\n    | Some(result) => Js.Nullable.iter(Js.Re.captures(result)[0], (. match_) => {\n        let next = Belt.Int.toString(Js.Re.lastIndex(re))\n        Js.log(\"Found \" ++ (match_ ++ (\". Next match starts at \" ++ next)))\n      })\n    | None => break := true\n    }\n  }\n  ```\n\n  See\n  [`RegExp: lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex)\n  on MDN.\n"}
+    "documentation": {"kind": "markdown", "value": "\nReturns the index where the next match will start its search. This property\nwill be modified when the RegExp object is used, if the global (\"g\") flag is\nset.\n\n## Examples\n\n```rescript\nlet re = %re(\"/ab*TODO/g\")\nlet str = \"abbcdefabh\"\n\nlet break = ref(false)\nwhile !break.contents {\n  switch Js.Re.exec_(re, str) {\n  | Some(result) => Js.Nullable.iter(Js.Re.captures(result)[0], (. match_) => {\n      let next = Belt.Int.toString(Js.Re.lastIndex(re))\n      Js.log(\"Found \" ++ (match_ ++ (\". Next match starts at \" ++ next)))\n    })\n  | None => break := true\n  }\n}\n```\n\nSee\n[`RegExp: lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex)\non MDN.\n"}
   }]
 

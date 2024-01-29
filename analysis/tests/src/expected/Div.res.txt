@@ -9,7 +9,7 @@ Completable: Cjsx([div], dangerous, [dangerous])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Path ReactDOM.domProps
-Path Pervasives.JsxDOM.domProps
+Path PervasivesU.JsxDOM.domProps
 [{
     "label": "dangerouslySetInnerHTML",
     "kind": 4,
