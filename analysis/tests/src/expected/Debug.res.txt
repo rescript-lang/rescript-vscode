@@ -1,5 +1,5 @@
-Definition src/Debug.res 2:20
-{"uri": "belt_List.resi", "range": {"start": {"line": 290, "character": 4}, "end": {"line": 290, "character": 7}}}
+Definition src/Debug.res 2:27
+{"uri": "ShadowedBelt.res", "range": {"start": {"line": 1, "character": 6}, "end": {"line": 1, "character": 9}}}
 
 Definition src/Debug.res 5:14
 {"uri": "list.res", "range": {"start": {"line": 117, "character": 4}, "end": {"line": 117, "character": 7}}}
