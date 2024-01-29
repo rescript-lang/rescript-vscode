@@ -39,7 +39,7 @@
     "id": "DocExtractionRes.make",
     "kind": "value",
     "name": "make",
-    "signature": "let make: (. string) => t",
+    "signature": "let make: string => t",
     "docstrings": ["Create stuff.\n\n```rescript example\nlet stuff = make(\"My name\")\n```"],
     "source": {
       "filepath": "src/DocExtractionRes.res",
@@ -51,7 +51,7 @@
     "id": "DocExtractionRes.asOffline",
     "kind": "value",
     "name": "asOffline",
-    "signature": "let asOffline: (. t) => t",
+    "signature": "let asOffline: t => t",
     "docstrings": ["Stuff goes offline."],
     "source": {
       "filepath": "src/DocExtractionRes.res",
@@ -130,7 +130,7 @@
       "id": "DocExtractionRes.SomeInnerModule.callback",
       "kind": "type",
       "name": "callback",
-      "signature": "type callback = (. t, ~status: status) => unit",
+      "signature": "type callback = (t, ~status: status) => unit",
       "docstrings": [],
       "source": {
         "filepath": "src/DocExtractionRes.res",
@@ -166,7 +166,7 @@
       "id": "DocExtractionRes.AnotherModule.callback",
       "kind": "type",
       "name": "callback",
-      "signature": "type callback = (. SomeInnerModule.status) => unit",
+      "signature": "type callback = SomeInnerModule.status => unit",
       "docstrings": ["Testing what this looks like."],
       "source": {
         "filepath": "src/DocExtractionRes.res",
@@ -178,7 +178,7 @@
       "id": "DocExtractionRes.AnotherModule.isGoodStatus",
       "kind": "value",
       "name": "isGoodStatus",
-      "signature": "let isGoodStatus: (. SomeInnerModule.status) => bool",
+      "signature": "let isGoodStatus: SomeInnerModule.status => bool",
       "docstrings": [],
       "source": {
         "filepath": "src/DocExtractionRes.res",
@@ -226,7 +226,7 @@
       "id": "DocExtractionRes.AnotherModule.domRoot",
       "kind": "type",
       "name": "domRoot",
-      "signature": "type domRoot = (. unit) => ReactDOM.Client.Root.t",
+      "signature": "type domRoot = unit => ReactDOM.Client.Root.t",
       "docstrings": ["Callback to get the DOM root..."],
       "source": {
         "filepath": "src/DocExtractionRes.res",
@@ -262,7 +262,7 @@
       "id": "DocExtractionRes.ModuleWithThingsThatShouldNotBeExported.make",
       "kind": "value",
       "name": "make",
-      "signature": "let make: (. unit) => t",
+      "signature": "let make: unit => t",
       "docstrings": ["The maker of stuff!"],
       "source": {
         "filepath": "src/DocExtractionRes.res",

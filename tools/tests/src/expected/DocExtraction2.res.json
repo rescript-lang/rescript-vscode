@@ -24,7 +24,7 @@
     "id": "DocExtraction2.make",
     "kind": "value",
     "name": "make",
-    "signature": "let make: (. unit) => t",
+    "signature": "let make: unit => t",
     "docstrings": ["Makerz of stuffz."],
     "source": {
       "filepath": "src/DocExtraction2.resi",
@@ -59,7 +59,7 @@
       "id": "DocExtraction2.InnerModule.make",
       "kind": "value",
       "name": "make",
-      "signature": "let make: (. unit) => t",
+      "signature": "let make: unit => t",
       "docstrings": ["Maker of tea."],
       "source": {
         "filepath": "src/DocExtraction2.resi",
