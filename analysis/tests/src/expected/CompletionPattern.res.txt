@@ -1177,3 +1177,33 @@ Path res
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionPattern.res 227:25
+posCursor:[227:25] posNoWhite:[227:24] Found expr:[223:11->231:1]
+posCursor:[227:25] posNoWhite:[227:24] Found expr:[223:12->231:1]
+posCursor:[227:25] posNoWhite:[227:24] Found expr:[226:4->227:28]
+posCursor:[227:25] posNoWhite:[227:24] Found pattern:[227:18->227:27]
+Completable: Cpattern Value[r]->recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[r]
+Path r
+[{
+    "label": "second",
+    "kind": 5,
+    "tags": [],
+    "detail": "second: (bool, option<someRecord>)\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "optThird",
+    "kind": 5,
+    "tags": [],
+    "detail": "optThird: option<[#first | #second(someRecord)]>\n\nsomeRecord",
+    "documentation": null
+  }, {
+    "label": "nest",
+    "kind": 5,
+    "tags": [],
+    "detail": "nest: nestedRecord\n\nsomeRecord",
+    "documentation": null
+  }]
+
