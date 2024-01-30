@@ -12,6 +12,8 @@
 
 ## master
 
+## 0.5.0
+
 #### :rocket: New Feature
 
 - Add `source` property to type, value, module and module alias. https://github.com/rescript-lang/rescript-vscode/pull/900.
