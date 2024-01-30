@@ -66,8 +66,8 @@ module ErrorMessages = struct
      record, since a record needs an explicit declaration and that subset \
      wouldn't have one.\n\
      Solution: you need to pull out each field you want explicitly."
-    (* let recordPatternUnderscore = "Record patterns only support one `_`, at the end." *)
-    [@@live]
+  (* let recordPatternUnderscore = "Record patterns only support one `_`, at the end." *)
+  [@@live]
 
   let arrayPatternSpread =
     "Array's `...` spread is not supported in pattern matches.\n\
@@ -151,6 +151,10 @@ module ErrorMessages = struct
      mean `#" ^ number ^ "`?"
 end
 
+module InExternal = struct
+  let status = ref false
+end
+
 let jsxAttr = (Location.mknoloc "JSX", Parsetree.PStr [])
 let uncurriedAppAttr = (Location.mknoloc "res.uapp", Parsetree.PStr [])
 let ternaryAttr = (Location.mknoloc "res.ternary", Parsetree.PStr [])
@@ -175,6 +179,9 @@ let suppressFragileMatchWarningAttr =
       ] )
 let makeBracesAttr loc = (Location.mkloc "res.braces" loc, Parsetree.PStr [])
 let templateLiteralAttr = (Location.mknoloc "res.template", Parsetree.PStr [])
+
+let taggedTemplateLiteralAttr =
+  (Location.mknoloc "res.taggedTemplate", Parsetree.PStr [])
 
 let spreadAttr = (Location.mknoloc "res.spread", Parsetree.PStr [])
 
@@ -1290,9 +1297,9 @@ and parseRecordPattern ~attrs p =
         match field with
         | PatField field ->
           (if hasSpread then
-           let _, pattern = field in
-           Parser.err ~startPos:pattern.Parsetree.ppat_loc.loc_start p
-             (Diagnostics.message ErrorMessages.recordPatternSpread));
+             let _, pattern = field in
+             Parser.err ~startPos:pattern.Parsetree.ppat_loc.loc_start p
+               (Diagnostics.message ErrorMessages.recordPatternSpread));
           (field :: fields, flag)
         | PatUnderscore -> (fields, flag))
       ([], flag) rawFields
@@ -2251,6 +2258,66 @@ and parseBinaryExpr ?(context = OrdinaryExpr) ?a p prec =
 (* ) *)
 
 and parseTemplateExpr ?(prefix = "js") p =
+  let partPrefix =
+    (* we could stop treating js and j prefix as something special
+       for json, we would first need to remove @as(json`true`) feature *)
+    match prefix with
+    | "js" | "j" | "json" -> Some prefix
+    | _ -> None
+  in
+  let startPos = p.Parser.startPos in
+
+  let parseParts p =
+    let rec aux acc =
+      let startPos = p.Parser.startPos in
+      Parser.nextTemplateLiteralToken p;
+      match p.token with
+      | TemplateTail (txt, lastPos) ->
+        Parser.next p;
+        let loc = mkLoc startPos lastPos in
+        let str =
+          Ast_helper.Exp.constant ~attrs:[templateLiteralAttr] ~loc
+            (Pconst_string (txt, partPrefix))
+        in
+        List.rev ((str, None) :: acc)
+      | TemplatePart (txt, lastPos) ->
+        Parser.next p;
+        let loc = mkLoc startPos lastPos in
+        let expr = parseExprBlock p in
+        let str =
+          Ast_helper.Exp.constant ~attrs:[templateLiteralAttr] ~loc
+            (Pconst_string (txt, partPrefix))
+        in
+        aux ((str, Some expr) :: acc)
+      | token ->
+        Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
+        []
+    in
+    aux []
+  in
+  let parts = parseParts p in
+  let strings = List.map fst parts in
+  let values = Ext_list.filter_map parts snd in
+  let endPos = p.Parser.endPos in
+
+  let genTaggedTemplateCall () =
+    let lident = Longident.Lident prefix in
+    let ident =
+      Ast_helper.Exp.ident ~attrs:[] ~loc:Location.none
+        (Location.mknoloc lident)
+    in
+    let strings_array =
+      Ast_helper.Exp.array ~attrs:[] ~loc:Location.none strings
+    in
+    let values_array =
+      Ast_helper.Exp.array ~attrs:[] ~loc:Location.none values
+    in
+    Ast_helper.Exp.apply
+      ~attrs:[taggedTemplateLiteralAttr]
+      ~loc:(mkLoc startPos endPos) ident
+      [(Nolabel, strings_array); (Nolabel, values_array)]
+  in
+
   let hiddenOperator =
     let op = Location.mknoloc (Longident.Lident "^") in
     Ast_helper.Exp.ident op
@@ -2260,56 +2327,33 @@ and parseTemplateExpr ?(prefix = "js") p =
     Ast_helper.Exp.apply ~attrs:[templateLiteralAttr] ~loc hiddenOperator
       [(Nolabel, e1); (Nolabel, e2)]
   in
-  let rec parseParts (acc : Parsetree.expression) =
-    let startPos = p.Parser.startPos in
-    Parser.nextTemplateLiteralToken p;
-    match p.token with
-    | TemplateTail (txt, lastPos) ->
-      Parser.next p;
-      let loc = mkLoc startPos lastPos in
-      let str =
-        Ast_helper.Exp.constant ~attrs:[templateLiteralAttr] ~loc
-          (Pconst_string (txt, Some prefix))
-      in
-      concat acc str
-    | TemplatePart (txt, lastPos) ->
-      Parser.next p;
-      let loc = mkLoc startPos lastPos in
-      let expr = parseExprBlock p in
-      let str =
-        Ast_helper.Exp.constant ~attrs:[templateLiteralAttr] ~loc
-          (Pconst_string (txt, Some prefix))
-      in
-      let next =
-        let a = concat acc str in
-        concat a expr
-      in
-      parseParts next
-    | token ->
-      Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-      Ast_helper.Exp.constant (Pconst_string ("", None))
-  in
-  let startPos = p.startPos in
-  Parser.nextTemplateLiteralToken p;
-  match p.token with
-  | TemplateTail (txt, lastPos) ->
-    Parser.next p;
-    Ast_helper.Exp.constant ~attrs:[templateLiteralAttr]
-      ~loc:(mkLoc startPos lastPos)
-      (Pconst_string (txt, Some prefix))
-  | TemplatePart (txt, lastPos) ->
-    Parser.next p;
-    let constantLoc = mkLoc startPos lastPos in
-    let expr = parseExprBlock p in
-    let str =
-      Ast_helper.Exp.constant ~attrs:[templateLiteralAttr] ~loc:constantLoc
-        (Pconst_string (txt, Some prefix))
+  let genInterpolatedString () =
+    let subparts =
+      List.flatten
+        (List.map
+           (fun part ->
+             match part with
+             | s, Some v -> [s; v]
+             | s, None -> [s])
+           parts)
     in
-    let next = concat str expr in
-    parseParts next
-  | token ->
-    Parser.err p (Diagnostics.unexpected token p.breadcrumbs);
-    Ast_helper.Exp.constant (Pconst_string ("", None))
+    let exprOption =
+      List.fold_left
+        (fun acc subpart ->
+          Some
+            (match acc with
+            | Some expr -> concat expr subpart
+            | None -> subpart))
+        None subparts
+    in
+    match exprOption with
+    | Some expr -> expr
+    | None -> Ast_helper.Exp.constant (Pconst_string ("", None))
+  in
+
+  match prefix with
+  | "js" | "j" | "json" -> genInterpolatedString ()
+  | _ -> genTaggedTemplateCall ()
 
 (* Overparse: let f = a : int => a + 1, is it (a : int) => or (a): int =>
  * Also overparse constraints:
@@ -4276,6 +4320,22 @@ and parseEs6ArrowType ~attrs p =
             p.uncurried_config |> Res_uncurried.fromDotted ~dotted
           in
           let loc = mkLoc startPos endPos in
+          let arity =
+            (* Workaround for ~lbl: @as(json`false`) _, which changes the arity *)
+            match argLbl with
+            | Labelled _s ->
+              let typ_is_any =
+                match typ.ptyp_desc with
+                | Ptyp_any -> true
+                | _ -> false
+              in
+              let has_as =
+                Ext_list.exists typ.ptyp_attributes (fun (x, _) -> x.txt = "as")
+              in
+              if !InExternal.status && typ_is_any && has_as then arity - 1
+              else arity
+            | _ -> arity
+          in
           let tArg = Ast_helper.Typ.arrow ~loc ~attrs argLbl typ t in
           if uncurried && (paramNum = 1 || p.uncurried_config = Legacy) then
             (paramNum - 1, Ast_uncurried.uncurriedType ~loc ~arity tArg, 1)
@@ -4544,7 +4604,6 @@ and parseConstrDeclArgs p =
       (* TODO: this could use some cleanup/stratification *)
       match p.Parser.token with
       | Lbrace -> (
-        let lbrace = p.startPos in
         Parser.next p;
         let startPos = p.Parser.startPos in
         match p.Parser.token with
@@ -4676,20 +4735,15 @@ and parseConstrDeclArgs p =
                   let attrs =
                     if optional then optionalAttr :: attrs else attrs
                   in
-                  Parser.expect Comma p;
                   {field with Parsetree.pld_attributes = attrs}
                 in
-                first
-                :: parseCommaDelimitedRegion ~grammar:Grammar.FieldDeclarations
-                     ~closing:Rbrace ~f:parseFieldDeclarationRegion p
-            in
-            let () =
-              match fields with
-              | [] ->
-                Parser.err ~startPos:lbrace p
-                  (Diagnostics.message
-                     "An inline record declaration needs at least one field")
-              | _ -> ()
+                if p.token = Rbrace then [first]
+                else (
+                  Parser.expect Comma p;
+                  first
+                  :: parseCommaDelimitedRegion
+                       ~grammar:Grammar.FieldDeclarations ~closing:Rbrace
+                       ~f:parseFieldDeclarationRegion p)
             in
             Parser.expect Rbrace p;
             Parser.optional p Comma |> ignore;
@@ -5447,6 +5501,8 @@ and parseTypeDefinitionOrExtension ~attrs p =
 
 (* external value-name : typexp = external-declaration *)
 and parseExternalDef ~attrs ~startPos p =
+  let inExternal = !InExternal.status in
+  InExternal.status := true;
   Parser.leaveBreadcrumb p Grammar.External;
   Parser.expect Token.External p;
   let name, loc = parseLident p in
@@ -5471,6 +5527,7 @@ and parseExternalDef ~attrs ~startPos p =
   let loc = mkLoc startPos p.prevEndPos in
   let vb = Ast_helper.Val.mk ~loc ~attrs ~prim name typExpr in
   Parser.eatBreadcrumb p;
+  InExternal.status := inExternal;
   vb
 
 (* constr-def ::=
@@ -5621,7 +5678,7 @@ and parseStructureItemRegion p =
       Some
         (Ast_helper.Str.eval ~loc:(mkLoc p.startPos p.prevEndPos) ~attrs expr)
     | _ -> None)
-  [@@progress Parser.next, Parser.expect, LoopProgress.listRest]
+[@@progress Parser.next, Parser.expect, LoopProgress.listRest]
 
 (* include-statement ::= include module-expr *)
 and parseIncludeStatement ~attrs p =
@@ -6253,7 +6310,7 @@ and parseSignatureItemRegion p =
         (Diagnostics.message (ErrorMessages.attributeWithoutNode attr));
       Some Recover.defaultSignatureItem
     | _ -> None)
-  [@@progress Parser.next, Parser.expect, LoopProgress.listRest]
+[@@progress Parser.next, Parser.expect, LoopProgress.listRest]
 
 (* module rec module-name :  module-type  { and module-name:  module-type } *)
 and parseRecModuleSpec ~attrs ~startPos p =
