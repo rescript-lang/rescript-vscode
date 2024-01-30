@@ -17,6 +17,10 @@
 - Prefer Core's `RegExp` when Core is open and completing for regexp functions. https://github.com/rescript-lang/rescript-vscode/pull/903
 - Add `%re("")` to the completions list when completing in a position where a regexp value is expected. https://github.com/rescript-lang/rescript-vscode/pull/903
 
+#### :bug: Bug Fix
+
+- Fix issue with completion in nested patterns that would make it not possible to complete for new record fields via trailing commas in certain situations. https://github.com/rescript-lang/rescript-vscode/pull/906
+
 ## 1.36.0
 
 #### :bug: Bug Fix

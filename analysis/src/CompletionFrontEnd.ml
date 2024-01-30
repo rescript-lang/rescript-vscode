@@ -494,6 +494,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
         contextPath )
     with
     | Some (prefix, nestedPattern), Some ctxPath ->
+      if Debug.verbose () then
+        Printf.printf "[completePattern] found pattern that can be completed\n";
       setResult
         (Completable.Cpattern
            {
@@ -910,7 +912,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
       cases
       |> List.iter (fun (case : Parsetree.case) ->
              let oldScope = !scope in
-             completePattern ?contextPath:ctxPath case.pc_lhs;
+             if locHasCursor case.pc_rhs.pexp_loc = false then
+               completePattern ?contextPath:ctxPath case.pc_lhs;
              scopePattern ?contextPath:ctxPath case.pc_lhs;
              Ast_iterator.default_iterator.case iterator case;
              scope := oldScope);
@@ -1182,7 +1185,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
           (match defaultExpOpt with
           | None -> ()
           | Some defaultExp -> iterator.expr iterator defaultExp);
-          completePattern ?contextPath:argContextPath pat;
+          if locHasCursor e.pexp_loc = false then
+            completePattern ?contextPath:argContextPath pat;
           scopePattern ?contextPath:argContextPath pat;
           iterator.pat iterator pat;
           iterator.expr iterator e;
