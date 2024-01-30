@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.38.0
+
 #### :nail_care: Polish
 
 - Prefer Core's `RegExp` when Core is open and completing for regexp functions. https://github.com/rescript-lang/rescript-vscode/pull/903
