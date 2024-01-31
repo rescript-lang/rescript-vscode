@@ -628,7 +628,9 @@ module Completable = struct
 
   type patternMode = Default | Destructuring
 
-  type decoratorPayload = Module of string
+  type decoratorPayload =
+    | Module of string
+    | JsxConfig of {nested: nestedPath list; prefix: string}
 
   type t =
     | Cdecorator of string  (** e.g. @module *)
@@ -715,6 +717,7 @@ module Completable = struct
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
     | CdecoratorPayload (Module s) -> "CdecoratorPayload(module=" ^ s ^ ")"
+    | CdecoratorPayload (JsxConfig _) -> "JsxConfig"
     | CnamedArg (cp, s, sl2) ->
       "CnamedArg("
       ^ (cp |> contextPathToString)

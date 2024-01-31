@@ -1746,6 +1746,36 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
              && (forHover || not (List.mem name identsSeen)))
       |> List.map mkLabel)
       @ keyLabels
+  | CdecoratorPayload (JsxConfig {prefix; nested}) -> (
+    let mkField ~name ~primitive =
+      {
+        stamp = -1;
+        fname = {loc = Location.none; txt = name};
+        optional = true;
+        typ = Ctype.newconstr (Path.Pident (Ident.create primitive)) [];
+        docstring = [];
+        deprecated = None;
+      }
+    in
+    let typ : completionType =
+      Trecord
+        {
+          env;
+          definition = `NameOnly "jsxConfig";
+          fields =
+            [
+              mkField ~name:"version" ~primitive:"int";
+              mkField ~name:"module_" ~primitive:"string";
+              mkField ~name:"mode" ~primitive:"string";
+            ];
+        }
+    in
+    match typ |> TypeUtils.resolveNested ~env ~full ~nested with
+    | None -> []
+    | Some (typ, _env, completionContext, typeArgContext) ->
+      typ
+      |> completeTypedValue ?typeArgContext ~rawOpens ~mode:Expression ~full
+           ~prefix ~completionContext)
   | CdecoratorPayload (Module prefix) ->
     let packageJsonPath =
       Utils.findPackageJson (full.package.rootPath |> Uri.fromPath)
@@ -1824,8 +1854,13 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
              ~kind:(Label (if isLocal then "Local file" else "Package"))
              ~env)
   | Cdecorator prefix ->
-    let mkDecorator (name, docstring) =
-      {(Completion.create name ~kind:(Label "") ~env) with docstring}
+    let mkDecorator (name, docstring, maybeInsertText) =
+      {
+        (Completion.createWithSnippet ~name ~kind:(Label "") ~env
+           ?insertText:maybeInsertText ())
+        with
+        docstring;
+      }
     in
     let isTopLevel = String.starts_with ~prefix:"@" prefix in
     let prefix =
@@ -1837,8 +1872,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       else CompletionDecorators.local
     in
     decorators
-    |> List.filter (fun (decorator, _) -> Utils.startsWith decorator prefix)
-    |> List.map (fun (decorator, doc) ->
+    |> List.filter (fun (decorator, _, _) -> Utils.startsWith decorator prefix)
+    |> List.map (fun (decorator, maybeInsertText, doc) ->
            let parts = String.split_on_char '.' prefix in
            let len = String.length prefix in
            let dec2 =
@@ -1846,7 +1881,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                String.sub decorator len (String.length decorator - len)
              else decorator
            in
-           (dec2, doc))
+           (dec2, doc, maybeInsertText))
     |> List.map mkDecorator
   | CnamedArg (cp, prefix, identsSeen) ->
     let labels =

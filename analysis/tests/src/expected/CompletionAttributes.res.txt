@@ -1,4 +1,19 @@
-Complete src/CompletionAttributes.res 0:12
+Complete src/CompletionAttributes.res 0:8
+Attribute id:modu:[0:3->0:8] label:modu
+Completable: Cdecorator(modu)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "module",
+    "kind": 4,
+    "tags": [],
+    "detail": "",
+    "documentation": {"kind": "markdown", "value": "The `@module` decorator is used to bind to a JavaScript module.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#module-decorator)."},
+    "insertText": "module(\"$0\")",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionAttributes.res 3:12
 XXX Not found!
 Completable: CdecoratorPayload(module=)
 Package opens Pervasives.JsxModules.place holder
@@ -14,6 +29,100 @@ Resolved opens 1 pervasives
     "kind": 4,
     "tags": [],
     "detail": "Local file",
+    "documentation": null
+  }]
+
+Complete src/CompletionAttributes.res 6:7
+Attribute id:js:[6:3->6:7] label:@js
+Completable: Cdecorator(@js)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "jsxConfig",
+    "kind": 4,
+    "tags": [],
+    "detail": "",
+    "documentation": {"kind": "markdown", "value": "The `@@jsxConfig` decorator is used to change the config for JSX on the fly.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/docs/manual/latest/jsx#file-level-configuration)."},
+    "insertText": "jsxConfig({$0})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionAttributes.res 9:16
+XXX Not found!
+Completable: JsxConfig
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "version",
+    "kind": 5,
+    "tags": [],
+    "detail": "version?: int\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
+    "documentation": null
+  }, {
+    "label": "module_",
+    "kind": 5,
+    "tags": [],
+    "detail": "module_?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
+    "documentation": null
+  }, {
+    "label": "mode",
+    "kind": 5,
+    "tags": [],
+    "detail": "mode?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
+    "documentation": null
+  }]
+
+Complete src/CompletionAttributes.res 12:17
+XXX Not found!
+Completable: JsxConfig
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "module_",
+    "kind": 5,
+    "tags": [],
+    "detail": "module_?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
+    "documentation": null
+  }, {
+    "label": "mode",
+    "kind": 5,
+    "tags": [],
+    "detail": "mode?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
+    "documentation": null
+  }]
+
+Complete src/CompletionAttributes.res 15:25
+XXX Not found!
+Completable: JsxConfig
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "\"\"",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "\"$0\"",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionAttributes.res 18:29
+XXX Not found!
+Completable: JsxConfig
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "version",
+    "kind": 5,
+    "tags": [],
+    "detail": "version?: int\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
+    "documentation": null
+  }, {
+    "label": "mode",
+    "kind": 5,
+    "tags": [],
+    "detail": "mode?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
     "documentation": null
   }]
 
