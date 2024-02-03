@@ -494,6 +494,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
         contextPath )
     with
     | Some (prefix, nestedPattern), Some ctxPath ->
+      if Debug.verbose () then
+        Printf.printf "[completePattern] found pattern that can be completed\n";
       setResult
         (Completable.Cpattern
            {
@@ -768,60 +770,79 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
   let attribute (iterator : Ast_iterator.iterator)
       ((id, payload) : Parsetree.attribute) =
     (if String.length id.txt >= 4 && String.sub id.txt 0 4 = "res." then
-     (* skip: internal parser attribute *) ()
-    else if id.loc.loc_ghost then ()
-    else if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
-      let posStart, posEnd = Loc.range id.loc in
-      match
-        (Pos.positionToOffset text posStart, Pos.positionToOffset text posEnd)
-      with
-      | Some offsetStart, Some offsetEnd ->
-        (* Can't trust the parser's location
-           E.g. @foo. let x... gives as label @foo.let *)
-        let label =
-          let rawLabel =
-            String.sub text offsetStart (offsetEnd - offsetStart)
-          in
-          let ( ++ ) x y =
-            match (x, y) with
-            | Some i1, Some i2 -> Some (min i1 i2)
-            | Some _, None -> x
-            | None, _ -> y
-          in
-          let label =
-            match
-              String.index_opt rawLabel ' '
-              ++ String.index_opt rawLabel '\t'
-              ++ String.index_opt rawLabel '\r'
-              ++ String.index_opt rawLabel '\n'
-            with
-            | None -> rawLabel
-            | Some i -> String.sub rawLabel 0 i
-          in
-          if label <> "" && label.[0] = '@' then
-            String.sub label 1 (String.length label - 1)
-          else label
-        in
-        found := true;
-        if debug then
-          Printf.printf "Attribute id:%s:%s label:%s\n" id.txt
-            (Loc.toString id.loc) label;
-        setResult (Completable.Cdecorator label)
-      | _ -> ()
-    else if id.txt = "module" then
-      (match payload with
-      | PStr
-          [
-            {
-              pstr_desc =
-                Pstr_eval
-                  ( {pexp_loc; pexp_desc = Pexp_constant (Pconst_string (s, _))},
-                    _ );
-            };
-          ]
-        when locHasCursor pexp_loc ->
-        setResult (Completable.CdecoratorPayload (Module s))
-      | _ -> ()));
+       (* skip: internal parser attribute *) ()
+     else if id.loc.loc_ghost then ()
+     else if id.loc |> Loc.hasPos ~pos:posBeforeCursor then
+       let posStart, posEnd = Loc.range id.loc in
+       match
+         (Pos.positionToOffset text posStart, Pos.positionToOffset text posEnd)
+       with
+       | Some offsetStart, Some offsetEnd ->
+         (* Can't trust the parser's location
+            E.g. @foo. let x... gives as label @foo.let *)
+         let label =
+           let rawLabel =
+             String.sub text offsetStart (offsetEnd - offsetStart)
+           in
+           let ( ++ ) x y =
+             match (x, y) with
+             | Some i1, Some i2 -> Some (min i1 i2)
+             | Some _, None -> x
+             | None, _ -> y
+           in
+           let label =
+             match
+               String.index_opt rawLabel ' '
+               ++ String.index_opt rawLabel '\t'
+               ++ String.index_opt rawLabel '\r'
+               ++ String.index_opt rawLabel '\n'
+             with
+             | None -> rawLabel
+             | Some i -> String.sub rawLabel 0 i
+           in
+           if label <> "" && label.[0] = '@' then
+             String.sub label 1 (String.length label - 1)
+           else label
+         in
+         found := true;
+         if debug then
+           Printf.printf "Attribute id:%s:%s label:%s\n" id.txt
+             (Loc.toString id.loc) label;
+         setResult (Completable.Cdecorator label)
+       | _ -> ()
+     else if id.txt = "module" then
+       match payload with
+       | PStr
+           [
+             {
+               pstr_desc =
+                 Pstr_eval
+                   ( {pexp_loc; pexp_desc = Pexp_constant (Pconst_string (s, _))},
+                     _ );
+             };
+           ]
+         when locHasCursor pexp_loc ->
+         if Debug.verbose () then
+           print_endline "[decoratorCompletion] Found @module";
+         setResult (Completable.CdecoratorPayload (Module s))
+       | _ -> ()
+     else if id.txt = "jsxConfig" then
+       match payload with
+       | PStr [{pstr_desc = Pstr_eval (expr, _)}] -> (
+         if Debug.verbose () then
+           print_endline "[decoratorCompletion] Found @jsxConfig";
+         match
+           CompletionExpressions.traverseExpr expr ~exprPath:[]
+             ~pos:posBeforeCursor ~firstCharBeforeCursorNoWhite
+         with
+         | None -> ()
+         | Some (prefix, nested) ->
+           if Debug.verbose () then
+             print_endline "[decoratorCompletion] Found @jsxConfig path!";
+           setResult
+             (Completable.CdecoratorPayload
+                (JsxConfig {nested = List.rev nested; prefix})))
+       | _ -> ());
     Ast_iterator.default_iterator.attribute iterator (id, payload)
   in
   let rec iterateFnArguments ~args ~iterator ~isPipe
@@ -910,7 +931,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
       cases
       |> List.iter (fun (case : Parsetree.case) ->
              let oldScope = !scope in
-             completePattern ?contextPath:ctxPath case.pc_lhs;
+             if locHasCursor case.pc_rhs.pexp_loc = false then
+               completePattern ?contextPath:ctxPath case.pc_lhs;
              scopePattern ?contextPath:ctxPath case.pc_lhs;
              Ast_iterator.default_iterator.case iterator case;
              scope := oldScope);
@@ -1182,7 +1204,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
           (match defaultExpOpt with
           | None -> ()
           | Some defaultExp -> iterator.expr iterator defaultExp);
-          completePattern ?contextPath:argContextPath pat;
+          if locHasCursor e.pexp_loc = false then
+            completePattern ?contextPath:argContextPath pat;
           scopePattern ?contextPath:argContextPath pat;
           iterator.pat iterator pat;
           iterator.expr iterator e;

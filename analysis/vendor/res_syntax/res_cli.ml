@@ -90,7 +90,7 @@ module Color = struct
     | Format.String_tag "dim" -> [Dim]
     | Format.String_tag "filename" -> [FG Cyan]
     | _ -> raise Not_found
-    [@@raises Not_found]
+  [@@raises Not_found]
 
   let color_enabled = ref true
 
@@ -177,7 +177,7 @@ end = struct
   let interface = ref false
   let jsxVersion = ref (-1)
   let jsxModule = ref "react"
-  let jsxMode = ref "classic"
+  let jsxMode = ref "automatic"
   let file = ref ""
   let typechecker = ref false
 
@@ -215,7 +215,7 @@ end = struct
         "Specify the jsx module. Default: react" );
       ( "-jsx-mode",
         Arg.String (fun txt -> jsxMode := txt),
-        "Specify the jsx mode, classic or automatic. Default: classic" );
+        "Specify the jsx mode, classic or automatic. Default: automatic" );
       ( "-typechecker",
         Arg.Unit (fun () -> typechecker := true),
         "Parses the ast as it would be passed to the typechecker and not the \
@@ -284,7 +284,7 @@ module CliArgProcessor = struct
         else exit 1)
       else
         let parsetree =
-          Reactjs_jsx_ppx.rewrite_signature ~jsxVersion ~jsxModule ~jsxMode
+          Jsx_ppx.rewrite_signature ~jsxVersion ~jsxModule ~jsxMode
             parseResult.parsetree
         in
         printEngine.printInterface ~width ~filename
@@ -300,12 +300,12 @@ module CliArgProcessor = struct
         else exit 1)
       else
         let parsetree =
-          Reactjs_jsx_ppx.rewrite_implementation ~jsxVersion ~jsxModule ~jsxMode
+          Jsx_ppx.rewrite_implementation ~jsxVersion ~jsxModule ~jsxMode
             parseResult.parsetree
         in
         printEngine.printImplementation ~width ~filename
           ~comments:parseResult.comments parsetree
-    [@@raises exit]
+  [@@raises exit]
 end
 
 (* let () =
