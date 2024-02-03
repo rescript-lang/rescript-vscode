@@ -1,8 +1,8 @@
-Definition src/Debug.res 2:20
-{"uri": "belt_List.mli", "range": {"start": {"line": 245, "character": 4}, "end": {"line": 245, "character": 7}}}
+Definition src/Debug.res 2:27
+{"uri": "ShadowedBelt.res", "range": {"start": {"line": 1, "character": 6}, "end": {"line": 1, "character": 9}}}
 
 Definition src/Debug.res 5:14
-{"uri": "list.mli", "range": {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 7}}}
+{"uri": "list.res", "range": {"start": {"line": 117, "character": 4}, "end": {"line": 117, "character": 7}}}
 
 Complete src/Debug.res 14:8
 posCursor:[14:8] posNoWhite:[14:7] Found expr:[14:5->14:8]
