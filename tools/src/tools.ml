@@ -31,7 +31,7 @@ type docItem =
       signature: string;
       name: string;
       deprecated: string option;
-      source: source;
+      source: source option;
     }
   | Type of {
       id: string;
@@ -40,7 +40,7 @@ type docItem =
       name: string;
       deprecated: string option;
       detail: docItemDetail option;
-      source: source;
+      source: source option;
           (** Additional documentation for constructors and record fields, if available. *)
     }
   | Module of docsForModule
@@ -48,7 +48,7 @@ type docItem =
       id: string;
       docstring: string list;
       name: string;
-      source: source;
+      source: source option;
       items: docItem list;
     }
 and docsForModule = {
@@ -56,7 +56,7 @@ and docsForModule = {
   docstring: string list;
   deprecated: string option;
   name: string;
-  source: source;
+  source: source option;
   items: docItem list;
 }
 
@@ -163,7 +163,10 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           | None -> None );
         ("signature", Some (signature |> String.trim |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
-        ("source", Some (stringifySource ~indentation:(indentation + 1) source));
+        ( "source",
+          match source with
+          | Some s -> Some (stringifySource ~indentation:(indentation + 1) s)
+          | None -> None );
       ]
   | Type {id; docstring; signature; name; deprecated; detail; source} ->
     stringifyObject ~startOnNewline:true ~indentation
@@ -177,7 +180,10 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           | None -> None );
         ("signature", Some (signature |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
-        ("source", Some (stringifySource ~indentation:(indentation + 1) source));
+        ( "source",
+          match source with
+          | Some s -> Some (stringifySource ~indentation:(indentation + 1) s)
+          | None -> None );
         ( "detail",
           match detail with
           | None -> None
@@ -196,7 +202,9 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           | None -> None );
         ("docstrings", Some (stringifyDocstrings m.docstring));
         ( "source",
-          Some (stringifySource ~indentation:(indentation + 1) m.source) );
+          match m.source with
+          | Some s -> Some (stringifySource ~indentation:(indentation + 1) s)
+          | None -> None );
         ( "items",
           Some
             (m.items
@@ -212,7 +220,9 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("name", Some (wrapInQuotes m.name));
         ("docstrings", Some (stringifyDocstrings m.docstring));
         ( "source",
-          Some (stringifySource ~indentation:(indentation + 1) m.source) );
+          match m.source with
+          | Some s -> Some (stringifySource ~indentation:(indentation + 1) s)
+          | None -> None );
         ( "items",
           Some
             (m.items
@@ -231,7 +241,10 @@ and stringifyDocsForModule ?(indentation = 0) ~originalEnv (d : docsForModule) =
         | Some d -> Some (wrapInQuotes d)
         | None -> None );
       ("docstrings", Some (stringifyDocstrings d.docstring));
-      ("source", Some (stringifySource ~indentation:(indentation + 1) d.source));
+      ( "source",
+        match d.source with
+        | Some s -> Some (stringifySource ~indentation:(indentation + 1) s)
+        | None -> None );
       ( "items",
         Some
           (d.items
@@ -280,14 +293,17 @@ let typeDetail typ ~env ~full =
 let makeId modulePath ~identifier =
   identifier :: modulePath |> List.rev |> SharedTypes.ident
 
-let getSource ~rootPath ({loc_start} : Location.t) =
-  let line, col = Pos.ofLexing loc_start in
-  let filepath =
-    Files.relpath rootPath loc_start.pos_fname
-    |> Files.split Filename.dir_sep
-    |> String.concat "/"
-  in
-  {filepath; line = line + 1; col = col + 1}
+let getSource ~rootPath ({loc_start; loc_ghost} : Location.t) =
+  match loc_ghost with
+  | true -> None
+  | false ->
+    let line, col = Pos.ofLexing loc_start in
+    let filepath =
+      Files.relpath rootPath loc_start.pos_fname
+      |> Files.split Filename.dir_sep
+      |> String.concat "/"
+    in
+    Some {filepath; line = line + 1; col = col + 1}
 
 let extractDocs ~entryPointFile ~debug =
   let path =
@@ -337,17 +353,18 @@ let extractDocs ~entryPointFile ~debug =
             name = structure.name;
             deprecated = structure.deprecated;
             source =
-              {
-                filepath =
-                  (match rootPath = "." with
-                  | true -> file.uri |> Uri.toPath
-                  | false ->
-                    Files.relpath rootPath (file.uri |> Uri.toPath)
-                    |> Files.split Filename.dir_sep
-                    |> String.concat "/");
-                line = 1;
-                col = 1;
-              };
+              Some
+                {
+                  filepath =
+                    (match rootPath = "." with
+                    | true -> file.uri |> Uri.toPath
+                    | false ->
+                      Files.relpath rootPath (file.uri |> Uri.toPath)
+                      |> Files.split Filename.dir_sep
+                      |> String.concat "/");
+                  line = 1;
+                  col = 1;
+                };
             items =
               structure.items
               |> List.filter_map (fun (item : Module.item) ->

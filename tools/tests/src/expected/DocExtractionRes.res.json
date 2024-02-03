@@ -209,7 +209,7 @@
         "id": "DocExtractionRes.LinkedModule.callback",
         "kind": "type",
         "name": "callback",
-        "signature": "type callback = (. t, ~status: status) => unit",
+        "signature": "type callback = (t, ~status: status) => unit",
         "docstrings": [],
         "source": {
           "filepath": "src/DocExtractionRes.res",
