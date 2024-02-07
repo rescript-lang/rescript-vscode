@@ -41,7 +41,25 @@
 			"outFiles": [
 				"${workspaceRoot}/client/out/test/**/*.js"
 			]
-		}
+		},
+		{
+			"name": "OCaml earlybird (experimental)",
+			"type": "ocaml.earlybird",
+			"request": "launch",
+			"program": "${workspaceFolder}/_build/default/analysis/bin/main.bc",
+			"arguments": [
+				"test",
+				"./tests/src/Pipe.res"
+			],
+			"cwd": "${workspaceFolder}/analysis",
+			"env": {
+				"LD_LIBRARY_PATH": "${workspaceFolder}/_build/default/analysis/vendor/ext"
+			},
+			"stopOnEntry": true,
+      "console": "integratedTerminal",
+			"onlyDebugGlob": "<${workspaceFolder}/**/*>",
+      "yieldSteps": 1024,
+		},
 	],
 	"compounds": [
 		{
