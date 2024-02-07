@@ -25,6 +25,24 @@ Resolved opens 1 pervasives
     "detail": "Package",
     "documentation": null
   }, {
+    "label": "./test.json",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }, {
+    "label": "./TableclothMap.mli",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }, {
+    "label": "./TableclothMap.ml",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }, {
     "label": "./tst.js",
     "kind": 4,
     "tags": [],
@@ -184,6 +202,61 @@ Resolved opens 1 pervasives
     "kind": 4,
     "tags": [],
     "detail": "Package",
+    "documentation": null
+  }, {
+    "label": "./test.json",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }, {
+    "label": "./TableclothMap.mli",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }, {
+    "label": "./TableclothMap.ml",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }, {
+    "label": "./tst.js",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }]
+
+Complete src/CompletionAttributes.res 33:17
+XXX Not found!
+Completable: CdecoratorPayload(module=)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "@rescript/react",
+    "kind": 4,
+    "tags": [],
+    "detail": "Package",
+    "documentation": null
+  }, {
+    "label": "./test.json",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }, {
+    "label": "./TableclothMap.mli",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }, {
+    "label": "./TableclothMap.ml",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
     "documentation": null
   }, {
     "label": "./tst.js",
