@@ -630,6 +630,7 @@ module Completable = struct
 
   type decoratorPayload =
     | Module of string
+    | ModuleWithImportAttributes of {nested: nestedPath list; prefix: string}
     | JsxConfig of {nested: nestedPath list; prefix: string}
 
   type t =
@@ -717,6 +718,7 @@ module Completable = struct
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
     | CdecoratorPayload (Module s) -> "CdecoratorPayload(module=" ^ s ^ ")"
+    | CdecoratorPayload (ModuleWithImportAttributes _) -> "CdecoratorPayload(moduleWithImportAttributes)"
     | CdecoratorPayload (JsxConfig _) -> "JsxConfig"
     | CnamedArg (cp, s, sl2) ->
       "CnamedArg("

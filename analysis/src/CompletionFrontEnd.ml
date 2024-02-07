@@ -825,6 +825,48 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
          if Debug.verbose () then
            print_endline "[decoratorCompletion] Found @module";
          setResult (Completable.CdecoratorPayload (Module s))
+       | PStr
+           [
+             {
+               pstr_desc =
+                 Pstr_eval
+                   ( {
+                       pexp_desc =
+                         Pexp_record
+                           ( ( {txt = Lident "from"},
+                               {
+                                 pexp_loc;
+                                 pexp_desc =
+                                   Pexp_constant (Pconst_string (s, _));
+                               } )
+                             :: _,
+                             _ );
+                     },
+                     _ );
+             };
+           ]
+         when locHasCursor pexp_loc ->
+         if Debug.verbose () then
+           print_endline
+             "[decoratorCompletion] Found @module with import attributes and \
+              cursor on \"from\"";
+         setResult (Completable.CdecoratorPayload (Module s))
+       | PStr [{pstr_desc = Pstr_eval (expr, _)}] -> (
+         if Debug.verbose () then
+           print_endline
+             "[decoratorCompletion] Found @module with non-string payload";
+         match
+           CompletionExpressions.traverseExpr expr ~exprPath:[]
+             ~pos:posBeforeCursor ~firstCharBeforeCursorNoWhite
+         with
+         | None -> ()
+         | Some (prefix, nested) ->
+           if Debug.verbose () then
+             print_endline "[decoratorCompletion] Found @module record path";
+           setResult
+             (Completable.CdecoratorPayload
+                (ModuleWithImportAttributes {nested = List.rev nested; prefix}))
+         )
        | _ -> ()
      else if id.txt = "jsxConfig" then
        match payload with

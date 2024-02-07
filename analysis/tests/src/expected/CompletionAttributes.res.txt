@@ -126,3 +126,70 @@ Resolved opens 1 pervasives
     "documentation": null
   }]
 
+Complete src/CompletionAttributes.res 21:12
+XXX Not found!
+Completable: CdecoratorPayload(moduleWithImportAttributes)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "from",
+    "kind": 5,
+    "tags": [],
+    "detail": "from?: string\n\ntype moduleConfig = {from: string, with: string}",
+    "documentation": null
+  }, {
+    "label": "with",
+    "kind": 5,
+    "tags": [],
+    "detail": "with?: string\n\ntype moduleConfig = {from: string, with: string}",
+    "documentation": null
+  }]
+
+Complete src/CompletionAttributes.res 24:17
+XXX Not found!
+Completable: CdecoratorPayload(moduleWithImportAttributes)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "{}",
+    "kind": 12,
+    "tags": [],
+    "detail": "type importAttributesConfig = {type_: string}",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionAttributes.res 27:19
+XXX Not found!
+Completable: CdecoratorPayload(moduleWithImportAttributes)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "type_",
+    "kind": 5,
+    "tags": [],
+    "detail": "type_?: string\n\ntype importAttributesConfig = {type_: string}",
+    "documentation": null
+  }]
+
+Complete src/CompletionAttributes.res 30:19
+XXX Not found!
+Completable: CdecoratorPayload(module=)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "@rescript/react",
+    "kind": 4,
+    "tags": [],
+    "detail": "Package",
+    "documentation": null
+  }, {
+    "label": "./tst.js",
+    "kind": 4,
+    "tags": [],
+    "detail": "Local file",
+    "documentation": null
+  }]
+

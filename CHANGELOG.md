@@ -14,7 +14,8 @@
 
 #### :nail_care: Polish
 
-Enhance decorator completion. https://github.com/rescript-lang/rescript-vscode/pull/908
+- Enhance decorator completion. https://github.com/rescript-lang/rescript-vscode/pull/908
+- Completion for import attributes in `@module`. https://github.com/rescript-lang/rescript-vscode/pull/913
 
 ## 1.38.0
 
