@@ -59,6 +59,16 @@ let newBsPackage ~rootPath =
                | (major, _), None when major >= 11 -> Some true
                | _, ns -> Option.bind ns Json.bool
              in
+             let genericJsxModule =
+               let jsxConfig = config |> Json.get "jsx" in
+               match jsxConfig with
+               | Some jsxConfig -> (
+                 match jsxConfig |> Json.get "module" with
+                 | Some (String m) when String.lowercase_ascii m <> "react" ->
+                   Some m
+                 | _ -> None)
+               | None -> None
+             in
              let uncurried = uncurried = Some true in
              let sourceDirectories =
                FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
@@ -121,6 +131,7 @@ let newBsPackage ~rootPath =
                ("Opens from ReScript config file: "
                ^ (opens |> List.map pathToString |> String.concat " "));
              {
+               genericJsxModule;
                suffix;
                rescriptVersion;
                rootPath;

@@ -33,7 +33,7 @@ type fragmentProps = {children?: element}
 @module("preact") external jsxFragment: component<fragmentProps> = "Fragment"
 
 /* The Elements module is the equivalent to the ReactDOM module in React. This holds things relevant to _lowercase_ JSX elements. */
-module Elements = {
+module DOM = {
   /* Here you can control what props lowercase JSX elements should have. 
   A base that the React JSX transform uses is provided via JsxDOM.domProps, 
   but you can make this anything. The editor tooling will support 

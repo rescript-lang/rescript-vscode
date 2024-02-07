@@ -1079,3 +1079,8 @@ let removeOpensFromCompletionPath ~rawOpens ~package completionPath =
     |> removeRawOpens rawOpens
   in
   completionPathMinusOpens
+
+let pathToElementProps package =
+  match package.genericJsxModule with
+  | None -> ["ReactDOM"; "domProps"]
+  | Some g -> (g |> String.split_on_char '.') @ ["DOM"; "props"]

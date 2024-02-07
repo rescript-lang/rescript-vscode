@@ -497,6 +497,7 @@ type builtInCompletionModules = {
 }
 
 type package = {
+  genericJsxModule: string option;
   suffix: string;
   rootPath: filePath;
   projectFiles: FileSet.t;
@@ -718,7 +719,8 @@ module Completable = struct
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
     | CdecoratorPayload (Module s) -> "CdecoratorPayload(module=" ^ s ^ ")"
-    | CdecoratorPayload (ModuleWithImportAttributes _) -> "CdecoratorPayload(moduleWithImportAttributes)"
+    | CdecoratorPayload (ModuleWithImportAttributes _) ->
+      "CdecoratorPayload(moduleWithImportAttributes)"
     | CdecoratorPayload (JsxConfig _) -> "JsxConfig"
     | CnamedArg (cp, s, sl2) ->
       "CnamedArg("
