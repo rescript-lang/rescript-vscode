@@ -70,7 +70,7 @@ Path Js.String2.st
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": "Turns `string` into `GenericJsx.element` so it can be used inside of JSX."},
+    "documentation": {"kind": "markdown", "value": "Turns `string` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
   }, {
@@ -122,7 +122,7 @@ Path Js.String2.st
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": "Turns `string` into `GenericJsx.element` so it can be used inside of JSX."},
+    "documentation": {"kind": "markdown", "value": "Turns `string` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
   }, {
