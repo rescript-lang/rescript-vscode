@@ -1884,6 +1884,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                  match Filename.extension fileName with
                  | ".res" | ".resi" | "" -> None
                  | _ -> Some ("./" ^ fileName))
+        |> List.sort String.compare
       with _ ->
         if debug then print_endline "Could not read relative directory";
         []
