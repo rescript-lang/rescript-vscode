@@ -8,10 +8,11 @@ bug-reports: "https://github.com/rescript-lang/rescript-vscode/issues"
 depends: [
   "ocaml" {>= "4.10"}
   "cppo" {= "1.6.9"}
-  "dune"
+  "dune" {>= "3.7"}
+  "odoc" {with-doc}
 ]
 build: [
-  ["dune" "subst"] {pinned}
+  ["dune" "subst"] {dev}
   [
     "dune"
     "build"

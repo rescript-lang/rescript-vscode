@@ -1,4 +1,6 @@
-(lang dune 2.3)
+(lang dune 3.7)
+
+;; from 2.3 to 3.7, for earlybird debugger
 
 (generate_opam_files true)
 
@@ -9,6 +11,10 @@
 (homepage "https://github.com/rescript-lang/rescript-vscode")
 
 (bug_reports "https://github.com/rescript-lang/rescript-vscode/issues")
+
+;; for earlybird debugger
+
+(map_workspace_root false)
 
 (package
  (name analysis)

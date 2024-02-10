@@ -1,0 +1,20 @@
+Complete src/Pipe.res 28:7
+posCursor:[28:7] posNoWhite:[28:6] Found expr:[28:3->0:-1]
+Completable: Cpath Value[m1]->
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[m1]->
+ContextPath Value[m1]
+Path m1
+CPPipe env:Pipe
+CPPipe type path:M1.t
+CPPipe pathFromEnv:M1 found:true
+Path M1.
+[{
+    "label": "M1.handle",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => 'a",
+    "documentation": null
+  }]
+
