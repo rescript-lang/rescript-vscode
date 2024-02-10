@@ -215,9 +215,9 @@ module AddTypeAnnotation = struct
       match si.pstr_desc with
       | Pstr_value (_recFlag, bindings) ->
         let processBinding (vb : Parsetree.value_binding) =
-          (* Can't add a type annotation to a react component, or the compiler crashes *)
-          let isReactComponent = Utils.isReactComponent vb in
-          if not isReactComponent then processPattern vb.pvb_pat;
+          (* Can't add a type annotation to a jsx component, or the compiler crashes *)
+          let isJsxComponent = Utils.isJsxComponent vb in
+          if not isJsxComponent then processPattern vb.pvb_pat;
           processFunction vb.pvb_expr
         in
         bindings |> List.iter (processBinding ~argNum:1);

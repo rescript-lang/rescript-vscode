@@ -1010,14 +1010,23 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         | Some (builtinNameToComplete, typ)
           when Utils.checkName builtinNameToComplete ~prefix:funNamePrefix
                  ~exact:false ->
+          let name =
+            match package.genericJsxModule with
+            | None -> "React." ^ builtinNameToComplete
+            | Some g ->
+              g ^ "." ^ builtinNameToComplete
+              |> String.split_on_char '.'
+              |> TypeUtils.removeOpensFromCompletionPath ~rawOpens
+                   ~package:full.package
+              |> String.concat "."
+          in
           [
-            Completion.createWithSnippet
-              ~name:("React." ^ builtinNameToComplete)
-              ~kind:(Value typ) ~env ~sortText:"A"
+            Completion.createWithSnippet ~name ~kind:(Value typ) ~env
+              ~sortText:"A"
               ~docstring:
                 [
                   "Turns `" ^ builtinNameToComplete
-                  ^ "` into `React.element` so it can be used inside of JSX.";
+                  ^ "` into a JSX element so it can be used inside of JSX.";
                 ]
               ();
           ]

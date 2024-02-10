@@ -659,7 +659,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
   let value_binding (iterator : Ast_iterator.iterator)
       (value_binding : Parsetree.value_binding) =
     let oldInJsxContext = !inJsxContext in
-    if Utils.isReactComponent value_binding then inJsxContext := true;
+    if Utils.isJsxComponent value_binding then inJsxContext := true;
     (match value_binding with
     | {pvb_pat = {ppat_desc = Ppat_constraint (_pat, coreType)}; pvb_expr}
       when locHasCursor pvb_expr.pexp_loc -> (
