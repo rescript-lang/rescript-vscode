@@ -31,3 +31,6 @@
 // @module({from: "" }) external doStuff: t = "default"
 //                 ^com
 
+// @module({from: }) external doStuff: t = "default"
+//               ^com
+
