@@ -84,18 +84,9 @@ module Reanalyze = struct
       Cli.experimental := experimental;
       Cli.json := json;
       Cli.write := write;
-      (Cli.liveNames :=
-         match live_names with
-         | None -> []
-         | Some l -> l);
-      (Cli.livePaths :=
-         match live_paths with
-         | None -> []
-         | Some l -> l);
-      Cli.excludePaths :=
-        match exclude_paths with
-        | None -> []
-        | Some l -> l
+      Cli.liveNames := live_names |> Option.value ~default:[];
+      Cli.livePaths := live_paths |> Option.value ~default:[];
+      Cli.excludePaths := exclude_paths |> Option.value ~default:[]
     in
 
     DeadCommon.Config.analyzeExternals := externals;
