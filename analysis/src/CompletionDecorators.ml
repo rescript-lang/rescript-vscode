@@ -164,9 +164,16 @@ Example `@raises(Exn)` or `@raises([E1, E2, E3])` for multiple exceptions.
 
 You will need this decorator whenever you want to use a ReScript / React component in ReScript JSX expressions.
 
-Note: The `@react.component` decorator requires the react-jsx config to be set in your `bsconfig.json` to enable the required React transformations.
+Note: The `@react.component` decorator requires the `jsx` config to be set in your `rescript.json`/`bsconfig.json` to enable the required React transformations.
 
 [Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#react-component-decorator).|};
+      ] );
+    ( "jsx.component",
+      None,
+      [
+        {|The `@jsx.component` decorator is used to annotate functions that are JSX components used with ReScript's [generic JSX transform](https://rescript-lang.org/docs/manual/latest/jsx#generic-jsx-transform-jsx-beyond-react-experimental).
+
+You will need this decorator whenever you want to use a JSX component in ReScript JSX expressions.|};
       ] );
     ( "return",
       Some "return(${1:nullable})",

@@ -44,7 +44,7 @@ Path Js.String2.st
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "documentation": {"kind": "markdown", "value": "Turns `string` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
   }, {
@@ -93,7 +93,7 @@ Path Js.String2.st
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "documentation": {"kind": "markdown", "value": "Turns `string` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
   }, {
@@ -141,7 +141,7 @@ Path Js.String2.st
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "documentation": {"kind": "markdown", "value": "Turns `string` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
   }, {
@@ -191,7 +191,7 @@ Path Js.String2.st
     "kind": 12,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": "Turns `string` into `React.element` so it can be used inside of JSX."},
+    "documentation": {"kind": "markdown", "value": "Turns `string` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
   }, {
@@ -240,7 +240,7 @@ Path Belt.Int.
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": {"kind": "markdown", "value": "Turns `int` into `React.element` so it can be used inside of JSX."},
+    "documentation": {"kind": "markdown", "value": "Turns `int` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
   }, {
@@ -324,7 +324,7 @@ Path Belt.Int.
     "kind": 12,
     "tags": [],
     "detail": "int",
-    "documentation": {"kind": "markdown", "value": "Turns `int` into `React.element` so it can be used inside of JSX."},
+    "documentation": {"kind": "markdown", "value": "Turns `int` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
   }, {
@@ -409,7 +409,7 @@ Path Js.Array2.a
     "kind": 12,
     "tags": [],
     "detail": "array<React.element>",
-    "documentation": {"kind": "markdown", "value": "Turns `array` into `React.element` so it can be used inside of JSX."},
+    "documentation": {"kind": "markdown", "value": "Turns `array` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
   }, {
