@@ -65,7 +65,25 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     - run: npm ci
-    - run: opam install . --deps-only --with-doc --with-test
+
+    - name: Use OCaml ${{matrix.ocaml_compiler}}
+      uses: ocaml/setup-ocaml@v2
+      if: matrix.os != 'windows-latest'
+      with:
+        ocaml-compiler: ${{matrix.ocaml_compiler}}
+
+    - name: Use OCaml ${{matrix.ocaml_compiler}} (Win)
+      uses: ocaml/setup-ocaml@v2
+      if: matrix.os == 'windows-latest'
+      with:
+        ocaml-compiler: ${{ matrix.ocaml-compiler }}
+        opam-repositories: |
+          sunset: https://github.com/ocaml-opam/opam-repository-mingw.git#sunset
+          default: https://github.com/ocaml/opam-repository.git
+
+    - name: Install opam deps
+      run: opam install . --deps-only --with-doc --with-test
+
     - run: npm run compile
 
     # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
