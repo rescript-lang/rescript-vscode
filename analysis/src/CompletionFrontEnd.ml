@@ -825,6 +825,58 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
          if Debug.verbose () then
            print_endline "[decoratorCompletion] Found @module";
          setResult (Completable.CdecoratorPayload (Module s))
+       | PStr
+           [
+             {
+               pstr_desc =
+                 Pstr_eval
+                   ( {
+                       pexp_desc =
+                         Pexp_record (({txt = Lident "from"}, fromExpr) :: _, _);
+                     },
+                     _ );
+             };
+           ]
+         when locHasCursor fromExpr.pexp_loc
+              || locIsEmpty fromExpr.pexp_loc
+                 && CompletionExpressions.isExprHole fromExpr -> (
+         if Debug.verbose () then
+           print_endline
+             "[decoratorCompletion] Found @module with import attributes and \
+              cursor on \"from\"";
+         match
+           ( locHasCursor fromExpr.pexp_loc,
+             locIsEmpty fromExpr.pexp_loc,
+             CompletionExpressions.isExprHole fromExpr,
+             fromExpr )
+         with
+         | true, _, _, {pexp_desc = Pexp_constant (Pconst_string (s, _))} ->
+           if Debug.verbose () then
+             print_endline
+               "[decoratorCompletion] @module `from` payload was string";
+           setResult (Completable.CdecoratorPayload (Module s))
+         | false, true, true, _ ->
+           if Debug.verbose () then
+             print_endline
+               "[decoratorCompletion] @module `from` payload was expr hole";
+           setResult (Completable.CdecoratorPayload (Module ""))
+         | _ -> ())
+       | PStr [{pstr_desc = Pstr_eval (expr, _)}] -> (
+         if Debug.verbose () then
+           print_endline
+             "[decoratorCompletion] Found @module with non-string payload";
+         match
+           CompletionExpressions.traverseExpr expr ~exprPath:[]
+             ~pos:posBeforeCursor ~firstCharBeforeCursorNoWhite
+         with
+         | None -> ()
+         | Some (prefix, nested) ->
+           if Debug.verbose () then
+             print_endline "[decoratorCompletion] Found @module record path";
+           setResult
+             (Completable.CdecoratorPayload
+                (ModuleWithImportAttributes {nested = List.rev nested; prefix}))
+         )
        | _ -> ()
      else if id.txt = "jsxConfig" then
        match payload with
