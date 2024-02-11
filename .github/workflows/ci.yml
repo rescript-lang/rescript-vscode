@@ -65,7 +65,7 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     - run: npm ci
-    - run: opam install dune cppo
+    - run: opam install . --deps-only --with-doc --with-test
     - run: npm run compile
 
     # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
