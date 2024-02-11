@@ -53,10 +53,20 @@ jobs:
         path: ~/.opam
         key: ${{matrix.os}}-rescript-vscode-v4
 
-    - name: Use OCaml
+    - name: Use OCaml ${{matrix.ocaml_compiler}}
       uses: ocaml/setup-ocaml@v2
+      if: matrix.os != 'windows-latest'
       with:
         ocaml-compiler: 4.14.x
+
+    - name: Use OCaml ${{matrix.ocaml_compiler}} (Win)
+      uses: ocaml/setup-ocaml@v2
+      if: matrix.os == 'windows-latest'
+      with:
+        ocaml-compiler: 4.14.x
+        opam-repositories: |
+          sunset: https://github.com/ocaml-opam/opam-repository-mingw.git#sunset
+          default: https://github.com/ocaml/opam-repository.git
 
     - name: Use Node.js
       uses: actions/setup-node@v3
@@ -65,25 +75,7 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     - run: npm ci
-
-    - name: Use OCaml ${{matrix.ocaml_compiler}}
-      uses: ocaml/setup-ocaml@v2
-      if: matrix.os != 'windows-latest'
-      with:
-        ocaml-compiler: ${{matrix.ocaml_compiler}}
-
-    - name: Use OCaml ${{matrix.ocaml_compiler}} (Win)
-      uses: ocaml/setup-ocaml@v2
-      if: matrix.os == 'windows-latest'
-      with:
-        ocaml-compiler: ${{ matrix.ocaml-compiler }}
-        opam-repositories: |
-          sunset: https://github.com/ocaml-opam/opam-repository-mingw.git#sunset
-          default: https://github.com/ocaml/opam-repository.git
-
-    - name: Install opam deps
-      run: opam install . --deps-only --with-doc --with-test
-
+    - run: opam install . --deps-only --with-doc --with-test
     - run: npm run compile
 
     # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
