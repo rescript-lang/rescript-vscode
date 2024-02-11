@@ -32,7 +32,6 @@ module Docgen = struct
 end
 
 module Reanalyze = struct
-  type dir = Suppress of string list | Unsuppress of string list
   type analysis = All | DCE | Termination | Exception
 
   type args = {
@@ -48,7 +47,8 @@ module Reanalyze = struct
     live_paths: string list option;
     cmt_path: string option;
     write: bool;
-    suppress_unsuppress: dir option;
+    suppress: string list option;
+    unsuppress: string list option;
   }
 
   let run
@@ -65,7 +65,8 @@ module Reanalyze = struct
         live_paths;
         cmt_path;
         write;
-        suppress_unsuppress;
+        suppress;
+        unsuppress;
       } =
     let open Reanalyze in
     (* Set kind of analysis *)
@@ -86,17 +87,12 @@ module Reanalyze = struct
       Cli.write := write;
       Cli.liveNames := live_names |> Option.value ~default:[];
       Cli.livePaths := live_paths |> Option.value ~default:[];
-      Cli.excludePaths := exclude_paths |> Option.value ~default:[]
+      Cli.excludePaths := exclude_paths |> Option.value ~default:[];
+      runConfig.unsuppress <- unsuppress |> Option.value ~default:[];
+      runConfig.suppress <- suppress |> Option.value ~default:[]
     in
 
     DeadCommon.Config.analyzeExternals := externals;
-
-    (match suppress_unsuppress with
-    | Some kind -> (
-      match kind with
-      | Suppress dirs -> Common.runConfig.suppress <- dirs
-      | Unsuppress dirs -> Common.runConfig.unsuppress <- dirs)
-    | None -> ());
 
     runAnalysisAndReport ~cmtRoot:cmt_path
 
@@ -201,42 +197,27 @@ module Reanalyze = struct
         & info ["live-paths"] ~doc ~docv:"PATHS")
     in
 
-    let suppress_unsuppress_exclusive =
-      let open Cmdliner.Term in
-      let exclusive_msg =
-        "The options --suppress and --unsuppress are mutually exclusive."
+    let unsuppress =
+      let doc =
+        "Report on files whose path has a prefix in the list. overriding \
+         --suppress (no-op if --suppress is not specified)\n\
+        \         comma-separated-path-prefixes"
       in
+      Arg.(
+        value
+        & opt (some (list ~sep:',' string)) None
+        & info ["unsuppress"] ~doc ~docv:"PATHS")
+    in
 
-      let suppress =
-        let doc =
-          "Don't report on files whose path has a prefix in the list. \
-           Comma-separated-path-prefixes"
-        in
-        Arg.(
-          value
-          & opt (some (list ~sep:',' string)) None
-          & info ["suppress"] ~doc ~docv:"PATHS")
+    let suppress =
+      let doc =
+        "Don't report on files whose path has a prefix in the list. \
+         Comma-separated-path-prefixes"
       in
-
-      let unsuppress =
-        let doc =
-          "Report on files whose path has a prefix in the list. \
-           comma-separated-path-prefixes"
-        in
-        Arg.(
-          value
-          & opt (some (list ~sep:',' string)) None
-          & info ["unsuppress"] ~doc ~docv:"PATHS")
-      in
-
-      let suppress_unsuppress suppress unsuppress =
-        match (suppress, unsuppress) with
-        | None, None -> `Ok None
-        | Some s, None -> `Ok (Some (Suppress s))
-        | None, Some s -> `Ok (Some (Unsuppress s))
-        | _ -> `Error (true, exclusive_msg)
-      in
-      ret (const suppress_unsuppress $ suppress $ unsuppress)
+      Arg.(
+        value
+        & opt (some (list ~sep:',' string)) None
+        & info ["suppress"] ~doc ~docv:"PATHS")
     in
 
     let cmt_path =
@@ -250,7 +231,7 @@ module Reanalyze = struct
     in
 
     let parse analysis externals live_names live_paths cmt_path exclude_paths
-        suppress_unsuppress experimental config ci write json debug =
+        suppress unsuppress experimental config ci write json debug =
       {
         analysis;
         ci;
@@ -264,15 +245,16 @@ module Reanalyze = struct
         live_paths;
         write;
         cmt_path;
-        suppress_unsuppress;
+        suppress;
+        unsuppress;
       }
     in
 
     let cmd =
       Term.(
         const parse $ analysis $ externals $ live_names $ live_paths $ cmt_path
-        $ exclude_paths $ suppress_unsuppress_exclusive $ experimental $ config
-        $ ci $ write $ json $ debug)
+        $ exclude_paths $ suppress $ unsuppress $ experimental $ config $ ci
+        $ write $ json $ debug)
     in
 
     Cmd.v info Term.(const run $ cmd)
