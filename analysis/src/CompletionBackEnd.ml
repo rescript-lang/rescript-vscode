@@ -1776,6 +1776,49 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       typ
       |> completeTypedValue ?typeArgContext ~rawOpens ~mode:Expression ~full
            ~prefix ~completionContext)
+  | CdecoratorPayload (ModuleWithImportAttributes {prefix; nested}) -> (
+    let mkField ~name ~primitive =
+      {
+        stamp = -1;
+        fname = {loc = Location.none; txt = name};
+        optional = true;
+        typ = Ctype.newconstr (Path.Pident (Ident.create primitive)) [];
+        docstring = [];
+        deprecated = None;
+      }
+    in
+    let importAttributesConfig : completionType =
+      Trecord
+        {
+          env;
+          definition = `NameOnly "importAttributesConfig";
+          fields = [mkField ~name:"type_" ~primitive:"string"];
+        }
+    in
+    let rootConfig : completionType =
+      Trecord
+        {
+          env;
+          definition = `NameOnly "moduleConfig";
+          fields =
+            [
+              mkField ~name:"from" ~primitive:"string";
+              mkField ~name:"with" ~primitive:"string";
+            ];
+        }
+    in
+    let nested, typ =
+      match nested with
+      | NFollowRecordField {fieldName = "with"} :: rest ->
+        (rest, importAttributesConfig)
+      | _ -> (nested, rootConfig)
+    in
+    match typ |> TypeUtils.resolveNested ~env ~full ~nested with
+    | None -> []
+    | Some (typ, _env, completionContext, typeArgContext) ->
+      typ
+      |> completeTypedValue ?typeArgContext ~rawOpens ~mode:Expression ~full
+           ~prefix ~completionContext)
   | CdecoratorPayload (Module prefix) ->
     let packageJsonPath =
       Utils.findPackageJson (full.package.rootPath |> Uri.fromPath)
@@ -1839,8 +1882,9 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                then None
                else
                  match Filename.extension fileName with
-                 | ".js" | ".mjs" -> Some ("./" ^ fileName)
-                 | _ -> None)
+                 | ".res" | ".resi" | "" -> None
+                 | _ -> Some ("./" ^ fileName))
+        |> List.sort String.compare
       with _ ->
         if debug then print_endline "Could not read relative directory";
         []

@@ -18,13 +18,18 @@ jobs:
       matrix:
         # Stay on the oldest Ubuntu version that's still supported by Github Actions
         # to avoid glibc incompatibilities as far as possible.
-        os: [macos-latest, macos-arm, ubuntu-20.04, windows-latest]
+        os: [
+            macos-13, # x64
+            macos-14, # ARM
+            ubuntu-20.04,
+            windows-latest,
+          ]
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
-          - os: macos-latest
+          - os: macos-13
             artifact-folder: darwin
-          - os: macos-arm
+          - os: macos-14
             artifact-folder: darwinarm64
           - os: ubuntu-20.04
             artifact-folder: linux
@@ -49,7 +54,7 @@ jobs:
         key: ${{matrix.os}}-rescript-vscode-v4
 
     - name: Use OCaml
-      uses: ocaml/setup-ocaml@v2.1.7
+      uses: ocaml/setup-ocaml@v2
       with:
         ocaml-compiler: 4.14.x
 
@@ -107,7 +112,7 @@ jobs:
     - name: Download MacOS binary
       uses: actions/download-artifact@v3
       with:
-        name: macos-latest
+        name: macos-13
         path: binaries
     - run: tar -xvf binary.tar
       working-directory: binaries
@@ -115,7 +120,7 @@ jobs:
     - name: Download MacOS ARM binary
       uses: actions/download-artifact@v3
       with:
-        name: macos-arm
+        name: macos-14
         path: binaries
     - run: tar -xvf binary.tar
       working-directory: binaries

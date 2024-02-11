@@ -3,9 +3,6 @@
 let _ = ShadowedBelt.List.map
 //                         ^def
 
-let _ = List.map
-//            ^def
-
 open Js
 module Before = {
   open Belt
