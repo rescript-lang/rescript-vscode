@@ -19,6 +19,7 @@
 - Relax filter for what local files that come up in from and regular string completion in `@module`. https://github.com/rescript-lang/rescript-vscode/pull/918
 - Make from completion trigger for expr hole so we get a nice experience when completing {from: <com>} in `@module`. https://github.com/rescript-lang/rescript-vscode/pull/918
 - Latest parser for newest syntax features. https://github.com/rescript-lang/rescript-vscode/pull/917
+- Handle completion for DOM/element attributes and attribute values properly when using a generic JSX transform. https://github.com/rescript-lang/rescript-vscode/pull/919
 
 ## 1.38.0
 

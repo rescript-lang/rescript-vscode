@@ -156,10 +156,10 @@ let rec unwrapIfOption (t : Types.type_expr) =
   | Tconstr (Path.Pident {name = "option"}, [unwrappedType], _) -> unwrappedType
   | _ -> t
 
-let isReactComponent (vb : Parsetree.value_binding) =
+let isJsxComponent (vb : Parsetree.value_binding) =
   vb.pvb_attributes
   |> List.exists (function
-       | {Location.txt = "react.component"}, _payload -> true
+       | {Location.txt = "react.component" | "jsx.component"}, _payload -> true
        | _ -> false)
 
 let checkName name ~prefix ~exact =

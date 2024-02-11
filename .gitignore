@@ -5,7 +5,9 @@ examples/*/lib
 
 analysis/tests/lib
 analysis/tests/.bsb.lock
-analysis/tests/.merlin
+
+analysis/tests-generic-jsx-transform/lib
+analysis/tests-generic-jsx-transform/.bsb.lock
 
 tools/node_modules
 tools/lib

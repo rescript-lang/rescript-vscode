@@ -1010,14 +1010,23 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         | Some (builtinNameToComplete, typ)
           when Utils.checkName builtinNameToComplete ~prefix:funNamePrefix
                  ~exact:false ->
+          let name =
+            match package.genericJsxModule with
+            | None -> "React." ^ builtinNameToComplete
+            | Some g ->
+              g ^ "." ^ builtinNameToComplete
+              |> String.split_on_char '.'
+              |> TypeUtils.removeOpensFromCompletionPath ~rawOpens
+                   ~package:full.package
+              |> String.concat "."
+          in
           [
-            Completion.createWithSnippet
-              ~name:("React." ^ builtinNameToComplete)
-              ~kind:(Value typ) ~env ~sortText:"A"
+            Completion.createWithSnippet ~name ~kind:(Value typ) ~env
+              ~sortText:"A"
               ~docstring:
                 [
                   "Turns `" ^ builtinNameToComplete
-                  ^ "` into `React.element` so it can be used inside of JSX.";
+                  ^ "` into a JSX element so it can be used inside of JSX.";
                 ]
               ();
           ]
@@ -1078,7 +1087,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
             | Some f -> Some (f.fname.txt, f.typ, env))
           | _ -> None
         in
-        ["ReactDOM"; "domProps"] |> digToTypeForCompletion
+        TypeUtils.pathToElementProps package |> digToTypeForCompletion
       else
         CompletionJsx.getJsxLabels ~componentPath:pathToComponent
           ~findTypeOfValue ~package
@@ -1692,9 +1701,14 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
     (* We always try to look up completion from the actual domProps type first.
        This works in JSXv4. For JSXv3, we have a backup hardcoded list of dom
        labels we can use for completion. *)
-    let fromDomProps =
+    let pathToElementProps = TypeUtils.pathToElementProps package in
+    if Debug.verbose () then
+      Printf.printf
+        "[completing-lowercase-jsx] Attempting to complete from type at %s\n"
+        (pathToElementProps |> String.concat ".");
+    let fromElementProps =
       match
-        ["ReactDOM"; "domProps"]
+        pathToElementProps
         |> digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos ~env
              ~scope
       with
@@ -1713,11 +1727,13 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                  else None)
           |> List.map mkLabel)
     in
-    match fromDomProps with
-    | Some domProps -> domProps
+    match fromElementProps with
+    | Some elementProps -> elementProps
     | None ->
       if debug then
-        Printf.printf "Could not find ReactDOM.domProps to complete from.\n";
+        Printf.printf
+          "[completing-lowercase-jsx] could not find element props to complete \
+           from.\n";
       (CompletionJsx.domLabels
       |> List.filter (fun (name, _t) ->
              Utils.startsWith name prefix

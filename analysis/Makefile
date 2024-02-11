@@ -3,16 +3,20 @@ SHELL = /bin/bash
 build-tests:
 	make -C tests build
 
+build-tests-generic-jsx-transform:
+	make -C tests-generic-jsx-transform build
+
 build-reanalyze:
 	make -C reanalyze build
 
-build: build-reanalyze build-tests
+build: build-reanalyze build-tests build-tests-generic-jsx-transform
 
 dce: build-analysis-binary
 	opam exec reanalyze.exe -- -dce-cmt _build -suppress vendor
 
 test-analysis-binary:
 	make -C tests test
+	make -C tests-generic-jsx-transform test
 
 test-reanalyze:
 	make -C reanalyze test
