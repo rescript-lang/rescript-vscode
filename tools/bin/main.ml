@@ -32,10 +32,10 @@ module Docgen = struct
 end
 
 module Reanalyze = struct
-  type analysis = All | DCE | Termination | Exception
-
   type args = {
-    analysis: analysis;
+    dce: bool;
+    termination: bool;
+    exception_: bool;
     ci: bool;
     config: bool;
     debug: bool;
@@ -53,7 +53,9 @@ module Reanalyze = struct
 
   let run
       {
-        analysis;
+        dce;
+        termination;
+        exception_;
         ci;
         config;
         debug;
@@ -69,30 +71,28 @@ module Reanalyze = struct
         unsuppress;
       } =
     let open Reanalyze in
-    (* Set kind of analysis *)
-    (match analysis with
-    | All -> RunConfig.all ()
-    | DCE -> RunConfig.dce ()
-    | Termination -> RunConfig.termination ()
-    | Exception -> RunConfig.exception_ ());
+    if dce then RunConfig.dce ();
+    if termination then RunConfig.termination ();
+    if exception_ then RunConfig.exception_ ();
 
-    if config then Paths.Config.processBsconfig ();
+    (* Enable all analysis if dce, termination and exception_ is false *)
+    if (not dce) && (not termination) && not exception_ then RunConfig.all ();
 
-    let () =
-      let open Common in
-      Cli.debug := debug;
-      Cli.ci := ci;
-      Cli.experimental := experimental;
-      Cli.json := json;
-      Cli.write := write;
-      Cli.liveNames := live_names |> Option.value ~default:[];
-      Cli.livePaths := live_paths |> Option.value ~default:[];
-      Cli.excludePaths := exclude_paths |> Option.value ~default:[];
-      runConfig.unsuppress <- unsuppress |> Option.value ~default:[];
-      runConfig.suppress <- suppress |> Option.value ~default:[]
-    in
+    let open Common in
+    Cli.debug := debug;
+    Cli.ci := ci;
+    Cli.experimental := experimental;
+    Cli.json := json;
+    Cli.write := write;
+    Cli.liveNames := live_names |> Option.value ~default:[];
+    Cli.livePaths := live_paths |> Option.value ~default:[];
+    Cli.excludePaths := exclude_paths |> Option.value ~default:[];
+    runConfig.unsuppress <- unsuppress |> Option.value ~default:[];
+    runConfig.suppress <- suppress |> Option.value ~default:[];
 
     DeadCommon.Config.analyzeExternals := externals;
+
+    if config then Paths.Config.processBsconfig ();
 
     runAnalysisAndReport ~cmtRoot:cmt_path
 
@@ -102,35 +102,42 @@ module Reanalyze = struct
        values/types, exception analysis, and termination analysis."
     in
     let version = Reanalyze.Version.version in
-    let info = Cmd.info "reanalyze" ~version ~doc in
+    let man =
+      [
+        `S Manpage.s_description;
+        `P
+          "Reanalyze will report all kind of analysis, dead code, exception \
+           and termination";
+        `S Manpage.s_examples;
+        `I
+          ( "rescript-tools reanalyze",
+            "Report all analysis (dead code, exception and termination)" );
+        `I ("rescript-tools reanalyze --dce", "Report only dead code");
+      ]
+    in
+    let info = Cmd.info "reanalyze" ~version ~doc ~man in
 
-    let analysis =
-      let all =
-        let doc = "Run all the analyses: DCE, Exception and Termination" in
-        (All, Arg.info ["all"] ~doc ~absent:"Reanalyze run all analysis")
+    let exception_ =
+      let doc =
+        "Experimental exception analysis. The exception analysis is designed \
+         to keep track statically of the exceptions that might be raised at \
+         runtime. It works by issuing warnings and recognizing annotations"
       in
-      let dce =
-        let doc =
-          "Enable experimental DCE. The dead code analysis reports on globally \
-           dead values, redundant optional arguments, dead modules, dead types \
-           (records and variants)."
-        in
-        (DCE, Arg.info ["dce"] ~doc)
-      in
-      let termination =
-        let doc = "Experimental termination analysis" in
-        (Termination, Arg.info ["termination"] ~doc)
-      in
-      let exception_ =
-        let doc =
-          "Experimental exception analysis. The exception analysis is designed \
-           to keep track statically of the exceptions that might be raised at \
-           runtime. It works by issuing warnings and recognizing annotations"
-        in
-        (Exception, Arg.info ["exception"] ~doc)
-      in
+      Arg.(value & flag & info ["exception"] ~doc)
+    in
 
-      Arg.(last & vflag_all [All] [all; dce; termination; exception_])
+    let termination =
+      let doc = "Experimental termination analysis" in
+      Arg.(value & flag & info ["termination"] ~doc)
+    in
+
+    let dce =
+      let doc =
+        "Enable experimental DCE. The dead code analysis reports on globally \
+         dead values, redundant optional arguments, dead modules, dead types \
+         (records and variants)."
+      in
+      Arg.(value & flag & info ["dce"] ~doc)
     in
 
     let ci =
@@ -183,7 +190,7 @@ module Reanalyze = struct
       Arg.(
         value
         & opt (some (list ~sep:',' string)) None
-        & info ["live-names"] ~doc ~docv:"PATHS")
+        & info ["live-names"] ~doc ~docv:"NAMES")
     in
 
     let live_paths =
@@ -194,7 +201,7 @@ module Reanalyze = struct
       Arg.(
         value
         & opt (some (list ~sep:',' string)) None
-        & info ["live-paths"] ~doc ~docv:"PATHS")
+        & info ["live-paths"] ~doc ~docv:"NAMES")
     in
 
     let unsuppress =
@@ -230,10 +237,13 @@ module Reanalyze = struct
       Arg.(value & flag & info ["write"] ~doc)
     in
 
-    let parse analysis externals live_names live_paths cmt_path exclude_paths
-        suppress unsuppress experimental config ci write json debug =
+    let parse dce termination exception_ externals live_names live_paths
+        cmt_path exclude_paths suppress unsuppress experimental config ci write
+        json debug =
       {
-        analysis;
+        dce;
+        termination;
+        exception_;
         ci;
         config;
         debug;
@@ -252,9 +262,9 @@ module Reanalyze = struct
 
     let cmd =
       Term.(
-        const parse $ analysis $ externals $ live_names $ live_paths $ cmt_path
-        $ exclude_paths $ suppress $ unsuppress $ experimental $ config $ ci
-        $ write $ json $ debug)
+        const parse $ dce $ termination $ exception_ $ externals $ live_names
+        $ live_paths $ cmt_path $ exclude_paths $ suppress $ unsuppress
+        $ experimental $ config $ ci $ write $ json $ debug)
     in
 
     Cmd.v info Term.(const run $ cmd)
