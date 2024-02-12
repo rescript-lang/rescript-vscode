@@ -101,13 +101,12 @@ module Reanalyze = struct
       "Experimental analyses for ReScript and OCaml: globally dead \
        values/types, exception analysis, and termination analysis."
     in
-    let version = Reanalyze.Version.version in
     let man =
       [
         `S Manpage.s_description;
         `P
-          "Reanalyze will report all kind of analysis, dead code, exception \
-           and termination";
+          "Reanalyze command will report all kinds of analysis, dead code \
+           (dce), exception and termination";
         `S Manpage.s_examples;
         `I
           ( "rescript-tools reanalyze",
@@ -115,7 +114,7 @@ module Reanalyze = struct
         `I ("rescript-tools reanalyze --dce", "Report only dead code");
       ]
     in
-    let info = Cmd.info "reanalyze" ~version ~doc ~man in
+    let info = Cmd.info "reanalyze" ~doc ~man in
 
     let exception_ =
       let doc =

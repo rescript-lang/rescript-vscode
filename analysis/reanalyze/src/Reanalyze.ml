@@ -220,7 +220,6 @@ let cli () =
 
 module RunConfig = RunConfig
 module Log_ = Log_
-module Version = Version
 module Common = Common
 module Paths = Paths
 module DeadCommon = DeadCommon

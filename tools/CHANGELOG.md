@@ -12,6 +12,13 @@
 
 ## master
 
+## 0.6.0
+
+#### :boom: Breaking Change
+
+- Reanalyze subcommand arguments now starts with two dash `--`. Some commands removed. https://github.com/rescript-lang/rescript-vscode/pull/910
+- ReScript Tools command now generate man pages following GNU conventions. https://github.com/rescript-lang/rescript-vscode/pull/910
+
 ## 0.5.0
 
 #### :rocket: New Feature
