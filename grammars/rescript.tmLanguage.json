@@ -148,7 +148,7 @@
           "end": "(?<!\\\\)`",
           "beginCaptures": {
             "1": {
-              "name": "variables.annotation"
+              "name": "entity.name.function"
             },
             "2": {
               "name": "punctuation.definition.string.template.begin"
