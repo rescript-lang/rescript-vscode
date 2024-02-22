@@ -516,3 +516,30 @@ Path PervasivesU.JsxDOM.domProps
     "documentation": null
   }]
 
+Complete src/CompletionJsx.res 61:30
+posCursor:[61:30] posNoWhite:[61:28] Found expr:[61:4->61:29]
+JSX <IntrinsicElementLowercase:[61:4->61:29] > _children:None
+Completable: Cjsx([IntrinsicElementLowercase], "", [])
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path IntrinsicElementLowercase.make
+[{
+    "label": "name",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<string>",
+    "documentation": null
+  }, {
+    "label": "age",
+    "kind": 4,
+    "tags": [],
+    "detail": "option<int>",
+    "documentation": null
+  }, {
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+
