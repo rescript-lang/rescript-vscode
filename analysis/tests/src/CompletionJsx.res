@@ -51,3 +51,13 @@ module CompWithoutJsxPpx = {
 
 // <h1 hidd
 //         ^com
+
+module IntrinsicElementLowercase = {
+  type props = {name?: string, age?: int}
+
+  @module("react")
+  external make: (@as("mesh") _, props) => Jsx.element = "createElement"
+}
+
+// <IntrinsicElementLowercase
+//                            ^com
