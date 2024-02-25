@@ -352,3 +352,8 @@ let tArgCompletionTestFn = (tVal: Money.t) => ()
 
 // tArgCompletionTestFn()
 //                      ^com
+
+let labeledTArgCompletionTestFn = (~tVal: Money.t) => ()
+
+// labeledTArgCompletionTestFn(~tVal=)
+//                                   ^com
