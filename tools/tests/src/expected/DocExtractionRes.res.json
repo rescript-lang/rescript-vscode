@@ -60,10 +60,10 @@
     }
   }, 
   {
-    "id": "DocExtractionRes.SomeConstant\\",
+    "id": "DocExtractionRes.SomeConstant",
     "kind": "value",
-    "name": "SomeConstant\\",
-    "signature": "let SomeConstant\\: int",
+    "name": "SomeConstant",
+    "signature": "let SomeConstant: int",
     "docstrings": ["exotic identifier"],
     "source": {
       "filepath": "src/DocExtractionRes.res",
@@ -267,6 +267,42 @@
       "source": {
         "filepath": "src/DocExtractionRes.res",
         "line": 71,
+        "col": 3
+      }
+    }]
+  }, 
+  {
+    "id": "DocExtractionRes.Example",
+    "name": "Example",
+    "kind": "moduleType",
+    "docstrings": [],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 99,
+      "col": 13
+    },
+    "items": [
+    {
+      "id": "DocExtractionRes.Example.t",
+      "kind": "type",
+      "name": "t",
+      "signature": "type t",
+      "docstrings": ["main type of this module"],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 107,
+        "col": 3
+      }
+    }, 
+    {
+      "id": "DocExtractionRes.Example.f",
+      "kind": "value",
+      "name": "f",
+      "signature": "let f: t => t",
+      "docstrings": ["function from t to t"],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 109,
         "col": 3
       }
     }]
