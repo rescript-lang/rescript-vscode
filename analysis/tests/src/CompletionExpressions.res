@@ -321,3 +321,34 @@ let mkStuff = (r: Js.Re.t) => {
 
 // mkStuff()
 //         ^com
+
+module Money: {
+  type t
+
+  let zero: t
+
+  let nonTType: string
+
+  let make: unit => t
+
+  let fromInt: int => t
+
+  let plus: (t, t) => t
+} = {
+  type t = string
+
+  let zero: t = "0"
+
+  let nonTType = "0"
+
+  let make = (): t => zero
+
+  let fromInt = (int): t => int->Js.Int.toString
+
+  let plus = (m1, _) => m1
+}
+
+let tArgCompletionTestFn = (tVal: Money.t) => ()
+
+// tArgCompletionTestFn()
+//                      ^com
