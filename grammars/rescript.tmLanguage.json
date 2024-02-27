@@ -119,84 +119,87 @@
         }
       ]
     },
+    "expression": {
+      "patterns": [
+        { "include": "#constant" },
+        { "include": "#bracketAccess" },
+        { "include": "#string" },
+        { "include": "#number" },
+        { "include": "#character" }
+      ]
+    },
     "string-character-escape": {
       "name": "constant.character.escape",
       "match": "\\\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|u{[0-9A-Fa-f]+}|[0-2][0-7]{0,2}|3[0-6][0-7]?|37[0-7]?|[4-7][0-7]?|.|$)"
     },
-    "string": {
+    "string-double-quoted": {
+      "name": "string.quoted.double",
+      "begin": "\"",
+      "end": "\"",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.begin"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.end"
+        }
+      },
       "patterns": [
         {
-          "name": "string.quoted.double",
-          "begin": "\"",
-          "end": "\"",
-          "beginCaptures": {
-            "1": {
-              "name": "punctuation.definition.string.begin"
-            }
-          },
-          "endCaptures": {
-            "1": {
-              "name": "punctuation.definition.string.end"
-            }
-          },
-          "patterns": [
-            {
-              "include": "#string-character-escape"
-            }
-          ]
-        },
-        {
-          "name": "string.template",
-          "begin": "([a-z_][0-9a-zA-Z_]*)?(`)",
-          "end": "(?<!\\\\)`",
-          "beginCaptures": {
-            "1": {
-              "name": "entity.name.function"
-            },
-            "2": {
-              "name": "punctuation.definition.string.template.begin"
-            }
-          },
-          "endCaptures": {
-            "1": {
-              "name": "punctuation.definition.string.template.end"
-            }
-          },
-          "patterns": [
-            {
-              "include": "#string-character-escape"
-            },
-            {
-              "name": "meta.template.expression",
-              "begin": "\\$\\{",
-              "beginCaptures": {
-                "0": {
-                  "name": "punctuation.definition.template-expression.begin"
-                }
-              },
-              "end": "\\}",
-              "endCaptures": {
-                "0": {
-                  "name": "punctuation.definition.template-expression.end"
-                }
-              },
-              "patterns": [
-                {
-                  "match": "[a-z_][0-9a-zA-Z_]*"
-                },
-                {
-                  "include": "#operator"
-                },
-                {
-                  "include": "#punctuations"
-                },
-                {
-                  "include": "#string"
-                }
-              ]
-            }
-          ]
+          "include": "#string-character-escape"
         }
+      ]
+    },
+    "template": {
+      "name": "string.template",
+      "begin": "([a-z_][0-9a-zA-Z_]*)?(`)",
+      "end": "(?<!\\\\)`",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function"
+        },
+        "2": {
+          "name": "punctuation.definition.string.template.begin"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.template.end"
+        }
+      },
+      "patterns": [
+        { "include": "#string-character-escape" },
+        { "include": "#template-substitution-element" }
+      ]
+    },
+    "template-substitution-element": {
+      "name": "meta.template.expression",
+      "begin": "\\$\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.template-expression.begin"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.template-expression.end"
+        }
+      },
+      "patterns": [
+        { "include": "#commentLine" },
+        { "include": "#commentBlock" },
+        { "include": "#operator" },
+        { "include": "#punctuations" },
+        { "include": "#expression" }
+      ]
+    },
+    "string": {
+      "patterns": [
+        { "include": "#string-double-quoted" },
+        { "include": "#template" }
       ]
     },
     "function": {
