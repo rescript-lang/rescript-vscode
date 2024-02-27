@@ -23,7 +23,9 @@
 - Highlight tagged template literal functions as functions. https://github.com/rescript-lang/rescript-vscode/pull/920
 - Complete for `type t` values when encountering a `type t` in relevant scenarios. https://github.com/rescript-lang/rescript-vscode/pull/924
 - Highlight escaped sequences as a whole and not only the first character. https://github.com/rescript-lang/rescript-vscode/pull/929
-- Start highlighting escaped sequences in template literals. https://github.com/rescript-lang/rescript-vscode/pull/929
+- Highlight escaped sequences in template strings. https://github.com/rescript-lang/rescript-vscode/pull/929
+- Highlight trailing backslash for multi-line strings. https://github.com/rescript-lang/rescript-vscode/pull/929
+- Highlight comments, `int`, `float`, `bool`, and `char` values inside of embeded expressions in template strings. https://github.com/rescript-lang/rescript-vscode/pull/930
 
 ## 1.38.0
 
