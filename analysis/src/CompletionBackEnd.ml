@@ -1283,7 +1283,7 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
         | _ -> false)
       | _ -> false
     in
-    let getComplitionName exportedValueName =
+    let getCompletionName exportedValueName =
       let fnNname =
         TypeUtils.getPathRelativeToEnv ~debug:false
           ~env:(QueryEnv.fromFile full.file)
@@ -1298,16 +1298,16 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
         in
         Some ((base |> String.concat ".") ^ "." ^ exportedValueName)
     in
-    let getExportedValueComplition name (declared : Types.type_expr Declared.t)
+    let getExportedValueCompletion name (declared : Types.type_expr Declared.t)
         =
       let typeExpr = declared.item in
       if valueWithTypeT typeExpr then
-        getComplitionName name
+        getCompletionName name
         |> Option.map (fun name ->
                createWithSnippet ~name ~insertText:name ~kind:(Value typeExpr)
                  ~env ())
       else if fnReturnsTypeT typeExpr then
-        getComplitionName name
+        getCompletionName name
         |> Option.map (fun name ->
                createWithSnippet
                  ~name:(Printf.sprintf "%s()" name)
@@ -1320,7 +1320,7 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
           match Stamps.findValue env.file.stamps stamp with
           | None -> all
           | Some declaredTypeExpr -> (
-            match getExportedValueComplition name declaredTypeExpr with
+            match getExportedValueCompletion name declaredTypeExpr with
             | None -> all
             | Some completion -> completion :: all))
         env.exported.values_ []
