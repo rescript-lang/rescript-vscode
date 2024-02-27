@@ -161,6 +161,10 @@
           },
           "patterns": [
             {
+              "name": "constant.character.escape",
+              "match": "\\\\."
+            },
+            {
               "name": "meta.template.expression",
               "begin": "\\$\\{",
               "beginCaptures": {
