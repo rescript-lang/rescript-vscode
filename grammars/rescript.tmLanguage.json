@@ -62,10 +62,6 @@
           "name": "punctuation.definition.keyword"
         },
         {
-          "match": ";",
-          "name": "punctuation.terminator"
-        },
-        {
           "match": "\\.",
           "name": "punctuation.accessor"
         },
