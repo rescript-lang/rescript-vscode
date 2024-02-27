@@ -55,7 +55,7 @@
         }
       ]
     },
-    "punctuations": {
+    "punctuation": {
       "patterns": [
         {
           "match": "~",
@@ -88,6 +88,14 @@
         {
           "match": "\\}",
           "name": "punctuation.section.braces.end"
+        },
+        {
+          "match": "\\[",
+          "name": "punctuation.section.brackets.begin"
+        },
+        {
+          "match": "\\]",
+          "name": "punctuation.section.brackets.end"
         },
         {
           "match": "\\(",
@@ -188,7 +196,7 @@
                   "include": "#operator"
                 },
                 {
-                  "include": "#punctuations"
+                  "include": "#punctuation"
                 },
                 {
                   "include": "#string"
@@ -286,18 +294,6 @@
               "name": "variable.other.enummember"
             }
           }
-        }
-      ]
-    },
-    "bracketAccess": {
-      "patterns": [
-        {
-          "match": "\\[",
-          "name": "punctuation.section.brackets.begin"
-        },
-        {
-          "match": "\\]",
-          "name": "punctuation.section.brackets.end"
         }
       ]
     },
@@ -542,74 +538,27 @@
     }
   },
   "patterns": [
-    {
-      "include": "#storage"
-    },
-    {
-      "include": "#ffi-single"
-    },
-    {
-      "include": "#ffi"
-    },
-    {
-      "include": "#constant"
-    },
-    {
-      "include": "#commentLine"
-    },
-    {
-      "include": "#commentBlock"
-    },
-    {
-      "include": "#character"
-    },
-    {
-      "include": "#typeParameter"
-    },
-    {
-      "include": "#string"
-    },
-    {
-      "include": "#attribute"
-    },
-    {
-      "include": "#function"
-    },
-    {
-      "include": "#list"
-    },
-    {
-      "include": "#bracketAccess"
-    },
-    {
-      "include": "#jsx"
-    },
-    {
-      "include": "#operator"
-    },
-    {
-      "include": "#number"
-    },
-    {
-      "include": "#openOrIncludeModule"
-    },
-    {
-      "include": "#moduleDeclaration"
-    },
-    {
-      "include": "#moduleAccess"
-    },
-    {
-      "include": "#constructor"
-    },
-    {
-      "include": "#keyword"
-    },
-    {
-      "include": "#punctuations"
-    },
-    {
-      "include": "#defaultIdIsVariable"
-    }
+    { "include": "#storage" },
+    { "include": "#ffi-single" },
+    { "include": "#ffi" },
+    { "include": "#constant" },
+    { "include": "#commentLine" },
+    { "include": "#commentBlock" },
+    { "include": "#character" },
+    { "include": "#typeParameter" },
+    { "include": "#string" },
+    { "include": "#attribute" },
+    { "include": "#function" },
+    { "include": "#list" },
+    { "include": "#jsx" },
+    { "include": "#operator" },
+    { "include": "#number" },
+    { "include": "#openOrIncludeModule" },
+    { "include": "#moduleDeclaration" },
+    { "include": "#moduleAccess" },
+    { "include": "#constructor" },
+    { "include": "#keyword" },
+    { "include": "#punctuation" },
+    { "include": "#defaultIdIsVariable" }
   ]
 }
