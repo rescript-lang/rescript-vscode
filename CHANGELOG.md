@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.40.0
+
 #### :nail_care: Polish
 
 - Enhance decorator completion. https://github.com/rescript-lang/rescript-vscode/pull/908
