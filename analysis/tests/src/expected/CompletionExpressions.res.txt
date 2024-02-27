@@ -1315,6 +1315,14 @@ Path mkStuff
     "insertText": "%re(\"/$0/g\")",
     "insertTextFormat": 2
   }, {
+    "label": "Js.Re.fromString()",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => t",
+    "documentation": null,
+    "insertText": "Js.Re.fromString($0)",
+    "insertTextFormat": 2
+  }, {
     "label": "Js.Re.fromStringWithFlags()",
     "kind": 12,
     "tags": [],
@@ -1322,13 +1330,77 @@ Path mkStuff
     "documentation": null,
     "insertText": "Js.Re.fromStringWithFlags($0)",
     "insertTextFormat": 2
-  }, {
-    "label": "Js.Re.fromString()",
+  }]
+
+Complete src/CompletionExpressions.res 352:24
+posCursor:[352:24] posNoWhite:[352:23] Found expr:[352:3->352:25]
+Pexp_apply ...[352:3->352:23] (...[352:24->352:25])
+Completable: Cexpression CArgument Value[tArgCompletionTestFn]($0)
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath CArgument Value[tArgCompletionTestFn]($0)
+ContextPath Value[tArgCompletionTestFn]
+Path tArgCompletionTestFn
+[{
+    "label": "Money.fromInt()",
     "kind": 12,
     "tags": [],
-    "detail": "string => t",
+    "detail": "int => t",
     "documentation": null,
-    "insertText": "Js.Re.fromString($0)",
+    "insertText": "Money.fromInt($0)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Money.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => t",
+    "documentation": null,
+    "insertText": "Money.make($0)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Money.zero",
+    "kind": 12,
+    "tags": [],
+    "detail": "t",
+    "documentation": null,
+    "insertText": "Money.zero",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 357:37
+posCursor:[357:37] posNoWhite:[357:36] Found expr:[357:3->357:38]
+Pexp_apply ...[357:3->357:30] (~tVal357:32->357:36=...__ghost__[0:-1->0:-1])
+Completable: Cexpression CArgument Value[labeledTArgCompletionTestFn](~tVal)
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath CArgument Value[labeledTArgCompletionTestFn](~tVal)
+ContextPath Value[labeledTArgCompletionTestFn]
+Path labeledTArgCompletionTestFn
+[{
+    "label": "Money.fromInt()",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null,
+    "insertText": "Money.fromInt($0)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Money.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => t",
+    "documentation": null,
+    "insertText": "Money.make($0)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Money.zero",
+    "kind": 12,
+    "tags": [],
+    "detail": "t",
+    "documentation": null,
+    "insertText": "Money.zero",
     "insertTextFormat": 2
   }]
 

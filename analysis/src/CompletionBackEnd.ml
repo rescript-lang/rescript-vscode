@@ -1257,6 +1257,12 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
   match t with
   | TtypeT {env; path} ->
     if Debug.verbose () then print_endline "[complete_typed_value]--> TtypeT";
+    (* Find all values in the module with type t *)
+    let valueWithTypeT t =
+      match t.Types.desc with
+      | Tconstr (Pident {name = "t"}, [], _) -> true
+      | _ -> false
+    in
     (* Find all functions in the module that returns type t *)
     let rec fnReturnsTypeT t =
       match t.Types.desc with
@@ -1277,41 +1283,49 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
         | _ -> false)
       | _ -> false
     in
-    let functionsReturningTypeT =
-      Hashtbl.create (Hashtbl.length env.exported.values_)
+    let getCompletionName exportedValueName =
+      let fnNname =
+        TypeUtils.getPathRelativeToEnv ~debug:false
+          ~env:(QueryEnv.fromFile full.file)
+          ~envFromItem:env (Utils.expandPath path)
+      in
+      match fnNname with
+      | None -> None
+      | Some base ->
+        let base =
+          TypeUtils.removeOpensFromCompletionPath ~rawOpens
+            ~package:full.package base
+        in
+        Some ((base |> String.concat ".") ^ "." ^ exportedValueName)
     in
-    env.exported.values_
-    |> Hashtbl.iter (fun name stamp ->
-           match Stamps.findValue env.file.stamps stamp with
-           | None -> ()
-           | Some {item} -> (
-             if fnReturnsTypeT item then
-               let fnNname =
-                 TypeUtils.getPathRelativeToEnv ~debug:false
-                   ~env:(QueryEnv.fromFile full.file)
-                   ~envFromItem:env (Utils.expandPath path)
-               in
-
-               match fnNname with
-               | None -> ()
-               | Some base ->
-                 let base =
-                   TypeUtils.removeOpensFromCompletionPath ~rawOpens
-                     ~package:full.package base
-                 in
-                 Hashtbl.add functionsReturningTypeT
-                   ((base |> String.concat ".") ^ "." ^ name)
-                   item));
-
+    let getExportedValueCompletion name (declared : Types.type_expr Declared.t)
+        =
+      let typeExpr = declared.item in
+      if valueWithTypeT typeExpr then
+        getCompletionName name
+        |> Option.map (fun name ->
+               createWithSnippet ~name ~insertText:name ~kind:(Value typeExpr)
+                 ~env ())
+      else if fnReturnsTypeT typeExpr then
+        getCompletionName name
+        |> Option.map (fun name ->
+               createWithSnippet
+                 ~name:(Printf.sprintf "%s()" name)
+                 ~insertText:(name ^ "($0)") ~kind:(Value typeExpr) ~env ())
+      else None
+    in
     let completionItems =
       Hashtbl.fold
-        (fun fnName typeExpr all ->
-          createWithSnippet
-            ~name:(Printf.sprintf "%s()" fnName)
-            ~insertText:(fnName ^ "($0)") ~kind:(Value typeExpr) ~env ()
-          :: all)
-        functionsReturningTypeT []
+        (fun name stamp all ->
+          match Stamps.findValue env.file.stamps stamp with
+          | None -> all
+          | Some declaredTypeExpr -> (
+            match getExportedValueCompletion name declaredTypeExpr with
+            | None -> all
+            | Some completion -> completion :: all))
+        env.exported.values_ []
     in
+
     (* Special casing for things where we want extra things in the completions *)
     let completionItems =
       match path with

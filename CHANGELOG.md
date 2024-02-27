@@ -21,6 +21,7 @@
 - Latest parser for newest syntax features. https://github.com/rescript-lang/rescript-vscode/pull/917
 - Handle completion for DOM/element attributes and attribute values properly when using a generic JSX transform. https://github.com/rescript-lang/rescript-vscode/pull/919
 - Highlight tagged template literal functions as functions. https://github.com/rescript-lang/rescript-vscode/pull/920
+- Complete for `type t` values when encountering a `type t` in relevant scenarios. https://github.com/rescript-lang/rescript-vscode/pull/924
 
 ## 1.38.0
 
