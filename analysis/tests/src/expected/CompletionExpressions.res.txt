@@ -1404,25 +1404,16 @@ Path labeledTArgCompletionTestFn
     "insertTextFormat": 2
   }]
 
-
-Complete src/CompletionExpressions.res 363:18
-[typedCompletionExpr] Has cursor
-[typedCompletionExpr] Has cases
-[typedCompletionExpr] Has cases - has ctx path
-[typedCompletionExpr] Has cases - has ctx path - hasCaseWithEmptyLoc: false, hasCaseWithCursor: false
-posCursor:[363:18] posNoWhite:[363:17] Found expr:[363:3->363:32]
-[typedCompletionExpr] Has cursor
-posCursor:[363:18] posNoWhite:[363:17] Found expr:[363:10->363:18]
-Pexp_field [363:10->363:17] _:[363:19->363:18]
-[set_result] set new result to Cpath Value[someTyp].""
+Complete src/CompletionExpressions.res 362:18
+posCursor:[362:18] posNoWhite:[362:17] Found expr:[362:3->362:32]
+posCursor:[362:18] posNoWhite:[362:17] Found expr:[362:10->362:18]
+Pexp_field [362:10->362:17] _:[362:19->362:18]
 Completable: Cpath Value[someTyp].""
 Raw opens: 1 CompletionSupport.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 2 pervasives CompletionSupport.res
 ContextPath Value[someTyp].""
-[ctx_path]--> CPField
 ContextPath Value[someTyp]
-[ctx_path]--> CPId
 Path someTyp
 [{
     "label": "test",
@@ -1431,5 +1422,4 @@ Path someTyp
     "detail": "test: bool\n\ntype someTyp = {test: bool}",
     "documentation": null
   }]
-
 
