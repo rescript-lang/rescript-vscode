@@ -1053,7 +1053,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
           ~kind:(Completion.Value (Ctype.newty (Ttuple typeExrps)));
       ]
     else []
-  | CJsxPropValue {pathToComponent; propName} -> (
+  | CJsxPropValue {pathToComponent; propName; emptyJsxPropNameHint} -> (
     if Debug.verbose () then print_endline "[ctx_path]--> CJsxPropValue";
     let findTypeOfValue path =
       path
@@ -1067,7 +1067,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       | _ -> false
     in
     (* TODO(env-stuff) Does this need to potentially be instantiated with type args too? *)
-    let targetLabel =
+    let labels =
       if lowercaseComponent then
         let rec digToTypeForCompletion path =
           match
@@ -1081,17 +1081,39 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
                ReactDOM.domProps is an alias for JsxEvent.t. *)
             let pathRev = p |> Utils.expandPath in
             pathRev |> List.rev |> digToTypeForCompletion
-          | {kind = Type {kind = Record fields}} :: _ -> (
-            match fields |> List.find_opt (fun f -> f.fname.txt = propName) with
-            | None -> None
-            | Some f -> Some (f.fname.txt, f.typ, env))
-          | _ -> None
+          | {kind = Type {kind = Record fields}} :: _ ->
+            fields |> List.map (fun f -> (f.fname.txt, f.typ, env))
+          | _ -> []
         in
         TypeUtils.pathToElementProps package |> digToTypeForCompletion
       else
         CompletionJsx.getJsxLabels ~componentPath:pathToComponent
           ~findTypeOfValue ~package
-        |> List.find_opt (fun (label, _, _) -> label = propName)
+    in
+    (* We have a heuristic that kicks in when completing empty prop expressions in the middle of a JSX element,
+       like <SomeComp firstProp=test second=<com> third=123 />.
+       The parser turns that broken JSX into: <SomeComp firstProp=test second=<com>third />, 123.
+
+       So, we use a heuristic that covers this scenario by picking up on the cursor being between
+       the prop name and the prop expression, and the prop expression being an ident that's a
+       _valid prop name_ for that JSX element.
+
+       This works because the ident itself will always be the next prop name (since that's what the
+       parser eats). So, we do a simple lookup of that hint here if it exists, to make sure the hint
+       is indeed a valid label for this JSX element. *)
+    let emptyJsxPropNameHintIsCorrect =
+      match emptyJsxPropNameHint with
+      | Some identName when identName != propName ->
+        labels
+        |> List.find_opt (fun (f, _, _) -> f = identName)
+        |> Option.is_some
+      | Some _ -> false
+      | None -> true
+    in
+    let targetLabel =
+      if emptyJsxPropNameHintIsCorrect then
+        labels |> List.find_opt (fun (f, _, _) -> f = propName)
+      else None
     in
     match targetLabel with
     | None -> []

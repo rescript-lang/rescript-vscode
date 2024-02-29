@@ -622,7 +622,12 @@ module Completable = struct
         functionContextPath: contextPath;
         argumentLabel: argumentLabel;
       }
-    | CJsxPropValue of {pathToComponent: string list; propName: string}
+    | CJsxPropValue of {
+        pathToComponent: string list;
+        propName: string;
+        emptyJsxPropNameHint: string option;
+            (* This helps handle a special case in JSX prop completion. More info where this is used. *)
+      }
     | CPatternPath of {rootCtxPath: contextPath; nested: nestedPath list}
     | CTypeAtPos of Location.t
         (** A position holding something that might have a *compiled* type. *)
