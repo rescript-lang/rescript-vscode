@@ -549,18 +549,26 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
   let inJsxContext = ref false in
   (* Identifies expressions where we can do typed pattern or expr completion. *)
   let typedCompletionExpr (exp : Parsetree.expression) =
-    if exp.pexp_loc |> CursorPosition.locHasCursor ~pos:posBeforeCursor then
+    if exp.pexp_loc |> CursorPosition.locHasCursor ~pos:posBeforeCursor then (
+      if Debug.verbose () then print_endline "[typedCompletionExpr] Has cursor";
       match exp.pexp_desc with
       (* No cases means there's no `|` yet in the switch *)
-      | Pexp_match (({pexp_desc = Pexp_ident _} as expr), []) -> (
-        if locHasCursor expr.pexp_loc then
+      | Pexp_match (({pexp_desc = Pexp_ident _} as expr), []) ->
+        if Debug.verbose () then
+          print_endline "[typedCompletionExpr] No cases, with ident";
+        if locHasCursor expr.pexp_loc then (
+          if Debug.verbose () then
+            print_endline "[typedCompletionExpr] No cases - has cursor";
           (* We can do exhaustive switch completion if this is an ident we can
              complete from. *)
           match exprToContextPath expr with
           | None -> ()
           | Some contextPath ->
             setResult (CexhaustiveSwitch {contextPath; exprLoc = exp.pexp_loc}))
-      | Pexp_match (_expr, []) -> ()
+      | Pexp_match (_expr, []) ->
+        if Debug.verbose () then
+          print_endline "[typedCompletionExpr] No cases, rest";
+        ()
       | Pexp_match
           ( exp,
             [
@@ -586,11 +594,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                  patternMode = Default;
                }))
       | Pexp_match (exp, cases) -> (
+        if Debug.verbose () then print_endline "[typedCompletionExpr] Has cases";
         (* If there's more than one case, or the case isn't a pattern hole, figure out if we're completing another
            broken parser case (`switch x { | true => () | <com> }` for example). *)
         match exp |> exprToContextPath with
-        | None -> ()
+        | None ->
+          if Debug.verbose () then
+            print_endline "[typedCompletionExpr] Has cases - no ctx path"
         | Some ctxPath -> (
+          if Debug.verbose () then
+            print_endline "[typedCompletionExpr] Has cases - has ctx path";
           let hasCaseWithCursor =
             cases
             |> List.find_opt (fun case ->
@@ -603,6 +616,11 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                    locIsEmpty case.Parsetree.pc_lhs.ppat_loc)
             |> Option.is_some
           in
+          if Debug.verbose () then
+            Printf.printf
+              "[typedCompletionExpr] Has cases - has ctx path - \
+               hasCaseWithEmptyLoc: %b, hasCaseWithCursor: %b\n"
+              hasCaseWithEmptyLoc hasCaseWithCursor;
           match (hasCaseWithEmptyLoc, hasCaseWithCursor) with
           | _, true ->
             (* Always continue if there's a case with the cursor *)
@@ -619,7 +637,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                    patternMode = Default;
                  })
           | false, false -> ()))
-      | _ -> ()
+      | _ -> ())
   in
   let structure (iterator : Ast_iterator.iterator)
       (structure : Parsetree.structure) =
@@ -977,7 +995,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
     in
     typedCompletionExpr expr;
     match expr.pexp_desc with
-    | Pexp_match (expr, cases) when cases <> [] ->
+    | Pexp_match (expr, cases)
+      when cases <> [] && locHasCursor expr.pexp_loc = false ->
+      if Debug.verbose () then
+        print_endline "[completionFrontend] Checking each case";
       let ctxPath = exprToContextPath expr in
       let oldCtxPath = !currentCtxPath in
       cases

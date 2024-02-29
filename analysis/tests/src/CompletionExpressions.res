@@ -357,3 +357,8 @@ let labeledTArgCompletionTestFn = (~tVal: Money.t) => ()
 
 // labeledTArgCompletionTestFn(~tVal=)
 //                                   ^com
+
+let someTyp: someTyp = {test: true}
+
+// switch someTyp. { | _ => () }
+//                ^com
