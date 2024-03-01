@@ -481,7 +481,22 @@ Path Outer.Inner.
 Complete src/Jsx2.res 136:7
 posCursor:[136:7] posNoWhite:[136:6] Found expr:[135:3->138:9]
 JSX <div:[135:3->135:6] x[136:5->136:6]=...[138:4->138:8]> _children:None
-[]
+Completable: Cexpression CJsxPropValue [div] x
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [div] x
+Path ReactDOM.domProps
+Path PervasivesU.JsxDOM.domProps
+[{
+    "label": "\"\"",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{\"$0\"}",
+    "insertTextFormat": 2
+  }]
 
 Complete src/Jsx2.res 150:21
 posCursor:[150:21] posNoWhite:[150:20] Found expr:[150:12->150:32]
