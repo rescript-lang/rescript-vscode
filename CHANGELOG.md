@@ -12,6 +12,10 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Fix issue where completion inside of switch expression would not work in some cases. https://github.com/rescript-lang/rescript-vscode/pull/936
+
 ## 1.40.0
 
 #### :nail_care: Polish

@@ -348,12 +348,17 @@ module Money: {
   let plus = (m1, _) => m1
 }
 
-let tArgCompletionTestFn = (tVal: Money.t) => ()
+let tArgCompletionTestFn = (_tVal: Money.t) => ()
 
 // tArgCompletionTestFn()
 //                      ^com
 
-let labeledTArgCompletionTestFn = (~tVal: Money.t) => ()
+let labeledTArgCompletionTestFn = (~tVal as _: Money.t) => ()
 
 // labeledTArgCompletionTestFn(~tVal=)
 //                                   ^com
+
+let someTyp: someTyp = {test: true}
+
+// switch someTyp. { | _ => () }
+//                ^com
