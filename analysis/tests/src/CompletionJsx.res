@@ -73,3 +73,9 @@ module MultiPropComp = {
 
 // <MultiPropComp name="Hello" time= age="35"
 //                                  ^com
+
+// <MultiPropComp name="Hello" time= age
+//                                  ^com
+
+// <MultiPropComp name time= age
+//                          ^com

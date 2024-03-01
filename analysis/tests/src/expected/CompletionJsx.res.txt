@@ -569,3 +569,55 @@ Path MultiPropComp.make
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionJsx.res 76:36
+posCursor:[76:36] posNoWhite:[76:35] Found expr:[76:4->76:40]
+JSX <MultiPropComp:[76:4->76:17] name[76:18->76:22]=...[76:23->76:30] time[76:31->76:35]=...[76:37->76:40]> _children:None
+Completable: Cexpression CJsxPropValue [MultiPropComp] time
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [MultiPropComp] time
+Path MultiPropComp.make
+[{
+    "label": "Now",
+    "kind": 4,
+    "tags": [],
+    "detail": "Now\n\ntype time = Now | Later",
+    "documentation": null,
+    "insertText": "{Now}",
+    "insertTextFormat": 2
+  }, {
+    "label": "Later",
+    "kind": 4,
+    "tags": [],
+    "detail": "Later\n\ntype time = Now | Later",
+    "documentation": null,
+    "insertText": "{Later}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionJsx.res 79:28
+posCursor:[79:28] posNoWhite:[79:27] Found expr:[79:4->79:32]
+JSX <MultiPropComp:[79:4->79:17] name[79:18->79:22]=...[79:18->79:22] time[79:23->79:27]=...[79:29->79:32]> _children:None
+Completable: Cexpression CJsxPropValue [MultiPropComp] time
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [MultiPropComp] time
+Path MultiPropComp.make
+[{
+    "label": "Now",
+    "kind": 4,
+    "tags": [],
+    "detail": "Now\n\ntype time = Now | Later",
+    "documentation": null,
+    "insertText": "{Now}",
+    "insertTextFormat": 2
+  }, {
+    "label": "Later",
+    "kind": 4,
+    "tags": [],
+    "detail": "Later\n\ntype time = Now | Later",
+    "documentation": null,
+    "insertText": "{Later}",
+    "insertTextFormat": 2
+  }]
+
