@@ -418,3 +418,26 @@ Path ReactEvent.Mouse.a
     "documentation": null
   }]
 
+Complete src/CompletionFunctionArguments.res 121:57
+posCursor:[121:57] posNoWhite:[121:56] Found expr:[121:3->121:73]
+Pexp_apply ...[121:3->121:11] (~changefreq121:13->121:23=...[121:24->121:31], ~lastmod121:34->121:41=...[121:42->0:-1], ~priority121:60->121:68=...[121:69->121:72])
+posCursor:[121:57] posNoWhite:[121:56] Found expr:[121:42->0:-1]
+posCursor:[121:57] posNoWhite:[121:56] Found expr:[121:42->0:-1]
+Completable: Cpath Value[fineModuleVal]->
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[fineModuleVal]->
+ContextPath Value[fineModuleVal]
+Path fineModuleVal
+CPPipe env:CompletionFunctionArguments
+CPPipe type path:FineModule.t
+CPPipe pathFromEnv:FineModule found:true
+Path FineModule.
+[{
+    "label": "FineModule.setToFalse",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
+    "documentation": null
+  }]
+
