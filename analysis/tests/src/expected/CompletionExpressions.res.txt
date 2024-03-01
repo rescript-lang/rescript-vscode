@@ -1404,3 +1404,22 @@ Path labeledTArgCompletionTestFn
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionExpressions.res 362:18
+posCursor:[362:18] posNoWhite:[362:17] Found expr:[362:3->362:32]
+posCursor:[362:18] posNoWhite:[362:17] Found expr:[362:10->362:18]
+Pexp_field [362:10->362:17] _:[362:19->362:18]
+Completable: Cpath Value[someTyp].""
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath Value[someTyp].""
+ContextPath Value[someTyp]
+Path someTyp
+[{
+    "label": "test",
+    "kind": 5,
+    "tags": [],
+    "detail": "test: bool\n\ntype someTyp = {test: bool}",
+    "documentation": null
+  }]
+
