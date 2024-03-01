@@ -16,6 +16,10 @@
 
 #### :bug: Bug Fix
 
+- Fix issue with unlabelled arg code swallowing completions. https://github.com/rescript-lang/rescript-vscode/pull/937
+
+#### :bug: Bug Fix
+
 - Fix issue where completion inside of switch expression would not work in some cases. https://github.com/rescript-lang/rescript-vscode/pull/936
 - Fix bug that made empty prop expressions in JSX not complete if in the middle of a JSX element. https://github.com/rescript-lang/rescript-vscode/pull/935
 
