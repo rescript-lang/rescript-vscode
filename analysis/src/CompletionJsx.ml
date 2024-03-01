@@ -833,7 +833,27 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
           print_endline
             "[jsx_props_completable]--> Cursor between the prop name and expr \
              assigned";
-        None)
+        match (firstCharBeforeCursorNoWhite, prop.exp) with
+        | Some '=', {pexp_desc = Pexp_ident {txt = Lident txt}} ->
+          if Debug.verbose () then
+            Printf.printf
+              "[jsx_props_completable]--> Heuristic for empty JSX prop expr \
+               completion.\n";
+          Some
+            (Cexpression
+               {
+                 contextPath =
+                   CJsxPropValue
+                     {
+                       pathToComponent =
+                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                       propName = prop.name;
+                       emptyJsxPropNameHint = Some txt;
+                     };
+                 nested = [];
+                 prefix = "";
+               })
+        | _ -> None)
       else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
         if Debug.verbose () then
           print_endline "[jsx_props_completable]--> Cursor on expr assigned";
@@ -851,6 +871,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                        pathToComponent =
                          Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                        propName = prop.name;
+                       emptyJsxPropNameHint = None;
                      };
                  nested = List.rev nested;
                  prefix;
@@ -871,6 +892,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                        pathToComponent =
                          Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                        propName = prop.name;
+                       emptyJsxPropNameHint = None;
                      };
                  prefix = "";
                  nested = [];
@@ -894,6 +916,7 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                      pathToComponent =
                        Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                      propName = prop.name;
+                     emptyJsxPropNameHint = None;
                    };
                prefix = "";
                nested = [];

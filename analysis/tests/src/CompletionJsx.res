@@ -61,3 +61,21 @@ module IntrinsicElementLowercase = {
 
 // <IntrinsicElementLowercase
 //                            ^com
+
+module MultiPropComp = {
+  type time = Now | Later
+  @react.component
+  let make = (~name, ~age, ~time: time) => {
+    ignore(time)
+    name ++ age
+  }
+}
+
+// <MultiPropComp name="Hello" time= age="35"
+//                                  ^com
+
+// <MultiPropComp name="Hello" time= age
+//                                  ^com
+
+// <MultiPropComp name time= age
+//                          ^com

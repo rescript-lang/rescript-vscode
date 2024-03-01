@@ -952,6 +952,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                   pathToComponent =
                     Utils.flattenLongIdent ~jsx:true props.compName.txt;
                   propName = prop.name;
+                  emptyJsxPropNameHint = None;
                 });
            expr iterator prop.exp;
            resetCurrentCtxPath previousCtxPath)
