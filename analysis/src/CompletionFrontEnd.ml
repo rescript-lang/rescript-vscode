@@ -155,7 +155,11 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
               "[findArgCompletables] skipping completion in fn call because \
                arg had empty loc";
           None
-        | _ ->
+        | _
+          when firstCharBeforeCursorNoWhite = Some '('
+               || firstCharBeforeCursorNoWhite = Some ',' ->
+          (* Checks to ensure that completing for empty unlabelled arg makes
+             sense by checking what's left of the cursor. *)
           if Debug.verbose () then
             Printf.printf
               "[findArgCompletables] Completing for unlabelled argument value \
@@ -174,7 +178,8 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
                      };
                  prefix = "";
                  nested = [];
-               }))
+               })
+        | _ -> None)
       else None
   in
   match args with
@@ -549,15 +554,17 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
   let inJsxContext = ref false in
   (* Identifies expressions where we can do typed pattern or expr completion. *)
   let typedCompletionExpr (exp : Parsetree.expression) =
+    let debugTypedCompletionExpr = false in
     if exp.pexp_loc |> CursorPosition.locHasCursor ~pos:posBeforeCursor then (
-      if Debug.verbose () then print_endline "[typedCompletionExpr] Has cursor";
+      if Debug.verbose () && debugTypedCompletionExpr then
+        print_endline "[typedCompletionExpr] Has cursor";
       match exp.pexp_desc with
       (* No cases means there's no `|` yet in the switch *)
       | Pexp_match (({pexp_desc = Pexp_ident _} as expr), []) ->
-        if Debug.verbose () then
+        if Debug.verbose () && debugTypedCompletionExpr then
           print_endline "[typedCompletionExpr] No cases, with ident";
         if locHasCursor expr.pexp_loc then (
-          if Debug.verbose () then
+          if Debug.verbose () && debugTypedCompletionExpr then
             print_endline "[typedCompletionExpr] No cases - has cursor";
           (* We can do exhaustive switch completion if this is an ident we can
              complete from. *)
@@ -566,7 +573,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
           | Some contextPath ->
             setResult (CexhaustiveSwitch {contextPath; exprLoc = exp.pexp_loc}))
       | Pexp_match (_expr, []) ->
-        if Debug.verbose () then
+        if Debug.verbose () && debugTypedCompletionExpr then
           print_endline "[typedCompletionExpr] No cases, rest";
         ()
       | Pexp_match
@@ -594,15 +601,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                  patternMode = Default;
                }))
       | Pexp_match (exp, cases) -> (
-        if Debug.verbose () then print_endline "[typedCompletionExpr] Has cases";
+        if Debug.verbose () && debugTypedCompletionExpr then
+          print_endline "[typedCompletionExpr] Has cases";
         (* If there's more than one case, or the case isn't a pattern hole, figure out if we're completing another
            broken parser case (`switch x { | true => () | <com> }` for example). *)
         match exp |> exprToContextPath with
         | None ->
-          if Debug.verbose () then
+          if Debug.verbose () && debugTypedCompletionExpr then
             print_endline "[typedCompletionExpr] Has cases - no ctx path"
         | Some ctxPath -> (
-          if Debug.verbose () then
+          if Debug.verbose () && debugTypedCompletionExpr then
             print_endline "[typedCompletionExpr] Has cases - has ctx path";
           let hasCaseWithCursor =
             cases
@@ -616,7 +624,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                    locIsEmpty case.Parsetree.pc_lhs.ppat_loc)
             |> Option.is_some
           in
-          if Debug.verbose () then
+          if Debug.verbose () && debugTypedCompletionExpr then
             Printf.printf
               "[typedCompletionExpr] Has cases - has ctx path - \
                hasCaseWithEmptyLoc: %b, hasCaseWithCursor: %b\n"
