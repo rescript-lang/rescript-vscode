@@ -21,11 +21,12 @@ import * as codeActions from "./codeActions";
 import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { assert } from "console";
-import { fileURLToPath } from "url";
-import { ChildProcess } from "child_process";
+import { fileURLToPath, pathToFileURL } from "url";
+import * as cp from "node:child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { filesDiagnostics } from "./utils";
 import { onErrorReported } from "./errorReporter";
+import readline from "readline";
 
 interface extensionConfiguration {
   allowBuiltInFormatter: boolean;
@@ -40,6 +41,7 @@ interface extensionConfiguration {
   signatureHelp: {
     enabled: boolean;
   };
+  incrementalTypechecking: boolean;
 }
 
 // This holds client capabilities specific to our extension, and not necessarily
@@ -66,6 +68,7 @@ let extensionConfiguration: extensionConfiguration = {
   signatureHelp: {
     enabled: true,
   },
+  incrementalTypechecking: true,
 };
 // Below here is some state that's not important exactly how long it lives.
 let hasPromptedAboutBuiltInFormatter = false;
@@ -85,7 +88,7 @@ let projectsFiles: Map<
     filesWithDiagnostics: Set<string>;
     filesDiagnostics: filesDiagnostics;
 
-    bsbWatcherByEditor: null | ChildProcess;
+    bsbWatcherByEditor: null | cp.ChildProcess;
 
     // This keeps track of whether we've prompted the user to start a build
     // automatically, if there's no build currently running for the project. We
@@ -102,6 +105,8 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
+
+let buildNinjaCache: Map<string, [number, Array<string>]> = new Map();
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
   extensionConfiguration.binaryPath == null
@@ -247,6 +252,9 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
     });
 
     projectsFiles.delete(projectRootPath);
+    if (extensionConfiguration.incrementalTypechecking) {
+      removeIncrementalFileFolder(projectRootPath);
+    }
   }
 };
 let sendCompilationFinishedMessage = () => {
@@ -290,8 +298,14 @@ let openedFile = (fileUri: string, fileContent: string) => {
 
   let projectRootPath = utils.findProjectRootOfFile(filePath);
   if (projectRootPath != null) {
+    if (extensionConfiguration.incrementalTypechecking) {
+      cleanUpIncrementalFiles(filePath, projectRootPath);
+    }
     let projectRootState = projectsFiles.get(projectRootPath);
     if (projectRootState == null) {
+      if (extensionConfiguration.incrementalTypechecking) {
+        recreateIncrementalFileFolder(projectRootPath);
+      }
       projectRootState = {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
@@ -365,6 +379,44 @@ let openedFile = (fileUri: string, fileContent: string) => {
     // call the listener which calls it
   }
 };
+function removeIncrementalFileFolder(
+  projectRootPath: string,
+  onAfterRemove?: () => void
+) {
+  fs.rm(
+    path.resolve(projectRootPath, "lib/bs/___incremental"),
+    { force: true, recursive: true },
+    (_) => {
+      onAfterRemove?.();
+    }
+  );
+}
+function recreateIncrementalFileFolder(projectRootPath: string) {
+  removeIncrementalFileFolder(projectRootPath, () => {
+    fs.mkdir(path.resolve(projectRootPath, "lib/bs/___incremental"), (_) => {});
+  });
+}
+/**
+ * TODO CMT stuff
+ * - Make sure cmt is deleted/ignore if original contents is newer. How?
+ * - Clear incremental folder when starting LSP
+ * - Optimize recompiles
+ * - Races when recompiling?
+ */
+function cleanUpIncrementalFiles(filePath: string, projectRootPath: string) {
+  [
+    path.basename(filePath, ".res") + ".ast",
+    path.basename(filePath, ".res") + ".cmt",
+    path.basename(filePath, ".res") + ".cmi",
+    path.basename(filePath, ".res") + ".cmj",
+    path.basename(filePath),
+  ].forEach((file) => {
+    fs.unlink(
+      path.resolve(projectRootPath, "lib/bs/___incremental", file),
+      (_) => {}
+    );
+  });
+}
 let closedFile = (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
 
@@ -372,6 +424,9 @@ let closedFile = (fileUri: string) => {
 
   let projectRootPath = utils.findProjectRootOfFile(filePath);
   if (projectRootPath != null) {
+    if (extensionConfiguration.incrementalTypechecking) {
+      cleanUpIncrementalFiles(filePath, projectRootPath);
+    }
     let root = projectsFiles.get(projectRootPath);
     if (root != null) {
       root.openFiles.delete(filePath);
@@ -389,10 +444,190 @@ let closedFile = (fileUri: string) => {
     }
   }
 };
+function getBscArgs(projectRootPath: string): Promise<Array<string>> {
+  let buildNinjaPath = path.resolve(projectRootPath, "lib/bs/build.ninja");
+  let cacheEntry = buildNinjaCache.get(buildNinjaPath);
+  let stat: fs.Stats | null = null;
+  if (cacheEntry != null) {
+    stat = fs.statSync(buildNinjaPath);
+    if (cacheEntry[0] >= stat.mtimeMs) {
+      return Promise.resolve(cacheEntry[1]);
+    }
+  }
+  return new Promise((resolve, _reject) => {
+    function resolveResult(result: Array<string>) {
+      if (stat != null) {
+        buildNinjaCache.set(buildNinjaPath, [stat.mtimeMs, result]);
+      }
+      resolve(result);
+    }
+    const fileStream = fs.createReadStream(
+      path.resolve(projectRootPath, "lib/bs/build.ninja")
+    );
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity,
+    });
+    let captureNextLine = false;
+    let done = false;
+    let stopped = false;
+    let captured: Array<string> = [];
+    rl.on("line", (line) => {
+      if (stopped) {
+        return;
+      }
+      if (captureNextLine) {
+        captured.push(line);
+        captureNextLine = false;
+      }
+      if (done) {
+        fileStream.destroy();
+        rl.close();
+        resolveResult(captured);
+        stopped = true;
+        return;
+      }
+      if (line.startsWith("rule astj")) {
+        captureNextLine = true;
+      }
+      if (line.startsWith("rule mij")) {
+        captureNextLine = true;
+        done = true;
+      }
+    });
+    rl.on("close", () => {
+      resolveResult(captured);
+    });
+  });
+}
+function argsFromCommandString(cmdString: string): Array<Array<string>> {
+  let s = cmdString
+    .trim()
+    .split("command = ")[1]
+    .split(" ")
+    .map((v) => v.trim())
+    .filter((v) => v !== "");
+  let args: Array<Array<string>> = [];
+
+  for (let i = 0; i <= s.length - 1; i++) {
+    let item = s[i];
+    let nextItem = s[i + 1] ?? "";
+    if (item.startsWith("-") && nextItem.startsWith("-")) {
+      // Single entry arg
+      args.push([item]);
+    } else if (item.startsWith("-") && s[i + 1]?.startsWith("'")) {
+      let nextIndex = i + 1;
+      // Quoted arg, take until ending '
+      let arg = [s[nextIndex]];
+      for (let x = nextIndex + 1; x <= s.length - 1; x++) {
+        let nextItem = s[x];
+        arg.push(nextItem);
+        if (nextItem.endsWith("'")) {
+          i = x + 1;
+          break;
+        }
+      }
+      args.push([item, arg.join(" ")]);
+    } else if (item.startsWith("-")) {
+      args.push([item, nextItem]);
+    }
+  }
+  return args;
+}
+function removeAnsiCodes(s: string): string {
+  const ansiEscape = /\x1B[@-_][0-?]*[ -/]*[@-~]/g;
+  return s.replace(ansiEscape, "");
+}
+async function compileContents(filePath: string, fileContent: string) {
+  const projectRootPath = utils.findProjectRootOfFile(filePath);
+  if (projectRootPath == null) {
+    console.log("Did not find root project.");
+    return;
+  }
+  let bscExe = findBscExeBinary(projectRootPath);
+  if (bscExe == null) {
+    console.log("Did not find bsc.");
+    return;
+  }
+  let fileName = path.basename(filePath);
+  let incrementalFilePath = path.resolve(
+    projectRootPath,
+    "lib/bs/___incremental",
+    fileName
+  );
+
+  fs.writeFileSync(incrementalFilePath, fileContent);
+
+  try {
+    let [astBuildCommand, fullBuildCommand] = await getBscArgs(projectRootPath);
+
+    let astArgs = argsFromCommandString(astBuildCommand);
+    let buildArgs = argsFromCommandString(fullBuildCommand);
+
+    let callArgs: Array<string> = [];
+
+    buildArgs.forEach(([key, value]: Array<string>) => {
+      if (key === "-I") {
+        callArgs.push("-I", path.resolve(projectRootPath, "lib/bs", value));
+      } else if (key === "-bs-v") {
+        callArgs.push("-bs-v", Date.now().toString());
+      } else if (key === "-bs-package-output") {
+        return;
+      } else if (value == null || value === "") {
+        callArgs.push(key);
+      } else {
+        callArgs.push(key, value);
+      }
+    });
+
+    astArgs.forEach(([key, value]: Array<string>) => {
+      if (key.startsWith("-bs-jsx")) {
+        callArgs.push(key, value);
+      } else if (key.startsWith("-ppx")) {
+        callArgs.push(key, value);
+      }
+    });
+
+    callArgs.push("-color", "never");
+
+    callArgs = callArgs.filter((v) => v != null && v !== "");
+    callArgs.push(incrementalFilePath);
+
+    cp.execFile(
+      bscExe,
+      callArgs,
+      { cwd: projectRootPath },
+      (_error, _stdout, stderr) => {
+        // DOCUMENT HERE
+        if (stderr !== "") {
+          let { result } = utils.parseCompilerLogOutput(`${stderr}\n#Done()`);
+          let res = Object.values(result)[0].map((d) => ({
+            ...d,
+            message: removeAnsiCodes(d.message),
+          }));
+          let notification: p.NotificationMessage = {
+            jsonrpc: c.jsonrpcVersion,
+            method: "textDocument/publishDiagnostics",
+            params: {
+              uri: pathToFileURL(filePath),
+              diagnostics: res,
+            },
+          };
+          send(notification);
+        }
+      }
+    );
+  } catch (e) {
+    console.error(e);
+  }
+}
 let updateOpenedFile = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
   assert(stupidFileContentCache.has(filePath));
   stupidFileContentCache.set(filePath, fileContent);
+  if (extensionConfiguration.incrementalTypechecking) {
+    compileContents(filePath, fileContent);
+  }
 };
 let getOpenedFileContent = (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
