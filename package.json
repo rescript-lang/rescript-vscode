@@ -4,7 +4,7 @@
 	"description": "ReScript language support (official)",
 	"author": "ReScript Team",
 	"license": "MIT",
-	"version": "1.44.0",
+	"version": "1.42.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/rescript-lang/rescript-vscode"
@@ -176,7 +176,7 @@
 					"default": true,
 					"description": "Enable signature help for function calls."
 				},
-				"rescript.settings.incrementalTypechecking": {
+				"rescript.settings.incrementalTypechecking.enabled": {
 					"type": "boolean",
 					"default": true,
 					"description": "Enable incremental type checking."
