@@ -21,28 +21,13 @@ import * as codeActions from "./codeActions";
 import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { assert } from "console";
-import { fileURLToPath, pathToFileURL } from "url";
+import { fileURLToPath } from "url";
 import * as cp from "node:child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { filesDiagnostics } from "./utils";
 import { onErrorReported } from "./errorReporter";
-import readline from "readline";
-
-interface extensionConfiguration {
-  allowBuiltInFormatter: boolean;
-  askToStartBuild: boolean;
-  inlayHints: {
-    enable: boolean;
-    maxLength: number | null;
-  };
-  codeLens: boolean;
-  binaryPath: string | null;
-  platformPath: string | null;
-  signatureHelp: {
-    enabled: boolean;
-  };
-  incrementalTypechecking: boolean;
-}
+import * as ic from "./incrementalCompilation";
+import config, { extensionConfiguration } from "./config";
 
 // This holds client capabilities specific to our extension, and not necessarily
 // related to the LS protocol. It's for enabling/disabling features that might
@@ -53,23 +38,6 @@ export interface extensionClientCapabilities {
 }
 let extensionClientCapabilities: extensionClientCapabilities = {};
 
-// All values here are temporary, and will be overridden as the server is
-// initialized, and the current config is received from the client.
-let extensionConfiguration: extensionConfiguration = {
-  allowBuiltInFormatter: false,
-  askToStartBuild: true,
-  inlayHints: {
-    enable: false,
-    maxLength: 25,
-  },
-  codeLens: false,
-  binaryPath: null,
-  platformPath: null,
-  signatureHelp: {
-    enabled: true,
-  },
-  incrementalTypechecking: true,
-};
 // Below here is some state that's not important exactly how long it lives.
 let hasPromptedAboutBuiltInFormatter = false;
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
@@ -106,45 +74,16 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-let buildNinjaCache: Map<string, [number, Array<string>]> = new Map();
-
 let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
-  extensionConfiguration.binaryPath == null
+  config.extensionConfiguration.binaryPath == null
     ? lookup.findFilePathFromProjectRoot(
         projectRootPath,
         path.join(c.nodeModulesBinDir, c.rescriptBinName)
       )
-    : utils.findBinary(extensionConfiguration.binaryPath, c.rescriptBinName);
-
-let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
-  if (extensionConfiguration.platformPath != null) {
-    return extensionConfiguration.platformPath;
-  }
-
-  let rescriptDir = lookup.findFilePathFromProjectRoot(
-    projectRootPath,
-    path.join("node_modules", "rescript")
-  );
-  if (rescriptDir == null) {
-    return null;
-  }
-
-  let platformPath = path.join(rescriptDir, c.platformDir);
-
-  // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
-  if (
-    process.platform == "darwin" &&
-    process.arch == "arm64" &&
-    !fs.existsSync(platformPath)
-  ) {
-    platformPath = path.join(rescriptDir, process.platform);
-  }
-
-  return platformPath;
-};
-
-let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
-  utils.findBinary(findPlatformPath(projectRootPath), c.bscExeName);
+    : utils.findBinary(
+        config.extensionConfiguration.binaryPath,
+        c.rescriptBinName
+      );
 
 let createInterfaceRequest = new v.RequestType<
   p.TextDocumentIdentifier,
@@ -252,8 +191,8 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
     });
 
     projectsFiles.delete(projectRootPath);
-    if (extensionConfiguration.incrementalTypechecking) {
-      removeIncrementalFileFolder(projectRootPath);
+    if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+      ic.removeIncrementalFileFolder(projectRootPath);
     }
   }
 };
@@ -273,12 +212,18 @@ let compilerLogsWatcher = chokidar
     },
   })
   .on("all", (_e, changedPath) => {
+    if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+      // We clean up all incremental file assets when the compiler has rebuilt,
+      // because at that point we want to use the main, compiled type assets
+      // instead of the incremental type assets.
+      ic.cleanupIncrementalFilesAfterCompilation(changedPath);
+    }
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
-    if (extensionConfiguration.inlayHints?.enable === true) {
+    if (config.extensionConfiguration.inlayHints?.enable === true) {
       sendInlayHintsRefresh();
     }
-    if (extensionConfiguration.codeLens === true) {
+    if (config.extensionConfiguration.codeLens === true) {
       sendCodeLensRefresh();
     }
   });
@@ -298,13 +243,13 @@ let openedFile = (fileUri: string, fileContent: string) => {
 
   let projectRootPath = utils.findProjectRootOfFile(filePath);
   if (projectRootPath != null) {
-    if (extensionConfiguration.incrementalTypechecking) {
-      cleanUpIncrementalFiles(filePath, projectRootPath);
+    if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+      ic.cleanUpIncrementalFiles(filePath, projectRootPath);
     }
     let projectRootState = projectsFiles.get(projectRootPath);
     if (projectRootState == null) {
-      if (extensionConfiguration.incrementalTypechecking) {
-        recreateIncrementalFileFolder(projectRootPath);
+      if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+        ic.recreateIncrementalFileFolder(projectRootPath);
       }
       projectRootState = {
         openFiles: new Set(),
@@ -329,7 +274,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
     let bsbLockPath = path.join(projectRootPath, c.bsbLock);
     if (
       projectRootState.hasPromptedToStartBuild === false &&
-      extensionConfiguration.askToStartBuild === true &&
+      config.extensionConfiguration.askToStartBuild === true &&
       !fs.existsSync(bsbLockPath)
     ) {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
@@ -363,12 +308,12 @@ let openedFile = (fileUri: string, fileContent: string) => {
           params: {
             type: p.MessageType.Error,
             message:
-              extensionConfiguration.binaryPath == null
+              config.extensionConfiguration.binaryPath == null
                 ? `Can't find ReScript binary in  ${path.join(
                     projectRootPath,
                     c.nodeModulesBinDir
                   )} or parent directories. Did you install it? It's required to use "rescript" > 9.1`
-                : `Can't find ReScript binary in the directory ${extensionConfiguration.binaryPath}`,
+                : `Can't find ReScript binary in the directory ${config.extensionConfiguration.binaryPath}`,
           },
         };
         send(request);
@@ -379,44 +324,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
     // call the listener which calls it
   }
 };
-function removeIncrementalFileFolder(
-  projectRootPath: string,
-  onAfterRemove?: () => void
-) {
-  fs.rm(
-    path.resolve(projectRootPath, "lib/bs/___incremental"),
-    { force: true, recursive: true },
-    (_) => {
-      onAfterRemove?.();
-    }
-  );
-}
-function recreateIncrementalFileFolder(projectRootPath: string) {
-  removeIncrementalFileFolder(projectRootPath, () => {
-    fs.mkdir(path.resolve(projectRootPath, "lib/bs/___incremental"), (_) => {});
-  });
-}
-/**
- * TODO CMT stuff
- * - Make sure cmt is deleted/ignore if original contents is newer. How?
- * - Clear incremental folder when starting LSP
- * - Optimize recompiles
- * - Races when recompiling?
- */
-function cleanUpIncrementalFiles(filePath: string, projectRootPath: string) {
-  [
-    path.basename(filePath, ".res") + ".ast",
-    path.basename(filePath, ".res") + ".cmt",
-    path.basename(filePath, ".res") + ".cmi",
-    path.basename(filePath, ".res") + ".cmj",
-    path.basename(filePath),
-  ].forEach((file) => {
-    fs.unlink(
-      path.resolve(projectRootPath, "lib/bs/___incremental", file),
-      (_) => {}
-    );
-  });
-}
+
 let closedFile = (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
 
@@ -424,8 +332,8 @@ let closedFile = (fileUri: string) => {
 
   let projectRootPath = utils.findProjectRootOfFile(filePath);
   if (projectRootPath != null) {
-    if (extensionConfiguration.incrementalTypechecking) {
-      cleanUpIncrementalFiles(filePath, projectRootPath);
+    if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+      ic.cleanUpIncrementalFiles(filePath, projectRootPath);
     }
     let root = projectsFiles.get(projectRootPath);
     if (root != null) {
@@ -444,189 +352,20 @@ let closedFile = (fileUri: string) => {
     }
   }
 };
-function getBscArgs(projectRootPath: string): Promise<Array<string>> {
-  let buildNinjaPath = path.resolve(projectRootPath, "lib/bs/build.ninja");
-  let cacheEntry = buildNinjaCache.get(buildNinjaPath);
-  let stat: fs.Stats | null = null;
-  if (cacheEntry != null) {
-    stat = fs.statSync(buildNinjaPath);
-    if (cacheEntry[0] >= stat.mtimeMs) {
-      return Promise.resolve(cacheEntry[1]);
-    }
-  }
-  return new Promise((resolve, _reject) => {
-    function resolveResult(result: Array<string>) {
-      if (stat != null) {
-        buildNinjaCache.set(buildNinjaPath, [stat.mtimeMs, result]);
-      }
-      resolve(result);
-    }
-    const fileStream = fs.createReadStream(
-      path.resolve(projectRootPath, "lib/bs/build.ninja")
-    );
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity,
-    });
-    let captureNextLine = false;
-    let done = false;
-    let stopped = false;
-    let captured: Array<string> = [];
-    rl.on("line", (line) => {
-      if (stopped) {
-        return;
-      }
-      if (captureNextLine) {
-        captured.push(line);
-        captureNextLine = false;
-      }
-      if (done) {
-        fileStream.destroy();
-        rl.close();
-        resolveResult(captured);
-        stopped = true;
-        return;
-      }
-      if (line.startsWith("rule astj")) {
-        captureNextLine = true;
-      }
-      if (line.startsWith("rule mij")) {
-        captureNextLine = true;
-        done = true;
-      }
-    });
-    rl.on("close", () => {
-      resolveResult(captured);
-    });
-  });
-}
-function argsFromCommandString(cmdString: string): Array<Array<string>> {
-  let s = cmdString
-    .trim()
-    .split("command = ")[1]
-    .split(" ")
-    .map((v) => v.trim())
-    .filter((v) => v !== "");
-  let args: Array<Array<string>> = [];
 
-  for (let i = 0; i <= s.length - 1; i++) {
-    let item = s[i];
-    let nextItem = s[i + 1] ?? "";
-    if (item.startsWith("-") && nextItem.startsWith("-")) {
-      // Single entry arg
-      args.push([item]);
-    } else if (item.startsWith("-") && s[i + 1]?.startsWith("'")) {
-      let nextIndex = i + 1;
-      // Quoted arg, take until ending '
-      let arg = [s[nextIndex]];
-      for (let x = nextIndex + 1; x <= s.length - 1; x++) {
-        let nextItem = s[x];
-        arg.push(nextItem);
-        if (nextItem.endsWith("'")) {
-          i = x + 1;
-          break;
-        }
-      }
-      args.push([item, arg.join(" ")]);
-    } else if (item.startsWith("-")) {
-      args.push([item, nextItem]);
-    }
-  }
-  return args;
-}
-function removeAnsiCodes(s: string): string {
-  const ansiEscape = /\x1B[@-_][0-?]*[ -/]*[@-~]/g;
-  return s.replace(ansiEscape, "");
-}
-async function compileContents(filePath: string, fileContent: string) {
-  const projectRootPath = utils.findProjectRootOfFile(filePath);
-  if (projectRootPath == null) {
-    console.log("Did not find root project.");
-    return;
-  }
-  let bscExe = findBscExeBinary(projectRootPath);
-  if (bscExe == null) {
-    console.log("Did not find bsc.");
-    return;
-  }
-  let fileName = path.basename(filePath);
-  let incrementalFilePath = path.resolve(
-    projectRootPath,
-    "lib/bs/___incremental",
-    fileName
-  );
-
-  fs.writeFileSync(incrementalFilePath, fileContent);
-
-  try {
-    let [astBuildCommand, fullBuildCommand] = await getBscArgs(projectRootPath);
-
-    let astArgs = argsFromCommandString(astBuildCommand);
-    let buildArgs = argsFromCommandString(fullBuildCommand);
-
-    let callArgs: Array<string> = [];
-
-    buildArgs.forEach(([key, value]: Array<string>) => {
-      if (key === "-I") {
-        callArgs.push("-I", path.resolve(projectRootPath, "lib/bs", value));
-      } else if (key === "-bs-v") {
-        callArgs.push("-bs-v", Date.now().toString());
-      } else if (key === "-bs-package-output") {
-        return;
-      } else if (value == null || value === "") {
-        callArgs.push(key);
-      } else {
-        callArgs.push(key, value);
-      }
-    });
-
-    astArgs.forEach(([key, value]: Array<string>) => {
-      if (key.startsWith("-bs-jsx")) {
-        callArgs.push(key, value);
-      } else if (key.startsWith("-ppx")) {
-        callArgs.push(key, value);
-      }
-    });
-
-    callArgs.push("-color", "never");
-
-    callArgs = callArgs.filter((v) => v != null && v !== "");
-    callArgs.push(incrementalFilePath);
-
-    cp.execFile(
-      bscExe,
-      callArgs,
-      { cwd: projectRootPath },
-      (_error, _stdout, stderr) => {
-        // DOCUMENT HERE
-        if (stderr !== "") {
-          let { result } = utils.parseCompilerLogOutput(`${stderr}\n#Done()`);
-          let res = Object.values(result)[0].map((d) => ({
-            ...d,
-            message: removeAnsiCodes(d.message),
-          }));
-          let notification: p.NotificationMessage = {
-            jsonrpc: c.jsonrpcVersion,
-            method: "textDocument/publishDiagnostics",
-            params: {
-              uri: pathToFileURL(filePath),
-              diagnostics: res,
-            },
-          };
-          send(notification);
-        }
-      }
-    );
-  } catch (e) {
-    console.error(e);
-  }
-}
 let updateOpenedFile = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
   assert(stupidFileContentCache.has(filePath));
   stupidFileContentCache.set(filePath, fileContent);
-  if (extensionConfiguration.incrementalTypechecking) {
-    compileContents(filePath, fileContent);
+  if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+    ic.handleUpdateOpenedFile(filePath, fileContent, send, () => {
+      if (config.extensionConfiguration.codeLens) {
+        sendCodeLensRefresh();
+      }
+      if (config.extensionConfiguration.inlayHints) {
+        sendInlayHintsRefresh();
+      }
+    });
   }
 };
 let getOpenedFileContent = (fileUri: string) => {
@@ -687,7 +426,7 @@ function inlayHint(msg: p.RequestMessage) {
       filePath,
       params.range.start.line,
       params.range.end.line,
-      extensionConfiguration.inlayHints.maxLength,
+      config.extensionConfiguration.inlayHints.maxLength,
     ],
     msg
   );
@@ -1008,13 +747,13 @@ function format(msg: p.RequestMessage): Array<p.Message> {
     let code = getOpenedFileContent(params.textDocument.uri);
 
     let projectRootPath = utils.findProjectRootOfFile(filePath);
-    let bscExeBinaryPath = findBscExeBinary(projectRootPath);
+    let bscExeBinaryPath = utils.findBscExeBinary(projectRootPath);
 
     let formattedResult = utils.formatCode(
       bscExeBinaryPath,
       filePath,
       code,
-      extensionConfiguration.allowBuiltInFormatter
+      config.extensionConfiguration.allowBuiltInFormatter
     );
     if (formattedResult.kind === "success") {
       let max = code.length;
@@ -1064,6 +803,12 @@ function format(msg: p.RequestMessage): Array<p.Message> {
 
 let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
+  if (
+    config.extensionConfiguration.incrementalTypechecking.enabled &&
+    ic.fileIsIncrementallyCompiled(filePath)
+  ) {
+    return;
+  }
   let extension = path.extname(filePath);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
@@ -1275,6 +1020,14 @@ function onMessage(msg: p.Message) {
       } else {
         process.exit(1);
       }
+    } else if (msg.method === p.DidSaveTextDocumentNotification.method) {
+      if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+        // We track all incremental file assets when a file is actually saved,
+        // so we can clean them up.
+        let params = msg.params as p.DidSaveTextDocumentParams;
+        let filePath = fileURLToPath(params.textDocument.uri);
+        ic.handleDidSaveTextDocument(filePath);
+      }
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       openedFile(params.textDocument.uri, params.textDocument.text);
@@ -1324,7 +1077,7 @@ function onMessage(msg: p.Message) {
         ?.extensionConfiguration as extensionConfiguration | undefined;
 
       if (initialConfiguration != null) {
-        extensionConfiguration = initialConfiguration;
+        config.extensionConfiguration = initialConfiguration;
       }
 
       // These are static configuration options the client can set to enable certain
@@ -1379,13 +1132,14 @@ function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
-          inlayHintProvider: extensionConfiguration.inlayHints?.enable,
-          codeLensProvider: extensionConfiguration.codeLens
+          inlayHintProvider: config.extensionConfiguration.inlayHints?.enable,
+          codeLensProvider: config.extensionConfiguration.codeLens
             ? {
                 workDoneProgress: false,
               }
             : undefined,
-          signatureHelpProvider: extensionConfiguration.signatureHelp?.enabled
+          signatureHelpProvider: config.extensionConfiguration.signatureHelp
+            ?.enabled
             ? {
                 triggerCharacters: ["("],
                 retriggerCharacters: ["=", ","],
@@ -1513,7 +1267,7 @@ function onMessage(msg: p.Message) {
           extensionConfiguration | null | undefined
         ];
         if (configuration != null) {
-          extensionConfiguration = configuration;
+          config.extensionConfiguration = configuration;
         }
       }
     } else if (
