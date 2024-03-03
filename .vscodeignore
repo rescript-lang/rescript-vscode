@@ -19,3 +19,4 @@ client/node_modules
 server/node_modules
 _opam
 _build
+Makefile

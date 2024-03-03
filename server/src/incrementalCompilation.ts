@@ -13,6 +13,12 @@ import * as c from "./constants";
  * TODO CMT stuff
  * - Compile resi
  * - Wait a certain threshold for compilation before using the old cmt
+ * - Monorepos? Namespaces
+ * Questions:
+ * - We trigger no incremental compilation for other files. This might be problematic if we want to go across files. Track dependencies? What's supposed to be used when and where?
+ * Improvements:
+ * - Ask build system for complete build command for file X, instead of piecing together from build.ninja. Rewatch?
+ * - Have build system communicate what was actually rebuilt after compilation finishes.
  */
 
 let debug = true;
@@ -22,6 +28,8 @@ let savedIncrementalFiles: Set<string> = new Set();
 let compileContentsCache: Map<string, { timeout: any; triggerToken: number }> =
   new Map();
 let compileContentsListeners: Map<string, Array<() => void>> = new Map();
+const incrementalFolderName = "___incremental";
+const incrementalFileFolderLocation = `lib/bs/${incrementalFolderName}`;
 
 export function cleanupIncrementalFilesAfterCompilation(changedPath: string) {
   const projectRootPath = utils.findProjectRootOfFile(changedPath);
@@ -40,7 +48,7 @@ export function removeIncrementalFileFolder(
   onAfterRemove?: () => void
 ) {
   fs.rm(
-    path.resolve(projectRootPath, "lib/bs/___incremental"),
+    path.resolve(projectRootPath, incrementalFileFolderLocation),
     { force: true, recursive: true },
     (_) => {
       onAfterRemove?.();
@@ -50,7 +58,10 @@ export function removeIncrementalFileFolder(
 
 export function recreateIncrementalFileFolder(projectRootPath: string) {
   removeIncrementalFileFolder(projectRootPath, () => {
-    fs.mkdir(path.resolve(projectRootPath, "lib/bs/___incremental"), (_) => {});
+    fs.mkdir(
+      path.resolve(projectRootPath, incrementalFileFolderLocation),
+      (_) => {}
+    );
   });
 }
 
@@ -59,7 +70,11 @@ export function fileIsIncrementallyCompiled(filePath: string): boolean {
   let fileName = path.basename(filePath, ".res");
   if (projectRootPath != null) {
     return fs.existsSync(
-      path.resolve(projectRootPath, "lib/bs/___incremental", fileName + ".cmt")
+      path.resolve(
+        projectRootPath,
+        incrementalFileFolderLocation,
+        fileName + ".cmt"
+      )
     );
   }
   return false;
@@ -77,7 +92,7 @@ export function cleanUpIncrementalFiles(
     path.basename(filePath),
   ].forEach((file) => {
     fs.unlink(
-      path.resolve(projectRootPath, "lib/bs/___incremental", file),
+      path.resolve(projectRootPath, incrementalFileFolderLocation, file),
       (_) => {}
     );
   });
@@ -149,19 +164,24 @@ function argsFromCommandString(cmdString: string): Array<Array<string>> {
 
   for (let i = 0; i <= s.length - 1; i++) {
     let item = s[i];
-    let nextItem = s[i + 1] ?? "";
+    let nextIndex = i + 1;
+    let nextItem = s[nextIndex] ?? "";
     if (item.startsWith("-") && nextItem.startsWith("-")) {
       // Single entry arg
       args.push([item]);
-    } else if (item.startsWith("-") && s[i + 1]?.startsWith("'")) {
-      let nextIndex = i + 1;
+    } else if (item.startsWith("-") && nextItem.startsWith("'")) {
       // Quoted arg, take until ending '
-      let arg = [s[nextIndex]];
+      let arg = [nextItem.slice(1)];
       for (let x = nextIndex + 1; x <= s.length - 1; x++) {
-        let nextItem = s[x];
-        arg.push(nextItem);
-        if (nextItem.endsWith("'")) {
-          i = x + 1;
+        let subItem = s[x];
+        let break_ = false;
+        if (subItem.endsWith("'")) {
+          subItem = subItem.slice(0, subItem.length - 1);
+          i = x;
+          break_ = true;
+        }
+        arg.push(subItem);
+        if (break_) {
           break;
         }
       }
@@ -224,11 +244,15 @@ async function compileContents(
     if (debug) console.log("Did not find bsc.");
     return;
   }
-  let incrementalFilePath = path.resolve(
+  let incrementalFolderPath = path.resolve(
     projectRootPath,
-    "lib/bs/___incremental",
-    fileName
+    incrementalFileFolderLocation
   );
+  let incrementalFilePath = path.resolve(incrementalFolderPath, fileName);
+
+  if (!fs.existsSync(incrementalFolderPath)) {
+    fs.mkdirSync(incrementalFolderPath);
+  }
 
   fs.writeFileSync(incrementalFilePath, fileContent);
 
@@ -240,7 +264,7 @@ async function compileContents(
 
     let callArgs: Array<string> = [
       "-I",
-      path.resolve(projectRootPath, "lib/bs/___incremental"),
+      path.resolve(projectRootPath, incrementalFileFolderLocation),
     ];
 
     buildArgs.forEach(([key, value]: Array<string>) => {
@@ -298,7 +322,7 @@ async function compileContents(
             .filter(
               (d) =>
                 !d.message.startsWith("Uninterpreted extension 'rescript.") &&
-                !d.message.includes(`/___incremental/${fileName}`)
+                !d.message.includes(`/${incrementalFolderName}/${fileName}`)
             );
 
           let notification: p.NotificationMessage = {

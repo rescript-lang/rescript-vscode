@@ -178,8 +178,8 @@
 				},
 				"rescript.settings.incrementalTypechecking.enabled": {
 					"type": "boolean",
-					"default": true,
-					"description": "Enable incremental type checking."
+					"default": false,
+					"description": "(beta/experimental) Enable incremental type checking."
 				},
 				"rescript.settings.binaryPath": {
 					"type": [
