@@ -235,9 +235,9 @@
 	},
 	"scripts": {
 		"clean": "rm -rf client/out server/out",
-		"vscode:prepublish": "npm run clean && npm run compile && npm run bundle",
-		"compile": "tsc",
-		"watch": "tsc -w",
+		"vscode:prepublish": "npm run clean && npm run bundle",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
 		"postinstall": "cd server && npm i && cd ../client && npm i && cd ../tools && npm i && cd ../tools/tests && npm i && cd ../../analysis/tests && npm i && cd ../reanalyze/examples/deadcode && npm i && cd ../termination && npm i",
 		"bundle-server": "esbuild server/src/cli.ts --bundle --sourcemap --outfile=server/out/cli.js --format=cjs --platform=node --loader:.node=file --minify",
 		"bundle-client": "esbuild client/src/extension.ts --bundle --external:vscode --sourcemap --outfile=client/out/extension.js --format=cjs --platform=node --loader:.node=file --minify",
