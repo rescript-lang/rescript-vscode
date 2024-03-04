@@ -15,3 +15,7 @@ analysis.opam
 tools.opam
 .ocamlformat
 .ocamlformat-ignore
+client/node_modules
+server/node_modules
+_opam
+_build
