@@ -65,6 +65,7 @@ const incrementallyCompiledFileInfo: Map<
   IncrementallyCompiledFileInfo
 > = new Map();
 const savedIncrementalFiles: Set<string> = new Set();
+const hasReportedFeatureFailedError: Set<string> = new Set();
 
 export function cleanupIncrementalFilesAfterCompilation(
   compilerLogPath: string
@@ -418,7 +419,6 @@ async function compileContents(
 ) {
   const triggerToken = entry.compilation?.triggerToken;
   const startTime = performance.now();
-  // TODO: Move somewhere else?
   if (!fs.existsSync(entry.project.incrementalFolderPath)) {
     fs.mkdirSync(entry.project.incrementalFolderPath);
   }
@@ -463,7 +463,28 @@ async function compileContents(
               )
           );
 
-        // if (res.length === 0) console.log(stderr, _stdout); TODO: Log that there was an error executing..? Maybe write to a log file.
+        if (
+          res.length === 0 &&
+          stderr !== "" &&
+          !hasReportedFeatureFailedError.has(entry.project.rootPath)
+        ) {
+          hasReportedFeatureFailedError.add(entry.project.rootPath);
+          const logfile = path.resolve(
+            entry.project.incrementalFolderPath,
+            "error.log"
+          );
+          fs.writeFileSync(logfile, stderr);
+          let params: p.ShowMessageParams = {
+            type: p.MessageType.Warning,
+            message: `[Incremental typechecking] Something might have gone wrong with incremental type checking. Check out the [error log](file://${logfile}) and report this issue please.`,
+          };
+          let message: p.NotificationMessage = {
+            jsonrpc: c.jsonrpcVersion,
+            method: "window/showMessage",
+            params: params,
+          };
+          send(message);
+        }
 
         const notification: p.NotificationMessage = {
           jsonrpc: c.jsonrpcVersion,
