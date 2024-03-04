@@ -9,21 +9,6 @@ import * as cp from "node:child_process";
 import { send } from "./config";
 import * as c from "./constants";
 
-/*
- * TODO CMT stuff
- * - Compile resi
- * - Wait a certain threshold for compilation before using the old cmt
- * - Monorepos? Namespaces
- * - Fix races by using fs.promises
- * - Split some of the cache per project root instead so less recalc is needed
- * - Throttle error messages?
- * Questions:
- * - We trigger no incremental compilation for other files. This might be problematic if we want to go across files. Track dependencies? What's supposed to be used when and where?
- * Improvements:
- * - Ask build system for compconste build command for file X, instead of piecing together from build.ninja. Rewatch?
- * - Have build system communicate what was actually rebuilt after compilation finishes.
- */
-
 const debug = true;
 
 const INCREMENTAL_FOLDER_NAME = "___incremental";
@@ -31,6 +16,8 @@ const INCREMENTAL_FILE_FOLDER_LOCATION = `lib/bs/${INCREMENTAL_FOLDER_NAME}`;
 
 type IncrementallyCompiledFileInfo = {
   file: {
+    /** File type. */
+    extension: ".res" | ".resi";
     /** Path to the source file. */
     sourceFilePath: string;
     /** Name of the source file. */
@@ -134,19 +121,28 @@ export function cleanUpIncrementalFiles(
   filePath: string,
   projectRootPath: string
 ) {
+  const ext = filePath.endsWith(".resi") ? ".resi" : ".res";
   const namespace = utils.getNamespaceNameFromConfigFile(projectRootPath);
-  const fileNameNoExt = path.basename(filePath, ".res");
+  const fileNameNoExt = path.basename(filePath, ext);
   const moduleNameNamespaced =
     namespace.kind === "success" && namespace.result !== ""
       ? `${fileNameNoExt}-${namespace.result}`
       : fileNameNoExt;
+
+  fs.unlink(
+    path.resolve(
+      projectRootPath,
+      INCREMENTAL_FILE_FOLDER_LOCATION,
+      path.basename(filePath)
+    ),
+    (_) => {}
+  );
 
   [
     moduleNameNamespaced + ".ast",
     moduleNameNamespaced + ".cmt",
     moduleNameNamespaced + ".cmi",
     moduleNameNamespaced + ".cmj",
-    fileNameNoExt + ".res",
   ].forEach((file) => {
     fs.unlink(
       path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION, file),
@@ -285,7 +281,8 @@ function triggerIncrementalCompilationOfFile(
         console.log("Could not find bsc binary location for " + filePath);
       return;
     }
-    const moduleName = path.basename(filePath, ".res");
+    const ext = filePath.endsWith(".resi") ? ".resi" : ".res";
+    const moduleName = path.basename(filePath, ext);
     const moduleNameNamespaced =
       namespaceName.result !== ""
         ? `${moduleName}-${namespaceName.result}`
@@ -311,14 +308,12 @@ function triggerIncrementalCompilationOfFile(
 
     incrementalFileCacheEntry = {
       file: {
+        extension: ext,
         moduleName,
         moduleNameNamespaced,
-        sourceFileName: moduleName + ".res",
+        sourceFileName: moduleName + ext,
         sourceFilePath: filePath,
-        incrementalFilePath: path.join(
-          incrementalFolderPath,
-          moduleName + ".res"
-        ),
+        incrementalFilePath: path.join(incrementalFolderPath, moduleName + ext),
       },
       project: {
         rootPath: projectRootPath,

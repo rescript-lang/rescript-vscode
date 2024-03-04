@@ -17,7 +17,11 @@ let fullFromUri ~uri =
       BuildSystem.namespacedName package.namespace (FindFiles.getName path)
     in
     let incrementalCmtPath =
-      package.rootPath ^ "/lib/bs/___incremental" ^ "/" ^ moduleName ^ ".cmt"
+      package.rootPath ^ "/lib/bs/___incremental" ^ "/" ^ moduleName
+      ^
+      match Files.classifySourceFile path with
+      | Resi -> ".cmti"
+      | _ -> ".cmt"
     in
     match fullForCmt ~moduleName ~package ~uri incrementalCmtPath with
     | Some cmtInfo ->
