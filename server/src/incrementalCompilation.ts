@@ -14,25 +14,71 @@ import * as c from "./constants";
  * - Compile resi
  * - Wait a certain threshold for compilation before using the old cmt
  * - Monorepos? Namespaces
+ * - Fix races by using fs.promises
+ * - Split some of the cache per project root instead so less recalc is needed
+ * - Throttle error messages?
  * Questions:
  * - We trigger no incremental compilation for other files. This might be problematic if we want to go across files. Track dependencies? What's supposed to be used when and where?
  * Improvements:
- * - Ask build system for complete build command for file X, instead of piecing together from build.ninja. Rewatch?
+ * - Ask build system for compconste build command for file X, instead of piecing together from build.ninja. Rewatch?
  * - Have build system communicate what was actually rebuilt after compilation finishes.
  */
 
-let debug = true;
+const debug = true;
 
-let buildNinjaCache: Map<string, [number, Array<string>]> = new Map();
-let savedIncrementalFiles: Set<string> = new Set();
-let compileContentsCache: Map<string, { timeout: any; triggerToken: number }> =
-  new Map();
-let compileContentsListeners: Map<string, Array<() => void>> = new Map();
-const incrementalFolderName = "___incremental";
-const incrementalFileFolderLocation = `lib/bs/${incrementalFolderName}`;
+const INCREMENTAL_FOLDER_NAME = "___incremental";
+const INCREMENTAL_FILE_FOLDER_LOCATION = `lib/bs/${INCREMENTAL_FOLDER_NAME}`;
 
-export function cleanupIncrementalFilesAfterCompilation(changedPath: string) {
-  const projectRootPath = utils.findProjectRootOfFile(changedPath);
+type IncrementallyCompiledFileInfo = {
+  file: {
+    /** Path to the source file. */
+    sourceFilePath: string;
+    /** Name of the source file. */
+    sourceFileName: string;
+    /** Module name of the source file. */
+    moduleName: string;
+    /** Path to where the incremental file is saved. */
+    incrementalFilePath: string;
+  };
+  /** Cache for build.ninja assets. */
+  buildNinja: {
+    /** When build.ninja was last modified. Used as a cache key. */
+    fileMtime: number;
+    /** The raw, extracted needed info from build.ninja. Needs processing. */
+    rawExtracted: Array<string>;
+  } | null;
+  /** Info of the currently active incremental compilation. `null` if no incremental compilation is active. */
+  compilation: {
+    /** The timeout of the currently active compilation for this incremental file. */
+    timeout: NodeJS.Timeout;
+    /** The trigger token for the currently active compilation. */
+    triggerToken: number;
+  } | null;
+  /** Listeners for when compilation of this file is killed. List always cleared after each invocation. */
+  compilationKilledListeners: Array<() => void>;
+  /** Project specific information. */
+  project: {
+    /** The root path of the project. */
+    rootPath: string;
+    /** Computed location of bsc. */
+    bscBinaryLocation: string;
+    /** The arguments needed for bsc, derived from the project configuration/build.ninja. */
+    callArgs: Promise<Array<string>>;
+    /** The location of the incremental folder for this project. */
+    incrementalFolderPath: string;
+  };
+};
+
+const incrementallyCompiledFileInfo: Map<
+  string,
+  IncrementallyCompiledFileInfo
+> = new Map();
+const savedIncrementalFiles: Set<string> = new Set();
+
+export function cleanupIncrementalFilesAfterCompilation(
+  compilerLogPath: string
+) {
+  const projectRootPath = utils.findProjectRootOfFile(compilerLogPath);
   if (projectRootPath != null) {
     savedIncrementalFiles.forEach((filePath) => {
       if (filePath.startsWith(projectRootPath)) {
@@ -48,7 +94,7 @@ export function removeIncrementalFileFolder(
   onAfterRemove?: () => void
 ) {
   fs.rm(
-    path.resolve(projectRootPath, incrementalFileFolderLocation),
+    path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
     { force: true, recursive: true },
     (_) => {
       onAfterRemove?.();
@@ -59,64 +105,71 @@ export function removeIncrementalFileFolder(
 export function recreateIncrementalFileFolder(projectRootPath: string) {
   removeIncrementalFileFolder(projectRootPath, () => {
     fs.mkdir(
-      path.resolve(projectRootPath, incrementalFileFolderLocation),
+      path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
       (_) => {}
     );
   });
 }
 
 export function fileIsIncrementallyCompiled(filePath: string): boolean {
-  let projectRootPath = utils.findProjectRootOfFile(filePath);
-  let fileName = path.basename(filePath, ".res");
-  if (projectRootPath != null) {
-    return fs.existsSync(
-      path.resolve(
-        projectRootPath,
-        incrementalFileFolderLocation,
-        fileName + ".cmt"
-      )
-    );
+  const entry = incrementallyCompiledFileInfo.get(filePath);
+
+  if (entry == null) {
+    return false;
   }
-  return false;
+
+  const pathToCheck = path.resolve(
+    entry.project.incrementalFolderPath,
+    entry.file.moduleName + ".cmt"
+  );
+
+  return fs.existsSync(pathToCheck);
 }
 
 export function cleanUpIncrementalFiles(
   filePath: string,
   projectRootPath: string
 ) {
+  const fileNameNoExt = path.basename(filePath, ".res");
   [
-    path.basename(filePath, ".res") + ".ast",
-    path.basename(filePath, ".res") + ".cmt",
-    path.basename(filePath, ".res") + ".cmi",
-    path.basename(filePath, ".res") + ".cmj",
-    path.basename(filePath),
+    fileNameNoExt + ".ast",
+    fileNameNoExt + ".cmt",
+    fileNameNoExt + ".cmi",
+    fileNameNoExt + ".cmj",
+    fileNameNoExt + ".res",
   ].forEach((file) => {
     fs.unlink(
-      path.resolve(projectRootPath, incrementalFileFolderLocation, file),
+      path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION, file),
       (_) => {}
     );
   });
 }
-function getBscArgs(projectRootPath: string): Promise<Array<string>> {
-  let buildNinjaPath = path.resolve(projectRootPath, "lib/bs/build.ninja");
-  let cacheEntry = buildNinjaCache.get(buildNinjaPath);
+function getBscArgs(
+  entry: IncrementallyCompiledFileInfo
+): Promise<Array<string>> {
+  const buildNinjaPath = path.resolve(
+    entry.project.rootPath,
+    "lib/bs/build.ninja"
+  );
+  const cacheEntry = entry.buildNinja;
   let stat: fs.Stats | null = null;
   if (cacheEntry != null) {
     stat = fs.statSync(buildNinjaPath);
-    if (cacheEntry[0] >= stat.mtimeMs) {
-      return Promise.resolve(cacheEntry[1]);
+    if (cacheEntry.fileMtime >= stat.mtimeMs) {
+      return Promise.resolve(cacheEntry.rawExtracted);
     }
   }
   return new Promise((resolve, _reject) => {
     function resolveResult(result: Array<string>) {
       if (stat != null) {
-        buildNinjaCache.set(buildNinjaPath, [stat.mtimeMs, result]);
+        entry.buildNinja = {
+          fileMtime: stat.mtimeMs,
+          rawExtracted: result,
+        };
       }
       resolve(result);
     }
-    const fileStream = fs.createReadStream(
-      path.resolve(projectRootPath, "lib/bs/build.ninja")
-    );
+    const fileStream = fs.createReadStream(buildNinjaPath);
     const rl = readline.createInterface({
       input: fileStream,
       crlfDelay: Infinity,
@@ -124,7 +177,7 @@ function getBscArgs(projectRootPath: string): Promise<Array<string>> {
     let captureNextLine = false;
     let done = false;
     let stopped = false;
-    let captured: Array<string> = [];
+    const captured: Array<string> = [];
     rl.on("line", (line) => {
       if (stopped) {
         return;
@@ -154,24 +207,24 @@ function getBscArgs(projectRootPath: string): Promise<Array<string>> {
   });
 }
 function argsFromCommandString(cmdString: string): Array<Array<string>> {
-  let s = cmdString
+  const s = cmdString
     .trim()
     .split("command = ")[1]
     .split(" ")
     .map((v) => v.trim())
     .filter((v) => v !== "");
-  let args: Array<Array<string>> = [];
+  const args: Array<Array<string>> = [];
 
   for (let i = 0; i <= s.length - 1; i++) {
-    let item = s[i];
-    let nextIndex = i + 1;
-    let nextItem = s[nextIndex] ?? "";
+    const item = s[i];
+    const nextIndex = i + 1;
+    const nextItem = s[nextIndex] ?? "";
     if (item.startsWith("-") && nextItem.startsWith("-")) {
       // Single entry arg
       args.push([item]);
     } else if (item.startsWith("-") && nextItem.startsWith("'")) {
       // Quoted arg, take until ending '
-      let arg = [nextItem.slice(1)];
+      const arg = [nextItem.slice(1)];
       for (let x = nextIndex + 1; x <= s.length - 1; x++) {
         let subItem = s[x];
         let break_ = false;
@@ -202,149 +255,194 @@ function triggerIncrementalCompilationOfFile(
   send: send,
   onCompilationFinished?: () => void
 ) {
-  let cacheEntry = compileContentsCache.get(filePath);
-  if (cacheEntry != null) {
-    clearTimeout(cacheEntry.timeout);
-    compileContentsListeners.get(filePath)?.forEach((cb) => cb());
-    compileContentsListeners.delete(filePath);
+  let incrementalFileCacheEntry = incrementallyCompiledFileInfo.get(filePath);
+  if (incrementalFileCacheEntry == null) {
+    // New file
+    const projectRootPath = utils.findProjectRootOfFile(filePath);
+    if (projectRootPath == null) return;
+    const namespaceName = utils.getNamespaceNameFromConfigFile(projectRootPath);
+    if (namespaceName.kind === "error") return;
+    const bscBinaryLocation = utils.findBscExeBinary(projectRootPath);
+    if (bscBinaryLocation == null) return;
+    const filenameNoExt = path.basename(filePath, ".res");
+    const moduleName =
+      namespaceName.result === ""
+        ? filenameNoExt
+        : `${namespaceName.result}-${filenameNoExt}`;
+
+    const incrementalFolderPath = path.join(
+      projectRootPath,
+      INCREMENTAL_FILE_FOLDER_LOCATION
+    );
+
+    incrementalFileCacheEntry = {
+      file: {
+        moduleName,
+        sourceFileName: moduleName + ".res",
+        sourceFilePath: filePath,
+        incrementalFilePath: path.join(
+          incrementalFolderPath,
+          moduleName + ".res"
+        ),
+      },
+      project: {
+        rootPath: projectRootPath,
+        callArgs: Promise.resolve([]),
+        bscBinaryLocation,
+        incrementalFolderPath,
+      },
+      buildNinja: null,
+      compilation: null,
+      compilationKilledListeners: [],
+    };
+
+    incrementalFileCacheEntry.project.callArgs = figureOutBscArgs(
+      incrementalFileCacheEntry
+    );
+    incrementallyCompiledFileInfo.set(filePath, incrementalFileCacheEntry);
   }
-  let triggerToken = performance.now();
-  compileContentsCache.set(filePath, {
-    timeout: setTimeout(() => {
-      compileContents(
-        filePath,
-        fileContent,
-        triggerToken,
-        send,
-        onCompilationFinished
-      );
-    }, 20),
-    triggerToken,
-  });
+
+  if (incrementalFileCacheEntry == null) return;
+  const entry = incrementalFileCacheEntry;
+  if (entry.compilation != null) {
+    clearTimeout(entry.compilation.timeout);
+    entry.compilationKilledListeners.forEach((cb) => cb());
+    entry.compilationKilledListeners = [];
+  }
+  const triggerToken = performance.now();
+  const timeout = setTimeout(() => {
+    compileContents(entry, fileContent, send, onCompilationFinished);
+  }, 20);
+
+  if (entry.compilation != null) {
+    entry.compilation.timeout = timeout;
+    entry.compilation.triggerToken = triggerToken;
+  } else {
+    entry.compilation = {
+      timeout,
+      triggerToken,
+    };
+  }
 }
 function verifyTriggerToken(filePath: string, triggerToken: number): boolean {
-  return compileContentsCache.get(filePath)?.triggerToken === triggerToken;
+  return (
+    incrementallyCompiledFileInfo.get(filePath)?.compilation?.triggerToken ===
+    triggerToken
+  );
+}
+async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
+  const [astBuildCommand, fullBuildCommand] = await getBscArgs(entry);
+
+  const astArgs = argsFromCommandString(astBuildCommand);
+  const buildArgs = argsFromCommandString(fullBuildCommand);
+
+  let callArgs: Array<string> = [
+    "-I",
+    path.resolve(entry.project.rootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
+  ];
+
+  buildArgs.forEach(([key, value]: Array<string>) => {
+    if (key === "-I") {
+      callArgs.push(
+        "-I",
+        path.resolve(entry.project.rootPath, "lib/bs", value)
+      );
+    } else if (key === "-bs-v") {
+      callArgs.push("-bs-v", Date.now().toString());
+    } else if (key === "-bs-package-output") {
+      return;
+    } else if (value == null || value === "") {
+      callArgs.push(key);
+    } else {
+      callArgs.push(key, value);
+    }
+  });
+
+  astArgs.forEach(([key, value]: Array<string>) => {
+    if (key.startsWith("-bs-jsx")) {
+      callArgs.push(key, value);
+    } else if (key.startsWith("-ppx")) {
+      callArgs.push(key, value);
+    }
+  });
+
+  callArgs.push("-color", "never");
+  callArgs.push("-ignore-parse-errors");
+
+  callArgs = callArgs.filter((v) => v != null && v !== "");
+  callArgs.push(entry.file.incrementalFilePath);
+  return callArgs;
 }
 async function compileContents(
-  filePath: string,
+  entry: IncrementallyCompiledFileInfo,
   fileContent: string,
-  triggerToken: number,
   send: (msg: p.Message) => void,
   onCompilationFinished?: () => void
 ) {
-  let startTime = performance.now();
-  let fileName = path.basename(filePath);
-  const projectRootPath = utils.findProjectRootOfFile(filePath);
-  if (projectRootPath == null) {
-    if (debug) console.log("Did not find root project.");
-    return;
-  }
-  let bscExe = utils.findBscExeBinary(projectRootPath);
-  if (bscExe == null) {
-    if (debug) console.log("Did not find bsc.");
-    return;
-  }
-  let incrementalFolderPath = path.resolve(
-    projectRootPath,
-    incrementalFileFolderLocation
-  );
-  let incrementalFilePath = path.resolve(incrementalFolderPath, fileName);
-
-  if (!fs.existsSync(incrementalFolderPath)) {
-    fs.mkdirSync(incrementalFolderPath);
+  const triggerToken = entry.compilation?.triggerToken;
+  const startTime = performance.now();
+  // TODO: Move somewhere else?
+  if (!fs.existsSync(entry.project.incrementalFolderPath)) {
+    fs.mkdirSync(entry.project.incrementalFolderPath);
   }
 
-  fs.writeFileSync(incrementalFilePath, fileContent);
+  fs.writeFileSync(entry.file.incrementalFilePath, fileContent);
 
-  try {
-    let [astBuildCommand, fullBuildCommand] = await getBscArgs(projectRootPath);
-
-    let astArgs = argsFromCommandString(astBuildCommand);
-    let buildArgs = argsFromCommandString(fullBuildCommand);
-
-    let callArgs: Array<string> = [
-      "-I",
-      path.resolve(projectRootPath, incrementalFileFolderLocation),
-    ];
-
-    buildArgs.forEach(([key, value]: Array<string>) => {
-      if (key === "-I") {
-        callArgs.push("-I", path.resolve(projectRootPath, "lib/bs", value));
-      } else if (key === "-bs-v") {
-        callArgs.push("-bs-v", Date.now().toString());
-      } else if (key === "-bs-package-output") {
-        return;
-      } else if (value == null || value === "") {
-        callArgs.push(key);
+  const process = cp.execFile(
+    entry.project.bscBinaryLocation,
+    await entry.project.callArgs,
+    { cwd: entry.project.rootPath },
+    (error, _stdout, stderr) => {
+      if (!error?.killed) {
+        if (debug)
+          console.log(
+            `Recompiled ${entry.file.sourceFileName} in ${
+              (performance.now() - startTime) / 1000
+            }s`
+          );
       } else {
-        callArgs.push(key, value);
+        if (debug)
+          console.log(
+            `Compilation of ${entry.file.sourceFileName} was killed.`
+          );
       }
-    });
+      if (
+        !error?.killed &&
+        triggerToken != null &&
+        verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
+      ) {
+        const { result } = utils.parseCompilerLogOutput(`${stderr}\n#Done()`);
+        const res = (Object.values(result)[0] ?? [])
+          .map((d) => ({
+            ...d,
+            message: removeAnsiCodes(d.message),
+          }))
+          // Filter out a few unwanted parser errors since we run the parser in ignore mode
+          .filter(
+            (d) =>
+              !d.message.startsWith("Uninterpreted extension 'rescript.") &&
+              !d.message.includes(
+                `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`
+              )
+          );
 
-    astArgs.forEach(([key, value]: Array<string>) => {
-      if (key.startsWith("-bs-jsx")) {
-        callArgs.push(key, value);
-      } else if (key.startsWith("-ppx")) {
-        callArgs.push(key, value);
+        const notification: p.NotificationMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          method: "textDocument/publishDiagnostics",
+          params: {
+            uri: pathToFileURL(entry.file.sourceFilePath),
+            diagnostics: res,
+          },
+        };
+        send(notification);
       }
-    });
-
-    callArgs.push("-color", "never");
-    callArgs.push("-ignore-parse-errors");
-
-    callArgs = callArgs.filter((v) => v != null && v !== "");
-    callArgs.push(incrementalFilePath);
-
-    let process = cp.execFile(
-      bscExe,
-      callArgs,
-      { cwd: projectRootPath },
-      (error, _stdout, stderr) => {
-        if (!error?.killed) {
-          if (debug)
-            console.log(
-              `Recompiled ${fileName} in ${
-                (performance.now() - startTime) / 1000
-              }s`
-            );
-        } else {
-          if (debug) console.log(`Compilation of ${fileName} was killed.`);
-        }
-        onCompilationFinished?.();
-        if (!error?.killed && verifyTriggerToken(filePath, triggerToken)) {
-          let { result } = utils.parseCompilerLogOutput(`${stderr}\n#Done()`);
-          let res = (Object.values(result)[0] ?? [])
-            .map((d) => ({
-              ...d,
-              message: removeAnsiCodes(d.message),
-            }))
-            // Filter out a few unwanted parser errors since we run the parser in ignore mode
-            .filter(
-              (d) =>
-                !d.message.startsWith("Uninterpreted extension 'rescript.") &&
-                !d.message.includes(`/${incrementalFolderName}/${fileName}`)
-            );
-
-          let notification: p.NotificationMessage = {
-            jsonrpc: c.jsonrpcVersion,
-            method: "textDocument/publishDiagnostics",
-            params: {
-              uri: pathToFileURL(filePath),
-              diagnostics: res,
-            },
-          };
-          send(notification);
-        }
-      }
-    );
-    let listeners = compileContentsListeners.get(filePath) ?? [];
-    listeners.push(() => {
-      process.kill("SIGKILL");
-    });
-    compileContentsListeners.set(filePath, listeners);
-  } catch (e) {
-    console.error(e);
-  }
+      onCompilationFinished?.();
+      entry.compilation = null;
+    }
+  );
+  entry.compilationKilledListeners.push(() => {
+    process.kill("SIGKILL");
+  });
 }
 
 export function handleUpdateOpenedFile(
@@ -353,6 +451,7 @@ export function handleUpdateOpenedFile(
   send: send,
   onCompilationFinished?: () => void
 ) {
+  // Clear save status, since it's now updated.
   savedIncrementalFiles.delete(filePath);
   triggerIncrementalCompilationOfFile(
     filePath,
@@ -365,3 +464,12 @@ export function handleUpdateOpenedFile(
 export function handleDidSaveTextDocument(filePath: string) {
   savedIncrementalFiles.add(filePath);
 }
+
+export function handleClosedFile(filePath: string) {
+  const entry = incrementallyCompiledFileInfo.get(filePath);
+  if (entry == null) return;
+  cleanUpIncrementalFiles(filePath, entry.project.rootPath);
+  incrementallyCompiledFileInfo.delete(filePath);
+  savedIncrementalFiles.delete(filePath);
+}
+export function handleOpenedFile(_filePath: string, _projectRootPath: string) {}

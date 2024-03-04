@@ -243,9 +243,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
 
   let projectRootPath = utils.findProjectRootOfFile(filePath);
   if (projectRootPath != null) {
-    if (config.extensionConfiguration.incrementalTypechecking.enabled) {
-      ic.cleanUpIncrementalFiles(filePath, projectRootPath);
-    }
+    ic.handleOpenedFile(filePath, projectRootPath);
     let projectRootState = projectsFiles.get(projectRootPath);
     if (projectRootState == null) {
       if (config.extensionConfiguration.incrementalTypechecking.enabled) {
@@ -328,13 +326,14 @@ let openedFile = (fileUri: string, fileContent: string) => {
 let closedFile = (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
 
+  if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+    ic.handleClosedFile(filePath);
+  }
+
   stupidFileContentCache.delete(filePath);
 
   let projectRootPath = utils.findProjectRootOfFile(filePath);
   if (projectRootPath != null) {
-    if (config.extensionConfiguration.incrementalTypechecking.enabled) {
-      ic.cleanUpIncrementalFiles(filePath, projectRootPath);
-    }
     let root = projectsFiles.get(projectRootPath);
     if (root != null) {
       root.openFiles.delete(filePath);
