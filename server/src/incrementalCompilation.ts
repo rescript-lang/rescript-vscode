@@ -37,6 +37,8 @@ type IncrementallyCompiledFileInfo = {
     sourceFileName: string;
     /** Module name of the source file. */
     moduleName: string;
+    /** Namespaced module name of the source file. */
+    moduleNameNamespaced: string;
     /** Path to where the incremental file is saved. */
     incrementalFilePath: string;
   };
@@ -66,6 +68,8 @@ type IncrementallyCompiledFileInfo = {
     callArgs: Promise<Array<string>>;
     /** The location of the incremental folder for this project. */
     incrementalFolderPath: string;
+    /** The ReScript version. */
+    rescriptVersion: string;
   };
 };
 
@@ -120,7 +124,7 @@ export function fileIsIncrementallyCompiled(filePath: string): boolean {
 
   const pathToCheck = path.resolve(
     entry.project.incrementalFolderPath,
-    entry.file.moduleName + ".cmt"
+    entry.file.moduleNameNamespaced + ".cmt"
   );
 
   return fs.existsSync(pathToCheck);
@@ -130,12 +134,18 @@ export function cleanUpIncrementalFiles(
   filePath: string,
   projectRootPath: string
 ) {
+  const namespace = utils.getNamespaceNameFromConfigFile(projectRootPath);
   const fileNameNoExt = path.basename(filePath, ".res");
+  const moduleNameNamespaced =
+    namespace.kind === "success" && namespace.result !== ""
+      ? `${fileNameNoExt}-${namespace.result}`
+      : fileNameNoExt;
+
   [
-    fileNameNoExt + ".ast",
-    fileNameNoExt + ".cmt",
-    fileNameNoExt + ".cmi",
-    fileNameNoExt + ".cmj",
+    moduleNameNamespaced + ".ast",
+    moduleNameNamespaced + ".cmt",
+    moduleNameNamespaced + ".cmi",
+    moduleNameNamespaced + ".cmj",
     fileNameNoExt + ".res",
   ].forEach((file) => {
     fs.unlink(
@@ -259,25 +269,50 @@ function triggerIncrementalCompilationOfFile(
   if (incrementalFileCacheEntry == null) {
     // New file
     const projectRootPath = utils.findProjectRootOfFile(filePath);
-    if (projectRootPath == null) return;
+    if (projectRootPath == null) {
+      if (debug) console.log("Did not find project root path for " + filePath);
+      return;
+    }
     const namespaceName = utils.getNamespaceNameFromConfigFile(projectRootPath);
-    if (namespaceName.kind === "error") return;
+    if (namespaceName.kind === "error") {
+      if (debug)
+        console.log("Getting namespace config errored for " + filePath);
+      return;
+    }
     const bscBinaryLocation = utils.findBscExeBinary(projectRootPath);
-    if (bscBinaryLocation == null) return;
-    const filenameNoExt = path.basename(filePath, ".res");
-    const moduleName =
-      namespaceName.result === ""
-        ? filenameNoExt
-        : `${namespaceName.result}-${filenameNoExt}`;
+    if (bscBinaryLocation == null) {
+      if (debug)
+        console.log("Could not find bsc binary location for " + filePath);
+      return;
+    }
+    const moduleName = path.basename(filePath, ".res");
+    const moduleNameNamespaced =
+      namespaceName.result !== ""
+        ? `${moduleName}-${namespaceName.result}`
+        : moduleName;
 
     const incrementalFolderPath = path.join(
       projectRootPath,
       INCREMENTAL_FILE_FOLDER_LOCATION
     );
 
+    let rescriptVersion = "";
+    try {
+      rescriptVersion = cp
+        .execFileSync(bscBinaryLocation, ["-version"])
+        .toString()
+        .trim();
+    } catch (e) {
+      console.error(e);
+    }
+    if (rescriptVersion.startsWith("ReScript ")) {
+      rescriptVersion = rescriptVersion.replace("ReScript ", "");
+    }
+
     incrementalFileCacheEntry = {
       file: {
         moduleName,
+        moduleNameNamespaced,
         sourceFileName: moduleName + ".res",
         sourceFilePath: filePath,
         incrementalFilePath: path.join(
@@ -290,6 +325,7 @@ function triggerIncrementalCompilationOfFile(
         callArgs: Promise.resolve([]),
         bscBinaryLocation,
         incrementalFolderPath,
+        rescriptVersion,
       },
       buildNinja: null,
       compilation: null,
@@ -367,7 +403,13 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   });
 
   callArgs.push("-color", "never");
-  callArgs.push("-ignore-parse-errors");
+  if (
+    !entry.project.rescriptVersion.startsWith("9.") &&
+    !entry.project.rescriptVersion.startsWith("10.")
+  ) {
+    // Only available in v11+
+    callArgs.push("-ignore-parse-errors");
+  }
 
   callArgs = callArgs.filter((v) => v != null && v !== "");
   callArgs.push(entry.file.incrementalFilePath);
@@ -425,6 +467,8 @@ async function compileContents(
                 `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`
               )
           );
+
+        // if (res.length === 0) console.log(stderr, _stdout); TODO: Log that there was an error executing..? Maybe write to a log file.
 
         const notification: p.NotificationMessage = {
           jsonrpc: c.jsonrpcVersion,
