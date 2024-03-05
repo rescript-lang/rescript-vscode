@@ -6,7 +6,7 @@ import readline from "readline";
 import { performance } from "perf_hooks";
 import * as p from "vscode-languageserver-protocol";
 import * as cp from "node:child_process";
-import { send } from "./config";
+import config, { send } from "./config";
 import * as c from "./constants";
 
 const debug = true;
@@ -368,10 +368,14 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   const astArgs = argsFromCommandString(astBuildCommand);
   const buildArgs = argsFromCommandString(fullBuildCommand);
 
-  let callArgs: Array<string> = [
-    "-I",
-    path.resolve(entry.project.rootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
-  ];
+  let callArgs: Array<string> = [];
+
+  if (config.extensionConfiguration.incrementalTypechecking.acrossFiles) {
+    callArgs.push(
+      "-I",
+      path.resolve(entry.project.rootPath, INCREMENTAL_FILE_FOLDER_LOCATION)
+    );
+  }
 
   buildArgs.forEach(([key, value]: Array<string>) => {
     if (key === "-I") {
@@ -399,10 +403,7 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   });
 
   callArgs.push("-color", "never");
-  if (
-    !entry.project.rescriptVersion.startsWith("9.") &&
-    !entry.project.rescriptVersion.startsWith("10.")
-  ) {
+  if (parseInt(entry.project.rescriptVersion.split(".")[0] ?? "10") >= 11) {
     // Only available in v11+
     callArgs.push("-ignore-parse-errors");
   }

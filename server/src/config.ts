@@ -17,6 +17,7 @@ export interface extensionConfiguration {
   };
   incrementalTypechecking: {
     enabled: boolean;
+    acrossFiles: boolean;
   };
 }
 
@@ -37,7 +38,8 @@ let config: { extensionConfiguration: extensionConfiguration } = {
       enabled: true,
     },
     incrementalTypechecking: {
-      enabled: true,
+      enabled: false,
+      acrossFiles: true,
     },
   },
 };

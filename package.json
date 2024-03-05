@@ -181,6 +181,11 @@
 					"default": false,
 					"description": "(beta/experimental) Enable incremental type checking."
 				},
+				"rescript.settings.incrementalTypechecking.acrossFiles": {
+					"type": "boolean",
+					"default": false,
+					"description": "(beta/experimental) Enable incremental type checking across files, so that unsaved file A gets access to unsaved file B."
+				},
 				"rescript.settings.binaryPath": {
 					"type": [
 						"string",
