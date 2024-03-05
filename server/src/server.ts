@@ -211,13 +211,7 @@ let compilerLogsWatcher = chokidar
       stabilityThreshold: 1,
     },
   })
-  .on("all", (_e, changedPath) => {
-    if (config.extensionConfiguration.incrementalTypechecking.enabled) {
-      // We clean up all incremental file assets when the compiler has rebuilt,
-      // because at that point we want to use the main, compiled type assets
-      // instead of the incremental type assets.
-      ic.cleanupIncrementalFilesAfterCompilation(changedPath);
-    }
+  .on("all", (_e, _changedPath) => {
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
     if (config.extensionConfiguration.inlayHints?.enable === true) {
@@ -243,7 +237,6 @@ let openedFile = (fileUri: string, fileContent: string) => {
 
   let projectRootPath = utils.findProjectRootOfFile(filePath);
   if (projectRootPath != null) {
-    ic.handleOpenedFile(filePath, projectRootPath);
     let projectRootState = projectsFiles.get(projectRootPath);
     if (projectRootState == null) {
       if (config.extensionConfiguration.incrementalTypechecking.enabled) {
@@ -801,13 +794,11 @@ function format(msg: p.RequestMessage): Array<p.Message> {
 }
 
 let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
-  let filePath = fileURLToPath(fileUri);
-  if (
-    config.extensionConfiguration.incrementalTypechecking.enabled &&
-    ic.fileIsIncrementallyCompiled(filePath)
-  ) {
+  if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+    // The incremental typechecking already sends syntax diagnostics.
     return;
   }
+  let filePath = fileURLToPath(fileUri);
   let extension = path.extname(filePath);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
@@ -1018,14 +1009,6 @@ function onMessage(msg: p.Message) {
         process.exit(0);
       } else {
         process.exit(1);
-      }
-    } else if (msg.method === p.DidSaveTextDocumentNotification.method) {
-      if (config.extensionConfiguration.incrementalTypechecking.enabled) {
-        // We track all incremental file assets when a file is actually saved,
-        // so we can clean them up.
-        let params = msg.params as p.DidSaveTextDocumentParams;
-        let filePath = fileURLToPath(params.textDocument.uri);
-        ic.handleDidSaveTextDocument(filePath);
       }
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;

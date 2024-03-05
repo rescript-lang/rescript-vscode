@@ -8,6 +8,7 @@ import * as p from "vscode-languageserver-protocol";
 import * as cp from "node:child_process";
 import config, { send } from "./config";
 import * as c from "./constants";
+import * as chokidar from "chokidar";
 
 function debug() {
   return config.extensionConfiguration.incrementalTypechecking.debugLogging;
@@ -30,6 +31,8 @@ type IncrementallyCompiledFileInfo = {
     moduleNameNamespaced: string;
     /** Path to where the incremental file is saved. */
     incrementalFilePath: string;
+    /** Location of the original type file. */
+    originalTypeFileLocation: string;
   };
   /** Cache for build.ninja assets. */
   buildNinja: {
@@ -46,7 +49,7 @@ type IncrementallyCompiledFileInfo = {
     triggerToken: number;
   } | null;
   /** Listeners for when compilation of this file is killed. List always cleared after each invocation. */
-  compilationKilledListeners: Array<() => void>;
+  killCompilationListeners: Array<() => void>;
   /** Project specific information. */
   project: {
     /** The root path of the project. */
@@ -66,22 +69,41 @@ const incrementallyCompiledFileInfo: Map<
   string,
   IncrementallyCompiledFileInfo
 > = new Map();
-const savedIncrementalFiles: Set<string> = new Set();
 const hasReportedFeatureFailedError: Set<string> = new Set();
+const originalTypeFileToFilePath: Map<string, string> = new Map();
 
-export function cleanupIncrementalFilesAfterCompilation(
-  compilerLogPath: string
-) {
-  const projectRootPath = utils.findProjectRootOfFile(compilerLogPath);
-  if (projectRootPath != null) {
-    savedIncrementalFiles.forEach((filePath) => {
-      if (filePath.startsWith(projectRootPath)) {
-        cleanUpIncrementalFiles(filePath, projectRootPath);
-        savedIncrementalFiles.delete(filePath);
+let incrementalFilesWatcher = chokidar
+  .watch([], {
+    awaitWriteFinish: {
+      stabilityThreshold: 1,
+    },
+  })
+  .on("all", (e, changedPath) => {
+    if (e !== "change" && e !== "unlink") return;
+    const filePath = originalTypeFileToFilePath.get(changedPath);
+    if (filePath != null) {
+      const entry = incrementallyCompiledFileInfo.get(filePath);
+      if (entry != null) {
+        if (debug()) {
+          console.log(
+            "[watcher] Cleaning up incremental files for " + filePath
+          );
+        }
+        if (entry.compilation != null) {
+          if (debug()) {
+            console.log("[watcher] Was compiling, killing");
+          }
+          clearTimeout(entry.compilation.timeout);
+          entry.killCompilationListeners.forEach((cb) => cb());
+          entry.compilation = null;
+        }
+        cleanUpIncrementalFiles(
+          entry.file.sourceFilePath,
+          entry.project.rootPath
+        );
       }
-    });
-  }
-}
+    }
+  });
 
 export function removeIncrementalFileFolder(
   projectRootPath: string,
@@ -97,29 +119,15 @@ export function removeIncrementalFileFolder(
 }
 
 export function recreateIncrementalFileFolder(projectRootPath: string) {
+  if (debug()) {
+    console.log("Recreating incremental file folder");
+  }
   removeIncrementalFileFolder(projectRootPath, () => {
     fs.mkdir(
       path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
       (_) => {}
     );
   });
-}
-
-export function fileIsIncrementallyCompiled(filePath: string): boolean {
-  const entry = incrementallyCompiledFileInfo.get(filePath);
-
-  if (entry == null) {
-    return false;
-  }
-
-  const pathToCheck = path.resolve(
-    entry.project.incrementalFolderPath,
-    entry.file.moduleNameNamespaced + entry.file.extension === ".res"
-      ? ".cmt"
-      : ".cmti"
-  );
-
-  return fs.existsSync(pathToCheck);
 }
 
 export function cleanUpIncrementalFiles(
@@ -133,6 +141,10 @@ export function cleanUpIncrementalFiles(
     namespace.kind === "success" && namespace.result !== ""
       ? `${fileNameNoExt}-${namespace.result}`
       : fileNameNoExt;
+
+  if (debug()) {
+    console.log("Cleaning up incremental file assets for: " + fileNameNoExt);
+  }
 
   fs.unlink(
     path.resolve(
@@ -323,8 +335,20 @@ function triggerIncrementalCompilationOfFile(
       rescriptVersion = rescriptVersion.replace("ReScript ", "");
     }
 
+    let originalTypeFileLocation = path.resolve(
+      projectRootPath,
+      "lib/bs",
+      path.relative(projectRootPath, filePath)
+    );
+
+    const parsed = path.parse(originalTypeFileLocation);
+    parsed.ext = ext === ".res" ? ".cmt" : ".cmti";
+    parsed.base = "";
+    originalTypeFileLocation = path.format(parsed);
+
     incrementalFileCacheEntry = {
       file: {
+        originalTypeFileLocation,
         extension: ext,
         moduleName,
         moduleNameNamespaced,
@@ -341,11 +365,19 @@ function triggerIncrementalCompilationOfFile(
       },
       buildNinja: null,
       compilation: null,
-      compilationKilledListeners: [],
+      killCompilationListeners: [],
     };
 
     incrementalFileCacheEntry.project.callArgs = figureOutBscArgs(
       incrementalFileCacheEntry
+    );
+    // Set up watcher for relevant cmt/cmti
+    incrementalFilesWatcher.add([
+      incrementalFileCacheEntry.file.originalTypeFileLocation,
+    ]);
+    originalTypeFileToFilePath.set(
+      incrementalFileCacheEntry.file.originalTypeFileLocation,
+      incrementalFileCacheEntry.file.sourceFilePath
     );
     incrementallyCompiledFileInfo.set(filePath, incrementalFileCacheEntry);
   }
@@ -354,8 +386,8 @@ function triggerIncrementalCompilationOfFile(
   const entry = incrementalFileCacheEntry;
   if (entry.compilation != null) {
     clearTimeout(entry.compilation.timeout);
-    entry.compilationKilledListeners.forEach((cb) => cb());
-    entry.compilationKilledListeners = [];
+    entry.killCompilationListeners.forEach((cb) => cb());
+    entry.killCompilationListeners = [];
   }
   const triggerToken = performance.now();
   const timeout = setTimeout(() => {
@@ -475,11 +507,17 @@ async function compileContents(
               `Compilation of ${entry.file.sourceFileName} was killed.`
             );
         }
+        let hasIgnoredErrorMessages = false;
         if (
           !error?.killed &&
           triggerToken != null &&
           verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
         ) {
+          if (debug()) {
+            console.log("Resetting compilation status.");
+          }
+          // Reset compilation status as this compilation finished
+          entry.compilation = null;
           const { result } = utils.parseCompilerLogOutput(`${stderr}\n#Done()`);
           const res = (Object.values(result)[0] ?? [])
             .map((d) => ({
@@ -487,17 +525,23 @@ async function compileContents(
               message: removeAnsiCodes(d.message),
             }))
             // Filter out a few unwanted parser errors since we run the parser in ignore mode
-            .filter(
-              (d) =>
+            .filter((d) => {
+              if (
                 !d.message.startsWith("Uninterpreted extension 'rescript.") &&
                 !d.message.includes(
                   `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`
                 )
-            );
+              ) {
+                hasIgnoredErrorMessages = true;
+                return true;
+              }
+              return false;
+            });
 
           if (
             res.length === 0 &&
             stderr !== "" &&
+            !hasIgnoredErrorMessages &&
             !hasReportedFeatureFailedError.has(entry.project.rootPath)
           ) {
             try {
@@ -533,10 +577,9 @@ async function compileContents(
           send(notification);
         }
         onCompilationFinished?.();
-        entry.compilation = null;
       }
     );
-    entry.compilationKilledListeners.push(() => {
+    entry.killCompilationListeners.push(() => {
       process.kill("SIGKILL");
     });
   } catch (e) {
@@ -550,8 +593,9 @@ export function handleUpdateOpenedFile(
   send: send,
   onCompilationFinished?: () => void
 ) {
-  // Clear save status, since it's now updated.
-  savedIncrementalFiles.delete(filePath);
+  if (debug()) {
+    console.log("Updated: " + filePath);
+  }
   triggerIncrementalCompilationOfFile(
     filePath,
     fileContent,
@@ -560,15 +604,14 @@ export function handleUpdateOpenedFile(
   );
 }
 
-export function handleDidSaveTextDocument(filePath: string) {
-  savedIncrementalFiles.add(filePath);
-}
-
 export function handleClosedFile(filePath: string) {
+  if (debug()) {
+    console.log("Closed: " + filePath);
+  }
   const entry = incrementallyCompiledFileInfo.get(filePath);
   if (entry == null) return;
   cleanUpIncrementalFiles(filePath, entry.project.rootPath);
   incrementallyCompiledFileInfo.delete(filePath);
-  savedIncrementalFiles.delete(filePath);
+  originalTypeFileToFilePath.delete(entry.file.originalTypeFileLocation);
+  incrementalFilesWatcher.unwatch([entry.file.originalTypeFileLocation]);
 }
-export function handleOpenedFile(_filePath: string, _projectRootPath: string) {}
