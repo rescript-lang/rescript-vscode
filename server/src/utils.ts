@@ -13,6 +13,7 @@ import * as codeActions from "./codeActions";
 import * as c from "./constants";
 import * as lookup from "./lookup";
 import { reportError } from "./errorReporter";
+import config from "./config";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -661,3 +662,33 @@ export let rangeContainsRange = (
   }
   return true;
 };
+
+let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
+  if (config.extensionConfiguration.platformPath != null) {
+    return config.extensionConfiguration.platformPath;
+  }
+
+  let rescriptDir = lookup.findFilePathFromProjectRoot(
+    projectRootPath,
+    path.join("node_modules", "rescript")
+  );
+  if (rescriptDir == null) {
+    return null;
+  }
+
+  let platformPath = path.join(rescriptDir, c.platformDir);
+
+  // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
+  if (
+    process.platform == "darwin" &&
+    process.arch == "arm64" &&
+    !fs.existsSync(platformPath)
+  ) {
+    platformPath = path.join(rescriptDir, process.platform);
+  }
+
+  return platformPath;
+};
+
+export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinary(findPlatformPath(projectRootPath), c.bscExeName);

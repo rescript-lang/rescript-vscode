@@ -22,25 +22,12 @@ import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { assert } from "console";
 import { fileURLToPath } from "url";
-import { ChildProcess } from "child_process";
+import * as cp from "node:child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { filesDiagnostics } from "./utils";
 import { onErrorReported } from "./errorReporter";
-
-interface extensionConfiguration {
-  allowBuiltInFormatter: boolean;
-  askToStartBuild: boolean;
-  inlayHints: {
-    enable: boolean;
-    maxLength: number | null;
-  };
-  codeLens: boolean;
-  binaryPath: string | null;
-  platformPath: string | null;
-  signatureHelp: {
-    enabled: boolean;
-  };
-}
+import * as ic from "./incrementalCompilation";
+import config, { extensionConfiguration } from "./config";
 
 // This holds client capabilities specific to our extension, and not necessarily
 // related to the LS protocol. It's for enabling/disabling features that might
@@ -51,22 +38,6 @@ export interface extensionClientCapabilities {
 }
 let extensionClientCapabilities: extensionClientCapabilities = {};
 
-// All values here are temporary, and will be overridden as the server is
-// initialized, and the current config is received from the client.
-let extensionConfiguration: extensionConfiguration = {
-  allowBuiltInFormatter: false,
-  askToStartBuild: true,
-  inlayHints: {
-    enable: false,
-    maxLength: 25,
-  },
-  codeLens: false,
-  binaryPath: null,
-  platformPath: null,
-  signatureHelp: {
-    enabled: true,
-  },
-};
 // Below here is some state that's not important exactly how long it lives.
 let hasPromptedAboutBuiltInFormatter = false;
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
@@ -85,7 +56,7 @@ let projectsFiles: Map<
     filesWithDiagnostics: Set<string>;
     filesDiagnostics: filesDiagnostics;
 
-    bsbWatcherByEditor: null | ChildProcess;
+    bsbWatcherByEditor: null | cp.ChildProcess;
 
     // This keeps track of whether we've prompted the user to start a build
     // automatically, if there's no build currently running for the project. We
@@ -104,42 +75,15 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 let send: (msg: p.Message) => void = (_) => {};
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
-  extensionConfiguration.binaryPath == null
+  config.extensionConfiguration.binaryPath == null
     ? lookup.findFilePathFromProjectRoot(
         projectRootPath,
         path.join(c.nodeModulesBinDir, c.rescriptBinName)
       )
-    : utils.findBinary(extensionConfiguration.binaryPath, c.rescriptBinName);
-
-let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
-  if (extensionConfiguration.platformPath != null) {
-    return extensionConfiguration.platformPath;
-  }
-
-  let rescriptDir = lookup.findFilePathFromProjectRoot(
-    projectRootPath,
-    path.join("node_modules", "rescript")
-  );
-  if (rescriptDir == null) {
-    return null;
-  }
-
-  let platformPath = path.join(rescriptDir, c.platformDir);
-
-  // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
-  if (
-    process.platform == "darwin" &&
-    process.arch == "arm64" &&
-    !fs.existsSync(platformPath)
-  ) {
-    platformPath = path.join(rescriptDir, process.platform);
-  }
-
-  return platformPath;
-};
-
-let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
-  utils.findBinary(findPlatformPath(projectRootPath), c.bscExeName);
+    : utils.findBinary(
+        config.extensionConfiguration.binaryPath,
+        c.rescriptBinName
+      );
 
 let createInterfaceRequest = new v.RequestType<
   p.TextDocumentIdentifier,
@@ -247,6 +191,9 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
     });
 
     projectsFiles.delete(projectRootPath);
+    if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+      ic.removeIncrementalFileFolder(projectRootPath);
+    }
   }
 };
 let sendCompilationFinishedMessage = () => {
@@ -264,13 +211,13 @@ let compilerLogsWatcher = chokidar
       stabilityThreshold: 1,
     },
   })
-  .on("all", (_e, changedPath) => {
+  .on("all", (_e, _changedPath) => {
     sendUpdatedDiagnostics();
     sendCompilationFinishedMessage();
-    if (extensionConfiguration.inlayHints?.enable === true) {
+    if (config.extensionConfiguration.inlayHints?.enable === true) {
       sendInlayHintsRefresh();
     }
-    if (extensionConfiguration.codeLens === true) {
+    if (config.extensionConfiguration.codeLens === true) {
       sendCodeLensRefresh();
     }
   });
@@ -292,6 +239,9 @@ let openedFile = (fileUri: string, fileContent: string) => {
   if (projectRootPath != null) {
     let projectRootState = projectsFiles.get(projectRootPath);
     if (projectRootState == null) {
+      if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+        ic.recreateIncrementalFileFolder(projectRootPath);
+      }
       projectRootState = {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
@@ -315,7 +265,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
     let bsbLockPath = path.join(projectRootPath, c.bsbLock);
     if (
       projectRootState.hasPromptedToStartBuild === false &&
-      extensionConfiguration.askToStartBuild === true &&
+      config.extensionConfiguration.askToStartBuild === true &&
       !fs.existsSync(bsbLockPath)
     ) {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
@@ -349,12 +299,12 @@ let openedFile = (fileUri: string, fileContent: string) => {
           params: {
             type: p.MessageType.Error,
             message:
-              extensionConfiguration.binaryPath == null
+              config.extensionConfiguration.binaryPath == null
                 ? `Can't find ReScript binary in  ${path.join(
                     projectRootPath,
                     c.nodeModulesBinDir
                   )} or parent directories. Did you install it? It's required to use "rescript" > 9.1`
-                : `Can't find ReScript binary in the directory ${extensionConfiguration.binaryPath}`,
+                : `Can't find ReScript binary in the directory ${config.extensionConfiguration.binaryPath}`,
           },
         };
         send(request);
@@ -365,8 +315,13 @@ let openedFile = (fileUri: string, fileContent: string) => {
     // call the listener which calls it
   }
 };
+
 let closedFile = (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
+
+  if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+    ic.handleClosedFile(filePath);
+  }
 
   stupidFileContentCache.delete(filePath);
 
@@ -389,10 +344,21 @@ let closedFile = (fileUri: string) => {
     }
   }
 };
+
 let updateOpenedFile = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
   assert(stupidFileContentCache.has(filePath));
   stupidFileContentCache.set(filePath, fileContent);
+  if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+    ic.handleUpdateOpenedFile(filePath, fileContent, send, () => {
+      if (config.extensionConfiguration.codeLens) {
+        sendCodeLensRefresh();
+      }
+      if (config.extensionConfiguration.inlayHints) {
+        sendInlayHintsRefresh();
+      }
+    });
+  }
 };
 let getOpenedFileContent = (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
@@ -452,7 +418,7 @@ function inlayHint(msg: p.RequestMessage) {
       filePath,
       params.range.start.line,
       params.range.end.line,
-      extensionConfiguration.inlayHints.maxLength,
+      config.extensionConfiguration.inlayHints.maxLength,
     ],
     msg
   );
@@ -773,13 +739,13 @@ function format(msg: p.RequestMessage): Array<p.Message> {
     let code = getOpenedFileContent(params.textDocument.uri);
 
     let projectRootPath = utils.findProjectRootOfFile(filePath);
-    let bscExeBinaryPath = findBscExeBinary(projectRootPath);
+    let bscExeBinaryPath = utils.findBscExeBinary(projectRootPath);
 
     let formattedResult = utils.formatCode(
       bscExeBinaryPath,
       filePath,
       code,
-      extensionConfiguration.allowBuiltInFormatter
+      config.extensionConfiguration.allowBuiltInFormatter
     );
     if (formattedResult.kind === "success") {
       let max = code.length;
@@ -828,6 +794,10 @@ function format(msg: p.RequestMessage): Array<p.Message> {
 }
 
 let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
+  if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+    // The incremental typechecking already sends syntax diagnostics.
+    return;
+  }
   let filePath = fileURLToPath(fileUri);
   let extension = path.extname(filePath);
   let tmpname = utils.createFileInTempDir(extension);
@@ -1089,7 +1059,7 @@ function onMessage(msg: p.Message) {
         ?.extensionConfiguration as extensionConfiguration | undefined;
 
       if (initialConfiguration != null) {
-        extensionConfiguration = initialConfiguration;
+        config.extensionConfiguration = initialConfiguration;
       }
 
       // These are static configuration options the client can set to enable certain
@@ -1144,13 +1114,14 @@ function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
-          inlayHintProvider: extensionConfiguration.inlayHints?.enable,
-          codeLensProvider: extensionConfiguration.codeLens
+          inlayHintProvider: config.extensionConfiguration.inlayHints?.enable,
+          codeLensProvider: config.extensionConfiguration.codeLens
             ? {
                 workDoneProgress: false,
               }
             : undefined,
-          signatureHelpProvider: extensionConfiguration.signatureHelp?.enabled
+          signatureHelpProvider: config.extensionConfiguration.signatureHelp
+            ?.enabled
             ? {
                 triggerCharacters: ["("],
                 retriggerCharacters: ["=", ","],
@@ -1278,7 +1249,7 @@ function onMessage(msg: p.Message) {
           extensionConfiguration | null | undefined
         ];
         if (configuration != null) {
-          extensionConfiguration = configuration;
+          config.extensionConfiguration = configuration;
         }
       }
     } else if (

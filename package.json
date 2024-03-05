@@ -176,6 +176,21 @@
 					"default": true,
 					"description": "Enable signature help for function calls."
 				},
+				"rescript.settings.incrementalTypechecking.enabled": {
+					"type": "boolean",
+					"default": false,
+					"description": "(beta/experimental) Enable incremental type checking."
+				},
+				"rescript.settings.incrementalTypechecking.acrossFiles": {
+					"type": "boolean",
+					"default": false,
+					"description": "(beta/experimental) Enable incremental type checking across files, so that unsaved file A gets access to unsaved file B."
+				},
+				"rescript.settings.incrementalTypechecking.debugLogging": {
+					"type": "boolean",
+					"default": false,
+					"description": "(debug) Enable debug logging (ends up in the extension output)."
+				},
 				"rescript.settings.binaryPath": {
 					"type": [
 						"string",
@@ -230,9 +245,9 @@
 	},
 	"scripts": {
 		"clean": "rm -rf client/out server/out",
-		"vscode:prepublish": "npm run clean && npm run compile && npm run bundle",
-		"compile": "tsc",
-		"watch": "tsc -w",
+		"vscode:prepublish": "npm run clean && npm run bundle",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
 		"postinstall": "cd server && npm i && cd ../client && npm i && cd ../tools && npm i && cd ../tools/tests && npm i && cd ../../analysis/tests && npm i && cd ../reanalyze/examples/deadcode && npm i && cd ../termination && npm i",
 		"bundle-server": "esbuild server/src/cli.ts --bundle --sourcemap --outfile=server/out/cli.js --format=cjs --platform=node --loader:.node=file --minify",
 		"bundle-client": "esbuild client/src/extension.ts --bundle --external:vscode --sourcemap --outfile=client/out/extension.js --format=cjs --platform=node --loader:.node=file --minify",

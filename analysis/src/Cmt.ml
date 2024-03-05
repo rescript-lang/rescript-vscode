@@ -16,13 +16,25 @@ let fullFromUri ~uri =
     let moduleName =
       BuildSystem.namespacedName package.namespace (FindFiles.getName path)
     in
-    match Hashtbl.find_opt package.pathsForModule moduleName with
-    | Some paths ->
-      let cmt = getCmtPath ~uri paths in
-      fullForCmt ~moduleName ~package ~uri cmt
-    | None ->
-      prerr_endline ("can't find module " ^ moduleName);
-      None)
+    let incrementalCmtPath =
+      package.rootPath ^ "/lib/bs/___incremental" ^ "/" ^ moduleName
+      ^
+      match Files.classifySourceFile path with
+      | Resi -> ".cmti"
+      | _ -> ".cmt"
+    in
+    match fullForCmt ~moduleName ~package ~uri incrementalCmtPath with
+    | Some cmtInfo ->
+      if Debug.verbose () then Printf.printf "[cmt] Found incremental cmt\n";
+      Some cmtInfo
+    | None -> (
+      match Hashtbl.find_opt package.pathsForModule moduleName with
+      | Some paths ->
+        let cmt = getCmtPath ~uri paths in
+        fullForCmt ~moduleName ~package ~uri cmt
+      | None ->
+        prerr_endline ("can't find module " ^ moduleName);
+        None))
 
 let fullsFromModule ~package ~moduleName =
   if Hashtbl.mem package.pathsForModule moduleName then
