@@ -52,7 +52,7 @@ type IncrementallyCompiledFileInfo = {
     /** Computed location of bsc. */
     bscBinaryLocation: string;
     /** The arguments needed for bsc, derived from the project configuration/build.ninja. */
-    callArgs: Promise<Array<string>>;
+    callArgs: Promise<Array<string> | null>;
     /** The location of the incremental folder for this project. */
     incrementalFolderPath: string;
     /** The ReScript version. */
@@ -153,7 +153,7 @@ export function cleanUpIncrementalFiles(
 }
 function getBscArgs(
   entry: IncrementallyCompiledFileInfo
-): Promise<Array<string>> {
+): Promise<Array<string> | null> {
   const buildNinjaPath = path.resolve(
     entry.project.rootPath,
     "lib/bs/build.ninja"
@@ -161,9 +161,15 @@ function getBscArgs(
   const cacheEntry = entry.buildNinja;
   let stat: fs.Stats | null = null;
   if (cacheEntry != null) {
-    stat = fs.statSync(buildNinjaPath);
-    if (cacheEntry.fileMtime >= stat.mtimeMs) {
-      return Promise.resolve(cacheEntry.rawExtracted);
+    try {
+      stat = fs.statSync(buildNinjaPath);
+    } catch {}
+    if (stat != null) {
+      if (cacheEntry.fileMtime >= stat.mtimeMs) {
+        return Promise.resolve(cacheEntry.rawExtracted);
+      }
+    } else {
+      return Promise.resolve(null);
     }
   }
   return new Promise((resolve, _reject) => {
@@ -363,7 +369,9 @@ function verifyTriggerToken(filePath: string, triggerToken: number): boolean {
   );
 }
 async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
-  const [astBuildCommand, fullBuildCommand] = await getBscArgs(entry);
+  const res = await getBscArgs(entry);
+  if (res == null) return null;
+  const [astBuildCommand, fullBuildCommand] = res;
 
   const astArgs = argsFromCommandString(astBuildCommand);
   const buildArgs = argsFromCommandString(fullBuildCommand);
@@ -419,91 +427,111 @@ async function compileContents(
   onCompilationFinished?: () => void
 ) {
   const triggerToken = entry.compilation?.triggerToken;
-  const startTime = performance.now();
-  if (!fs.existsSync(entry.project.incrementalFolderPath)) {
-    fs.mkdirSync(entry.project.incrementalFolderPath);
+  const callArgs = await entry.project.callArgs;
+  if (callArgs == null) {
+    if (debug) {
+      console.log(
+        "Could not figure out call args. Maybe build.ninja does not exist yet?"
+      );
+    }
+    return;
   }
 
-  fs.writeFileSync(entry.file.incrementalFilePath, fileContent);
+  const startTime = performance.now();
+  if (!fs.existsSync(entry.project.incrementalFolderPath)) {
+    try {
+      fs.mkdirSync(entry.project.incrementalFolderPath);
+    } catch {}
+  }
 
-  const process = cp.execFile(
-    entry.project.bscBinaryLocation,
-    await entry.project.callArgs,
-    { cwd: entry.project.rootPath },
-    (error, _stdout, stderr) => {
-      if (!error?.killed) {
-        if (debug)
-          console.log(
-            `Recompiled ${entry.file.sourceFileName} in ${
-              (performance.now() - startTime) / 1000
-            }s`
-          );
-      } else {
-        if (debug)
-          console.log(
-            `Compilation of ${entry.file.sourceFileName} was killed.`
-          );
-      }
-      if (
-        !error?.killed &&
-        triggerToken != null &&
-        verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
-      ) {
-        const { result } = utils.parseCompilerLogOutput(`${stderr}\n#Done()`);
-        const res = (Object.values(result)[0] ?? [])
-          .map((d) => ({
-            ...d,
-            message: removeAnsiCodes(d.message),
-          }))
-          // Filter out a few unwanted parser errors since we run the parser in ignore mode
-          .filter(
-            (d) =>
-              !d.message.startsWith("Uninterpreted extension 'rescript.") &&
-              !d.message.includes(
-                `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`
-              )
-          );
+  try {
+    fs.writeFileSync(entry.file.incrementalFilePath, fileContent);
 
-        if (
-          res.length === 0 &&
-          stderr !== "" &&
-          !hasReportedFeatureFailedError.has(entry.project.rootPath)
-        ) {
-          hasReportedFeatureFailedError.add(entry.project.rootPath);
-          const logfile = path.resolve(
-            entry.project.incrementalFolderPath,
-            "error.log"
-          );
-          fs.writeFileSync(logfile, stderr);
-          let params: p.ShowMessageParams = {
-            type: p.MessageType.Warning,
-            message: `[Incremental typechecking] Something might have gone wrong with incremental type checking. Check out the [error log](file://${logfile}) and report this issue please.`,
-          };
-          let message: p.NotificationMessage = {
-            jsonrpc: c.jsonrpcVersion,
-            method: "window/showMessage",
-            params: params,
-          };
-          send(message);
+    const process = cp.execFile(
+      entry.project.bscBinaryLocation,
+      callArgs,
+      { cwd: entry.project.rootPath },
+      (error, _stdout, stderr) => {
+        if (!error?.killed) {
+          if (debug)
+            console.log(
+              `Recompiled ${entry.file.sourceFileName} in ${
+                (performance.now() - startTime) / 1000
+              }s`
+            );
+        } else {
+          if (debug)
+            console.log(
+              `Compilation of ${entry.file.sourceFileName} was killed.`
+            );
         }
+        if (
+          !error?.killed &&
+          triggerToken != null &&
+          verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
+        ) {
+          const { result } = utils.parseCompilerLogOutput(`${stderr}\n#Done()`);
+          const res = (Object.values(result)[0] ?? [])
+            .map((d) => ({
+              ...d,
+              message: removeAnsiCodes(d.message),
+            }))
+            // Filter out a few unwanted parser errors since we run the parser in ignore mode
+            .filter(
+              (d) =>
+                !d.message.startsWith("Uninterpreted extension 'rescript.") &&
+                !d.message.includes(
+                  `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`
+                )
+            );
 
-        const notification: p.NotificationMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          method: "textDocument/publishDiagnostics",
-          params: {
-            uri: pathToFileURL(entry.file.sourceFilePath),
-            diagnostics: res,
-          },
-        };
-        send(notification);
+          if (
+            res.length === 0 &&
+            stderr !== "" &&
+            !hasReportedFeatureFailedError.has(entry.project.rootPath)
+          ) {
+            try {
+              hasReportedFeatureFailedError.add(entry.project.rootPath);
+              const logfile = path.resolve(
+                entry.project.incrementalFolderPath,
+                "error.log"
+              );
+              fs.writeFileSync(logfile, stderr);
+              let params: p.ShowMessageParams = {
+                type: p.MessageType.Warning,
+                message: `[Incremental typechecking] Something might have gone wrong with incremental type checking. Check out the [error log](file://${logfile}) and report this issue please.`,
+              };
+              let message: p.NotificationMessage = {
+                jsonrpc: c.jsonrpcVersion,
+                method: "window/showMessage",
+                params: params,
+              };
+              send(message);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+
+          const notification: p.NotificationMessage = {
+            jsonrpc: c.jsonrpcVersion,
+            method: "textDocument/publishDiagnostics",
+            params: {
+              uri: pathToFileURL(entry.file.sourceFilePath),
+              diagnostics: res,
+            },
+          };
+          send(notification);
+        }
+        onCompilationFinished?.();
+        entry.compilation = null;
       }
-      onCompilationFinished?.();
-      entry.compilation = null;
-    }
-  );
-  entry.compilationKilledListeners.push(() => {
-    process.kill("SIGKILL");
-  });
+    );
+    entry.compilationKilledListeners.push(() => {
+      process.kill("SIGKILL");
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 export function handleUpdateOpenedFile(
