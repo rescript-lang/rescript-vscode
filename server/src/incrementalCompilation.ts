@@ -9,7 +9,9 @@ import * as cp from "node:child_process";
 import config, { send } from "./config";
 import * as c from "./constants";
 
-const debug = true;
+function debug() {
+  return config.extensionConfiguration.incrementalTypechecking.debugLogging;
+}
 
 const INCREMENTAL_FOLDER_NAME = "___incremental";
 const INCREMENTAL_FILE_FOLDER_LOCATION = `lib/bs/${INCREMENTAL_FOLDER_NAME}`;
@@ -112,7 +114,9 @@ export function fileIsIncrementallyCompiled(filePath: string): boolean {
 
   const pathToCheck = path.resolve(
     entry.project.incrementalFolderPath,
-    entry.file.moduleNameNamespaced + ".cmt"
+    entry.file.moduleNameNamespaced + entry.file.extension === ".res"
+      ? ".cmt"
+      : ".cmti"
   );
 
   return fs.existsSync(pathToCheck);
@@ -142,6 +146,7 @@ export function cleanUpIncrementalFiles(
   [
     moduleNameNamespaced + ".ast",
     moduleNameNamespaced + ".cmt",
+    moduleNameNamespaced + ".cmti",
     moduleNameNamespaced + ".cmi",
     moduleNameNamespaced + ".cmj",
   ].forEach((file) => {
@@ -163,7 +168,11 @@ function getBscArgs(
   if (cacheEntry != null) {
     try {
       stat = fs.statSync(buildNinjaPath);
-    } catch {}
+    } catch {
+      if (debug()) {
+        console.log("Did not find build.ninja, cannot proceed.");
+      }
+    }
     if (stat != null) {
       if (cacheEntry.fileMtime >= stat.mtimeMs) {
         return Promise.resolve(cacheEntry.rawExtracted);
@@ -273,18 +282,19 @@ function triggerIncrementalCompilationOfFile(
     // New file
     const projectRootPath = utils.findProjectRootOfFile(filePath);
     if (projectRootPath == null) {
-      if (debug) console.log("Did not find project root path for " + filePath);
+      if (debug())
+        console.log("Did not find project root path for " + filePath);
       return;
     }
     const namespaceName = utils.getNamespaceNameFromConfigFile(projectRootPath);
     if (namespaceName.kind === "error") {
-      if (debug)
+      if (debug())
         console.log("Getting namespace config errored for " + filePath);
       return;
     }
     const bscBinaryLocation = utils.findBscExeBinary(projectRootPath);
     if (bscBinaryLocation == null) {
-      if (debug)
+      if (debug())
         console.log("Could not find bsc binary location for " + filePath);
       return;
     }
@@ -429,7 +439,7 @@ async function compileContents(
   const triggerToken = entry.compilation?.triggerToken;
   const callArgs = await entry.project.callArgs;
   if (callArgs == null) {
-    if (debug) {
+    if (debug()) {
       console.log(
         "Could not figure out call args. Maybe build.ninja does not exist yet?"
       );
@@ -453,14 +463,14 @@ async function compileContents(
       { cwd: entry.project.rootPath },
       (error, _stdout, stderr) => {
         if (!error?.killed) {
-          if (debug)
+          if (debug())
             console.log(
               `Recompiled ${entry.file.sourceFileName} in ${
                 (performance.now() - startTime) / 1000
               }s`
             );
         } else {
-          if (debug)
+          if (debug())
             console.log(
               `Compilation of ${entry.file.sourceFileName} was killed.`
             );
