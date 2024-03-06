@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.44.0
+
 #### :rocket: New Feature
 
 - Experimental support for type checking without saving the file :tada:. https://github.com/rescript-lang/rescript-vscode/pull/939
