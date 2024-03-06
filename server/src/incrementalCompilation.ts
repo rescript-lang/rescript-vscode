@@ -182,7 +182,7 @@ function getBscArgs(
       stat = fs.statSync(buildNinjaPath);
     } catch {
       if (debug()) {
-        console.log("Did not find build.ninja, cannot proceed.");
+        console.log("Did not find build.ninja, cannot proceed..");
       }
     }
     if (stat != null) {
