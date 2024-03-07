@@ -12,6 +12,10 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Fix null checks for editor config, so things don't blow up.
+
 ## 1.44.0
 
 #### :rocket: New Feature

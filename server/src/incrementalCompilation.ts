@@ -11,7 +11,9 @@ import * as c from "./constants";
 import * as chokidar from "chokidar";
 
 function debug() {
-  return config.extensionConfiguration.incrementalTypechecking.debugLogging;
+  return (
+    config.extensionConfiguration.incrementalTypechecking?.debugLogging ?? false
+  );
 }
 
 const INCREMENTAL_FOLDER_NAME = "___incremental";
@@ -420,7 +422,7 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
 
   let callArgs: Array<string> = [];
 
-  if (config.extensionConfiguration.incrementalTypechecking.acrossFiles) {
+  if (config.extensionConfiguration.incrementalTypechecking?.acrossFiles) {
     callArgs.push(
       "-I",
       path.resolve(entry.project.rootPath, INCREMENTAL_FILE_FOLDER_LOCATION)
