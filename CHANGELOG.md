@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.48.0
+
 #### :bug: Bug Fix
 
 - Stability fixes for the experimental incremental compilation mode. https://github.com/rescript-lang/rescript-vscode/pull/945
