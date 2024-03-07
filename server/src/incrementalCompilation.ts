@@ -127,6 +127,7 @@ export function recreateIncrementalFileFolder(projectRootPath: string) {
   removeIncrementalFileFolder(projectRootPath, () => {
     fs.mkdir(
       path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
+      { recursive: true },
       (_) => {}
     );
   });
@@ -177,23 +178,22 @@ function getBscArgs(
     entry.project.rootPath,
     "lib/bs/build.ninja"
   );
-  const cacheEntry = entry.buildNinja;
   let stat: fs.Stats | null = null;
-  if (cacheEntry != null) {
-    try {
-      stat = fs.statSync(buildNinjaPath);
-    } catch {
-      if (debug()) {
-        console.log("Did not find build.ninja, cannot proceed..");
-      }
+  try {
+    stat = fs.statSync(buildNinjaPath);
+  } catch {
+    if (debug()) {
+      console.log("Did not find build.ninja, cannot proceed..");
     }
-    if (stat != null) {
-      if (cacheEntry.fileMtime >= stat.mtimeMs) {
-        return Promise.resolve(cacheEntry.rawExtracted);
-      }
-    } else {
-      return Promise.resolve(null);
-    }
+    return Promise.resolve(null);
+  }
+  const cacheEntry = entry.buildNinja;
+  if (
+    cacheEntry != null &&
+    stat != null &&
+    cacheEntry.fileMtime >= stat.mtimeMs
+  ) {
+    return Promise.resolve(cacheEntry.rawExtracted);
   }
   return new Promise((resolve, _reject) => {
     function resolveResult(result: Array<string>) {
@@ -471,20 +471,26 @@ async function compileContents(
   onCompilationFinished?: () => void
 ) {
   const triggerToken = entry.compilation?.triggerToken;
-  const callArgs = await entry.project.callArgs;
+  let callArgs = await entry.project.callArgs;
   if (callArgs == null) {
-    if (debug()) {
-      console.log(
-        "Could not figure out call args. Maybe build.ninja does not exist yet?"
-      );
+    const callArgsRetried = await figureOutBscArgs(entry);
+    if (callArgsRetried != null) {
+      callArgs = callArgsRetried;
+      entry.project.callArgs = Promise.resolve(callArgsRetried);
+    } else {
+      if (debug()) {
+        console.log(
+          "Could not figure out call args. Maybe build.ninja does not exist yet?"
+        );
+      }
+      return;
     }
-    return;
   }
 
   const startTime = performance.now();
   if (!fs.existsSync(entry.project.incrementalFolderPath)) {
     try {
-      fs.mkdirSync(entry.project.incrementalFolderPath);
+      fs.mkdirSync(entry.project.incrementalFolderPath, { recursive: true });
     } catch {}
   }
 
@@ -552,7 +558,12 @@ async function compileContents(
                 entry.project.incrementalFolderPath,
                 "error.log"
               );
-              fs.writeFileSync(logfile, stderr);
+              fs.writeFileSync(
+                logfile,
+                `== BSC ARGS ==\n${callArgs?.join(
+                  " "
+                )}\n\n== OUTPUT ==\n${stderr}`
+              );
               let params: p.ShowMessageParams = {
                 type: p.MessageType.Warning,
                 message: `[Incremental typechecking] Something might have gone wrong with incremental type checking. Check out the [error log](file://${logfile}) and report this issue please.`,
