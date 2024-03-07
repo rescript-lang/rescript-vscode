@@ -191,7 +191,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
     });
 
     projectsFiles.delete(projectRootPath);
-    if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+    if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
       ic.removeIncrementalFileFolder(projectRootPath);
     }
   }
@@ -239,7 +239,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
   if (projectRootPath != null) {
     let projectRootState = projectsFiles.get(projectRootPath);
     if (projectRootState == null) {
-      if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+      if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
         ic.recreateIncrementalFileFolder(projectRootPath);
       }
       projectRootState = {
@@ -319,7 +319,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
 let closedFile = (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
 
-  if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+  if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
     ic.handleClosedFile(filePath);
   }
 
@@ -349,7 +349,7 @@ let updateOpenedFile = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
   assert(stupidFileContentCache.has(filePath));
   stupidFileContentCache.set(filePath, fileContent);
-  if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+  if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
     ic.handleUpdateOpenedFile(filePath, fileContent, send, () => {
       if (config.extensionConfiguration.codeLens) {
         sendCodeLensRefresh();
@@ -418,7 +418,7 @@ function inlayHint(msg: p.RequestMessage) {
       filePath,
       params.range.start.line,
       params.range.end.line,
-      config.extensionConfiguration.inlayHints.maxLength,
+      config.extensionConfiguration.inlayHints?.maxLength,
     ],
     msg
   );
@@ -794,7 +794,7 @@ function format(msg: p.RequestMessage): Array<p.Message> {
 }
 
 let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
-  if (config.extensionConfiguration.incrementalTypechecking.enabled) {
+  if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
     // The incremental typechecking already sends syntax diagnostics.
     return;
   }

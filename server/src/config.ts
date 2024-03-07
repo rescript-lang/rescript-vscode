@@ -5,17 +5,17 @@ export type send = (msg: Message) => void;
 export interface extensionConfiguration {
   allowBuiltInFormatter: boolean;
   askToStartBuild: boolean;
-  inlayHints: {
+  inlayHints?: {
     enable: boolean;
     maxLength: number | null;
   };
   codeLens: boolean;
   binaryPath: string | null;
   platformPath: string | null;
-  signatureHelp: {
+  signatureHelp?: {
     enabled: boolean;
   };
-  incrementalTypechecking: {
+  incrementalTypechecking?: {
     enabled: boolean;
     acrossFiles: boolean;
     debugLogging: boolean;
@@ -40,7 +40,7 @@ let config: { extensionConfiguration: extensionConfiguration } = {
     },
     incrementalTypechecking: {
       enabled: false,
-      acrossFiles: true,
+      acrossFiles: false,
       debugLogging: true,
     },
   },
