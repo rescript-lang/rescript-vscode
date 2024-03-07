@@ -14,7 +14,7 @@
 
 #### :bug: Bug Fix
 
-- Fix null checks for editor config, so things don't blow up.
+- Fix null checks for editor config, so things don't blow up. https://github.com/rescript-lang/rescript-vscode/pull/944
 
 ## 1.44.0
 
