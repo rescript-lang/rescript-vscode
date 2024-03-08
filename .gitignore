@@ -9,6 +9,9 @@ analysis/tests/.bsb.lock
 analysis/tests-generic-jsx-transform/lib
 analysis/tests-generic-jsx-transform/.bsb.lock
 
+analysis/tests-incremental-typechecking/lib
+analysis/tests-incremental-typechecking/.bsb.lock
+
 tools/node_modules
 tools/lib
 tools/**/*.res.js

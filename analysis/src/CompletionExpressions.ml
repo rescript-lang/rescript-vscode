@@ -255,3 +255,37 @@ let prettyPrintFnTemplateArgName ?currentIndex ~env ~full
         (someName |> Utils.lowercaseFirstChar) ^ suffix
       | _ -> defaultVarName)
     | _ -> defaultVarName)
+
+let completeConstructorPayload ~posBeforeCursor ~firstCharBeforeCursorNoWhite
+    (constructorLid : Longident.t Location.loc) expr =
+  match
+    traverseExpr expr ~exprPath:[] ~pos:posBeforeCursor
+      ~firstCharBeforeCursorNoWhite
+  with
+  | None -> None
+  | Some (prefix, nested) ->
+    (* The nested path must start with the constructor name found, plus
+       the target argument number for the constructor. We translate to
+       that here, because we need to account for multi arg constructors
+       being represented as tuples. *)
+    let nested =
+      match List.rev nested with
+      | Completable.NTupleItem {itemNum} :: rest ->
+        [
+          Completable.NVariantPayload
+            {constructorName = Longident.last constructorLid.txt; itemNum};
+        ]
+        @ rest
+      | nested ->
+        [
+          Completable.NVariantPayload
+            {constructorName = Longident.last constructorLid.txt; itemNum = 0};
+        ]
+        @ nested
+    in
+    let variantCtxPath =
+      Completable.CTypeAtPos
+        {constructorLid.loc with loc_start = constructorLid.loc.loc_end}
+    in
+    Some
+      (Completable.Cexpression {contextPath = variantCtxPath; prefix; nested})

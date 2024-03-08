@@ -6,17 +6,20 @@ build-tests:
 build-tests-generic-jsx-transform:
 	make -C tests-generic-jsx-transform build
 
+build-tests-incremental-typechecking:
+	make -C tests-generic-jsx-transform build
+
 build-reanalyze:
 	make -C reanalyze build
 
-build: build-reanalyze build-tests build-tests-generic-jsx-transform
+build: build-reanalyze build-tests build-tests-generic-jsx-transform build-tests-incremental-typechecking
 
 dce: build-analysis-binary
 	opam exec reanalyze.exe -- -dce-cmt _build -suppress vendor
 
 test-analysis-binary:
 	make -C tests test
-	make -C tests-generic-jsx-transform test
+	make -C tests-generic-jsx-transform test tests-incremental-typechecking
 
 test-reanalyze:
 	make -C reanalyze test
