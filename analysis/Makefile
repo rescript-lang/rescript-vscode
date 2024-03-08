@@ -7,7 +7,7 @@ build-tests-generic-jsx-transform:
 	make -C tests-generic-jsx-transform build
 
 build-tests-incremental-typechecking:
-	make -C tests-generic-jsx-transform build
+	make -C tests-incremental-typechecking build
 
 build-reanalyze:
 	make -C reanalyze build
@@ -19,7 +19,8 @@ dce: build-analysis-binary
 
 test-analysis-binary:
 	make -C tests test
-	make -C tests-generic-jsx-transform test tests-incremental-typechecking
+	make -C tests-generic-jsx-transform test
+	make -C tests-incremental-typechecking test
 
 test-reanalyze:
 	make -C reanalyze test

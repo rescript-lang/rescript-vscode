@@ -99,13 +99,10 @@ posCursor:[20:24] posNoWhite:[20:23] Found expr:[16:1->22:10]
 posCursor:[20:24] posNoWhite:[20:23] Found expr:[17:5->22:10]
 JSX <div:[17:5->17:8] > _children:17:8
 posCursor:[20:24] posNoWhite:[20:23] Found expr:[17:8->22:4]
-Pexp_construct :::[18:7->22:4] [18:7->22:4]
 posCursor:[20:24] posNoWhite:[20:23] Found expr:[18:7->22:4]
 posCursor:[20:24] posNoWhite:[20:23] Found expr:[19:7->22:4]
-Pexp_construct :::[19:7->22:4] [19:7->22:4]
 posCursor:[20:24] posNoWhite:[20:23] Found expr:[19:7->22:4]
 posCursor:[20:24] posNoWhite:[20:23] Found expr:[20:10->22:4]
-Pexp_construct :::[20:10->22:4] [20:10->22:4]
 posCursor:[20:24] posNoWhite:[20:23] Found expr:[20:10->22:4]
 posCursor:[20:24] posNoWhite:[20:23] Found expr:[20:10->20:24]
 Completable: Cpath Value[someString]->st <<jsx>>
