@@ -18,7 +18,7 @@
 
 #### :nail_care: Polish
 
-- Enhance variant constructor payload completion.
+- Enhance variant constructor payload completion. https://github.com/rescript-lang/rescript-vscode/pull/946
 
 ## 1.48.0
 
