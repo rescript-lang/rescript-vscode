@@ -176,6 +176,11 @@
 					"default": true,
 					"description": "Enable signature help for function calls."
 				},
+				"rescript.settings.signatureHelp.forConstructorPayloads": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable signature help for variant constructor payloads."
+				},
 				"rescript.settings.incrementalTypechecking.enabled": {
 					"type": "boolean",
 					"default": false,

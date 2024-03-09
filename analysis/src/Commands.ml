@@ -71,9 +71,12 @@ let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
   in
   print_endline result
 
-let signatureHelp ~path ~pos ~currentFile ~debug =
+let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
   let result =
-    match SignatureHelp.signatureHelp ~path ~pos ~currentFile ~debug with
+    match
+      SignatureHelp.signatureHelp ~path ~pos ~currentFile ~debug
+        ~allowForConstructorPayloads
+    with
     | None ->
       {Protocol.signatures = []; activeSignature = None; activeParameter = None}
     | Some res -> res
@@ -345,7 +348,8 @@ let test ~path =
               ("Signature help " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             let currentFile = createCurrentFile () in
-            signatureHelp ~path ~pos:(line, col) ~currentFile ~debug:true;
+            signatureHelp ~path ~pos:(line, col) ~currentFile ~debug:true
+              ~allowForConstructorPayloads:true;
             Sys.remove currentFile
           | "int" ->
             print_endline ("Create Interface " ^ path);
