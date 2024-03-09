@@ -19,6 +19,8 @@
 #### :nail_care: Polish
 
 - Enhance variant constructor payload completion. https://github.com/rescript-lang/rescript-vscode/pull/946
+- Clean occasional dots from "insert missing fields" code action.
+- Pick up code actions in incremental compilation.
 
 ## 1.48.0
 

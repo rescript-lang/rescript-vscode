@@ -9,6 +9,7 @@ import * as cp from "node:child_process";
 import config, { send } from "./config";
 import * as c from "./constants";
 import * as chokidar from "chokidar";
+import { fileCodeActions } from "./codeActions";
 
 function debug() {
   return (
@@ -65,6 +66,8 @@ type IncrementallyCompiledFileInfo = {
     /** The ReScript version. */
     rescriptVersion: string;
   };
+  /** Any code actions for this incremental file. */
+  codeActions: Array<fileCodeActions>;
 };
 
 const incrementallyCompiledFileInfo: Map<
@@ -368,6 +371,7 @@ function triggerIncrementalCompilationOfFile(
       buildNinja: null,
       compilation: null,
       killCompilationListeners: [],
+      codeActions: [],
     };
 
     incrementalFileCacheEntry.project.callArgs = figureOutBscArgs(
@@ -526,7 +530,30 @@ async function compileContents(
           }
           // Reset compilation status as this compilation finished
           entry.compilation = null;
-          const { result } = utils.parseCompilerLogOutput(`${stderr}\n#Done()`);
+          const { result, codeActions } = utils.parseCompilerLogOutput(
+            `${stderr}\n#Done()`
+          );
+
+          const actions = Object.values(codeActions)[0] ?? [];
+
+          // Code actions will point to the locally saved incremental file, so we must remap
+          // them so the editor understand it's supposed to apply them to the unsaved doc,
+          // not the saved "dummy" incremental file.
+          actions.forEach((ca) => {
+            if (
+              ca.codeAction.edit != null &&
+              ca.codeAction.edit.changes != null
+            ) {
+              const change = Object.values(ca.codeAction.edit.changes)[0];
+
+              ca.codeAction.edit.changes = {
+                [pathToFileURL(entry.file.sourceFilePath).toString()]: change,
+              };
+            }
+          });
+
+          entry.codeActions = actions;
+
           const res = (Object.values(result)[0] ?? [])
             .map((d) => ({
               ...d,
@@ -627,4 +654,15 @@ export function handleClosedFile(filePath: string) {
   incrementallyCompiledFileInfo.delete(filePath);
   originalTypeFileToFilePath.delete(entry.file.originalTypeFileLocation);
   incrementalFilesWatcher.unwatch([entry.file.originalTypeFileLocation]);
+}
+
+export function getCodeActionsFromIncrementalCompilation(
+  filePath: string
+): Array<fileCodeActions> | null {
+  const entry = incrementallyCompiledFileInfo.get(filePath);
+  if (entry != null) {
+    return entry.codeActions;
+  }
+
+  return null;
 }
