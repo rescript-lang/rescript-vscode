@@ -3,22 +3,23 @@ import { Message } from "vscode-languageserver-protocol";
 export type send = (msg: Message) => void;
 
 export interface extensionConfiguration {
-  allowBuiltInFormatter: boolean;
-  askToStartBuild: boolean;
+  allowBuiltInFormatter?: boolean;
+  askToStartBuild?: boolean;
   inlayHints?: {
-    enable: boolean;
-    maxLength: number | null;
+    enable?: boolean;
+    maxLength?: number | null;
   };
-  codeLens: boolean;
-  binaryPath: string | null;
-  platformPath: string | null;
+  codeLens?: boolean;
+  binaryPath?: string | null;
+  platformPath?: string | null;
   signatureHelp?: {
-    enabled: boolean;
+    enabled?: boolean;
+    forConstructorPayloads?: boolean;
   };
   incrementalTypechecking?: {
-    enabled: boolean;
-    acrossFiles: boolean;
-    debugLogging: boolean;
+    enabled?: boolean;
+    acrossFiles?: boolean;
+    debugLogging?: boolean;
   };
 }
 
@@ -37,6 +38,7 @@ let config: { extensionConfiguration: extensionConfiguration } = {
     platformPath: null,
     signatureHelp: {
       enabled: true,
+      forConstructorPayloads: true,
     },
     incrementalTypechecking: {
       enabled: false,

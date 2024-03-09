@@ -172,7 +172,22 @@ let docsForLabel typeExpr ~file ~package ~supportsMarkdownLinks =
   in
   typeString :: typeDefinitions |> String.concat "\n"
 
-let signatureHelp ~path ~pos ~currentFile ~debug =
+let findConstructorArgs ~full ~env ~constructorName loc =
+  match
+    References.getLocItem ~debug:false ~full
+      ~pos:(Pos.ofLexing loc.Location.loc_end)
+  with
+  | None -> None
+  | Some {locType = Typed (_, typExpr, _)} -> (
+    match TypeUtils.extractType ~env ~package:full.package typExpr with
+    | Some (Tvariant {constructors}, _) ->
+      constructors
+      |> List.find_opt (fun (c : Constructor.t) ->
+             c.cname.txt = constructorName)
+    | _ -> None)
+  | _ -> None
+
+let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
   let textOpt = Files.readFile currentFile in
   match textOpt with
   | None | Some "" -> None
@@ -187,8 +202,18 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
           Some text.[offsetNoWhite]
         else None
       in
+      let locHasCursor loc =
+        loc |> CursorPosition.locHasCursor ~pos:posBeforeCursor
+      in
       let supportsMarkdownLinks = true in
       let foundFunctionApplicationExpr = ref None in
+      let foundConstructorExpr = ref None in
+      let setFoundConstructor r =
+        if allowForConstructorPayloads then
+          match !foundConstructorExpr with
+          | None -> foundConstructorExpr := Some r
+          | Some _ -> ()
+      in
       let setFound r =
         (* Because we want to handle both piped and regular function calls, and in
            the case of piped calls the iterator will process both the pipe and the
@@ -216,7 +241,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                      let currentUnlabelledArgCount = !unlabelledArgCount in
                      unlabelledArgCount := currentUnlabelledArgCount + 1;
                      (* An argument without a label is just the expression, so we can use that. *)
-                     if arg.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
+                     if locHasCursor arg.exp.pexp_loc then
                        Some (Unlabelled currentUnlabelledArgCount)
                      else (
                        (* If this unlabelled arg doesn't have the cursor, record
@@ -286,9 +311,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                    } );
                ] );
         }
-          when pexp_loc
-               |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-               == HasCursor ->
+          when locHasCursor pexp_loc ->
           let argAtCursor, extractedArgs =
             searchForArgWithCursor ~isPipeExpr:true ~args
           in
@@ -298,13 +321,17 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
          pexp_desc = Pexp_apply (({pexp_desc = Pexp_ident _} as exp), args);
          pexp_loc;
         }
-          when pexp_loc
-               |> CursorPosition.classifyLoc ~pos:posBeforeCursor
-               == HasCursor ->
+          when locHasCursor pexp_loc ->
           let argAtCursor, extractedArgs =
             searchForArgWithCursor ~isPipeExpr:false ~args
           in
           setFound (argAtCursor, exp, extractedArgs)
+        | {pexp_desc = Pexp_construct (lid, Some payloadExp); pexp_loc}
+          when locHasCursor payloadExp.pexp_loc
+               || CompletionExpressions.isExprHole payloadExp
+                  && locHasCursor pexp_loc ->
+          (* Constructor payloads *)
+          setFoundConstructor (lid, payloadExp)
         | _ -> ());
         Ast_iterator.default_iterator.expr iterator expr
       in
@@ -314,6 +341,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
       in
       let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
       iterator.structure iterator structure |> ignore;
+      (* Handle function application, if found *)
       match !foundFunctionApplicationExpr with
       | Some (argAtCursor, exp, _extractedArgs) -> (
         (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
@@ -395,4 +423,200 @@ let signatureHelp ~path ~pos ~currentFile ~debug =
                 | activeParameter -> activeParameter);
             }
         | _ -> None)
-      | _ -> None))
+      | None -> (
+        (* Handle constructor payload if we had no function application *)
+        match !foundConstructorExpr with
+        | Some (lid, expr) -> (
+          if Debug.verbose () then
+            Printf.printf "[signature_help] Found constructor expr!\n";
+          match Cmt.loadFullCmtFromPath ~path with
+          | None ->
+            if Debug.verbose () then
+              Printf.printf "[signature_help] Could not load cmt\n";
+            None
+          | Some full -> (
+            let {file} = full in
+            let env = QueryEnv.fromFile file in
+            let constructorName = Longident.last lid.txt in
+            match
+              findConstructorArgs ~full ~env ~constructorName
+                {lid.loc with loc_start = lid.loc.loc_end}
+            with
+            | None ->
+              if Debug.verbose () then
+                Printf.printf "[signature_help] Did not find constructor '%s'\n"
+                  constructorName;
+              None
+            | Some constructor ->
+              let argParts =
+                match constructor.args with
+                | Args [] -> None
+                | InlineRecord fields ->
+                  let offset = ref 0 in
+                  Some
+                    (`InlineRecord
+                      (fields
+                      |> List.map (fun (field : field) ->
+                             let startOffset = !offset in
+                             let argText =
+                               Printf.sprintf "%s%s: %s" field.fname.txt
+                                 (if field.optional then "?" else "")
+                                 (Shared.typeToString
+                                    (if field.optional then
+                                       Utils.unwrapIfOption field.typ
+                                     else field.typ))
+                             in
+                             let endOffset =
+                               startOffset + String.length argText
+                             in
+                             offset := endOffset + String.length ", ";
+                             (argText, field, (startOffset, endOffset)))))
+                | Args [(typ, _)] ->
+                  Some
+                    (`SingleArg
+                      ( typ |> Shared.typeToString,
+                        docsForLabel ~file:full.file ~package:full.package
+                          ~supportsMarkdownLinks typ ))
+                | Args args ->
+                  let offset = ref 0 in
+                  Some
+                    (`TupleArg
+                      (args
+                      |> List.map (fun (typ, _) ->
+                             let startOffset = !offset in
+                             let argText = typ |> Shared.typeToString in
+                             let endOffset =
+                               startOffset + String.length argText
+                             in
+                             offset := endOffset + String.length ", ";
+                             ( argText,
+                               docsForLabel ~file:full.file
+                                 ~package:full.package ~supportsMarkdownLinks
+                                 typ,
+                               (startOffset, endOffset) ))))
+              in
+              let label =
+                constructor.cname.txt ^ "("
+                ^ (match argParts with
+                  | None -> ""
+                  | Some (`InlineRecord fields) ->
+                    "{"
+                    ^ (fields
+                      |> List.map (fun (argText, _, _) -> argText)
+                      |> String.concat ", ")
+                    ^ "}"
+                  | Some (`SingleArg (arg, _)) -> arg
+                  | Some (`TupleArg items) ->
+                    items
+                    |> List.map (fun (argText, _, _) -> argText)
+                    |> String.concat ", ")
+                ^ ")"
+              in
+              let activeParameter =
+                match expr with
+                | {pexp_desc = Pexp_tuple items} -> (
+                  let idx = ref 0 in
+                  let tupleItemWithCursor =
+                    items
+                    |> List.find_map (fun (item : Parsetree.expression) ->
+                           let currentIndex = !idx in
+                           idx := currentIndex + 1;
+                           if locHasCursor item.pexp_loc then Some currentIndex
+                           else None)
+                  in
+                  match tupleItemWithCursor with
+                  | None -> -1
+                  | Some i -> i)
+                | {pexp_desc = Pexp_record (fields, _)} -> (
+                  let fieldNameWithCursor =
+                    fields
+                    |> List.find_map
+                         (fun
+                           (({loc; txt}, expr) :
+                             Longident.t Location.loc * Parsetree.expression)
+                         ->
+                           if
+                             posBeforeCursor >= Pos.ofLexing loc.loc_start
+                             && posBeforeCursor
+                                <= Pos.ofLexing expr.pexp_loc.loc_end
+                           then Some (Longident.last txt)
+                           else None)
+                  in
+                  match (fieldNameWithCursor, argParts) with
+                  | Some fieldName, Some (`InlineRecord fields) ->
+                    let idx = ref 0 in
+                    let fieldIndex = ref (-1) in
+                    fields
+                    |> List.iter (fun (_, field, _) ->
+                           idx := !idx + 1;
+                           let currentIndex = !idx in
+                           if fieldName = field.fname.txt then
+                             fieldIndex := currentIndex
+                           else ());
+                    !fieldIndex
+                  | _ -> -1)
+                | _ when locHasCursor expr.pexp_loc -> 0
+                | _ -> -1
+              in
+
+              let constructorNameLength = String.length constructor.cname.txt in
+              let params =
+                match argParts with
+                | None -> []
+                | Some (`SingleArg (_, docstring)) ->
+                  [
+                    {
+                      Protocol.label =
+                        (constructorNameLength + 1, String.length label - 1);
+                      documentation =
+                        {Protocol.kind = "markdown"; value = docstring};
+                    };
+                  ]
+                | Some (`InlineRecord fields) ->
+                  (* Account for leading '({' *)
+                  let baseOffset = constructorNameLength + 2 in
+                  {
+                    Protocol.label = (0, 0);
+                    documentation = {Protocol.kind = "markdown"; value = ""};
+                  }
+                  :: (fields
+                     |> List.map (fun (_, field, (start, end_)) ->
+                            {
+                              Protocol.label =
+                                (baseOffset + start, baseOffset + end_);
+                              documentation =
+                                {
+                                  Protocol.kind = "markdown";
+                                  value = field.docstring |> String.concat "\n";
+                                };
+                            }))
+                | Some (`TupleArg items) ->
+                  (* Account for leading '(' *)
+                  let baseOffset = constructorNameLength + 1 in
+                  items
+                  |> List.map (fun (_, docstring, (start, end_)) ->
+                         {
+                           Protocol.label =
+                             (baseOffset + start, baseOffset + end_);
+                           documentation =
+                             {Protocol.kind = "markdown"; value = docstring};
+                         })
+              in
+              Some
+                {
+                  Protocol.signatures =
+                    [
+                      {
+                        label;
+                        parameters = params;
+                        documentation =
+                          (match List.nth_opt constructor.docstring 0 with
+                          | None -> None
+                          | Some docs ->
+                            Some {Protocol.kind = "markdown"; value = docs});
+                      };
+                    ];
+                  activeSignature = Some 0;
+                  activeParameter = Some activeParameter;
+                }))
+        | None -> None)))

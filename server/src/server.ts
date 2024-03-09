@@ -469,6 +469,9 @@ function signatureHelp(msg: p.RequestMessage) {
       params.position.line,
       params.position.character,
       tmpname,
+      config.extensionConfiguration.signatureHelp?.forConstructorPayloads
+        ? "true"
+        : "false",
     ],
     msg
   );
@@ -745,7 +748,7 @@ function format(msg: p.RequestMessage): Array<p.Message> {
       bscExeBinaryPath,
       filePath,
       code,
-      config.extensionConfiguration.allowBuiltInFormatter
+      Boolean(config.extensionConfiguration.allowBuiltInFormatter)
     );
     if (formattedResult.kind === "success") {
       let max = code.length;

@@ -74,3 +74,29 @@ let fn = (age: int, name: string, year: int) => {
 
 // let _ = fn({ iAmSoSpecial({ someFunc() }) })
 //                                      ^she
+
+/** This is my own special thing. */
+type mySpecialThing = string
+
+type t =
+  | /** One is cool. */ One({miss?: bool, hit?: bool, stuff?: string})
+  | /** Two is fun! */ Two(mySpecialThing)
+  | /** Three is... three */ Three(mySpecialThing, array<option<string>>)
+
+let _one = One({})
+//              ^she
+
+let _one = One({miss: true})
+//                ^she
+
+let _one = One({hit: true, miss: true})
+//                     ^she
+
+let two = Two("true")
+//             ^she
+
+let three = Three("", [])
+//                 ^she
+
+let three2 = Three("", [])
+//                      ^she

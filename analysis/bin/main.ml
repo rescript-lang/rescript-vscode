@@ -136,10 +136,16 @@ let main () =
         (match supportsMarkdownLinks with
         | "true" -> true
         | _ -> false)
-  | [_; "signatureHelp"; path; line; col; currentFile] ->
+  | [
+   _; "signatureHelp"; path; line; col; currentFile; allowForConstructorPayloads;
+  ] ->
     Commands.signatureHelp ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile ~debug
+      ~allowForConstructorPayloads:
+        (match allowForConstructorPayloads with
+        | "true" -> true
+        | _ -> false)
   | [_; "inlayHint"; path; line_start; line_end; maxLength] ->
     Commands.inlayhint ~path
       ~pos:(int_of_string line_start, int_of_string line_end)
