@@ -21,7 +21,6 @@ ContextPath CTypeAtPos()
 Complete src/TypeAtPosCompletion.res 16:18
 posCursor:[16:18] posNoWhite:[16:16] Found expr:[13:8->19:1]
 Pexp_construct One:[13:8->13:11] [13:11->19:1]
-posCursor:[16:18] posNoWhite:[16:16] Found expr:[13:11->19:1]
 posCursor:[16:18] posNoWhite:[16:16] Found expr:[15:2->18:3]
 Completable: Cexpression CTypeAtPos()->variantPayload::One($1), recordBody
 Package opens Pervasives.JsxModules.place holder

@@ -1058,7 +1058,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                         && expr |> Res_parsetree_viewer.isBracedExpr
                       then ValueOrField
                       else Value )))
-        | Pexp_construct (lid, eOpt) ->
+        | Pexp_construct ({txt = Lident ("::" | "()")}, _) ->
+          (* Ignore list expressions, used in JSX, unit, and more *) ()
+        | Pexp_construct (lid, eOpt) -> (
           let lidPath = flattenLidCheckDot lid in
           if debug && lid.txt <> Lident "Function$" then
             Printf.printf "Pexp_construct %s:%s %s\n"
@@ -1071,6 +1073,19 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
             eOpt = None && (not lid.loc.loc_ghost)
             && lid.loc |> Loc.hasPos ~pos:posBeforeCursor
           then setResult (Cpath (CPId (lidPath, Value)))
+          else
+            match eOpt with
+            | Some e when locHasCursor e.pexp_loc -> (
+              match
+                CompletionExpressions.completeConstructorPayload
+                  ~posBeforeCursor ~firstCharBeforeCursorNoWhite lid e
+              with
+              | Some result ->
+                (* Check if anything else more important completes before setting this completion. *)
+                Ast_iterator.default_iterator.expr iterator e;
+                setResult result
+              | None -> ())
+            | _ -> ())
         | Pexp_field (e, fieldName) -> (
           if debug then
             Printf.printf "Pexp_field %s %s:%s\n" (Loc.toString e.pexp_loc)

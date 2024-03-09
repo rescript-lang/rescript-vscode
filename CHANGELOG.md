@@ -16,6 +16,10 @@
 
 - Extend signature help to work on constructor payloads as well. Can be turned off if wanted through settings. https://github.com/rescript-lang/rescript-vscode/pull/947
 
+#### :nail_care: Polish
+
+- Enhance variant constructor payload completion. https://github.com/rescript-lang/rescript-vscode/pull/946
+
 ## 1.48.0
 
 #### :bug: Bug Fix
