@@ -29,6 +29,8 @@ test: test-analysis-binary test-reanalyze
 
 clean:
 	make -C tests clean
+	make -C tests-generic-jsx-transform clean
+	make -C tests-incremental-typechecking clean
 	make -C reanalyze clean
 
 .PHONY: build-reanalyze build-tests dce clean test
