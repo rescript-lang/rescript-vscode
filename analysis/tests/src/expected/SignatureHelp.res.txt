@@ -247,7 +247,6 @@ extracted params:
 }
 
 Signature help src/SignatureHelp.res 53:31
-[sig_help_result] Doing nothing because loc of FunctionCall < then existing of FunctionCall
 posCursor:[53:29] posNoWhite:[53:28] Found expr:[53:11->53:31]
 posCursor:[53:29] posNoWhite:[53:28] Found expr:[53:20->53:31]
 Pexp_apply ...[53:20->53:29] (...[53:30->53:31])
@@ -454,8 +453,6 @@ Signature help src/SignatureHelp.res 100:24
 }
 
 Signature help src/SignatureHelp.res 105:9
-[sig_help_result] Doing nothing because loc of FunctionCall < then existing of FunctionCall
-[sig_help_result] Doing nothing because loc of Constructor < then existing of FunctionCall
 {
   "signatures": [{
     "label": "One({miss?: bool, hit?: bool, stuff?: string})",
@@ -466,5 +463,17 @@ Signature help src/SignatureHelp.res 105:9
   "activeParameter": -1
 }
 
-
+Signature help src/SignatureHelp.res 112:53
+argAtCursor: unlabelled<1>
+extracted params: 
+[Belt.Array.t<int>, int => int]
+{
+  "signatures": [{
+    "label": "(Belt.Array.t<int>, int => int) => array<int>",
+    "parameters": [{"label": [1, 18], "documentation": {"kind": "markdown", "value": "```rescript\nBelt.Array.t<int>\n```\n```rescript\ntype t<'a> = array<'a>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22belt_Array.resi%22%2C27%2C0%5D)"}}, {"label": [20, 30], "documentation": {"kind": "markdown", "value": "```rescript\nBelt.Array.t<int>\n```\n```rescript\ntype t<'a> = array<'a>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22belt_Array.resi%22%2C27%2C0%5D)"}}],
+    "documentation": {"kind": "markdown", "value": "\n```rescript\ntype t<'a> = array<'a>\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22belt_Array.resi%22%2C27%2C0%5D)"}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
 

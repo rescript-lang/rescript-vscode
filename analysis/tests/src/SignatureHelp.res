@@ -110,7 +110,5 @@ let _deepestTakesPrecedence = [12]->Js.Array2.map(v =>
   }
 )
 
-// ^dv+
-// let _usesCorrectTypeInfo = [12]->Js.Array2.map(v => v)
-//                                                   she
-// ^dv-
+let _usesCorrectTypeInfo = [12]->Belt.Array.map(v => v)
+//                                                   ^she

@@ -1,39 +1,120 @@
 open SharedTypes
 type cursorAtArg = Unlabelled of int | Labelled of string
 
-let findFunctionType ~currentFile ~debug ~path ~pos =
-  let completables =
-    let textOpt = Files.readFile currentFile in
-    match textOpt with
-    | None | Some "" -> None
-    | Some text -> (
-      (* Leverage the completion functionality to pull out the type of the identifier doing the function application.
-         This lets us leverage all of the smart work done in completions to find the correct type in many cases even
-         for files not saved yet. *)
-      match
-        CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
-          ~currentFile ~text
-      with
-      | None -> None
-      | Some (completable, scope) -> (
-        match Cmt.loadFullCmtFromPath ~path with
-        | None -> None
-        | Some full ->
-          let {file; package} = full in
-          let env = QueryEnv.fromFile file in
-          Some
-            ( completable
-              |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope
-                   ~env ~forHover:true,
-              env,
-              package,
-              file )))
+let shouldPrintMainTypeStr typ ~env ~package =
+  match typ |> Shared.digConstructor with
+  | Some path -> (
+    match References.digConstructor ~env ~package path with
+    | Some (_, {item = {kind = Record _}}) -> false
+    | _ -> true)
+  | _ -> false
+
+(* Produces the doc string shown below the signature help for each parameter. *)
+let docsForLabel typeExpr ~file ~package ~supportsMarkdownLinks =
+  let env = QueryEnv.fromFile file in
+  let types = Hover.findRelevantTypesFromType ~file ~package typeExpr in
+  let typeString =
+    if shouldPrintMainTypeStr typeExpr ~env ~package then
+      Markdown.codeBlock (typeExpr |> Shared.typeToString)
+    else ""
   in
-  match completables with
-  | Some ({kind = Value type_expr; docstring} :: _, env, package, file) ->
-    let args, _ = TypeUtils.extractFunctionType type_expr ~env ~package in
-    Some (args, docstring, type_expr, package, env, file)
-  | _ -> None
+  let typeNames = types |> List.map (fun {Hover.name} -> name) in
+  let typeDefinitions =
+    types
+    |> List.map (fun {Hover.decl; name; env; loc; path} ->
+           let linkToTypeDefinitionStr =
+             if supportsMarkdownLinks then
+               Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
+             else ""
+           in
+           (* Since printing the whole name via its path can get quite long, and
+              we're short on space for the signature help, we'll only print the
+              fully "qualified" type name if we must (ie if several types we're
+              displaying have the same name). *)
+           let multipleTypesHaveThisName =
+             typeNames
+             |> List.filter (fun typeName -> typeName = name)
+             |> List.length > 1
+           in
+           let typeName =
+             if multipleTypesHaveThisName then
+               path |> SharedTypes.pathIdentToString
+             else name
+           in
+           Markdown.codeBlock
+             (Shared.declToString ~printNameAsIs:true typeName decl)
+           ^ linkToTypeDefinitionStr)
+  in
+  typeString :: typeDefinitions |> String.concat "\n"
+
+let findFunctionType ~currentFile ~debug ~path ~pos ~supportsMarkdownLinks =
+  (* Start by looking at the typed info at the loc of the fn *)
+  match Cmt.loadFullCmtFromPath ~path with
+  | None -> None
+  | Some full -> (
+    let {file; package} = full in
+    let env = QueryEnv.fromFile file in
+    let fnFromLocItem =
+      match References.getLocItem ~full ~pos ~debug:false with
+      | Some {locType = Typed (_, typeExpr, _)} -> (
+        if Debug.verbose () then
+          Printf.printf "[sig_help_fn] Found loc item: %s.\n"
+            (Shared.typeToString typeExpr);
+        match
+          TypeUtils.extractFunctionType2 ~env ~package:full.package typeExpr
+        with
+        | args, _tRet, _ when args <> [] ->
+          Some
+            ( args,
+              [docsForLabel ~file ~package ~supportsMarkdownLinks typeExpr],
+              typeExpr,
+              package,
+              env,
+              file )
+        | _ -> None)
+      | None ->
+        if Debug.verbose () then
+          Printf.printf "[sig_help_fn] Found no loc item.\n";
+        None
+      | Some _ ->
+        if Debug.verbose () then
+          Printf.printf
+            "[sig_help_fn] Found loc item, but not what was expected.\n";
+        None
+    in
+    match fnFromLocItem with
+    | Some fnFromLocItem -> Some fnFromLocItem
+    | None -> (
+      (* If nothing was found there, try using the unsaved completion engine *)
+      let completables =
+        let textOpt = Files.readFile currentFile in
+        match textOpt with
+        | None | Some "" -> None
+        | Some text -> (
+          (* Leverage the completion functionality to pull out the type of the identifier doing the function application.
+             This lets us leverage all of the smart work done in completions to find the correct type in many cases even
+             for files not saved yet. *)
+          match
+            CompletionFrontEnd.completionWithParser ~debug ~path ~posCursor:pos
+              ~currentFile ~text
+          with
+          | None -> None
+          | Some (completable, scope) ->
+            Some
+              ( completable
+                |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope
+                     ~env ~forHover:true,
+                env,
+                package,
+                file ))
+      in
+      match completables with
+      | Some ({kind = Value type_expr; docstring} :: _, env, package, file) ->
+        let args, _, _ =
+          TypeUtils.extractFunctionType2 type_expr ~env ~package
+        in
+        Some (args, docstring, type_expr, package, env, file)
+      | _ -> None))
 
 (* Extracts all parameters from a parsed function signature *)
 let extractParameters ~signature ~typeStrForParser ~labelPrefixLen =
@@ -126,52 +207,6 @@ let findActiveParameter ~argAtCursor ~args =
              index := !index + 1;
              None)
 
-let shouldPrintMainTypeStr typ ~env ~package =
-  match typ |> Shared.digConstructor with
-  | Some path -> (
-    match References.digConstructor ~env ~package path with
-    | Some (_, {item = {kind = Record _}}) -> false
-    | _ -> true)
-  | _ -> false
-
-(* Produces the doc string shown below the signature help for each parameter. *)
-let docsForLabel typeExpr ~file ~package ~supportsMarkdownLinks =
-  let env = QueryEnv.fromFile file in
-  let types = Hover.findRelevantTypesFromType ~file ~package typeExpr in
-  let typeString =
-    if shouldPrintMainTypeStr typeExpr ~env ~package then
-      Markdown.codeBlock (typeExpr |> Shared.typeToString)
-    else ""
-  in
-  let typeNames = types |> List.map (fun {Hover.name} -> name) in
-  let typeDefinitions =
-    types
-    |> List.map (fun {Hover.decl; name; env; loc; path} ->
-           let linkToTypeDefinitionStr =
-             if supportsMarkdownLinks then
-               Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
-             else ""
-           in
-           (* Since printing the whole name via its path can get quite long, and
-              we're short on space for the signature help, we'll only print the
-              fully "qualified" type name if we must (ie if several types we're
-              displaying have the same name). *)
-           let multipleTypesHaveThisName =
-             typeNames
-             |> List.filter (fun typeName -> typeName = name)
-             |> List.length > 1
-           in
-           let typeName =
-             if multipleTypesHaveThisName then
-               path |> SharedTypes.pathIdentToString
-             else name
-           in
-           Markdown.codeBlock
-             (Shared.declToString ~printNameAsIs:true typeName decl)
-           ^ linkToTypeDefinitionStr)
-  in
-  typeString :: typeDefinitions |> String.concat "\n"
-
 let findConstructorArgs ~full ~env ~constructorName loc =
   match
     References.getLocItem ~debug:false ~full
@@ -232,10 +267,11 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
                  of %s\n"
                 (printThing thing) (printThing currentThing)
           | Some (_, currentThing) ->
-            Printf.printf
-              "[sig_help_result] Doing nothing because loc of %s < then \
-               existing of %s\n"
-              (printThing thing) (printThing currentThing))
+            if Debug.verbose () then
+              Printf.printf
+                "[sig_help_result] Doing nothing because loc of %s < then \
+                 existing of %s\n"
+                (printThing thing) (printThing currentThing))
       in
       let searchForArgWithCursor ~isPipeExpr ~args =
         let extractedArgs = extractExpApplyArgs ~args in
@@ -358,7 +394,9 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
       | Some (_, `FunctionCall (argAtCursor, exp, _extractedArgs)) -> (
         (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
         let pos = exp.pexp_loc |> Loc.end_ in
-        match findFunctionType ~currentFile ~debug ~path ~pos with
+        match
+          findFunctionType ~currentFile ~debug ~path ~pos ~supportsMarkdownLinks
+        with
         | Some (args, docstring, type_expr, package, _env, file) ->
           if debug then
             Printf.printf "argAtCursor: %s\n"
