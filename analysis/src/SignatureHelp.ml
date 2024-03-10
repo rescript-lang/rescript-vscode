@@ -1,23 +1,9 @@
 open SharedTypes
 type cursorAtArg = Unlabelled of int | Labelled of string
 
-let shouldPrintMainTypeStr typ ~env ~package =
-  match typ |> Shared.digConstructor with
-  | Some path -> (
-    match References.digConstructor ~env ~package path with
-    | Some (_, {item = {kind = Record _}}) -> false
-    | _ -> true)
-  | _ -> false
-
 (* Produces the doc string shown below the signature help for each parameter. *)
 let docsForLabel typeExpr ~file ~package ~supportsMarkdownLinks =
-  let env = QueryEnv.fromFile file in
   let types = Hover.findRelevantTypesFromType ~file ~package typeExpr in
-  let typeString =
-    if shouldPrintMainTypeStr typeExpr ~env ~package then
-      Markdown.codeBlock (typeExpr |> Shared.typeToString)
-    else ""
-  in
   let typeNames = types |> List.map (fun {Hover.name} -> name) in
   let typeDefinitions =
     types
@@ -45,9 +31,9 @@ let docsForLabel typeExpr ~file ~package ~supportsMarkdownLinks =
              (Shared.declToString ~printNameAsIs:true typeName decl)
            ^ linkToTypeDefinitionStr)
   in
-  typeString :: typeDefinitions |> String.concat "\n"
+  typeDefinitions |> String.concat "\n"
 
-let findFunctionType ~currentFile ~debug ~path ~pos ~supportsMarkdownLinks =
+let findFunctionType ~currentFile ~debug ~path ~pos =
   (* Start by looking at the typed info at the loc of the fn *)
   match Cmt.loadFullCmtFromPath ~path with
   | None -> None
@@ -56,7 +42,12 @@ let findFunctionType ~currentFile ~debug ~path ~pos ~supportsMarkdownLinks =
     let env = QueryEnv.fromFile file in
     let fnFromLocItem =
       match References.getLocItem ~full ~pos ~debug:false with
-      | Some {locType = Typed (_, typeExpr, _)} -> (
+      | Some {locType = Typed (_, typeExpr, locKind)} -> (
+        let docstring =
+          match References.definedForLoc ~file ~package locKind with
+          | None -> []
+          | Some (docstring, _) -> docstring
+        in
         if Debug.verbose () then
           Printf.printf "[sig_help_fn] Found loc item: %s.\n"
             (Shared.typeToString typeExpr);
@@ -64,13 +55,7 @@ let findFunctionType ~currentFile ~debug ~path ~pos ~supportsMarkdownLinks =
           TypeUtils.extractFunctionType2 ~env ~package:full.package typeExpr
         with
         | args, _tRet, _ when args <> [] ->
-          Some
-            ( args,
-              [docsForLabel ~file ~package ~supportsMarkdownLinks typeExpr],
-              typeExpr,
-              package,
-              env,
-              file )
+          Some (args, docstring, typeExpr, package, env, file)
         | _ -> None)
       | None ->
         if Debug.verbose () then
@@ -394,9 +379,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
       | Some (_, `FunctionCall (argAtCursor, exp, _extractedArgs)) -> (
         (* Not looking for the cursor position after this, but rather the target function expression's loc. *)
         let pos = exp.pexp_loc |> Loc.end_ in
-        match
-          findFunctionType ~currentFile ~debug ~path ~pos ~supportsMarkdownLinks
-        with
+        match findFunctionType ~currentFile ~debug ~path ~pos with
         | Some (args, docstring, type_expr, package, _env, file) ->
           if debug then
             Printf.printf "argAtCursor: %s\n"
@@ -432,6 +415,8 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
 
           (* Figure out the active parameter *)
           let activeParameter = findActiveParameter ~argAtCursor ~args in
+
+          let paramUnlabelledArgCount = ref 0 in
           Some
             {
               Protocol.signatures =
@@ -441,16 +426,32 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
                     parameters =
                       parameters
                       |> List.map (fun (argLabel, start, end_) ->
+                             let paramArgCount = !paramUnlabelledArgCount in
+                             paramUnlabelledArgCount := paramArgCount + 1;
+                             let unlabelledArgCount = ref 0 in
                              {
                                Protocol.label = (start, end_);
                                documentation =
                                  (match
                                     args
                                     |> List.find_opt (fun (lbl, _) ->
-                                           lbl = argLabel)
+                                           let argCount = !unlabelledArgCount in
+                                           unlabelledArgCount := argCount + 1;
+                                           match (lbl, argLabel) with
+                                           | ( Asttypes.Optional l1,
+                                               Asttypes.Optional l2 )
+                                             when l1 = l2 ->
+                                             true
+                                           | Labelled l1, Labelled l2
+                                             when l1 = l2 ->
+                                             true
+                                           | Nolabel, Nolabel
+                                             when paramArgCount = argCount ->
+                                             true
+                                           | _ -> false)
                                   with
                                  | None ->
-                                   {Protocol.kind = "markdown"; value = "Nope"}
+                                   {Protocol.kind = "markdown"; value = ""}
                                  | Some (_, labelTypExpr) ->
                                    {
                                      Protocol.kind = "markdown";
@@ -626,7 +627,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
                   documentation = {Protocol.kind = "markdown"; value = ""};
                 }
                 :: (fields
-                   |> List.map (fun (_, field, (start, end_)) ->
+                   |> List.map (fun (_, (field : field), (start, end_)) ->
                           {
                             Protocol.label =
                               (baseOffset + start, baseOffset + end_);

@@ -110,5 +110,32 @@ let _deepestTakesPrecedence = [12]->Js.Array2.map(v =>
   }
 )
 
-let _usesCorrectTypeInfo = [12]->Belt.Array.map(v => v)
-//                                                   ^she
+/** Main docstring here. */
+let map = (arr, mapper) => {
+  Array.map(mapper, arr)
+}
+
+let _usesCorrectTypeInfo = [12]->map(v => v)
+//                                        ^she
+
+/** Type x... */
+type x = {
+  age?: int,
+  name?: string,
+}
+
+/** Type tt! */
+type tt = One
+
+/** Some stuff */
+let stuffers = (x: x, y: tt) => {
+  ignore(x)
+  ignore(y)
+  "hello"
+}
+
+let _ = stuffers({}, One)
+//                ^she
+
+let _ = stuffers({}, One)
+//                    ^she
