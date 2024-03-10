@@ -802,24 +802,8 @@ module Completion = struct
     typeArgContext: typeArgContext option;
   }
 
-  let create ~kind ~env ?typeArgContext ?(docstring = []) ?filterText ?detail
-      ?deprecated ?insertText name =
-    {
-      name;
-      env;
-      deprecated;
-      docstring;
-      kind;
-      sortText = None;
-      insertText;
-      insertTextFormat = None;
-      filterText;
-      detail;
-      typeArgContext;
-    }
-
-  let createWithSnippet ~name ?typeArgContext ?insertText ~kind ~env ?sortText
-      ?deprecated ?filterText ?detail ?(docstring = []) () =
+  let create ?typeArgContext ?(includesSnippets = false) ?insertText ~kind ~env
+      ?sortText ?deprecated ?filterText ?detail ?(docstring = []) name =
     {
       name;
       env;
@@ -828,7 +812,8 @@ module Completion = struct
       kind;
       sortText;
       insertText;
-      insertTextFormat = Some Protocol.Snippet;
+      insertTextFormat =
+        (if includesSnippets then Some Protocol.Snippet else None);
       filterText;
       detail;
       typeArgContext;
