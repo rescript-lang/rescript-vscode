@@ -653,7 +653,6 @@ function completion(msg: p.RequestMessage) {
       params.position.line,
       params.position.character,
       tmpname,
-      Boolean(extensionClientCapabilities.supportsSnippetSyntax),
     ],
     msg
   );
