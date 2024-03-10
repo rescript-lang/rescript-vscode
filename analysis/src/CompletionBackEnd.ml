@@ -325,6 +325,11 @@ let kindToDetail name (kind : Completion.kind) =
   | ExtractedType (extractedType, _) ->
     TypeUtils.extractedTypeToString ~nameOnly:true extractedType
 
+let kindToData filePath (kind : Completion.kind) =
+  match kind with
+  | FileModule f -> Some [("modulePath", f); ("filePath", filePath)]
+  | _ -> None
+
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
   Log.log ("findAllCompletions uri:" ^ Uri.toString env.file.uri);
@@ -648,7 +653,7 @@ let rec digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos ~env
   | {kind = Type {kind = Record fields}} :: _ -> Some fields
   | _ -> None
 
-let mkItem ~name ~kind ~detail ~deprecated ~docstring =
+let mkItem ?data name ~kind ~detail ~deprecated ~docstring =
   let docContent =
     (match deprecated with
     | None -> ""
@@ -676,6 +681,7 @@ let mkItem ~name ~kind ~detail ~deprecated ~docstring =
       insertText = None;
       insertTextFormat = None;
       filterText = None;
+      data;
     }
 
 let completionToItem
@@ -692,7 +698,8 @@ let completionToItem
       env;
     } ~full =
   let item =
-    mkItem ~name
+    mkItem name
+      ?data:(kindToData (full.file.uri |> Uri.toPath) kind)
       ~kind:(Completion.kindToInt kind)
       ~deprecated
       ~detail:

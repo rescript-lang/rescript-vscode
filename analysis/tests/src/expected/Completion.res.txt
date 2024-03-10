@@ -878,13 +878,21 @@ Path Lis
     "kind": 9,
     "tags": [],
     "detail": "module List",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "List",
+      "filePath": "src/Completion.res"
+    }
   }, {
     "label": "ListLabels",
     "kind": 9,
     "tags": [],
     "detail": "module ListLabels",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "ListLabels",
+      "filePath": "src/Completion.res"
+    }
   }]
 
 Complete src/Completion.res 169:16
@@ -1648,13 +1656,21 @@ Path Res
     "kind": 9,
     "tags": [],
     "detail": "module RescriptReactErrorBoundary",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "RescriptReactErrorBoundary",
+      "filePath": "src/Completion.res"
+    }
   }, {
     "label": "RescriptReactRouter",
     "kind": 9,
     "tags": [],
     "detail": "module RescriptReactRouter",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "RescriptReactRouter",
+      "filePath": "src/Completion.res"
+    }
   }]
 
 Complete src/Completion.res 343:57
@@ -1765,19 +1781,31 @@ Path T
     "kind": 9,
     "tags": [],
     "detail": "module TableclothMap",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "TableclothMap",
+      "filePath": "src/Completion.res"
+    }
   }, {
     "label": "TypeAtPosCompletion",
     "kind": 9,
     "tags": [],
     "detail": "module TypeAtPosCompletion",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "TypeAtPosCompletion",
+      "filePath": "src/Completion.res"
+    }
   }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
     "detail": "module TypeDefinition",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "TypeDefinition",
+      "filePath": "src/Completion.res"
+    }
   }]
 
 Complete src/Completion.res 373:21

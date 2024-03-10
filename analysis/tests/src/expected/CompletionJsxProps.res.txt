@@ -67,19 +67,31 @@ Path CompletionSupport.TestComponent.make
     "kind": 9,
     "tags": [],
     "detail": "module TableclothMap",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "TableclothMap",
+      "filePath": "src/CompletionJsxProps.res"
+    }
   }, {
     "label": "TypeAtPosCompletion",
     "kind": 9,
     "tags": [],
     "detail": "module TypeAtPosCompletion",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "TypeAtPosCompletion",
+      "filePath": "src/CompletionJsxProps.res"
+    }
   }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
     "detail": "module TypeDefinition",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "TypeDefinition",
+      "filePath": "src/CompletionJsxProps.res"
+    }
   }]
 
 Complete src/CompletionJsxProps.res 9:52

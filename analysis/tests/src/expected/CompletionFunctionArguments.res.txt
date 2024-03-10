@@ -176,13 +176,21 @@ Path someFnTakingVariant
     "kind": 9,
     "tags": [],
     "detail": "module Obj",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "Obj",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }, {
     "label": "Objects",
     "kind": 9,
     "tags": [],
     "detail": "module Objects",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "Objects",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }]
 
 Complete src/CompletionFunctionArguments.res 57:33
@@ -208,7 +216,11 @@ Path someFnTakingVariant
     "kind": 9,
     "tags": [],
     "detail": "module Sort",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "Sort",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }]
 
 Complete src/CompletionFunctionArguments.res 60:44
@@ -240,13 +252,21 @@ Path someFnTakingVariant
     "kind": 9,
     "tags": [],
     "detail": "module Obj",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "Obj",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }, {
     "label": "Objects",
     "kind": 9,
     "tags": [],
     "detail": "module Objects",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "Objects",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }]
 
 Complete src/CompletionFunctionArguments.res 63:23

@@ -11,6 +11,36 @@ let completion ~debug ~path ~pos ~currentFile =
   in
   completions |> Protocol.array |> print_endline
 
+let completionResolve ~path ~modulePath =
+  (* We ignore the internal module path as of now because there's currently
+     no use case for it. But, if we wanted to move resolving documentation
+     for regular modules and not just file modules to the completionResolve
+     hook as well, it'd be easy to implement here. *)
+  let moduleName, _innerModulePath =
+    match modulePath |> String.split_on_char '.' with
+    | [moduleName] -> (moduleName, [])
+    | moduleName :: rest -> (moduleName, rest)
+    | [] -> raise (Failure "Invalid module path.")
+  in
+  let docstring =
+    match Cmt.loadFullCmtFromPath ~path with
+    | None ->
+      if Debug.verbose () then
+        Printf.printf "[completion_resolve] Could not load cmt\n";
+      Protocol.null
+    | Some full -> (
+      match ProcessCmt.fileForModule ~package:full.package moduleName with
+      | None ->
+        if Debug.verbose () then
+          Printf.printf "[completion_resolve] Did not find file for module %s\n"
+            moduleName;
+        Protocol.null
+      | Some file ->
+        file.structure.docstring |> String.concat "\n\n"
+        |> Protocol.wrapInQuotes)
+  in
+  print_endline docstring
+
 let inlayhint ~path ~pos ~maxLength ~debug =
   let result =
     match Hint.inlay ~path ~pos ~maxLength ~debug with
@@ -320,6 +350,11 @@ let test ~path =
             let currentFile = createCurrentFile () in
             completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
+          | "cre" ->
+            let modulePath = String.sub rest 3 (String.length rest - 3) in
+            let modulePath = String.trim modulePath in
+            print_endline ("Completion resolve: " ^ modulePath);
+            completionResolve ~path ~modulePath
           | "dce" ->
             print_endline ("DCE " ^ path);
             Reanalyze.RunConfig.runConfig.suppress <- ["src"];

@@ -83,13 +83,21 @@ Path someVariant
     "kind": 9,
     "tags": [],
     "detail": "module Obj",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "Obj",
+      "filePath": "src/CompletionTypeAnnotation.res"
+    }
   }, {
     "label": "Objects",
     "kind": 9,
     "tags": [],
     "detail": "module Objects",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "Objects",
+      "filePath": "src/CompletionTypeAnnotation.res"
+    }
   }]
 
 Complete src/CompletionTypeAnnotation.res 21:27

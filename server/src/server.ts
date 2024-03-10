@@ -660,6 +660,28 @@ function completion(msg: p.RequestMessage) {
   return response;
 }
 
+function completionResolve(msg: p.RequestMessage) {
+  const item = msg.params as p.CompletionItem;
+  let response: p.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: "",
+  };
+
+  if (item.documentation == null && item.data != null) {
+    const data = item.data as { filePath: string; modulePath: string };
+    let result = utils.runAnalysisAfterSanityCheck(
+      data.filePath,
+      ["completionResolve", data.filePath, data.modulePath],
+      true
+    );
+    item.documentation = { kind: "markdown", value: result };
+    response.result = item;
+  }
+
+  return response;
+}
+
 function codeAction(msg: p.RequestMessage): p.ResponseMessage {
   let params = msg.params as p.CodeActionParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -1101,6 +1123,7 @@ function onMessage(msg: p.Message) {
           documentSymbolProvider: true,
           completionProvider: {
             triggerCharacters: [".", ">", "@", "~", '"', "=", "("],
+            resolveProvider: true,
           },
           semanticTokensProvider: {
             legend: {
@@ -1201,6 +1224,8 @@ function onMessage(msg: p.Message) {
       send(documentSymbol(msg));
     } else if (msg.method === p.CompletionRequest.method) {
       send(completion(msg));
+    } else if (msg.method === p.CompletionResolveRequest.method) {
+      send(completionResolve(msg));
     } else if (msg.method === p.SemanticTokensRequest.method) {
       send(semanticTokens(msg));
     } else if (msg.method === p.CodeActionRequest.method) {

@@ -53,19 +53,41 @@ Path M
     "kind": 9,
     "tags": [],
     "detail": "module Map",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "Map",
+      "filePath": "src/Jsx2.res"
+    }
   }, {
     "label": "MapLabels",
     "kind": 9,
     "tags": [],
     "detail": "module MapLabels",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "MapLabels",
+      "filePath": "src/Jsx2.res"
+    }
+  }, {
+    "label": "ModuleStuff",
+    "kind": 9,
+    "tags": [],
+    "detail": "module ModuleStuff",
+    "documentation": null,
+    "data": {
+      "modulePath": "ModuleStuff",
+      "filePath": "src/Jsx2.res"
+    }
   }, {
     "label": "MoreLabels",
     "kind": 9,
     "tags": [],
     "detail": "module MoreLabels",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "MoreLabels",
+      "filePath": "src/Jsx2.res"
+    }
   }]
 
 Complete src/Jsx2.res 22:19
@@ -384,7 +406,11 @@ Path ReactDOMR
     "kind": 9,
     "tags": [],
     "detail": "module ReactDOMRe",
-    "documentation": null
+    "documentation": null,
+    "data": {
+      "modulePath": "ReactDOMRe",
+      "filePath": "src/Jsx2.res"
+    }
   }]
 
 Complete src/Jsx2.res 102:21
