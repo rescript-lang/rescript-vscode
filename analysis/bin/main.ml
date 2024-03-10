@@ -110,12 +110,8 @@ let main () =
         path line col
   in
   match args with
-  | [_; "completion"; path; line; col; currentFile; supportsSnippets] ->
+  | [_; "completion"; path; line; col; currentFile] ->
     printHeaderInfo path line col;
-    (Cfg.supportsSnippets :=
-       match supportsSnippets with
-       | "true" -> true
-       | _ -> false);
     Commands.completion ~debug ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile
@@ -193,9 +189,7 @@ let main () =
       (Json.escape (CreateInterface.command ~path ~cmiFile))
   | [_; "format"; path] ->
     Printf.printf "\"%s\"" (Json.escape (Commands.format ~path))
-  | [_; "test"; path] ->
-    Cfg.supportsSnippets := true;
-    Commands.test ~path
+  | [_; "test"; path] -> Commands.test ~path
   | args when List.mem "-h" args || List.mem "--help" args -> prerr_endline help
   | _ ->
     prerr_endline help;

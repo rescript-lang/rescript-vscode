@@ -631,9 +631,7 @@ let completionToItem
         | Some detail -> detail)
       ~docstring
   in
-  if !Cfg.supportsSnippets then
-    {item with sortText; insertText; insertTextFormat; filterText}
-  else item
+  {item with sortText; insertText; insertTextFormat; filterText}
 
 let completionsGetTypeEnv = function
   | {Completion.kind = Value typ; env} :: _ -> Some (typ, env)
@@ -1021,14 +1019,13 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
               |> String.concat "."
           in
           [
-            Completion.createWithSnippet ~name ~kind:(Value typ) ~env
+            Completion.create name ~includesSnippets:true ~kind:(Value typ) ~env
               ~sortText:"A"
               ~docstring:
                 [
                   "Turns `" ^ builtinNameToComplete
                   ^ "` into a JSX element so it can be used inside of JSX.";
-                ]
-              ();
+                ];
           ]
           @ completions
         | _ -> completions)
@@ -1274,7 +1271,6 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
     ~full ~prefix ~completionContext ~mode (t : SharedTypes.completionType) =
   let emptyCase = emptyCase ~mode in
   let printConstructorArgs = printConstructorArgs ~mode in
-  let createWithSnippet = Completion.createWithSnippet ?typeArgContext in
   let create = Completion.create ?typeArgContext in
   match t with
   | TtypeT {env; path} ->
@@ -1326,14 +1322,15 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
       if valueWithTypeT typeExpr then
         getCompletionName name
         |> Option.map (fun name ->
-               createWithSnippet ~name ~insertText:name ~kind:(Value typeExpr)
-                 ~env ())
+               create name ~includesSnippets:true ~insertText:name
+                 ~kind:(Value typeExpr) ~env)
       else if fnReturnsTypeT typeExpr then
         getCompletionName name
         |> Option.map (fun name ->
-               createWithSnippet
-                 ~name:(Printf.sprintf "%s()" name)
-                 ~insertText:(name ^ "($0)") ~kind:(Value typeExpr) ~env ())
+               create
+                 (Printf.sprintf "%s()" name)
+                 ~includesSnippets:true ~insertText:(name ^ "($0)")
+                 ~kind:(Value typeExpr) ~env)
       else None
     in
     let completionItems =
@@ -1353,8 +1350,8 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
       match path with
       | Pdot (Pdot (Pident m, "Re", _), "t", _) when Ident.name m = "Js" ->
         (* regexps *)
-        createWithSnippet ~name:"%re()" ~insertText:"%re(\"/$0/g\")"
-          ~kind:(Label "Regular expression") ~env ()
+        create "%re()" ~insertText:"%re(\"/$0/g\")" ~includesSnippets:true
+          ~kind:(Label "Regular expression") ~env
         :: completionItems
       | _ -> completionItems
     in
@@ -1375,29 +1372,28 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
              | InlineRecord _ -> 1
              | Args args -> List.length args
            in
-           createWithSnippet ?deprecated:constructor.deprecated
-             ~name:
-               (constructor.cname.txt
-               ^ printConstructorArgs numArgs ~asSnippet:false)
+           create ?deprecated:constructor.deprecated ~includesSnippets:true
+             (constructor.cname.txt
+             ^ printConstructorArgs numArgs ~asSnippet:false)
              ~insertText:
                (constructor.cname.txt
                ^ printConstructorArgs numArgs ~asSnippet:true)
              ~kind:
                (Constructor
                   (constructor, variantDecl |> Shared.declToString variantName))
-             ~env ())
+             ~env)
     |> filterItems ~prefix
   | Tpolyvariant {env; constructors; typeExpr} ->
     if Debug.verbose () then
       print_endline "[complete_typed_value]--> Tpolyvariant";
     constructors
     |> List.map (fun (constructor : polyVariantConstructor) ->
-           createWithSnippet
-             ~name:
-               ("#" ^ constructor.displayName
-               ^ printConstructorArgs
-                   (List.length constructor.args)
-                   ~asSnippet:false)
+           create
+             ("#" ^ constructor.displayName
+             ^ printConstructorArgs
+                 (List.length constructor.args)
+                 ~asSnippet:false)
+             ~includesSnippets:true
              ~insertText:
                ((if Utils.startsWith prefix "#" then "" else "#")
                ^ constructor.displayName
@@ -1407,7 +1403,7 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
              ~kind:
                (PolyvariantConstructor
                   (constructor, typeExpr |> Shared.typeToString))
-             ~env ())
+             ~env)
     |> filterItems
          ~prefix:(if Utils.startsWith prefix "#" then prefix else "#" ^ prefix)
   | Toption (env, t) ->
@@ -1436,19 +1432,17 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
     in
     let noneCase = Completion.create "None" ~kind:(kindFromInnerType t) ~env in
     let someAnyCase =
-      createWithSnippet ~name:"Some(_)" ~kind:(kindFromInnerType t) ~env
+      create "Some(_)" ~includesSnippets:true ~kind:(kindFromInnerType t) ~env
         ~insertText:(Printf.sprintf "Some(%s)" (emptyCase 1))
-        ()
     in
     let completions =
       match completionContext with
       | Some (Completable.CameFromRecordField fieldName) ->
         [
-          createWithSnippet
-            ~name:("Some(" ^ fieldName ^ ")")
-            ~kind:(kindFromInnerType t) ~env
-            ~insertText:("Some(" ^ fieldName ^ ")$0")
-            ();
+          create
+            ("Some(" ^ fieldName ^ ")")
+            ~includesSnippets:true ~kind:(kindFromInnerType t) ~env
+            ~insertText:("Some(" ^ fieldName ^ ")$0");
           someAnyCase;
           noneCase;
         ]
@@ -1498,24 +1492,21 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
                })
     in
     let okAnyCase =
-      createWithSnippet ~name:"Ok(_)" ~kind:(Value okType) ~env
+      create "Ok(_)" ~includesSnippets:true ~kind:(Value okType) ~env
         ~insertText:(Printf.sprintf "Ok(%s)" (emptyCase 1))
-        ()
     in
     let errorAnyCase =
-      createWithSnippet ~name:"Error(_)" ~kind:(Value errorType) ~env
+      create "Error(_)" ~includesSnippets:true ~kind:(Value errorType) ~env
         ~insertText:(Printf.sprintf "Error(%s)" (emptyCase 1))
-        ()
     in
     let completions =
       match completionContext with
       | Some (Completable.CameFromRecordField fieldName) ->
         [
-          createWithSnippet
-            ~name:("Ok(" ^ fieldName ^ ")")
-            ~kind:(Value okType) ~env
-            ~insertText:("Ok(" ^ fieldName ^ ")$0")
-            ();
+          create
+            ("Ok(" ^ fieldName ^ ")")
+            ~includesSnippets:true ~kind:(Value okType) ~env
+            ~insertText:("Ok(" ^ fieldName ^ ")$0");
           okAnyCase;
           errorAnyCase;
         ]
@@ -1527,10 +1518,11 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
     if Debug.verbose () then print_endline "[complete_typed_value]--> Tuple";
     let numExprs = List.length exprs in
     [
-      createWithSnippet
-        ~name:(printConstructorArgs numExprs ~asSnippet:false)
+      create
+        (printConstructorArgs numExprs ~asSnippet:false)
+        ~includesSnippets:true
         ~insertText:(printConstructorArgs numExprs ~asSnippet:true)
-        ~kind:(Value typ) ~env ();
+        ~kind:(Value typ) ~env;
     ]
   | Trecord {env; fields} as extractedType -> (
     if Debug.verbose () then print_endline "[complete_typed_value]--> Trecord";
@@ -1564,16 +1556,14 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
     | _ ->
       if prefix = "" then
         [
-          createWithSnippet ~name:"{}"
-            ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
-            ~sortText:"A"
+          create "{}" ~includesSnippets:true ~insertText:"{$0}" ~sortText:"A"
             ~kind:
               (ExtractedType
                  ( extractedType,
                    match mode with
                    | Pattern _ -> `Type
                    | Expression -> `Value ))
-            ~env ();
+            ~env;
         ]
       else [])
   | TinlineRecord {env; fields} -> (
@@ -1591,18 +1581,15 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
     | _ ->
       if prefix = "" then
         [
-          createWithSnippet ~name:"{}"
-            ~insertText:(if !Cfg.supportsSnippets then "{$0}" else "{}")
-            ~sortText:"A" ~kind:(Label "Inline record") ~env ();
+          create "{}" ~includesSnippets:true ~insertText:"{$0}" ~sortText:"A"
+            ~kind:(Label "Inline record") ~env;
         ]
       else [])
   | Tarray (env, typ) ->
     if Debug.verbose () then print_endline "[complete_typed_value]--> Tarray";
     if prefix = "" then
       [
-        createWithSnippet ~name:"[]"
-          ~insertText:(if !Cfg.supportsSnippets then "[$0]" else "[]")
-          ~sortText:"A"
+        create "[]" ~includesSnippets:true ~insertText:"[$0]" ~sortText:"A"
           ~kind:
             (match typ with
             | ExtractedType typ ->
@@ -1612,19 +1599,17 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
                   | Pattern _ -> `Type
                   | Expression -> `Value )
             | TypeExpr typ -> Value typ)
-          ~env ();
+          ~env;
       ]
     else []
   | Tstring env ->
     if Debug.verbose () then print_endline "[complete_typed_value]--> Tstring";
     if prefix = "" then
       [
-        createWithSnippet ~name:"\"\""
-          ~insertText:(if !Cfg.supportsSnippets then "\"$0\"" else "\"\"")
-          ~sortText:"A"
+        create "\"\"" ~includesSnippets:true ~insertText:"\"$0\"" ~sortText:"A"
           ~kind:
             (Value (Ctype.newconstr (Path.Pident (Ident.create "string")) []))
-          ~env ();
+          ~env;
       ]
     else []
   | Tfunction {env; typ; args; uncurried; returnType}
@@ -1673,14 +1658,11 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
     in
     let asyncPrefix = if isAsync then "async " else "" in
     [
-      createWithSnippet
-        ~name:(asyncPrefix ^ mkFnArgs ~asSnippet:false ^ " => {}")
-        ~insertText:
-          (asyncPrefix
-          ^ mkFnArgs ~asSnippet:!Cfg.supportsSnippets
-          ^ " => "
-          ^ if !Cfg.supportsSnippets then "{$0}" else "{}")
-        ~sortText:"A" ~kind:(Value typ) ~env ();
+      create
+        (asyncPrefix ^ mkFnArgs ~asSnippet:false ^ " => {}")
+        ~includesSnippets:true
+        ~insertText:(asyncPrefix ^ mkFnArgs ~asSnippet:true ^ " => " ^ "{$0}")
+        ~sortText:"A" ~kind:(Value typ) ~env;
     ]
   | Tfunction _ ->
     if Debug.verbose () then
@@ -1952,8 +1934,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
   | Cdecorator prefix ->
     let mkDecorator (name, docstring, maybeInsertText) =
       {
-        (Completion.createWithSnippet ~name ~kind:(Label "") ~env
-           ?insertText:maybeInsertText ())
+        (Completion.create name ~includesSnippets:true ~kind:(Label "") ~env
+           ?insertText:maybeInsertText)
         with
         docstring;
       }
