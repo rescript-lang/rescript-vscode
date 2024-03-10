@@ -247,6 +247,7 @@ extracted params:
 }
 
 Signature help src/SignatureHelp.res 53:31
+[sig_help_result] Doing nothing because loc of FunctionCall < then existing of FunctionCall
 posCursor:[53:29] posNoWhite:[53:28] Found expr:[53:11->53:31]
 posCursor:[53:29] posNoWhite:[53:28] Found expr:[53:20->53:31]
 Pexp_apply ...[53:20->53:29] (...[53:30->53:31])
@@ -451,4 +452,19 @@ Signature help src/SignatureHelp.res 100:24
   "activeSignature": 0,
   "activeParameter": 1
 }
+
+Signature help src/SignatureHelp.res 105:9
+[sig_help_result] Doing nothing because loc of FunctionCall < then existing of FunctionCall
+[sig_help_result] Doing nothing because loc of Constructor < then existing of FunctionCall
+{
+  "signatures": [{
+    "label": "One({miss?: bool, hit?: bool, stuff?: string})",
+    "parameters": [{"label": [0, 0], "documentation": {"kind": "markdown", "value": ""}}, {"label": [5, 16], "documentation": {"kind": "markdown", "value": ""}}, {"label": [18, 28], "documentation": {"kind": "markdown", "value": ""}}, {"label": [30, 44], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " One is cool. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": -1
+}
+
+
 

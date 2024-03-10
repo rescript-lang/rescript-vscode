@@ -100,3 +100,17 @@ let three = Three("", [])
 
 let three2 = Three("", [])
 //                      ^she
+
+let _deepestTakesPrecedence = [12]->Js.Array2.map(v =>
+  if v > 0 {
+    One({})
+    //   ^she
+  } else {
+    Two("")
+  }
+)
+
+// ^dv+
+// let _usesCorrectTypeInfo = [12]->Js.Array2.map(v => v)
+//                                                   she
+// ^dv-
