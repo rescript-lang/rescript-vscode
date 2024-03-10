@@ -61,8 +61,8 @@ Path R.
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\ntype t = {name: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype t = {name: string}\n```"}
   }]
 
 Complete src/RecordCompletion.res 22:7
@@ -77,7 +77,7 @@ Path R.
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\ntype t = {name: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype t = {name: string}\n```"}
   }]
 

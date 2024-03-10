@@ -534,16 +534,16 @@ Path MultiPropComp.make
     "label": "Now",
     "kind": 4,
     "tags": [],
-    "detail": "Now\n\ntype time = Now | Later",
-    "documentation": null,
+    "detail": "Now",
+    "documentation": {"kind": "markdown", "value": "```rescript\nNow\n```\n\n```rescript\ntype time = Now | Later\n```"},
     "insertText": "{Now}",
     "insertTextFormat": 2
   }, {
     "label": "Later",
     "kind": 4,
     "tags": [],
-    "detail": "Later\n\ntype time = Now | Later",
-    "documentation": null,
+    "detail": "Later",
+    "documentation": {"kind": "markdown", "value": "```rescript\nLater\n```\n\n```rescript\ntype time = Now | Later\n```"},
     "insertText": "{Later}",
     "insertTextFormat": 2
   }]
@@ -560,16 +560,16 @@ Path MultiPropComp.make
     "label": "Now",
     "kind": 4,
     "tags": [],
-    "detail": "Now\n\ntype time = Now | Later",
-    "documentation": null,
+    "detail": "Now",
+    "documentation": {"kind": "markdown", "value": "```rescript\nNow\n```\n\n```rescript\ntype time = Now | Later\n```"},
     "insertText": "{Now}",
     "insertTextFormat": 2
   }, {
     "label": "Later",
     "kind": 4,
     "tags": [],
-    "detail": "Later\n\ntype time = Now | Later",
-    "documentation": null,
+    "detail": "Later",
+    "documentation": {"kind": "markdown", "value": "```rescript\nLater\n```\n\n```rescript\ntype time = Now | Later\n```"},
     "insertText": "{Later}",
     "insertTextFormat": 2
   }]
@@ -586,16 +586,16 @@ Path MultiPropComp.make
     "label": "Now",
     "kind": 4,
     "tags": [],
-    "detail": "Now\n\ntype time = Now | Later",
-    "documentation": null,
+    "detail": "Now",
+    "documentation": {"kind": "markdown", "value": "```rescript\nNow\n```\n\n```rescript\ntype time = Now | Later\n```"},
     "insertText": "{Now}",
     "insertTextFormat": 2
   }, {
     "label": "Later",
     "kind": 4,
     "tags": [],
-    "detail": "Later\n\ntype time = Now | Later",
-    "documentation": null,
+    "detail": "Later",
+    "documentation": {"kind": "markdown", "value": "```rescript\nLater\n```\n\n```rescript\ntype time = Now | Later\n```"},
     "insertText": "{Later}",
     "insertTextFormat": 2
   }]

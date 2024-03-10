@@ -8,14 +8,14 @@ ContextPath CTypeAtPos()
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age?: int\n\noptRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage?: int\n```\n\n```rescript\ntype optRecord = {name: string, age: option<int>, online: option<bool>}\n```"}
   }, {
     "label": "online",
     "kind": 5,
     "tags": [],
-    "detail": "online?: bool\n\noptRecord",
-    "documentation": null
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\nonline?: bool\n```\n\n```rescript\ntype optRecord = {name: string, age: option<int>, online: option<bool>}\n```"}
   }]
 
 Complete src/TypeAtPosCompletion.res 16:18
@@ -30,14 +30,14 @@ ContextPath CTypeAtPos()
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age?: int\n\noptRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage?: int\n```\n\n```rescript\ntype optRecord = {name: string, age: option<int>, online: option<bool>}\n```"}
   }, {
     "label": "online",
     "kind": 5,
     "tags": [],
-    "detail": "online?: bool\n\noptRecord",
-    "documentation": null
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\nonline?: bool\n```\n\n```rescript\ntype optRecord = {name: string, age: option<int>, online: option<bool>}\n```"}
   }]
 
 Complete src/TypeAtPosCompletion.res 22:12
@@ -51,7 +51,7 @@ ContextPath CTypeAtPos()
     "kind": 12,
     "tags": [],
     "detail": "optRecord",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype optRecord = {name: string, age: option<int>, online: option<bool>}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2

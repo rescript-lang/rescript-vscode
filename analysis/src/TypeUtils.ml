@@ -26,16 +26,22 @@ let printRecordFromFields ?name (fields : field list) =
     |> String.concat ", ")
   ^ "}"
 
-let rec extractedTypeToString ?(inner = false) = function
-  | Tuple (_, _, typ)
-  | Tpolyvariant {typeExpr = typ}
-  | Tfunction {typ}
-  | Trecord {definition = `TypeExpr typ} ->
+let rec extractedTypeToString ?(nameOnly = false) ?(inner = false) = function
+  | Tuple (_, _, typ) | Tpolyvariant {typeExpr = typ} | Tfunction {typ} ->
     if inner then
-      match pathFromTypeExpr typ with
-      | None -> "record" (* Won't happen *)
-      | Some p -> p |> SharedTypes.pathIdentToString
+      try typ |> pathFromTypeExpr |> Option.get |> SharedTypes.pathIdentToString
+      with _ -> ""
     else Shared.typeToString typ
+  | Trecord {definition; fields} ->
+    let name =
+      match definition with
+      | `TypeExpr typ -> (
+        try
+          typ |> pathFromTypeExpr |> Option.get |> SharedTypes.pathIdentToString
+        with _ -> "")
+      | `NameOnly name -> name
+    in
+    if inner || nameOnly then name else printRecordFromFields ~name fields
   | Tbool _ -> "bool"
   | Tstring _ -> "string"
   | TtypeT _ -> "type t"
@@ -53,9 +59,8 @@ let rec extractedTypeToString ?(inner = false) = function
     "option<" ^ extractedTypeToString ~inner:true innerTyp ^ ">"
   | Tpromise (_, innerTyp) -> "promise<" ^ Shared.typeToString innerTyp ^ ">"
   | Tvariant {variantDecl; variantName} ->
-    if inner then variantName else Shared.declToString variantName variantDecl
-  | Trecord {definition = `NameOnly name; fields} ->
-    if inner then name else printRecordFromFields ~name fields
+    if inner || nameOnly then variantName
+    else Shared.declToString variantName variantDecl
   | TinlineRecord {fields} -> printRecordFromFields fields
   | Texn _ -> "exn"
 

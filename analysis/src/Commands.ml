@@ -4,13 +4,12 @@ let completion ~debug ~path ~pos ~currentFile =
       Completions.getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
     with
     | None -> []
-    | Some (completions, _, _) -> completions
+    | Some (completions, full, _) ->
+      completions
+      |> List.map (CompletionBackEnd.completionToItem ~full)
+      |> List.map Protocol.stringifyCompletionItem
   in
-  print_endline
-    (completions
-    |> List.map CompletionBackEnd.completionToItem
-    |> List.map Protocol.stringifyCompletionItem
-    |> Protocol.array)
+  completions |> Protocol.array |> print_endline
 
 let inlayhint ~path ~pos ~maxLength ~debug =
   let result =

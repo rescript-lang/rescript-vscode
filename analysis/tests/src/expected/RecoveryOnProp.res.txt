@@ -19,13 +19,13 @@ Path Res
     "label": "RescriptReactErrorBoundary",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "module RescriptReactErrorBoundary",
     "documentation": null
   }, {
     "label": "RescriptReactRouter",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "module RescriptReactRouter",
     "documentation": null
   }]
 

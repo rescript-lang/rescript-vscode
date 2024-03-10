@@ -41,14 +41,14 @@ Path getSomeRecord
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 21:53
@@ -69,14 +69,14 @@ Path getSomeRecord
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 24:63
@@ -102,14 +102,14 @@ Path someFnWithCallback
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 27:90
@@ -137,14 +137,14 @@ Path someFnWithCallback
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 30:36
@@ -353,14 +353,14 @@ Path someRecord
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 78:78
@@ -381,14 +381,14 @@ Path someRecordWithNestedStuff
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 82:86
@@ -409,8 +409,8 @@ Path someRecordWithNestedStuff
     "label": "someRecord",
     "kind": 5,
     "tags": [],
-    "detail": "someRecord: someRecord\n\ntype someNestedRecord = {someRecord: someRecord}",
-    "documentation": null
+    "detail": "someRecord",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsomeRecord: someRecord\n```\n\n```rescript\ntype someNestedRecord = {someRecord: someRecord}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 86:103
@@ -431,14 +431,14 @@ Path someRecordWithNestedStuff
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype someRecord = {name: string, age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 90:81
@@ -652,14 +652,14 @@ Path otherNestedRecord
     "label": "someRecord",
     "kind": 5,
     "tags": [],
-    "detail": "someRecord: someRecord\n\ntype otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant), optRecord: option<someRecord>}",
-    "documentation": null
+    "detail": "someRecord",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsomeRecord: someRecord\n```\n\n```rescript\ntype otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant), optRecord: option<someRecord>}\n```"}
   }, {
     "label": "someTuple",
     "kind": 5,
     "tags": [],
-    "detail": "someTuple: (someVariant, int, somePolyVariant)\n\ntype otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant), optRecord: option<someRecord>}",
-    "documentation": null
+    "detail": "(someVariant, int, somePolyVariant)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsomeTuple: (someVariant, int, somePolyVariant)\n```\n\n```rescript\ntype otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant), optRecord: option<someRecord>}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 122:53
@@ -701,14 +701,14 @@ Path fnWithRecordCallback
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\nsomeRecord",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nsomeRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 137:30
@@ -849,8 +849,8 @@ Path CompletionSupport2.makeRenderer
     "label": "root",
     "kind": 5,
     "tags": [],
-    "detail": "root: ReactDOM.Client.Root.t\n\ntype config = {root: ReactDOM.Client.Root.t}",
-    "documentation": null
+    "detail": "ReactDOM.Client.Root.t",
+    "documentation": {"kind": "markdown", "value": "```rescript\nroot: ReactDOM.Client.Root.t\n```\n\n```rescript\ntype config = {root: ReactDOM.Client.Root.t}\n```"}
   }]
 
 Complete src/CompletionInferValues.res 162:110

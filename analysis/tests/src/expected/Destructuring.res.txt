@@ -9,8 +9,8 @@ Path x
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nx",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype x = {name: string, age: int}\n```"}
   }]
 
 Complete src/Destructuring.res 7:8
@@ -24,14 +24,14 @@ Path x
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\nx",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype x = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nx",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype x = {name: string, age: int}\n```"}
   }]
 
 Complete src/Destructuring.res 11:13
@@ -48,8 +48,8 @@ Path x
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nx",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype x = {name: string, age: int}\n```"}
   }]
 
 Complete src/Destructuring.res 17:10
@@ -66,14 +66,14 @@ Path x
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\nx",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype x = {name: string, age: int}\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nx",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype x = {name: string, age: int}\n```"}
   }]
 
 Complete src/Destructuring.res 31:8
@@ -87,13 +87,13 @@ Path x
     "label": "someField",
     "kind": 5,
     "tags": [],
-    "detail": "someField: int\n\nrecordWithOptField",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsomeField: int\n```\n\n```rescript\ntype recordWithOptField = {someField: int, someOptField: option<bool>}\n```"}
   }, {
     "label": "?someOptField",
     "kind": 5,
     "tags": [],
-    "detail": "?someOptField: option<bool>\n\nrecordWithOptField",
-    "documentation": {"kind": "markdown", "value": "someOptField is an optional field, and needs to be destructured using '?'."}
+    "detail": "option<bool>",
+    "documentation": {"kind": "markdown", "value": "someOptField is an optional field, and needs to be destructured using '?'.\n\n```rescript\n?someOptField: option<bool>\n```\n\n```rescript\ntype recordWithOptField = {someField: int, someOptField: option<bool>}\n```"}
   }]
 

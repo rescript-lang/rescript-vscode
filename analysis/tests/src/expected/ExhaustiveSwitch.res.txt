@@ -10,7 +10,7 @@ Path withSomeVarian
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three(option<bool>)\n```"}
   }, {
     "label": "withSomeVariant (exhaustive switch)",
     "kind": 15,

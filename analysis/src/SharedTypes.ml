@@ -775,7 +775,7 @@ end
 
 module Completion = struct
   type kind =
-    | Module of Module.t
+    | Module of {docstring: string list; module_: Module.t}
     | Value of Types.type_expr
     | ObjLabel of Types.type_expr
     | Label of string

@@ -79,7 +79,7 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
           res :=
             {
               (Completion.create declared.name.txt ~env
-                 ~kind:(transformContents declared.item))
+                 ~kind:(transformContents declared))
               with
               deprecated = declared.deprecated;
               docstring = declared.docstring;
@@ -90,18 +90,20 @@ let completionForExporteds iterExported getDeclared ~prefix ~exact ~env
 
 let completionForExportedModules ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Module)
-    (Stamps.findModule env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun m ->
-      Completion.Module m)
+    (Stamps.findModule env.file.stamps) ~prefix ~exact ~env ~namesUsed
+    (fun declared ->
+      Completion.Module
+        {docstring = declared.docstring; module_ = declared.item})
 
 let completionForExportedValues ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Value)
-    (Stamps.findValue env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun v ->
-      Completion.Value v)
+    (Stamps.findValue env.file.stamps) ~prefix ~exact ~env ~namesUsed
+    (fun declared -> Completion.Value declared.item)
 
 let completionForExportedTypes ~env ~prefix ~exact ~namesUsed =
   completionForExporteds (Exported.iter env.QueryEnv.exported Exported.Type)
-    (Stamps.findType env.file.stamps) ~prefix ~exact ~env ~namesUsed (fun t ->
-      Completion.Type t)
+    (Stamps.findType env.file.stamps) ~prefix ~exact ~env ~namesUsed
+    (fun declared -> Completion.Type declared.item)
 
 let completionsForExportedConstructors ~(env : QueryEnv.t) ~prefix ~exact
     ~namesUsed =
@@ -224,39 +226,104 @@ let getEnvWithOpens ~scope ~(env : QueryEnv.t) ~package
       | None -> None
       | Some env -> ResolvePath.resolvePath ~env ~package ~path))
 
+let rec expandTypeExpr ~env ~package typeExpr =
+  match typeExpr |> Shared.digConstructor with
+  | Some path -> (
+    match References.digConstructor ~env ~package path with
+    | None -> None
+    | Some (env, {item = {decl = {type_manifest = Some t}}}) ->
+      expandTypeExpr ~env ~package t
+    | Some (_, {docstring; item}) -> Some (docstring, item))
+  | None -> None
+
+let kindToDocumentation ~env ~full ~currentDocstring name
+    (kind : Completion.kind) =
+  let docsFromKind =
+    match kind with
+    | ObjLabel _ | Label _ | FileModule _ | Snippet _ | FollowContextPath _ ->
+      []
+    | Module {docstring} -> docstring
+    | Type {decl; name} ->
+      [decl |> Shared.declToString name |> Markdown.codeBlock]
+    | Value typ -> (
+      match expandTypeExpr ~env ~package:full.package typ with
+      | None -> []
+      | Some (docstrings, {decl; name; kind}) ->
+        docstrings
+        @ [
+            (match kind with
+            | Record _ | Tuple _ | Variant _ ->
+              Markdown.codeBlock (Shared.declToString name decl)
+            | _ -> "");
+          ])
+    | Field ({typ; optional; docstring}, s) ->
+      (* Handle optional fields. Checking for "?" is because sometimes optional
+         fields are prefixed with "?" when completing, and at that point we don't
+         need to _also_ add a "?" after the field name, as that looks weird. *)
+      docstring
+      @ [
+          Markdown.codeBlock
+            (if optional && Utils.startsWith name "?" = false then
+               name ^ "?: "
+               ^ (typ |> Utils.unwrapIfOption |> Shared.typeToString)
+             else name ^ ": " ^ (typ |> Shared.typeToString));
+          Markdown.codeBlock s;
+        ]
+    | Constructor (c, s) ->
+      [Markdown.codeBlock (showConstructor c); Markdown.codeBlock s]
+    | PolyvariantConstructor ({displayName; args}, s) ->
+      [
+        Markdown.codeBlock
+          ("#" ^ displayName
+          ^
+          match args with
+          | [] -> ""
+          | typeExprs ->
+            "("
+            ^ (typeExprs
+              |> List.map (fun typeExpr -> typeExpr |> Shared.typeToString)
+              |> String.concat ", ")
+            ^ ")");
+        Markdown.codeBlock s;
+      ]
+    | ExtractedType (extractedType, _) ->
+      [Markdown.codeBlock (TypeUtils.extractedTypeToString extractedType)]
+  in
+  currentDocstring @ docsFromKind
+  |> List.filter (fun s -> s <> "")
+  |> String.concat "\n\n"
+
 let kindToDetail name (kind : Completion.kind) =
   match kind with
-  | Type {decl} -> decl |> Shared.declToString name
+  | Type {name} -> "type " ^ name
   | Value typ -> typ |> Shared.typeToString
   | ObjLabel typ -> typ |> Shared.typeToString
   | Label typString -> typString
-  | Module _ -> "module"
-  | FileModule _ -> "file module"
-  | Field ({typ; optional}, s) ->
+  | Module _ -> "module " ^ name
+  | FileModule f -> "module " ^ f
+  | Field ({typ; optional}, _) ->
     (* Handle optional fields. Checking for "?" is because sometimes optional
        fields are prefixed with "?" when completing, and at that point we don't
        need to _also_ add a "?" after the field name, as that looks weird. *)
     if optional && Utils.startsWith name "?" = false then
-      name ^ "?: "
-      ^ (typ |> Utils.unwrapIfOption |> Shared.typeToString)
-      ^ "\n\n" ^ s
-    else name ^ ": " ^ (typ |> Shared.typeToString) ^ "\n\n" ^ s
-  | Constructor (c, s) -> showConstructor c ^ "\n\n" ^ s
-  | PolyvariantConstructor ({displayName; args}, s) ->
+      typ |> Utils.unwrapIfOption |> Shared.typeToString
+    else typ |> Shared.typeToString
+  | Constructor (c, _) -> showConstructor c
+  | PolyvariantConstructor ({displayName; args}, _) -> (
     "#" ^ displayName
-    ^ (match args with
-      | [] -> ""
-      | typeExprs ->
-        "("
-        ^ (typeExprs
-          |> List.map (fun typeExpr -> typeExpr |> Shared.typeToString)
-          |> String.concat ", ")
-        ^ ")")
-    ^ "\n\n" ^ s
+    ^
+    match args with
+    | [] -> ""
+    | typeExprs ->
+      "("
+      ^ (typeExprs
+        |> List.map (fun typeExpr -> typeExpr |> Shared.typeToString)
+        |> String.concat ", ")
+      ^ ")")
   | Snippet s -> s
   | FollowContextPath _ -> ""
   | ExtractedType (extractedType, _) ->
-    TypeUtils.extractedTypeToString extractedType
+    TypeUtils.extractedTypeToString ~nameOnly:true extractedType
 
 let findAllCompletions ~(env : QueryEnv.t) ~prefix ~exact ~namesUsed
     ~(completionContext : Completable.completionContext) =
@@ -366,7 +433,9 @@ let processLocalModule name loc ~prefix ~exact ~env
         localTables.resultRev <-
           {
             (Completion.create declared.name.txt ~env
-               ~kind:(Module declared.item))
+               ~kind:
+                 (Module
+                    {docstring = declared.docstring; module_ = declared.item}))
             with
             deprecated = declared.deprecated;
             docstring = declared.docstring;
@@ -620,7 +689,8 @@ let completionToItem
       insertTextFormat;
       filterText;
       detail;
-    } =
+      env;
+    } ~full =
   let item =
     mkItem ~name
       ~kind:(Completion.kindToInt kind)
@@ -629,7 +699,12 @@ let completionToItem
         (match detail with
         | None -> kindToDetail name kind
         | Some detail -> detail)
-      ~docstring
+      ~docstring:
+        (match
+           kindToDocumentation ~currentDocstring:docstring ~full ~env name kind
+         with
+        | "" -> []
+        | docstring -> [docstring])
   in
   {item with sortText; insertText; insertTextFormat; filterText}
 

@@ -48,8 +48,8 @@ Path CompletionSupport.TestComponent.make
     "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
+    "detail": "Two",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "sortText": "A Two",
     "insertText": "{Two}",
     "insertTextFormat": 2
@@ -57,8 +57,8 @@ Path CompletionSupport.TestComponent.make
     "label": "Three(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
+    "detail": "Three(int)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(int)\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "sortText": "A Three(_)",
     "insertText": "{Three($0)}",
     "insertTextFormat": 2
@@ -66,19 +66,19 @@ Path CompletionSupport.TestComponent.make
     "label": "TableclothMap",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "module TableclothMap",
     "documentation": null
   }, {
     "label": "TypeAtPosCompletion",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "module TypeAtPosCompletion",
     "documentation": null
   }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
+    "detail": "module TypeDefinition",
     "documentation": null
   }]
 
@@ -94,32 +94,32 @@ Path CompletionSupport.TestComponent.make
     "label": "#one",
     "kind": 4,
     "tags": [],
-    "detail": "#one\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{#one}",
     "insertTextFormat": 2
   }, {
     "label": "#three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "#three(int, bool)\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#three(int, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(int, bool)\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{#three(${1:_}, ${2:_})}",
     "insertTextFormat": 2
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
-    "detail": "#two\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{#two}",
     "insertTextFormat": 2
   }, {
     "label": "#two2",
     "kind": 4,
     "tags": [],
-    "detail": "#two2\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two2",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two2\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{#two2}",
     "insertTextFormat": 2
   }]
@@ -136,24 +136,24 @@ Path CompletionSupport.TestComponent.make
     "label": "#three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "#three(int, bool)\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#three(int, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(int, bool)\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{three(${1:_}, ${2:_})}",
     "insertTextFormat": 2
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
-    "detail": "#two\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{two}",
     "insertTextFormat": 2
   }, {
     "label": "#two2",
     "kind": 4,
     "tags": [],
-    "detail": "#two2\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two2",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two2\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{two2}",
     "insertTextFormat": 2
   }]
@@ -214,7 +214,7 @@ Path CompletionSupport.TestComponent.make
     "kind": 12,
     "tags": [],
     "detail": "testVariant",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "sortText": "A",
     "insertText": "{[$0]}",
     "insertTextFormat": 2
@@ -232,24 +232,24 @@ Path CompletionSupport.TestComponent.make
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
+    "detail": "Two",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "insertText": "Two",
     "insertTextFormat": 2
   }, {
     "label": "Three(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
+    "detail": "Three(int)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(int)\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "insertText": "Three($0)",
     "insertTextFormat": 2
   }]
@@ -266,32 +266,32 @@ Path CompletionSupport.TestComponent.make
     "label": "#one",
     "kind": 4,
     "tags": [],
-    "detail": "#one\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "#one",
     "insertTextFormat": 2
   }, {
     "label": "#three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "#three(int, bool)\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#three(int, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(int, bool)\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "#three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
-    "detail": "#two\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "#two",
     "insertTextFormat": 2
   }, {
     "label": "#two2",
     "kind": 4,
     "tags": [],
-    "detail": "#two2\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two2",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two2\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "#two2",
     "insertTextFormat": 2
   }]

@@ -12,7 +12,7 @@ ContextPath CTypeAtPos()
     "kind": 12,
     "tags": [],
     "detail": "t",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": " The JSON data structure \n\n```rescript\ntype t =\n  | Boolean(bool)\n  | Null\n  | String(string)\n  | Number(float)\n  | Object(Js.Dict.t<t>)\n  | Array(array<t>)\n```"},
     "sortText": "A",
     "insertText": "[$0]",
     "insertTextFormat": 2

@@ -12,7 +12,7 @@ Path Query.use
     "kind": 12,
     "tags": [],
     "detail": "input_ByAddress",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype input_ByAddress = {city: string}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -29,24 +29,24 @@ Path record
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo(bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Two(${1:_})",
     "insertTextFormat": 2
   }, {
     "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(someRecord, bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }]
@@ -63,7 +63,7 @@ Path record
     "kind": 22,
     "tags": [],
     "detail": "SchemaAssets.input_ByAddress",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype SchemaAssets.input_ByAddress = {city: string}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -83,24 +83,24 @@ Path res
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo(bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Two(${1:_})",
     "insertTextFormat": 2
   }, {
     "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(someRecord, bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }]
@@ -119,24 +119,24 @@ Path res
     "label": "#one",
     "kind": 4,
     "tags": [],
-    "detail": "#one\n\n[#one | #three(someRecord, bool) | #two(bool)]",
-    "documentation": null,
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
     "insertText": "#one",
     "insertTextFormat": 2
   }, {
     "label": "#three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "#three(someRecord, bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
-    "documentation": null,
+    "detail": "#three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(someRecord, bool)\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
     "insertText": "#three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }, {
     "label": "#two(_)",
     "kind": 4,
     "tags": [],
-    "detail": "#two(bool)\n\n[#one | #three(someRecord, bool) | #two(bool)]",
-    "documentation": null,
+    "detail": "#two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two(bool)\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
     "insertText": "#two(${1:_})",
     "insertTextFormat": 2
   }]
@@ -156,37 +156,37 @@ Path resOpt
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"}
   }, {
     "label": "Some(_)",
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Some(${1:_})",
     "insertTextFormat": 2
   }, {
     "label": "Some(One)",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Some(One)",
     "insertTextFormat": 2
   }, {
     "label": "Some(Two(_))",
     "kind": 4,
     "tags": [],
-    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo(bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Some(Two(${1:_}))",
     "insertTextFormat": 2
   }, {
     "label": "Some(Three(_, _))",
     "kind": 4,
     "tags": [],
-    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(someRecord, bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Some(Three(${1:_}, ${2:_}))",
     "insertTextFormat": 2
   }]
@@ -207,24 +207,24 @@ Path resOpt
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo(bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Two(${1:_})",
     "insertTextFormat": 2
   }, {
     "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(someRecord, bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }]

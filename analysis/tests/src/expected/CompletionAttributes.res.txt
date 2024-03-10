@@ -74,20 +74,20 @@ Resolved opens 1 pervasives
     "label": "version",
     "kind": 5,
     "tags": [],
-    "detail": "version?: int\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nversion?: int\n```\n\n```rescript\ntype jsxConfig = {version: int, module_: string, mode: string}\n```"}
   }, {
     "label": "module_",
     "kind": 5,
     "tags": [],
-    "detail": "module_?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nmodule_?: string\n```\n\n```rescript\ntype jsxConfig = {version: int, module_: string, mode: string}\n```"}
   }, {
     "label": "mode",
     "kind": 5,
     "tags": [],
-    "detail": "mode?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nmode?: string\n```\n\n```rescript\ntype jsxConfig = {version: int, module_: string, mode: string}\n```"}
   }]
 
 Complete src/CompletionAttributes.res 12:17
@@ -99,14 +99,14 @@ Resolved opens 1 pervasives
     "label": "module_",
     "kind": 5,
     "tags": [],
-    "detail": "module_?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nmodule_?: string\n```\n\n```rescript\ntype jsxConfig = {version: int, module_: string, mode: string}\n```"}
   }, {
     "label": "mode",
     "kind": 5,
     "tags": [],
-    "detail": "mode?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nmode?: string\n```\n\n```rescript\ntype jsxConfig = {version: int, module_: string, mode: string}\n```"}
   }]
 
 Complete src/CompletionAttributes.res 15:25
@@ -134,14 +134,14 @@ Resolved opens 1 pervasives
     "label": "version",
     "kind": 5,
     "tags": [],
-    "detail": "version?: int\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nversion?: int\n```\n\n```rescript\ntype jsxConfig = {version: int, module_: string, mode: string}\n```"}
   }, {
     "label": "mode",
     "kind": 5,
     "tags": [],
-    "detail": "mode?: string\n\ntype jsxConfig = {version: int, module_: string, mode: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nmode?: string\n```\n\n```rescript\ntype jsxConfig = {version: int, module_: string, mode: string}\n```"}
   }]
 
 Complete src/CompletionAttributes.res 21:12
@@ -153,14 +153,14 @@ Resolved opens 1 pervasives
     "label": "from",
     "kind": 5,
     "tags": [],
-    "detail": "from?: string\n\ntype moduleConfig = {from: string, with: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nfrom?: string\n```\n\n```rescript\ntype moduleConfig = {from: string, with: string}\n```"}
   }, {
     "label": "with",
     "kind": 5,
     "tags": [],
-    "detail": "with?: string\n\ntype moduleConfig = {from: string, with: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nwith?: string\n```\n\n```rescript\ntype moduleConfig = {from: string, with: string}\n```"}
   }]
 
 Complete src/CompletionAttributes.res 24:17
@@ -172,8 +172,8 @@ Resolved opens 1 pervasives
     "label": "{}",
     "kind": 12,
     "tags": [],
-    "detail": "type importAttributesConfig = {type_: string}",
-    "documentation": null,
+    "detail": "importAttributesConfig",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype importAttributesConfig = {type_: string}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -188,8 +188,8 @@ Resolved opens 1 pervasives
     "label": "type_",
     "kind": 5,
     "tags": [],
-    "detail": "type_?: string\n\ntype importAttributesConfig = {type_: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype_?: string\n```\n\n```rescript\ntype importAttributesConfig = {type_: string}\n```"}
   }]
 
 Complete src/CompletionAttributes.res 30:19
