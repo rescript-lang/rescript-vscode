@@ -5,8 +5,10 @@ import * as p from "vscode-languageserver-protocol";
 import * as utils from "./utils";
 import { fileURLToPath } from "url";
 
+export type fileCodeActions = { range: p.Range; codeAction: p.CodeAction };
+
 export type filesCodeActions = {
-  [key: string]: { range: p.Range; codeAction: p.CodeAction }[];
+  [key: string]: fileCodeActions[];
 };
 
 interface findCodeActionsConfig {
@@ -454,7 +456,12 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = ({
   range,
 }) => {
   if (line.startsWith("Some required record fields are missing:")) {
-    let recordFieldNames = line
+    let theLine = line;
+    if (theLine.endsWith(".")) {
+      theLine = theLine.slice(0, theLine.length - 2);
+    }
+
+    let recordFieldNames = theLine
       .trim()
       .split("Some required record fields are missing: ")[1]
       ?.split(" ");
@@ -465,6 +472,7 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = ({
     array.slice(index + 1).forEach((line) => {
       if (stop) return;
 
+      // Remove trailing dot, split the rest of the field names
       recordFieldNames.push(...line.trim().split(".")[0].split(" "));
 
       if (line.includes(".")) {

@@ -668,9 +668,13 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
   let extension = path.extname(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir(extension);
 
-  // Check local code actions coming from the diagnostics.
+  // Check local code actions coming from the diagnostics, or from incremental compilation.
   let localResults: v.CodeAction[] = [];
-  codeActionsFromDiagnostics[params.textDocument.uri]?.forEach(
+  const fromDiagnostics =
+    codeActionsFromDiagnostics[params.textDocument.uri] ?? [];
+  const fromIncrementalCompilation =
+    ic.getCodeActionsFromIncrementalCompilation(filePath) ?? [];
+  [...fromDiagnostics, ...fromIncrementalCompilation].forEach(
     ({ range, codeAction }) => {
       if (utils.rangeContainsRange(range, params.range)) {
         localResults.push(codeAction);
