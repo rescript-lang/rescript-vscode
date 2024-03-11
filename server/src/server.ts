@@ -665,7 +665,7 @@ function completionResolve(msg: p.RequestMessage) {
   let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
-    result: "",
+    result: item,
   };
 
   if (item.documentation == null && item.data != null) {
@@ -676,7 +676,6 @@ function completionResolve(msg: p.RequestMessage) {
       true
     );
     item.documentation = { kind: "markdown", value: result };
-    response.result = item;
   }
 
   return response;
