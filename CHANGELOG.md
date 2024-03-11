@@ -14,7 +14,7 @@
 
 #### :rocket: New Feature
 
-- Extend signature help to work on constructor payloads as well. Can be turned off if wanted through settings. https://github.com/rescript-lang/rescript-vscode/pull/947
+- Extend signature help to work on constructor payloads in both expressions and patterns as well. Can be turned off if wanted through settings. https://github.com/rescript-lang/rescript-vscode/pull/947 https://github.com/rescript-lang/rescript-vscode/pull/954
 - Show module docs for file modules. https://github.com/rescript-lang/rescript-vscode/pull/952
 
 #### :nail_care: Polish
