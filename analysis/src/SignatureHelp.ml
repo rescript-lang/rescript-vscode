@@ -229,12 +229,13 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
       let result = ref None in
       let printThing thg =
         match thg with
-        | `Constructor _ -> "Constructor"
+        | `ConstructorExpr _ -> "Constructor(expr)"
+        | `ConstructorPat _ -> "Constructor(pat)"
         | `FunctionCall _ -> "FunctionCall"
       in
       let setResult (loc, thing) =
         match (thing, allowForConstructorPayloads) with
-        | `Constructor _, false -> ()
+        | (`ConstructorExpr _ | `ConstructorPat _), false -> ()
         | _ -> (
           match !result with
           | None ->
@@ -364,11 +365,20 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
                || CompletionExpressions.isExprHole payloadExp
                   && locHasCursor pexp_loc ->
           (* Constructor payloads *)
-          setResult (lid.loc, `Constructor (lid, payloadExp))
+          setResult (lid.loc, `ConstructorExpr (lid, payloadExp))
         | _ -> ());
         Ast_iterator.default_iterator.expr iterator expr
       in
-      let iterator = {Ast_iterator.default_iterator with expr} in
+      let pat (iterator : Ast_iterator.iterator) (pat : Parsetree.pattern) =
+        (match pat with
+        | {ppat_desc = Ppat_construct (lid, Some payloadPat)}
+          when locHasCursor payloadPat.ppat_loc ->
+          (* Constructor payloads *)
+          setResult (lid.loc, `ConstructorPat (lid, payloadPat))
+        | _ -> ());
+        Ast_iterator.default_iterator.pat iterator pat
+      in
+      let iterator = {Ast_iterator.default_iterator with expr; pat} in
       let parser =
         Res_driver.parsingEngine.parseImplementation ~forPrinter:false
       in
@@ -474,9 +484,10 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
                 | activeParameter -> activeParameter);
             }
         | _ -> None)
-      | Some (_, `Constructor (lid, expr)) -> (
+      | Some (_, ((`ConstructorExpr (lid, _) | `ConstructorPat (lid, _)) as cs))
+        -> (
         if Debug.verbose () then
-          Printf.printf "[signature_help] Found constructor expr!\n";
+          Printf.printf "[signature_help] Found constructor!\n";
         match Cmt.loadFullCmtFromPath ~path with
         | None ->
           if Debug.verbose () then
@@ -560,8 +571,8 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
               ^ ")"
             in
             let activeParameter =
-              match expr with
-              | {pexp_desc = Pexp_tuple items} -> (
+              match cs with
+              | `ConstructorExpr (_, {pexp_desc = Pexp_tuple items}) -> (
                 let idx = ref 0 in
                 let tupleItemWithCursor =
                   items
@@ -574,7 +585,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
                 match tupleItemWithCursor with
                 | None -> -1
                 | Some i -> i)
-              | {pexp_desc = Pexp_record (fields, _)} -> (
+              | `ConstructorExpr (_, {pexp_desc = Pexp_record (fields, _)}) -> (
                 let fieldNameWithCursor =
                   fields
                   |> List.find_map
@@ -602,7 +613,49 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
                          else ());
                   !fieldIndex
                 | _ -> -1)
-              | _ when locHasCursor expr.pexp_loc -> 0
+              | `ConstructorExpr (_, expr) when locHasCursor expr.pexp_loc -> 0
+              | `ConstructorPat (_, {ppat_desc = Ppat_tuple items}) -> (
+                let idx = ref 0 in
+                let tupleItemWithCursor =
+                  items
+                  |> List.find_map (fun (item : Parsetree.pattern) ->
+                         let currentIndex = !idx in
+                         idx := currentIndex + 1;
+                         if locHasCursor item.ppat_loc then Some currentIndex
+                         else None)
+                in
+                match tupleItemWithCursor with
+                | None -> -1
+                | Some i -> i)
+              | `ConstructorPat (_, {ppat_desc = Ppat_record (fields, _)}) -> (
+                let fieldNameWithCursor =
+                  fields
+                  |> List.find_map
+                       (fun
+                         (({loc; txt}, pat) :
+                           Longident.t Location.loc * Parsetree.pattern)
+                       ->
+                         if
+                           posBeforeCursor >= Pos.ofLexing loc.loc_start
+                           && posBeforeCursor
+                              <= Pos.ofLexing pat.ppat_loc.loc_end
+                         then Some (Longident.last txt)
+                         else None)
+                in
+                match (fieldNameWithCursor, argParts) with
+                | Some fieldName, Some (`InlineRecord fields) ->
+                  let idx = ref 0 in
+                  let fieldIndex = ref (-1) in
+                  fields
+                  |> List.iter (fun (_, field, _) ->
+                         idx := !idx + 1;
+                         let currentIndex = !idx in
+                         if fieldName = field.fname.txt then
+                           fieldIndex := currentIndex
+                         else ());
+                  !fieldIndex
+                | _ -> -1)
+              | `ConstructorPat (_, pat) when locHasCursor pat.ppat_loc -> 0
               | _ -> -1
             in
 
