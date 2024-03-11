@@ -50,6 +50,7 @@ type completionItem = {
   insertTextFormat: insertTextFormat option;
   insertText: string option;
   documentation: markupContent option;
+  data: (string * string) list option;
 }
 
 type location = {uri: string; range: range}
@@ -139,6 +140,14 @@ let stringifyCompletionItem c =
         | None -> None
         | Some insertTextFormat ->
           Some (Printf.sprintf "%i" (insertTextFormatToInt insertTextFormat)) );
+      ( "data",
+        match c.data with
+        | None -> None
+        | Some fields ->
+          Some
+            (fields
+            |> List.map (fun (key, value) -> (key, Some (wrapInQuotes value)))
+            |> stringifyObject ~indentation:2) );
     ]
 
 let stringifyHover value =

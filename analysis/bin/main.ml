@@ -115,6 +115,8 @@ let main () =
     Commands.completion ~debug ~path
       ~pos:(int_of_string line, int_of_string col)
       ~currentFile
+  | [_; "completionResolve"; path; modulePath] ->
+    Commands.completionResolve ~path ~modulePath
   | [_; "definition"; path; line; col] ->
     Commands.definition ~path
       ~pos:(int_of_string line, int_of_string col)

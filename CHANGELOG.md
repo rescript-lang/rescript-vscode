@@ -15,6 +15,7 @@
 #### :rocket: New Feature
 
 - Extend signature help to work on constructor payloads as well. Can be turned off if wanted through settings. https://github.com/rescript-lang/rescript-vscode/pull/947
+- Show module docs for file modules. https://github.com/rescript-lang/rescript-vscode/pull/952
 
 #### :nail_care: Polish
 
@@ -22,6 +23,7 @@
 - Clean occasional dots from "insert missing fields" code action. https://github.com/rescript-lang/rescript-vscode/pull/948
 - Pick up code actions in incremental compilation. https://github.com/rescript-lang/rescript-vscode/pull/948
 - Various improvements to the signature help functionality. https://github.com/rescript-lang/rescript-vscode/pull/950
+- Clean up completion item "details" and "documentation". https://github.com/rescript-lang/rescript-vscode/pull/952
 
 ## 1.48.0
 

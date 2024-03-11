@@ -15,13 +15,13 @@ Path A.B1.
     "kind": 12,
     "tags": [],
     "detail": "b1",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype b1 = B1\n```"}
   }, {
     "label": "A.B1.B1",
     "kind": 4,
     "tags": [],
-    "detail": "B1\n\ntype b1 = B1",
-    "documentation": null
+    "detail": "B1",
+    "documentation": {"kind": "markdown", "value": "```rescript\nB1\n```\n\n```rescript\ntype b1 = B1\n```"}
   }]
 
 Complete src/CompletionPipeSubmodules.res 16:18
@@ -42,13 +42,13 @@ Path A.B1.
     "kind": 12,
     "tags": [],
     "detail": "b1",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype b1 = B1\n```"}
   }, {
     "label": "A.B1.B1",
     "kind": 4,
     "tags": [],
-    "detail": "B1\n\ntype b1 = B1",
-    "documentation": null
+    "detail": "B1",
+    "documentation": {"kind": "markdown", "value": "```rescript\nB1\n```\n\n```rescript\ntype b1 = B1\n```"}
   }]
 
 Complete src/CompletionPipeSubmodules.res 38:20
@@ -69,8 +69,8 @@ Path C.
     "label": "C.C",
     "kind": 4,
     "tags": [],
-    "detail": "C\n\ntype t = C",
-    "documentation": null
+    "detail": "C",
+    "documentation": {"kind": "markdown", "value": "```rescript\nC\n```\n\n```rescript\ntype t = C\n```"}
   }]
 
 Complete src/CompletionPipeSubmodules.res 42:21
@@ -91,7 +91,7 @@ Path D.C2.
     "label": "D.C2.C2",
     "kind": 4,
     "tags": [],
-    "detail": "C2\n\ntype t2 = C2",
-    "documentation": null
+    "detail": "C2",
+    "documentation": {"kind": "markdown", "value": "```rescript\nC2\n```\n\n```rescript\ntype t2 = C2\n```"}
   }]
 

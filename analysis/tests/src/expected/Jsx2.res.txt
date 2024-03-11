@@ -46,26 +46,48 @@ Path M
     "label": "M",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module M",
     "documentation": null
   }, {
     "label": "Map",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module Map",
+    "documentation": null,
+    "data": {
+      "modulePath": "Map",
+      "filePath": "src/Jsx2.res"
+    }
   }, {
     "label": "MapLabels",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module MapLabels",
+    "documentation": null,
+    "data": {
+      "modulePath": "MapLabels",
+      "filePath": "src/Jsx2.res"
+    }
+  }, {
+    "label": "ModuleStuff",
+    "kind": 9,
+    "tags": [],
+    "detail": "module ModuleStuff",
+    "documentation": null,
+    "data": {
+      "modulePath": "ModuleStuff",
+      "filePath": "src/Jsx2.res"
+    }
   }, {
     "label": "MoreLabels",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module MoreLabels",
+    "documentation": null,
+    "data": {
+      "modulePath": "MoreLabels",
+      "filePath": "src/Jsx2.res"
+    }
   }]
 
 Complete src/Jsx2.res 22:19
@@ -334,7 +356,7 @@ Path WithChildren
     "label": "WithChildren",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module WithChildren",
     "documentation": null
   }]
 
@@ -366,8 +388,8 @@ Path React.e
     "label": "element",
     "kind": 22,
     "tags": [],
-    "detail": "type element = Jsx.element",
-    "documentation": null
+    "detail": "type element",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype element = Jsx.element\n```"}
   }]
 
 Complete src/Jsx2.res 96:20
@@ -383,8 +405,12 @@ Path ReactDOMR
     "label": "ReactDOMRe",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module ReactDOMRe",
+    "documentation": null,
+    "data": {
+      "modulePath": "ReactDOMRe",
+      "filePath": "src/Jsx2.res"
+    }
   }]
 
 Complete src/Jsx2.res 102:21
@@ -430,14 +456,14 @@ Path DefineSomeFields.th
     "label": "thisField",
     "kind": 5,
     "tags": [],
-    "detail": "thisField: int\n\ntype r = {thisField: int, thatField: string}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nthisField: int\n```\n\n```rescript\ntype r = {thisField: int, thatField: string}\n```"}
   }, {
     "label": "thatField",
     "kind": 5,
     "tags": [],
-    "detail": "thatField: string\n\ntype r = {thisField: int, thatField: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nthatField: string\n```\n\n```rescript\ntype r = {thisField: int, thatField: string}\n```"}
   }]
 
 Complete src/Jsx2.res 122:20
@@ -508,7 +534,7 @@ Path Nested.Co
     "label": "Comp",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module Comp",
     "documentation": null
   }]
 
@@ -524,7 +550,7 @@ Path Nested.
     "label": "Comp",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module Comp",
     "documentation": null
   }]
 

@@ -128,8 +128,8 @@ Path x1
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype bar = {age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype bar = {age: int}\n```"}
   }]
 
 Complete src/Hover.res 173:16
@@ -146,8 +146,8 @@ Path x2
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype bar = {age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype bar = {age: int}\n```"}
   }]
 
 Complete src/Hover.res 182:16
@@ -164,8 +164,8 @@ Path y1
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype bar = {age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype bar = {age: int}\n```"}
   }]
 
 Complete src/Hover.res 185:16
@@ -182,8 +182,8 @@ Path y2
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype bar = {age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype bar = {age: int}\n```"}
   }]
 
 Hover src/Hover.res 197:4

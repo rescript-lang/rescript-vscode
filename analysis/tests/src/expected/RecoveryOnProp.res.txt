@@ -19,13 +19,21 @@ Path Res
     "label": "RescriptReactErrorBoundary",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module RescriptReactErrorBoundary",
+    "documentation": null,
+    "data": {
+      "modulePath": "RescriptReactErrorBoundary",
+      "filePath": "src/RecoveryOnProp.res"
+    }
   }, {
     "label": "RescriptReactRouter",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module RescriptReactRouter",
+    "documentation": null,
+    "data": {
+      "modulePath": "RescriptReactRouter",
+      "filePath": "src/RecoveryOnProp.res"
+    }
   }]
 

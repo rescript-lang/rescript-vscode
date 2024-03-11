@@ -9,16 +9,16 @@ Path res
     "label": "Okay(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Okay('a)\n\ntype someResult<'a, 'b> = Okay('a) | Failure('b)",
-    "documentation": null,
+    "detail": "Okay('a)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOkay('a)\n```\n\n```rescript\ntype someResult<'a, 'b> = Okay('a) | Failure('b)\n```"},
     "insertText": "Okay(${1:_})",
     "insertTextFormat": 2
   }, {
     "label": "Failure(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Failure('b)\n\ntype someResult<'a, 'b> = Okay('a) | Failure('b)",
-    "documentation": null,
+    "detail": "Failure('b)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nFailure('b)\n```\n\n```rescript\ntype someResult<'a, 'b> = Okay('a) | Failure('b)\n```"},
     "insertText": "Failure(${1:_})",
     "insertTextFormat": 2
   }]
@@ -37,16 +37,16 @@ Path res
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype things = One | Two",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype things = One | Two\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\ntype things = One | Two",
-    "documentation": null,
+    "detail": "Two",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo\n```\n\n```rescript\ntype things = One | Two\n```"},
     "insertText": "Two",
     "insertTextFormat": 2
   }]
@@ -85,7 +85,7 @@ Path use
     "kind": 22,
     "tags": [],
     "detail": "EnvCompletionOtherFile.response",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype EnvCompletionOtherFile.response = {stuff: theVariant, res: someResult<theVariant, string>}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -103,14 +103,14 @@ Path use
     "label": "stuff",
     "kind": 5,
     "tags": [],
-    "detail": "stuff: theVariant\n\nEnvCompletionOtherFile.response",
-    "documentation": null
+    "detail": "theVariant",
+    "documentation": {"kind": "markdown", "value": "```rescript\nstuff: theVariant\n```\n\n```rescript\ntype EnvCompletionOtherFile.response = {stuff: theVariant, res: someResult<theVariant, string>}\n```"}
   }, {
     "label": "res",
     "kind": 5,
     "tags": [],
-    "detail": "res: someResult<theVariant, string>\n\nEnvCompletionOtherFile.response",
-    "documentation": null
+    "detail": "someResult<theVariant, string>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nres: someResult<theVariant, string>\n```\n\n```rescript\ntype EnvCompletionOtherFile.response = {stuff: theVariant, res: someResult<theVariant, string>}\n```"}
   }]
 
 Complete src/EnvCompletion.res 25:27
@@ -125,16 +125,16 @@ Path use
     "label": "First",
     "kind": 4,
     "tags": [],
-    "detail": "First\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
+    "detail": "First",
+    "documentation": {"kind": "markdown", "value": "```rescript\nFirst\n```\n\n```rescript\ntype theVariant = First | Second(r1)\n```"},
     "insertText": "First",
     "insertTextFormat": 2
   }, {
     "label": "Second(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Second(r1)\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
+    "detail": "Second(r1)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nSecond(r1)\n```\n\n```rescript\ntype theVariant = First | Second(r1)\n```"},
     "insertText": "Second(${1:_})",
     "insertTextFormat": 2
   }]
@@ -156,7 +156,7 @@ Path use
     "kind": 22,
     "tags": [],
     "detail": "r1",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype r1 = {age: int}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -177,8 +177,8 @@ Path use
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nr1",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype r1 = {age: int}\n```"}
   }]
 
 Complete src/EnvCompletion.res 34:25
@@ -193,16 +193,16 @@ Path use
     "label": "Okay(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Okay('a)\n\ntype someResult<'a, 'b> = Okay('a) | Failure('b)",
-    "documentation": null,
+    "detail": "Okay('a)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOkay('a)\n```\n\n```rescript\ntype someResult<'a, 'b> = Okay('a) | Failure('b)\n```"},
     "insertText": "Okay(${1:_})",
     "insertTextFormat": 2
   }, {
     "label": "Failure(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Failure('b)\n\ntype someResult<'a, 'b> = Okay('a) | Failure('b)",
-    "documentation": null,
+    "detail": "Failure('b)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nFailure('b)\n```\n\n```rescript\ntype someResult<'a, 'b> = Okay('a) | Failure('b)\n```"},
     "insertText": "Failure(${1:_})",
     "insertTextFormat": 2
   }]
@@ -223,16 +223,16 @@ Path use
     "label": "First",
     "kind": 4,
     "tags": [],
-    "detail": "First\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
+    "detail": "First",
+    "documentation": {"kind": "markdown", "value": "```rescript\nFirst\n```\n\n```rescript\ntype theVariant = First | Second(r1)\n```"},
     "insertText": "First",
     "insertTextFormat": 2
   }, {
     "label": "Second(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Second(r1)\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
+    "detail": "Second(r1)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nSecond(r1)\n```\n\n```rescript\ntype theVariant = First | Second(r1)\n```"},
     "insertText": "Second(${1:_})",
     "insertTextFormat": 2
   }]
@@ -256,7 +256,7 @@ Path use
     "kind": 22,
     "tags": [],
     "detail": "r1",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype r1 = {age: int}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -279,8 +279,8 @@ Path use
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nr1",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype r1 = {age: int}\n```"}
   }]
 
 Complete src/EnvCompletion.res 52:18
@@ -294,8 +294,8 @@ Path res2
     "label": "{}",
     "kind": 22,
     "tags": [],
-    "detail": "EnvCompletionOtherFile.someRecord<things2>",
-    "documentation": null,
+    "detail": "EnvCompletionOtherFile.someRecord",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype EnvCompletionOtherFile.someRecord = {name: string, theThing: 'thing, theVariant: theVariant}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -312,20 +312,20 @@ Path res2
     "label": "name",
     "kind": 5,
     "tags": [],
-    "detail": "name: string\n\nEnvCompletionOtherFile.someRecord<things2>",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype EnvCompletionOtherFile.someRecord = {name: string, theThing: 'thing, theVariant: theVariant}\n```"}
   }, {
     "label": "theThing",
     "kind": 5,
     "tags": [],
-    "detail": "theThing: 'thing\n\nEnvCompletionOtherFile.someRecord<things2>",
-    "documentation": null
+    "detail": "'thing",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntheThing: 'thing\n```\n\n```rescript\ntype EnvCompletionOtherFile.someRecord = {name: string, theThing: 'thing, theVariant: theVariant}\n```"}
   }, {
     "label": "theVariant",
     "kind": 5,
     "tags": [],
-    "detail": "theVariant: theVariant\n\nEnvCompletionOtherFile.someRecord<things2>",
-    "documentation": null
+    "detail": "theVariant",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntheVariant: theVariant\n```\n\n```rescript\ntype EnvCompletionOtherFile.someRecord = {name: string, theThing: 'thing, theVariant: theVariant}\n```"}
   }]
 
 Complete src/EnvCompletion.res 58:29
@@ -339,16 +339,16 @@ Path res2
     "label": "Four",
     "kind": 4,
     "tags": [],
-    "detail": "Four\n\ntype things2 = Four | Five",
-    "documentation": null,
+    "detail": "Four",
+    "documentation": {"kind": "markdown", "value": "```rescript\nFour\n```\n\n```rescript\ntype things2 = Four | Five\n```"},
     "insertText": "Four",
     "insertTextFormat": 2
   }, {
     "label": "Five",
     "kind": 4,
     "tags": [],
-    "detail": "Five\n\ntype things2 = Four | Five",
-    "documentation": null,
+    "detail": "Five",
+    "documentation": {"kind": "markdown", "value": "```rescript\nFive\n```\n\n```rescript\ntype things2 = Four | Five\n```"},
     "insertText": "Five",
     "insertTextFormat": 2
   }]
@@ -364,16 +364,16 @@ Path res2
     "label": "First",
     "kind": 4,
     "tags": [],
-    "detail": "First\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
+    "detail": "First",
+    "documentation": {"kind": "markdown", "value": "```rescript\nFirst\n```\n\n```rescript\ntype theVariant = First | Second(r1)\n```"},
     "insertText": "First",
     "insertTextFormat": 2
   }, {
     "label": "Second(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Second(r1)\n\ntype theVariant = First | Second(r1)",
-    "documentation": null,
+    "detail": "Second(r1)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nSecond(r1)\n```\n\n```rescript\ntype theVariant = First | Second(r1)\n```"},
     "insertText": "Second(${1:_})",
     "insertTextFormat": 2
   }]
