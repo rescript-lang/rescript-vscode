@@ -560,3 +560,36 @@ Signature help src/SignatureHelp.res 151:12
   "activeParameter": 1
 }
 
+Signature help src/SignatureHelp.res 155:14
+{
+  "signatures": [{
+    "label": "Ok(bool)",
+    "parameters": [{"label": [3, 7], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": "```rescript\nresult<bool, 'a>\n```"}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 158:19
+{
+  "signatures": [{
+    "label": "Error(string)",
+    "parameters": [{"label": [6, 12], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": "```rescript\nresult<'a, string>\n```"}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 161:16
+{
+  "signatures": [{
+    "label": "Some(bool)",
+    "parameters": [{"label": [5, 9], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": "```rescript\noption<bool>\n```"}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
