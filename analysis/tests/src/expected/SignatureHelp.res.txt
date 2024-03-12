@@ -505,3 +505,58 @@ extracted params:
   "activeParameter": 1
 }
 
+Signature help src/SignatureHelp.res 143:8
+{
+  "signatures": [{
+    "label": "One({miss?: bool, hit?: bool, stuff?: string})",
+    "parameters": [{"label": [0, 0], "documentation": {"kind": "markdown", "value": ""}}, {"label": [5, 16], "documentation": {"kind": "markdown", "value": ""}}, {"label": [18, 28], "documentation": {"kind": "markdown", "value": ""}}, {"label": [30, 44], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " One is cool. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 2
+}
+
+Signature help src/SignatureHelp.res 145:7
+{
+  "signatures": [{
+    "label": "One({miss?: bool, hit?: bool, stuff?: string})",
+    "parameters": [{"label": [0, 0], "documentation": {"kind": "markdown", "value": ""}}, {"label": [5, 16], "documentation": {"kind": "markdown", "value": ""}}, {"label": [18, 28], "documentation": {"kind": "markdown", "value": ""}}, {"label": [30, 44], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " One is cool. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 147:7
+{
+  "signatures": [{
+    "label": "Two(mySpecialThing)",
+    "parameters": [{"label": [4, 18], "documentation": {"kind": "markdown", "value": "```rescript\ntype mySpecialThing = string\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C78%2C0%5D)"}}],
+    "documentation": {"kind": "markdown", "value": " Two is fun! "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 149:9
+{
+  "signatures": [{
+    "label": "Three(mySpecialThing, array<option<string>>)",
+    "parameters": [{"label": [6, 20], "documentation": {"kind": "markdown", "value": "```rescript\ntype mySpecialThing = string\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C78%2C0%5D)"}}, {"label": [22, 43], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " Three is... three "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 151:12
+{
+  "signatures": [{
+    "label": "Three(mySpecialThing, array<option<string>>)",
+    "parameters": [{"label": [6, 20], "documentation": {"kind": "markdown", "value": "```rescript\ntype mySpecialThing = string\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C78%2C0%5D)"}}, {"label": [22, 43], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " Three is... three "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+

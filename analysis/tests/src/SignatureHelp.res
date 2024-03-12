@@ -139,3 +139,16 @@ let _ = stuffers({}, One)
 
 let _ = stuffers({}, One)
 //                    ^she
+
+let _ = switch _one {
+| One({hit: _hit}) => ""
+//      ^she
+| One(_a) => ""
+//     ^she
+| Two(_ms) => ""
+//     ^she
+| Three(_a, []) => ""
+//       ^she
+| Three(_, _b) => ""
+//          ^she
+}
