@@ -1,0 +1,159 @@
+
+{
+  "name": "Aliases",
+  "docstrings": [],
+  "source": {
+    "filepath": "src/Aliases.res",
+    "line": 1,
+    "col": 1
+  },
+  "items": [
+  {
+    "id": "Aliases.Exn",
+    "kind": "moduleAlias",
+    "name": "Exn",
+    "docstrings": [],
+    "source": {
+      "filepath": "src/Aliases.res",
+      "line": 3,
+      "col": 8
+    },
+    "items": []
+  }, 
+  {
+    "id": "Aliases.UtilsPromises",
+    "name": "UtilsPromises",
+    "kind": "module",
+    "docstrings": [],
+    "source": {
+      "filepath": "src/Aliases.res",
+      "line": 5,
+      "col": 8
+    },
+    "items": [
+    {
+      "id": "Aliases.UtilsPromises.t",
+      "kind": "type",
+      "name": "t",
+      "signature": "type t<'a> = promise<'a>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.error",
+      "kind": "type",
+      "name": "error",
+      "signature": "type error = Js_promise2.error",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.then",
+      "kind": "value",
+      "name": "then",
+      "signature": "let then: (promise<'a>, 'a => promise<'b>) => promise<'b>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.catch",
+      "kind": "value",
+      "name": "catch",
+      "signature": "let catch: (promise<'a>, error => promise<'a>) => promise<'a>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.make",
+      "kind": "value",
+      "name": "make",
+      "signature": "let make: (\n  (~resolve: 'a => unit, ~reject: exn => unit) => unit,\n) => promise<'a>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.resolve",
+      "kind": "value",
+      "name": "resolve",
+      "signature": "let resolve: 'a => promise<'a>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.reject",
+      "kind": "value",
+      "name": "reject",
+      "signature": "let reject: exn => promise<'a>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.all",
+      "kind": "value",
+      "name": "all",
+      "signature": "let all: array<promise<'a>> => promise<array<'a>>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.all2",
+      "kind": "value",
+      "name": "all2",
+      "signature": "let all2: ((promise<'a0>, promise<'a1>)) => promise<('a0, 'a1)>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.all3",
+      "kind": "value",
+      "name": "all3",
+      "signature": "let all3: (\n  (promise<'a0>, promise<'a1>, promise<'a2>),\n) => promise<('a0, 'a1, 'a2)>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.all4",
+      "kind": "value",
+      "name": "all4",
+      "signature": "let all4: (\n  (promise<'a0>, promise<'a1>, promise<'a2>, promise<'a3>),\n) => promise<('a0, 'a1, 'a2, 'a3)>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.all5",
+      "kind": "value",
+      "name": "all5",
+      "signature": "let all5: (\n  (\n    promise<'a0>,\n    promise<'a1>,\n    promise<'a2>,\n    promise<'a3>,\n    promise<'a4>,\n  ),\n) => promise<('a0, 'a1, 'a2, 'a3, 'a4)>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.all6",
+      "kind": "value",
+      "name": "all6",
+      "signature": "let all6: (\n  (\n    promise<'a0>,\n    promise<'a1>,\n    promise<'a2>,\n    promise<'a3>,\n    promise<'a4>,\n    promise<'a5>,\n  ),\n) => promise<('a0, 'a1, 'a2, 'a3, 'a4, 'a5)>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.race",
+      "kind": "value",
+      "name": "race",
+      "signature": "let race: array<promise<'a>> => promise<'a>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.unsafe_async",
+      "kind": "value",
+      "name": "unsafe_async",
+      "signature": "let unsafe_async: 'a => promise<'a>",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.UtilsPromises.unsafe_await",
+      "kind": "value",
+      "name": "unsafe_await",
+      "signature": "let unsafe_await: promise<'a> => 'a",
+      "docstrings": []
+    }, 
+    {
+      "id": "Aliases.OldPromise",
+      "kind": "moduleAlias",
+      "name": "OldPromise",
+      "docstrings": [],
+      "source": {
+        "filepath": "src/Aliases.res",
+        "line": 8,
+        "col": 10
+      },
+      "items": []
+    }]
+  }]
+}
