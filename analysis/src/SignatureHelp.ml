@@ -192,6 +192,12 @@ let findActiveParameter ~argAtCursor ~args =
              index := !index + 1;
              None)
 
+type constructorInfo = {
+  docstring: string list;
+  name: string;
+  args: constructorArgs;
+}
+
 let findConstructorArgs ~full ~env ~constructorName loc =
   match
     References.getLocItem ~debug:false ~full
@@ -200,10 +206,51 @@ let findConstructorArgs ~full ~env ~constructorName loc =
   | None -> None
   | Some {locType = Typed (_, typExpr, _)} -> (
     match TypeUtils.extractType ~env ~package:full.package typExpr with
+    | Some ((Toption (_, TypeExpr t) as extractedType), _) -> (
+      match constructorName with
+      | "Some" ->
+        Some
+          {
+            name = "Some";
+            docstring =
+              [
+                Markdown.codeBlock
+                  (TypeUtils.extractedTypeToString extractedType);
+              ];
+            args = Args [(t, Location.none)];
+          }
+      | _ -> None)
+    | Some ((Tresult {okType; errorType} as extractedType), _) -> (
+      match constructorName with
+      | "Ok" ->
+        Some
+          {
+            name = "Ok";
+            docstring =
+              [
+                Markdown.codeBlock
+                  (TypeUtils.extractedTypeToString extractedType);
+              ];
+            args = Args [(okType, Location.none)];
+          }
+      | "Error" ->
+        Some
+          {
+            name = "Error";
+            docstring =
+              [
+                Markdown.codeBlock
+                  (TypeUtils.extractedTypeToString extractedType);
+              ];
+            args = Args [(errorType, Location.none)];
+          }
+      | _ -> None)
     | Some (Tvariant {constructors}, _) ->
       constructors
       |> List.find_opt (fun (c : Constructor.t) ->
              c.cname.txt = constructorName)
+      |> Option.map (fun (c : Constructor.t) ->
+             {docstring = c.docstring; name = c.cname.txt; args = c.args})
     | _ -> None)
   | _ -> None
 
@@ -554,7 +601,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
                              (startOffset, endOffset) ))))
             in
             let label =
-              constructor.cname.txt ^ "("
+              constructor.name ^ "("
               ^ (match argParts with
                 | None -> ""
                 | Some (`InlineRecord fields) ->
@@ -659,7 +706,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
               | _ -> -1
             in
 
-            let constructorNameLength = String.length constructor.cname.txt in
+            let constructorNameLength = String.length constructor.name in
             let params =
               match argParts with
               | None -> []

@@ -152,3 +152,12 @@ let _ = switch _one {
 | Three(_, _b) => ""
 //          ^she
 }
+
+let _bb = Ok(true)
+//            ^she
+
+let _bbb = Error("err")
+//                 ^she
+
+let _cc = Some(true)
+//              ^she
