@@ -266,3 +266,6 @@ module Arr = Belt.Array
 
 type aliased = variant
 //    ^hov
+
+let _xx = Belt.Array.slice([1], ~offset=0, ~len=2)
+//                    ^hov

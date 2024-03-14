@@ -12,6 +12,10 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- Make sure doc strings are always on top in hovers.
+
 ## 1.50.0
 
 #### :rocket: New Feature
