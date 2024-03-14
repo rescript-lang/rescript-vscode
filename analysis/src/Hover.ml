@@ -133,9 +133,10 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
     match completions with
     | {kind = Label typString; docstring} :: _ ->
       let parts =
-        (if typString = "" then [] else [Markdown.codeBlock typString])
-        @ docstring
+        docstring
+        @ if typString = "" then [] else [Markdown.codeBlock typString]
       in
+
       Some (Protocol.stringifyHover (String.concat "\n\n" parts))
     | {kind = Field _; env; docstring} :: _ -> (
       let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
@@ -147,7 +148,7 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
         let typeString =
           hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
         in
-        let parts = typeString :: docstring in
+        let parts = docstring @ [typeString] in
         Some (Protocol.stringifyHover (String.concat "\n\n" parts))
       | None -> None)
     | {env} :: _ -> (
@@ -236,12 +237,12 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
       match References.definedForLoc ~file ~package locKind with
       | None ->
         let typeString, docstring = t |> fromType ~docstring:[] in
-        typeString :: docstring
+        docstring @ [typeString]
       | Some (docstring, res) -> (
         match res with
         | `Declared ->
           let typeString, docstring = t |> fromType ~docstring in
-          typeString :: docstring
+          docstring @ [typeString]
         | `Constructor {cname = {txt}; args; docstring} ->
           let typeString, docstring = t |> fromType ~docstring in
           let argsString =
@@ -255,6 +256,6 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
           (Markdown.codeBlock (txt ^ argsString) :: docstring) @ [typeString]
         | `Field ->
           let typeString, docstring = t |> fromType ~docstring in
-          typeString :: docstring)
+          docstring @ [typeString])
     in
     Some (String.concat "\n\n" parts)
