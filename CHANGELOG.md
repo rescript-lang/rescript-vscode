@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.50.0
+
 #### :rocket: New Feature
 
 - Extend signature help to work on constructor payloads in both expressions and patterns as well. Can be turned off if wanted through settings. https://github.com/rescript-lang/rescript-vscode/pull/947 https://github.com/rescript-lang/rescript-vscode/pull/954
