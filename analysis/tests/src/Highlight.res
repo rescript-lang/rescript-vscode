@@ -38,9 +38,7 @@ module type MT = {
 }
 
 module DDF: MT = {
-  module DDF = {
-
-  }
+  module DDF = {}
 }
 
 module XX = {
@@ -69,9 +67,12 @@ let foo = x => x.T.someField
 
 let add = (~hello as x, ~world) => x + world
 
-let _ = @res.partial add(~hello=3)
+let _ = add(~hello=3, ...)
 
-let _ = <div scale="abc"> <div /> </div>
+let _ =
+  <div scale="abc">
+    <div />
+  </div>
 
 module SomeComponent = {
   module Nested = {
@@ -82,7 +83,10 @@ module SomeComponent = {
   }
 }
 
-let _ = <SomeComponent.Nested> <div /> </SomeComponent.Nested>
+let _ =
+  <SomeComponent.Nested>
+    <div />
+  </SomeComponent.Nested>
 
 // true/false
 let _ = true || false
@@ -134,3 +138,13 @@ let _ = (~_type_ as _) => ()
 let _ = {"abc": 34}
 
 let _ = {"Key": 2}
+
+module Test = {
+  let fn = (~arg as _) => ()
+
+  @react.component
+  let make = (~prop as _) => {
+    fn(~arg=())
+    <div />
+  }
+}
