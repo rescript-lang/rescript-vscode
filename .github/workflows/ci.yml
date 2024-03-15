@@ -240,7 +240,7 @@ jobs:
       if: github.ref == 'refs/heads/master'
       working-directory: server
       run: |
-        npm version preminor --preid next
+        npm version preminor --preid next-$(git rev-parse --short HEAD)
         npm publish --access public --tag next
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
