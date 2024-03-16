@@ -59,6 +59,15 @@ type rec item =
       source: source,
       items: array<item>,
     })
+  | @as("moduleType")
+  ModuleType({
+      id: string,
+      docstrings: array<string>,
+      deprecated?: string,
+      name: string,
+      source: source,
+      items: array<item>,
+    })
   | @as("moduleAlias")
   ModuleAlias({
       id: string,

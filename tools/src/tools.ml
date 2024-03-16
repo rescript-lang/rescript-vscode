@@ -44,6 +44,7 @@ type docItem =
           (** Additional documentation for constructors and record fields, if available. *)
     }
   | Module of docsForModule
+  | ModuleType of docsForModule
   | ModuleAlias of {
       id: string;
       docstring: string list;
@@ -190,6 +191,26 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("id", Some (wrapInQuotes m.id));
         ("name", Some (wrapInQuotes m.name));
         ("kind", Some (wrapInQuotes "module"));
+        ( "deprecated",
+          match m.deprecated with
+          | Some d -> Some (wrapInQuotes d)
+          | None -> None );
+        ("docstrings", Some (stringifyDocstrings m.docstring));
+        ( "source",
+          Some (stringifySource ~indentation:(indentation + 1) m.source) );
+        ( "items",
+          Some
+            (m.items
+            |> List.map
+                 (stringifyDocItem ~originalEnv ~indentation:(indentation + 1))
+            |> array) );
+      ]
+  | ModuleType m ->
+    stringifyObject ~startOnNewline:true ~indentation
+      [
+        ("id", Some (wrapInQuotes m.id));
+        ("name", Some (wrapInQuotes m.name));
+        ("kind", Some (wrapInQuotes "moduleType"));
         ( "deprecated",
           match m.deprecated with
           | Some d -> Some (wrapInQuotes d)
@@ -379,7 +400,7 @@ let extractDocs ~entryPointFile ~debug =
                               detail = typeDetail typ ~full ~env;
                               source;
                             })
-                     | Module (Ident p) ->
+                     | Module {type_ = Ident p; isModuleType = false} ->
                        (* module Whatever = OtherModule *)
                        let aliasToModule = p |> pathIdentToString in
                        let id =
@@ -409,7 +430,7 @@ let extractDocs ~entryPointFile ~debug =
                                 item.docstring @ internalDocstrings
                                 |> List.map String.trim;
                             })
-                     | Module (Structure m) ->
+                     | Module {type_ = Structure m; isModuleType = false} ->
                        (* module Whatever = {} in res or module Whatever: {} in resi. *)
                        let modulePath = m.name :: modulePath in
                        let docs = extractDocsForModule ~modulePath m in
@@ -423,8 +444,25 @@ let extractDocs ~entryPointFile ~debug =
                               source;
                               items = docs.items;
                             })
+                     | Module {type_ = Structure m; isModuleType = true} ->
+                       (* module type Whatever = {} *)
+                       let modulePath = m.name :: modulePath in
+                       let docs = extractDocsForModule ~modulePath m in
+                       Some
+                         (ModuleType
+                            {
+                              id = modulePath |> List.rev |> ident;
+                              name = m.name;
+                              docstring = item.docstring @ m.docstring;
+                              deprecated = item.deprecated;
+                              source;
+                              items = docs.items;
+                            })
                      | Module
-                         (Constraint (Structure _impl, Structure interface)) ->
+                         {
+                           type_ =
+                             Constraint (Structure _impl, Structure interface);
+                         } ->
                        (* module Whatever: { <interface> } = { <impl> }. Prefer the interface. *)
                        Some
                          (Module

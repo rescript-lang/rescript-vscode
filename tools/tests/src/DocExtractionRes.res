@@ -23,7 +23,7 @@ let make = name => {
 let asOffline = (t: t) => {...t, online: false}
 
 /** exotic identifier */
-let \"SomeConstant\" = 12
+let \"SomeConstant" = 12
 
 module SomeInnerModule = {
   /*** Another module level docstring here.*/
@@ -94,6 +94,38 @@ module ModuleWithThingsThatShouldNotBeExported: {
       "2"
     }
   }
+}
+
+module type Example = {
+  /***
+  this is an example module type 
+  */
+
+  /**
+  main type of this module 
+  */
+  type t
+
+  /**
+  function from t to t
+  */
+  let f: t => t
+}
+
+module M: Example = {
+  /***
+  implementation of Example module type
+  */
+
+  /**
+  main type 
+  */
+  type t = int
+
+  /**
+  identity function
+  */
+  let f = (x: int) => x
 }
 
 // ^dex

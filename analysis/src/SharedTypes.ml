@@ -120,7 +120,7 @@ module Module = struct
   type kind =
     | Value of Types.type_expr
     | Type of Type.t * Types.rec_status
-    | Module of t
+    | Module of {type_: t; isModuleType: bool}
 
   and item = {
     kind: kind;

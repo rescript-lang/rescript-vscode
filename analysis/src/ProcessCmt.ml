@@ -1,5 +1,10 @@
 open SharedTypes
 
+let isModuleType (declared : Module.t Declared.t) =
+  match declared.modulePath with
+  | ExportedModule {isType} -> isType
+  | _ -> false
+
 let addDeclared ~(name : string Location.loc) ~extent ~stamp ~(env : Env.t)
     ~item attributes addExported addStamp =
   let isExported = addExported name.txt stamp in
@@ -150,7 +155,8 @@ let rec forTypeSignatureItem ~(env : SharedTypes.Env.t) ~(exported : Exported.t)
     in
     [
       {
-        Module.kind = Module declared.item;
+        Module.kind =
+          Module {type_ = declared.item; isModuleType = isModuleType declared};
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
@@ -367,7 +373,8 @@ let rec forSignatureItem ~env ~(exported : Exported.t)
     in
     [
       {
-        Module.kind = Module declared.item;
+        Module.kind =
+          Module {type_ = declared.item; isModuleType = isModuleType declared};
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
@@ -481,7 +488,8 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
     in
     [
       {
-        Module.kind = Module declared.item;
+        Module.kind =
+          Module {type_ = declared.item; isModuleType = isModuleType declared};
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
@@ -513,7 +521,8 @@ let rec forStructureItem ~env ~(exported : Exported.t) item =
     in
     [
       {
-        Module.kind = Module modTypeItem;
+        Module.kind =
+          Module {type_ = declared.item; isModuleType = isModuleType declared};
         name = declared.name.txt;
         docstring = declared.docstring;
         deprecated = declared.deprecated;
