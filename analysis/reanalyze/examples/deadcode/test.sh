@@ -6,7 +6,7 @@ else
   exclude_dirs="src/exception"
   suppress="src/ToSuppress.res"
 fi
-dune exec rescript-editor-analysis -- reanalyze -config -debug -ci -exclude-paths $exclude_dirs -live-names globallyLive1 -live-names globallyLive2,globallyLive3 -suppress $suppress > $output
+dune exec -- rescript-tools reanalyze --dce --config --debug --ci --exclude-paths $exclude_dirs --live-names globallyLive1,globallyLive2,globallyLive3 --suppress $suppress > $output
 # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
 if [ "$RUNNER_OS" == "Windows" ]; then
   perl -pi -e 's/\r\n/\n/g' -- $output
@@ -18,7 +18,7 @@ if [ "$RUNNER_OS" == "Windows" ]; then
 else
   unsuppress_dirs="src/exception"
 fi
-dune exec rescript-editor-analysis -- reanalyze -exception -ci -suppress src -unsuppress $unsuppress_dirs > $output
+dune exec -- rescript-tools reanalyze --exception --ci --suppress src --unsuppress $unsuppress_dirs > $output
 # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
 if [ "$RUNNER_OS" == "Windows" ]; then
   perl -pi -e 's/\r\n/\n/g' -- $output

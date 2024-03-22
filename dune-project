@@ -28,5 +28,7 @@
    (>= 4.10))
   (cppo
    (= 1.6.9))
+  (cmdliner
+    (>= 1.2))
   analysis
   dune))
