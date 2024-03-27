@@ -75,11 +75,6 @@ let foo = x => {
 }
 
 Xform src/Xform.res 34:21
-Hit: Add type annotation
-{"start": {"line": 34, "character": 24}, "end": {"line": 34, "character": 24}}
-newText:
-                        <--here
-                        : int
 
 Xform src/Xform.res 38:5
 Hit: Add Documentation template
@@ -93,11 +88,6 @@ newText:
 let make = (~name) => React.string(name)
 
 Xform src/Xform.res 41:9
-Hit: Add type annotation
-{"start": {"line": 41, "character": 11}, "end": {"line": 41, "character": 11}}
-newText:
-           <--here
-           : int
 
 Xform src/Xform.res 48:21
 posCursor:[48:21] posNoWhite:[48:19] Found expr:[48:15->48:25]

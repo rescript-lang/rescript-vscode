@@ -26,10 +26,27 @@ Rename src/Rename.res 9:19 yy
   "uri": "Rename.res"
   },
   "edits": [{
-  "range": {"start": {"line": 9, "character": 11}, "end": {"line": 9, "character": 14}},
+  "range": {"start": {"line": 9, "character": 12}, "end": {"line": 9, "character": 14}},
   "newText": "yy"
   }, {
   "range": {"start": {"line": 9, "character": 19}, "end": {"line": 9, "character": 21}},
+  "newText": "yy"
+  }]
+  }
+]
+
+Rename src/Rename.res 12:14 yy
+[
+{
+  "textDocument": {
+  "version": null,
+  "uri": "Rename.res"
+  },
+  "edits": [{
+  "range": {"start": {"line": 12, "character": 13}, "end": {"line": 12, "character": 15}},
+  "newText": "yy"
+  }, {
+  "range": {"start": {"line": 12, "character": 20}, "end": {"line": 12, "character": 22}},
   "newText": "yy"
   }]
   }
