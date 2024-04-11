@@ -51,6 +51,7 @@ type IncrementallyCompiledFileInfo = {
   } | null;
   /** Cache for rewatch compiler args. */
   buildRewatch: {
+    lastFile: string;
     compilerArgs: RewatchCompilerArgs;
   } | null;
   /** Info of the currently active incremental compilation. `null` if no incremental compilation is active. */
@@ -211,14 +212,23 @@ function getBscArgs(
     console.log("Did not find build.ninja or rewatch.lock, cannot proceed..");
     return Promise.resolve(null);
   }
-  const cacheEntry = entry.buildNinja;
+  const bsbCacheEntry = entry.buildNinja;
+  const rewatchCacheEntry = entry.buildRewatch;
+
   if (
     buildSystem === "bsb" &&
-    cacheEntry != null &&
+    bsbCacheEntry != null &&
     stat != null &&
-    cacheEntry.fileMtime >= stat.mtimeMs
+    bsbCacheEntry.fileMtime >= stat.mtimeMs
   ) {
-    return Promise.resolve(cacheEntry.rawExtracted);
+    return Promise.resolve(bsbCacheEntry.rawExtracted);
+  }
+  if (
+    buildSystem === "rewatch" &&
+    rewatchCacheEntry != null &&
+    rewatchCacheEntry.lastFile === entry.file.sourceFilePath
+  ) {
+    return Promise.resolve(rewatchCacheEntry.compilerArgs);
   }
   return new Promise((resolve, _reject) => {
     function resolveResult(result: Array<string> | RewatchCompilerArgs) {
@@ -226,6 +236,11 @@ function getBscArgs(
         entry.buildNinja = {
           fileMtime: stat.mtimeMs,
           rawExtracted: result,
+        };
+      } else if (!Array.isArray(result)) {
+        entry.buildRewatch = {
+          lastFile: entry.file.sourceFilePath,
+          compilerArgs: result,
         };
       }
       resolve(result);
