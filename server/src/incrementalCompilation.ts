@@ -66,6 +66,8 @@ type IncrementallyCompiledFileInfo = {
   project: {
     /** The root path of the project. */
     rootPath: string;
+    /** The root path of the workspace (if a monorepo) */
+    workspaceRootPath: string;
     /** Computed location of bsc. */
     bscBinaryLocation: string;
     /** The arguments needed for bsc, derived from the project configuration/build.ninja. */
@@ -191,7 +193,7 @@ function getBscArgs(
     "lib/bs/build.ninja"
   );
   const rewatchLockfile = path.resolve(
-    entry.project.rootPath,
+    entry.project.workspaceRootPath,
     "lib/rewatch.lock"
   );
   let buildSystem: "bsb" | "rewatch" | null = null;
@@ -211,6 +213,7 @@ function getBscArgs(
   }
   const cacheEntry = entry.buildNinja;
   if (
+    buildSystem === "bsb" &&
     cacheEntry != null &&
     stat != null &&
     cacheEntry.fileMtime >= stat.mtimeMs
@@ -267,15 +270,15 @@ function getBscArgs(
     } else if (buildSystem === "rewatch") {
       try {
         let rewatchPath = path.resolve(
-          entry.project.rootPath,
-          "node_modules/@rolandpeelen/rewatch/rewatch"
+          entry.project.workspaceRootPath,
+          "../rewatch/target/debug/rewatch"
         );
         const compilerArgs = JSON.parse(
           cp
             .execFileSync(rewatchPath, [
               "--rescript-version",
               entry.project.rescriptVersion,
-              "--get-compiler-args",
+              "--compiler-args",
               entry.file.sourceFilePath,
             ])
             .toString()
@@ -346,6 +349,9 @@ function triggerIncrementalCompilationOfFile(
   if (incrementalFileCacheEntry == null) {
     // New file
     const projectRootPath = utils.findProjectRootOfFile(filePath);
+    const workspaceRootPath = projectRootPath
+      ? utils.findProjectRootOfFile(projectRootPath)
+      : null;
     if (projectRootPath == null) {
       if (debug())
         console.log("Did not find project root path for " + filePath);
@@ -410,6 +416,7 @@ function triggerIncrementalCompilationOfFile(
         incrementalFilePath: path.join(incrementalFolderPath, moduleName + ext),
       },
       project: {
+        workspaceRootPath: workspaceRootPath ?? projectRootPath,
         rootPath: projectRootPath,
         callArgs: Promise.resolve([]),
         bscBinaryLocation,
@@ -470,6 +477,7 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   if (res == null) return null;
   let astArgs: Array<Array<string>> = [];
   let buildArgs: Array<Array<string>> = [];
+  let isBsb = Array.isArray(res);
   if (Array.isArray(res)) {
     const [astBuildCommand, fullBuildCommand] = res;
     astArgs = argsFromCommandString(astBuildCommand);
@@ -489,10 +497,21 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
 
   buildArgs.forEach(([key, value]: Array<string>) => {
     if (key === "-I") {
-      callArgs.push(
-        "-I",
-        path.resolve(entry.project.rootPath, "lib/bs", value)
-      );
+      if (isBsb) {
+        callArgs.push(
+          "-I",
+          path.resolve(entry.project.rootPath, "lib/bs", value)
+        );
+      } else {
+        if (value === ".") {
+          callArgs.push(
+            "-I",
+            path.resolve(entry.project.rootPath, "lib/ocaml")
+          );
+        } else {
+          callArgs.push("-I", value);
+        }
+      }
     } else if (key === "-bs-v") {
       callArgs.push("-bs-v", Date.now().toString());
     } else if (key === "-bs-package-output") {
