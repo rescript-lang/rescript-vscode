@@ -268,7 +268,7 @@ function getBscArgs(
       try {
         let rewatchPath = path.resolve(
           entry.project.rootPath,
-          "../rewatch/target/debug/rewatch"
+          "node_modules/@rolandpeelen/rewatch/rewatch"
         );
         const compilerArgs = JSON.parse(
           cp
