@@ -747,6 +747,17 @@ let getJsxLabels ~componentPath ~findTypeOfValue ~package =
             _ ) ->
         (* JSX V3 *)
         getFieldsV3 tObj
+      | Tconstr (p, [propsType], _) when Path.name p = "React.component" -> (
+        let rec getPropsType (t : Types.type_expr) =
+          match t.desc with
+          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getPropsType t1
+          | Tconstr (path, typeArgs, _) when Path.last path = "props" ->
+            Some (path, typeArgs)
+          | _ -> None
+        in
+        match propsType |> getPropsType with
+        | Some (path, typeArgs) -> getFieldsV4 ~path ~typeArgs
+        | None -> [])
       | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
         when Path.last path = "props" ->
         (* JSX V4 *)

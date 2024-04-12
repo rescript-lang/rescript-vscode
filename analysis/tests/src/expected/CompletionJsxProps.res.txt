@@ -330,3 +330,29 @@ Path CompletionSupport.TestComponent.make
     "documentation": null
   }]
 
+Complete src/CompletionJsxProps.res 44:44
+posCursor:[44:44] posNoWhite:[44:43] Found expr:[44:12->44:44]
+JSX <CompletableComponentLazy:[44:12->44:36] status[44:37->44:43]=...__ghost__[0:-1->0:-1]> _children:None
+Completable: Cexpression CJsxPropValue [CompletableComponentLazy] status
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [CompletableComponentLazy] status
+Path CompletableComponentLazy.make
+[{
+    "label": "On",
+    "kind": 4,
+    "tags": [],
+    "detail": "On",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOn\n```\n\n```rescript\ntype status = On | Off\n```"},
+    "insertText": "{On}",
+    "insertTextFormat": 2
+  }, {
+    "label": "Off",
+    "kind": 4,
+    "tags": [],
+    "detail": "Off",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOff\n```\n\n```rescript\ntype status = On | Off\n```"},
+    "insertText": "{Off}",
+    "insertTextFormat": 2
+  }]
+
