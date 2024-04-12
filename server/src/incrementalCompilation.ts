@@ -20,6 +20,11 @@ function debug() {
 const INCREMENTAL_FOLDER_NAME = "___incremental";
 const INCREMENTAL_FILE_FOLDER_LOCATION = `lib/bs/${INCREMENTAL_FOLDER_NAME}`;
 
+type RewatchCompilerArgs = {
+  compiler_args: Array<string>;
+  parser_args: Array<string>;
+};
+
 type IncrementallyCompiledFileInfo = {
   file: {
     /** File type. */
@@ -44,6 +49,11 @@ type IncrementallyCompiledFileInfo = {
     /** The raw, extracted needed info from build.ninja. Needs processing. */
     rawExtracted: Array<string>;
   } | null;
+  /** Cache for rewatch compiler args. */
+  buildRewatch: {
+    lastFile: string;
+    compilerArgs: RewatchCompilerArgs;
+  } | null;
   /** Info of the currently active incremental compilation. `null` if no incremental compilation is active. */
   compilation: {
     /** The timeout of the currently active compilation for this incremental file. */
@@ -57,6 +67,8 @@ type IncrementallyCompiledFileInfo = {
   project: {
     /** The root path of the project. */
     rootPath: string;
+    /** The root path of the workspace (if a monorepo) */
+    workspaceRootPath: string;
     /** Computed location of bsc. */
     bscBinaryLocation: string;
     /** The arguments needed for bsc, derived from the project configuration/build.ninja. */
@@ -176,96 +188,139 @@ export function cleanUpIncrementalFiles(
 }
 function getBscArgs(
   entry: IncrementallyCompiledFileInfo
-): Promise<Array<string> | null> {
+): Promise<Array<string> | RewatchCompilerArgs | null> {
   const buildNinjaPath = path.resolve(
     entry.project.rootPath,
     "lib/bs/build.ninja"
   );
+  const rewatchLockfile = path.resolve(
+    entry.project.workspaceRootPath,
+    "lib/rewatch.lock"
+  );
+  let buildSystem: "bsb" | "rewatch" | null = null;
+
   let stat: fs.Stats | null = null;
   try {
     stat = fs.statSync(buildNinjaPath);
-  } catch {
-    if (debug()) {
-      console.log("Did not find build.ninja, cannot proceed..");
-    }
+    buildSystem = "bsb";
+  } catch {}
+  try {
+    stat = fs.statSync(rewatchLockfile);
+    buildSystem = "rewatch";
+  } catch {}
+  if (buildSystem == null) {
+    console.log("Did not find build.ninja or rewatch.lock, cannot proceed..");
     return Promise.resolve(null);
   }
-  const cacheEntry = entry.buildNinja;
+  const bsbCacheEntry = entry.buildNinja;
+  const rewatchCacheEntry = entry.buildRewatch;
+
   if (
-    cacheEntry != null &&
+    buildSystem === "bsb" &&
+    bsbCacheEntry != null &&
     stat != null &&
-    cacheEntry.fileMtime >= stat.mtimeMs
+    bsbCacheEntry.fileMtime >= stat.mtimeMs
   ) {
-    return Promise.resolve(cacheEntry.rawExtracted);
+    return Promise.resolve(bsbCacheEntry.rawExtracted);
+  }
+  if (
+    buildSystem === "rewatch" &&
+    rewatchCacheEntry != null &&
+    rewatchCacheEntry.lastFile === entry.file.sourceFilePath
+  ) {
+    return Promise.resolve(rewatchCacheEntry.compilerArgs);
   }
   return new Promise((resolve, _reject) => {
-    function resolveResult(result: Array<string>) {
-      if (stat != null) {
+    function resolveResult(result: Array<string> | RewatchCompilerArgs) {
+      if (stat != null && Array.isArray(result)) {
         entry.buildNinja = {
           fileMtime: stat.mtimeMs,
           rawExtracted: result,
         };
+      } else if (!Array.isArray(result)) {
+        entry.buildRewatch = {
+          lastFile: entry.file.sourceFilePath,
+          compilerArgs: result,
+        };
       }
       resolve(result);
     }
-    const fileStream = fs.createReadStream(buildNinjaPath);
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity,
-    });
-    let captureNextLine = false;
-    let done = false;
-    let stopped = false;
-    const captured: Array<string> = [];
-    rl.on("line", (line) => {
-      if (stopped) {
-        return;
-      }
-      if (captureNextLine) {
-        captured.push(line);
-        captureNextLine = false;
-      }
-      if (done) {
-        fileStream.destroy();
-        rl.close();
+
+    if (buildSystem === "bsb") {
+      const fileStream = fs.createReadStream(buildNinjaPath);
+      const rl = readline.createInterface({
+        input: fileStream,
+        crlfDelay: Infinity,
+      });
+      let captureNextLine = false;
+      let done = false;
+      let stopped = false;
+      const captured: Array<string> = [];
+      rl.on("line", (line) => {
+        if (stopped) {
+          return;
+        }
+        if (captureNextLine) {
+          captured.push(line);
+          captureNextLine = false;
+        }
+        if (done) {
+          fileStream.destroy();
+          rl.close();
+          resolveResult(captured);
+          stopped = true;
+          return;
+        }
+        if (line.startsWith("rule astj")) {
+          captureNextLine = true;
+        }
+        if (line.startsWith("rule mij")) {
+          captureNextLine = true;
+          done = true;
+        }
+      });
+      rl.on("close", () => {
         resolveResult(captured);
-        stopped = true;
-        return;
+      });
+    } else if (buildSystem === "rewatch") {
+      try {
+        let rewatchPath = path.resolve(
+          entry.project.workspaceRootPath,
+          "node_modules/@rolandpeelen/rewatch/rewatch"
+        );
+        const compilerArgs = JSON.parse(
+          cp
+            .execFileSync(rewatchPath, [
+              "--rescript-version",
+              entry.project.rescriptVersion,
+              "--compiler-args",
+              entry.file.sourceFilePath,
+            ])
+            .toString()
+            .trim()
+        ) as RewatchCompilerArgs;
+        resolveResult(compilerArgs);
+      } catch (e) {
+        console.error(e);
       }
-      if (line.startsWith("rule astj")) {
-        captureNextLine = true;
-      }
-      if (line.startsWith("rule mij")) {
-        captureNextLine = true;
-        done = true;
-      }
-    });
-    rl.on("close", () => {
-      resolveResult(captured);
-    });
+    }
   });
 }
-function argsFromCommandString(cmdString: string): Array<Array<string>> {
-  const s = cmdString
-    .trim()
-    .split("command = ")[1]
-    .split(" ")
-    .map((v) => v.trim())
-    .filter((v) => v !== "");
-  const args: Array<Array<string>> = [];
 
-  for (let i = 0; i <= s.length - 1; i++) {
-    const item = s[i];
+function argCouples(argList: string[]): string[][] {
+  let args: string[][] = [];
+  for (let i = 0; i <= argList.length - 1; i++) {
+    const item = argList[i];
     const nextIndex = i + 1;
-    const nextItem = s[nextIndex] ?? "";
+    const nextItem = argList[nextIndex] ?? "";
     if (item.startsWith("-") && nextItem.startsWith("-")) {
       // Single entry arg
       args.push([item]);
     } else if (item.startsWith("-") && nextItem.startsWith("'")) {
       // Quoted arg, take until ending '
       const arg = [nextItem.slice(1)];
-      for (let x = nextIndex + 1; x <= s.length - 1; x++) {
-        let subItem = s[x];
+      for (let x = nextIndex + 1; x <= argList.length - 1; x++) {
+        let subItem = argList[x];
         let break_ = false;
         if (subItem.endsWith("'")) {
           subItem = subItem.slice(0, subItem.length - 1);
@@ -284,6 +339,17 @@ function argsFromCommandString(cmdString: string): Array<Array<string>> {
   }
   return args;
 }
+
+function argsFromCommandString(cmdString: string): Array<Array<string>> {
+  const argList = cmdString
+    .trim()
+    .split("command = ")[1]
+    .split(" ")
+    .map((v) => v.trim())
+    .filter((v) => v !== "");
+
+  return argCouples(argList);
+}
 function removeAnsiCodes(s: string): string {
   const ansiEscape = /\x1B[@-_][0-?]*[ -/]*[@-~]/g;
   return s.replace(ansiEscape, "");
@@ -298,6 +364,9 @@ function triggerIncrementalCompilationOfFile(
   if (incrementalFileCacheEntry == null) {
     // New file
     const projectRootPath = utils.findProjectRootOfFile(filePath);
+    const workspaceRootPath = projectRootPath
+      ? utils.findProjectRootOfFile(projectRootPath)
+      : null;
     if (projectRootPath == null) {
       if (debug())
         console.log("Did not find project root path for " + filePath);
@@ -362,12 +431,14 @@ function triggerIncrementalCompilationOfFile(
         incrementalFilePath: path.join(incrementalFolderPath, moduleName + ext),
       },
       project: {
+        workspaceRootPath: workspaceRootPath ?? projectRootPath,
         rootPath: projectRootPath,
         callArgs: Promise.resolve([]),
         bscBinaryLocation,
         incrementalFolderPath,
         rescriptVersion,
       },
+      buildRewatch: null,
       buildNinja: null,
       compilation: null,
       killCompilationListeners: [],
@@ -419,11 +490,17 @@ function verifyTriggerToken(filePath: string, triggerToken: number): boolean {
 async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   const res = await getBscArgs(entry);
   if (res == null) return null;
-  const [astBuildCommand, fullBuildCommand] = res;
-
-  const astArgs = argsFromCommandString(astBuildCommand);
-  const buildArgs = argsFromCommandString(fullBuildCommand);
-
+  let astArgs: Array<Array<string>> = [];
+  let buildArgs: Array<Array<string>> = [];
+  let isBsb = Array.isArray(res);
+  if (Array.isArray(res)) {
+    const [astBuildCommand, fullBuildCommand] = res;
+    astArgs = argsFromCommandString(astBuildCommand);
+    buildArgs = argsFromCommandString(fullBuildCommand);
+  } else {
+    astArgs = argCouples(res.parser_args);
+    buildArgs = argCouples(res.compiler_args);
+  }
   let callArgs: Array<string> = [];
 
   if (config.extensionConfiguration.incrementalTypechecking?.acrossFiles) {
@@ -435,10 +512,21 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
 
   buildArgs.forEach(([key, value]: Array<string>) => {
     if (key === "-I") {
-      callArgs.push(
-        "-I",
-        path.resolve(entry.project.rootPath, "lib/bs", value)
-      );
+      if (isBsb) {
+        callArgs.push(
+          "-I",
+          path.resolve(entry.project.rootPath, "lib/bs", value)
+        );
+      } else {
+        if (value === ".") {
+          callArgs.push(
+            "-I",
+            path.resolve(entry.project.rootPath, "lib/ocaml")
+          );
+        } else {
+          callArgs.push("-I", value);
+        }
+      }
     } else if (key === "-bs-v") {
       callArgs.push("-bs-v", Date.now().toString());
     } else if (key === "-bs-package-output") {

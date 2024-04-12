@@ -16,6 +16,10 @@
 
 - Make sure doc strings are always on top in hovers. https://github.com/rescript-lang/rescript-vscode/pull/956
 
+#### :rocket: New Feature
+
+- Add support for the rewatch build system for incremental compilation. https://github.com/rescript-lang/rescript-vscode/pull/965
+
 ## 1.50.0
 
 #### :rocket: New Feature
