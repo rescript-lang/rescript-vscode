@@ -34,3 +34,13 @@ let tsomeVar = #two
 
 // let _ = <CompletionSupport.TestComponent on={t}
 //                                               ^com
+
+@@jsxConfig({version: 4, mode: "automatic"})
+
+module CompletableComponentLazy = {
+  let loadComponent = () => Js.import(CompletableComponent.make)
+  let make = React.lazy_(loadComponent)
+}
+
+// let _ = <CompletableComponentLazy status=
+//                                          ^com
