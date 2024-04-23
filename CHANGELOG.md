@@ -20,6 +20,7 @@
 #### :rocket: New Feature
 
 - Add support for the rewatch build system for incremental compilation. https://github.com/rescript-lang/rescript-vscode/pull/965
+- Code Actions: open Implementation/Interface/Compiled Js and create Interface file. https://github.com/rescript-lang/rescript-vscode/pull/767
 
 ## 1.50.0
 
@@ -208,7 +209,6 @@
 #### :rocket: New Feature
 
 - Docstring template Code Action. https://github.com/rescript-lang/rescript-vscode/pull/764
-- Code Actions: open Implementation/Interface/Compiled and create Interface file. https://github.com/rescript-lang/rescript-vscode/pull/767
 - Improve unlabelled argument names in completion function templates. https://github.com/rescript-lang/rescript-vscode/pull/754
 - Add `Some(fieldName)` case when completing in a pattern with an option on a record field. https://github.com/rescript-lang/rescript-vscode/pull/766
 

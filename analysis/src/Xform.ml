@@ -432,8 +432,24 @@ module ExhaustiveSwitch = struct
             printExpr ~range {expr with pexp_desc = Pexp_match (expr, cases)}
           in
           let codeAction =
-            CodeActions.make ~title:"Exhaustive switch" ~kind:RefactorRewrite
-              ~uri:path ~newText ~range
+            CodeActions.make ~command:None ~title:"Exhaustive switch"
+              ~kind:RefactorRewrite
+              ~edit:
+                (Some
+                   Protocol.
+                     {
+                       documentChanges =
+                         [
+                           {
+                             textDocument =
+                               {
+                                 version = None;
+                                 uri = path |> Uri.fromPath |> Uri.toString;
+                               };
+                             edits = [{newText; range}];
+                           };
+                         ];
+                     })
           in
           codeActions := codeAction :: !codeActions))
     | Some (Switch {switchExpr; completionExpr; pos}) -> (
@@ -458,8 +474,24 @@ module ExhaustiveSwitch = struct
               {switchExpr with pexp_desc = Pexp_match (completionExpr, cases)}
           in
           let codeAction =
-            CodeActions.make ~title:"Exhaustive switch" ~kind:RefactorRewrite
-              ~uri:path ~newText ~range
+            CodeActions.make ~title:"Exhaustive switch" ~command:None
+              ~kind:RefactorRewrite (* ~uri:path ~newText ~range *)
+              ~edit:
+                (Some
+                   Protocol.
+                     {
+                       documentChanges =
+                         [
+                           {
+                             textDocument =
+                               {
+                                 version = None;
+                                 uri = path |> Uri.fromPath |> Uri.toString;
+                               };
+                             edits = [{newText; range}];
+                           };
+                         ];
+                     })
           in
           codeActions := codeAction :: !codeActions))
 end
@@ -691,8 +723,7 @@ module OpenCompiledFile = struct
   let xform ~path ~codeActions =
     let uri = path |> Uri.fromPath |> Uri.toString in
     let codeAction =
-      CodeActions.make ~title:"Open Compiled JS" ~kind:Empty
-        ~edit:None
+      CodeActions.make ~title:"Open Compiled JS" ~kind:Empty ~edit:None
         ~command:
           (Some
              Protocol.
@@ -843,7 +874,7 @@ let extractCodeActions ~path ~startPos ~endPos ~currentFile ~debug =
     let signature, printSignatureItem = parseInterface ~filename:currentFile in
     AddDocTemplate.Interface.xform ~pos ~codeActions ~path ~signature
       ~printSignatureItem;
-    HandleImpltInter.xform ~path ~codeActions;
     OpenCompiledFile.xform ~path ~codeActions;
+    HandleImpltInter.xform ~path ~codeActions;
     !codeActions
   | Other -> []

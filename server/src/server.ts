@@ -1023,16 +1023,16 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
   return response;
 }
 
-let executeCommands = [
-  "rescriptls/open-compiled-file",
-  "rescriptls/open-interface-file",
-  "rescriptls/open-implementation-file",
-  "rescriptls/create-interface-file"
-]
+enum ExecuteCommands {
+  OpenCompiledFile = "rescriptls/open-compiled-file",
+  OpenInterfaceFile = "rescriptls/open-interface-file",
+  OpenImplentationFile = "rescriptls/open-implementation-file",
+  CreateInterfaceFile = "rescriptls/create-interface-file"
+}
 
 function executeCommand(msg: p.RequestMessage): p.Message {
   let params = msg.params as p.ExecuteCommandParams;
-  let command = params.command;
+  let command = params.command as ExecuteCommands;
   let args = params.arguments;
 
   let response: p.ResponseMessage = {
@@ -1059,7 +1059,7 @@ function executeCommand(msg: p.RequestMessage): p.Message {
     params: reqParams
   }
 
-  if (command === "rescriptls/open-compiled-file") {
+  if (command === ExecuteCommands.OpenCompiledFile) {
     let message = openCompiledFile({ ...msg, params: { uri } })
     if (p.Message.isResponse(message)) {
       let { uri } = message.result as p.TextDocumentIdentifier
@@ -1068,7 +1068,7 @@ function executeCommand(msg: p.RequestMessage): p.Message {
     } else {
       send(message)
     }
-  } else if (command === "rescriptls/create-interface-file") {
+  } else if (command === ExecuteCommands.CreateInterfaceFile) {
     let message = createInterface({ ...msg, params: { uri } })
     if (p.Message.isResponse(message)) {
       let { uri } = message.result as p.TextDocumentIdentifier
@@ -1077,9 +1077,9 @@ function executeCommand(msg: p.RequestMessage): p.Message {
     } else {
       send(message)
     }
-  } else if (command === "rescriptls/open-interface-file") {
+  } else if (command === ExecuteCommands.OpenInterfaceFile) {
     send(request);
-  } else if (command === "rescriptls/open-implementation-file") {
+  } else if (command === ExecuteCommands.OpenImplentationFile) {
     send(request);
   }
 
@@ -1188,7 +1188,7 @@ function onMessage(msg: p.Message) {
             resolveProvider: true,
           },
           executeCommandProvider: {
-            commands: executeCommands
+            commands: [ExecuteCommands.OpenImplentationFile, ExecuteCommands.OpenInterfaceFile, ExecuteCommands.OpenCompiledFile, ExecuteCommands.CreateInterfaceFile]
           },
           semanticTokensProvider: {
             legend: {
