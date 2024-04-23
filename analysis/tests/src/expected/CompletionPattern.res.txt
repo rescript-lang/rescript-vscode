@@ -100,7 +100,7 @@ Path f
     "kind": 22,
     "tags": [],
     "detail": "someRecord",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -117,26 +117,26 @@ Path f
     "label": "first",
     "kind": 5,
     "tags": [],
-    "detail": "first: int\n\nsomeRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nfirst: int\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "second",
     "kind": 5,
     "tags": [],
-    "detail": "second: (bool, option<someRecord>)\n\nsomeRecord",
-    "documentation": null
+    "detail": "(bool, option<someRecord>)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsecond: (bool, option<someRecord>)\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<[#first | #second(someRecord)]>",
+    "documentation": {"kind": "markdown", "value": "```rescript\noptThird: option<[#first | #second(someRecord)]>\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "nest",
     "kind": 5,
     "tags": [],
-    "detail": "nest: nestedRecord\n\nsomeRecord",
-    "documentation": null
+    "detail": "nestedRecord",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnest: nestedRecord\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }]
 
 Complete src/CompletionPattern.res 52:24
@@ -150,14 +150,14 @@ Path f
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<[#first | #second(someRecord)]>",
+    "documentation": {"kind": "markdown", "value": "```rescript\noptThird: option<[#first | #second(someRecord)]>\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "nest",
     "kind": 5,
     "tags": [],
-    "detail": "nest: nestedRecord\n\nsomeRecord",
-    "documentation": null
+    "detail": "nestedRecord",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnest: nestedRecord\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }]
 
 Complete src/CompletionPattern.res 55:19
@@ -172,8 +172,8 @@ Path f
     "label": "first",
     "kind": 5,
     "tags": [],
-    "detail": "first: int\n\nsomeRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nfirst: int\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }]
 
 Complete src/CompletionPattern.res 58:19
@@ -189,8 +189,8 @@ Path z
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<[#first | #second(someRecord)]>",
+    "documentation": {"kind": "markdown", "value": "```rescript\noptThird: option<[#first | #second(someRecord)]>\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }]
 
 Complete src/CompletionPattern.res 61:22
@@ -205,7 +205,7 @@ Path f
     "kind": 22,
     "tags": [],
     "detail": "nestedRecord",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype nestedRecord = {nested: bool}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -223,8 +223,8 @@ Path f
     "label": "nested",
     "kind": 5,
     "tags": [],
-    "detail": "nested: bool\n\nnestedRecord",
-    "documentation": null
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnested: bool\n```\n\n```rescript\ntype nestedRecord = {nested: bool}\n```"}
   }]
 
 Complete src/CompletionPattern.res 70:22
@@ -240,8 +240,8 @@ Path nest
     "label": "nested",
     "kind": 5,
     "tags": [],
-    "detail": "nested: bool\n\nnestedRecord",
-    "documentation": null
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnested: bool\n```\n\n```rescript\ntype nestedRecord = {nested: bool}\n```"}
   }]
 
 Complete src/CompletionPattern.res 76:8
@@ -255,26 +255,26 @@ Path f
     "label": "first",
     "kind": 5,
     "tags": [],
-    "detail": "first: int\n\nsomeRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nfirst: int\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "second",
     "kind": 5,
     "tags": [],
-    "detail": "second: (bool, option<someRecord>)\n\nsomeRecord",
-    "documentation": null
+    "detail": "(bool, option<someRecord>)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsecond: (bool, option<someRecord>)\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<[#first | #second(someRecord)]>",
+    "documentation": {"kind": "markdown", "value": "```rescript\noptThird: option<[#first | #second(someRecord)]>\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "nest",
     "kind": 5,
     "tags": [],
-    "detail": "nest: nestedRecord\n\nsomeRecord",
-    "documentation": null
+    "detail": "nestedRecord",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnest: nestedRecord\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }]
 
 Complete src/CompletionPattern.res 79:16
@@ -290,8 +290,8 @@ Path f
     "label": "nested",
     "kind": 5,
     "tags": [],
-    "detail": "nested: bool\n\nnestedRecord",
-    "documentation": null
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnested: bool\n```\n\n```rescript\ntype nestedRecord = {nested: bool}\n```"}
   }]
 
 Complete src/CompletionPattern.res 87:20
@@ -348,26 +348,26 @@ Path z
     "label": "first",
     "kind": 5,
     "tags": [],
-    "detail": "first: int\n\nsomeRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nfirst: int\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "second",
     "kind": 5,
     "tags": [],
-    "detail": "second: (bool, option<someRecord>)\n\nsomeRecord",
-    "documentation": null
+    "detail": "(bool, option<someRecord>)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsecond: (bool, option<someRecord>)\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<[#first | #second(someRecord)]>",
+    "documentation": {"kind": "markdown", "value": "```rescript\noptThird: option<[#first | #second(someRecord)]>\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "nest",
     "kind": 5,
     "tags": [],
-    "detail": "nest: nestedRecord\n\nsomeRecord",
-    "documentation": null
+    "detail": "nestedRecord",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnest: nestedRecord\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }]
 
 Complete src/CompletionPattern.res 96:27
@@ -439,26 +439,26 @@ Path b
     "label": "first",
     "kind": 5,
     "tags": [],
-    "detail": "first: int\n\nsomeRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nfirst: int\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "second",
     "kind": 5,
     "tags": [],
-    "detail": "second: (bool, option<someRecord>)\n\nsomeRecord",
-    "documentation": null
+    "detail": "(bool, option<someRecord>)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsecond: (bool, option<someRecord>)\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "optThird",
     "kind": 5,
     "tags": [],
-    "detail": "optThird: option<[#second(someRecord) | #first]>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<[#first | #second(someRecord)]>",
+    "documentation": {"kind": "markdown", "value": "```rescript\noptThird: option<[#first | #second(someRecord)]>\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }, {
     "label": "nest",
     "kind": 5,
     "tags": [],
-    "detail": "nest: nestedRecord\n\nsomeRecord",
-    "documentation": null
+    "detail": "nestedRecord",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnest: nestedRecord\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }]
 
 Complete src/CompletionPattern.res 112:28
@@ -896,24 +896,24 @@ Path z
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Two(bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo(bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Two(${1:_})",
     "insertTextFormat": 2
   }, {
     "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(someRecord, bool)\n\ntype someVariant = One | Two(bool) | Three(someRecord, bool)",
-    "documentation": null,
+    "detail": "Three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(someRecord, bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
     "insertText": "Three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }]
@@ -1068,5 +1068,142 @@ Path xn
     "tags": [],
     "detail": "Catches errors from JavaScript errors.",
     "documentation": {"kind": "markdown", "value": "Matches on a JavaScript error. Read more in the [documentation on catching JS exceptions](https://rescript-lang.org/docs/manual/latest/exception#catching-js-exceptions)."}
+  }]
+
+Complete src/CompletionPattern.res 211:30
+XXX Not found!
+Completable: Cpattern await Value[getThing](Nolabel)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath await Value[getThing](Nolabel)
+ContextPath Value[getThing](Nolabel)
+ContextPath Value[getThing]
+Path getThing
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo(bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(someRecord, bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionPattern.res 216:21
+posCursor:[216:21] posNoWhite:[216:20] Found pattern:[216:18->216:22]
+Ppat_construct Ok:[216:18->216:20]
+posCursor:[216:21] posNoWhite:[216:20] Found pattern:[216:20->216:22]
+Ppat_construct ():[216:20->216:22]
+Completable: Cpattern Value[res]->variantPayload::Ok($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[res]
+Path res
+[{
+    "label": "One",
+    "kind": 4,
+    "tags": [],
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
+    "insertText": "One",
+    "insertTextFormat": 2
+  }, {
+    "label": "Two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo(bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
+    "insertText": "Two(${1:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "Three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "Three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(someRecord, bool)\n```\n\n```rescript\ntype someVariant = One | Two(bool) | Three(someRecord, bool)\n```"},
+    "insertText": "Three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionPattern.res 219:24
+posCursor:[219:24] posNoWhite:[219:23] Found pattern:[219:18->219:25]
+Ppat_construct Error:[219:18->219:23]
+posCursor:[219:24] posNoWhite:[219:23] Found pattern:[219:23->219:25]
+Ppat_construct ():[219:23->219:25]
+Completable: Cpattern Value[res]->variantPayload::Error($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[res]
+Path res
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(someRecord, bool)\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "#three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two(bool)\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "#two(${1:_})",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionPattern.res 227:25
+posCursor:[227:25] posNoWhite:[227:24] Found expr:[223:11->231:1]
+posCursor:[227:25] posNoWhite:[227:24] Found expr:[223:12->231:1]
+posCursor:[227:25] posNoWhite:[227:24] Found expr:[226:4->227:28]
+posCursor:[227:25] posNoWhite:[227:24] Found pattern:[227:18->227:27]
+Completable: Cpattern Value[r]->recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[r]
+Path r
+[{
+    "label": "second",
+    "kind": 5,
+    "tags": [],
+    "detail": "(bool, option<someRecord>)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsecond: (bool, option<someRecord>)\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
+  }, {
+    "label": "optThird",
+    "kind": 5,
+    "tags": [],
+    "detail": "option<[#first | #second(someRecord)]>",
+    "documentation": {"kind": "markdown", "value": "```rescript\noptThird: option<[#first | #second(someRecord)]>\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
+  }, {
+    "label": "nest",
+    "kind": 5,
+    "tags": [],
+    "detail": "nestedRecord",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnest: nestedRecord\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }]
 

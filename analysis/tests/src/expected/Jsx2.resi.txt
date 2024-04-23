@@ -18,8 +18,8 @@ Path React.e
     "label": "element",
     "kind": 22,
     "tags": [],
-    "detail": "type element = Jsx.element",
-    "documentation": null
+    "detail": "type element",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype element = Jsx.element\n```"}
   }]
 
 Complete src/Jsx2.resi 10:18
@@ -34,7 +34,7 @@ Path React.e
     "label": "element",
     "kind": 22,
     "tags": [],
-    "detail": "type element = Jsx.element",
-    "documentation": null
+    "detail": "type element",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype element = Jsx.element\n```"}
   }]
 

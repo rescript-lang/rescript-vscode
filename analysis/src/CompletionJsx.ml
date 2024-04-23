@@ -731,7 +731,11 @@ let getJsxLabels ~componentPath ~findTypeOfValue ~package =
     in
     let rec getLabels (t : Types.type_expr) =
       match t.desc with
-      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getLabels t1
+      | Tlink t1
+      | Tsubst t1
+      | Tpoly (t1, [])
+      | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
+        getLabels t1
       | Tarrow
           ( Nolabel,
             {
@@ -743,6 +747,17 @@ let getJsxLabels ~componentPath ~findTypeOfValue ~package =
             _ ) ->
         (* JSX V3 *)
         getFieldsV3 tObj
+      | Tconstr (p, [propsType], _) when Path.name p = "React.component" -> (
+        let rec getPropsType (t : Types.type_expr) =
+          match t.desc with
+          | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> getPropsType t1
+          | Tconstr (path, typeArgs, _) when Path.last path = "props" ->
+            Some (path, typeArgs)
+          | _ -> None
+        in
+        match propsType |> getPropsType with
+        | Some (path, typeArgs) -> getFieldsV4 ~path ~typeArgs
+        | None -> [])
       | Tarrow (Nolabel, {desc = Tconstr (path, typeArgs, _)}, _, _)
         when Path.last path = "props" ->
         (* JSX V4 *)
@@ -798,29 +813,61 @@ type jsxProps = {
 }
 
 let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
-    ~firstCharBeforeCursorNoWhite ~posAfterCompName =
+    ~firstCharBeforeCursorNoWhite ~charAtCursor ~posAfterCompName =
   let allLabels =
     List.fold_right
       (fun prop allLabels -> prop.name :: allLabels)
       jsxProps.props []
   in
+  let beforeChildrenStart =
+    match jsxProps.childrenStart with
+    | Some childrenPos -> posBeforeCursor < childrenPos
+    | None -> posBeforeCursor <= endPos
+  in
   let rec loop props =
     match props with
     | prop :: rest ->
-      if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then
-        (* Cursor on the prop name *)
+      if prop.posStart <= posBeforeCursor && posBeforeCursor < prop.posEnd then (
+        if Debug.verbose () then
+          print_endline "[jsx_props_completable]--> Cursor on the prop name";
+
         Some
           (Completable.Cjsx
              ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
                prop.name,
-               allLabels ))
+               allLabels )))
       else if
         prop.posEnd <= posBeforeCursor
         && posBeforeCursor < Loc.start prop.exp.pexp_loc
-      then (* Cursor between the prop name and expr assigned *)
-        None
-      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then
-        (* Cursor on expr assigned *)
+      then (
+        if Debug.verbose () then
+          print_endline
+            "[jsx_props_completable]--> Cursor between the prop name and expr \
+             assigned";
+        match (firstCharBeforeCursorNoWhite, prop.exp) with
+        | Some '=', {pexp_desc = Pexp_ident {txt = Lident txt}} ->
+          if Debug.verbose () then
+            Printf.printf
+              "[jsx_props_completable]--> Heuristic for empty JSX prop expr \
+               completion.\n";
+          Some
+            (Cexpression
+               {
+                 contextPath =
+                   CJsxPropValue
+                     {
+                       pathToComponent =
+                         Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                       propName = prop.name;
+                       emptyJsxPropNameHint = Some txt;
+                     };
+                 nested = [];
+                 prefix = "";
+               })
+        | _ -> None)
+      else if prop.exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
+        if Debug.verbose () then
+          print_endline "[jsx_props_completable]--> Cursor on expr assigned";
         match
           CompletionExpressions.traverseExpr prop.exp ~exprPath:[]
             ~pos:posBeforeCursor ~firstCharBeforeCursorNoWhite
@@ -835,13 +882,18 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                        pathToComponent =
                          Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                        propName = prop.name;
+                       emptyJsxPropNameHint = None;
                      };
                  nested = List.rev nested;
                  prefix;
                })
-        | _ -> None
-      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then
-        if CompletionExpressions.isExprHole prop.exp then
+        | _ -> None)
+      else if prop.exp.pexp_loc |> Loc.end_ = (Location.none |> Loc.end_) then (
+        if Debug.verbose () then
+          print_endline "[jsx_props_completable]--> Loc is broken";
+        if CompletionExpressions.isExprHole prop.exp then (
+          if Debug.verbose () then
+            print_endline "[jsx_props_completable]--> Expr was expr hole";
           Some
             (Cexpression
                {
@@ -851,25 +903,46 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                        pathToComponent =
                          Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
                        propName = prop.name;
+                       emptyJsxPropNameHint = None;
                      };
                  prefix = "";
                  nested = [];
-               })
-        else None
+               }))
+        else None)
+      else if rest = [] && beforeChildrenStart && charAtCursor = '>' then (
+        (* This is a special case for: <SomeComponent someProp=> (completing directly after the '=').
+           The completion comes at the end of the component, after the equals sign, but before any
+           children starts, and '>' marks that it's at the end of the component JSX.
+           This little heuristic makes sure we pick up this special case. *)
+        if Debug.verbose () then
+          print_endline
+            "[jsx_props_completable]--> Special case: last prop, '>' after \
+             cursor";
+        Some
+          (Cexpression
+             {
+               contextPath =
+                 CJsxPropValue
+                   {
+                     pathToComponent =
+                       Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt;
+                     propName = prop.name;
+                     emptyJsxPropNameHint = None;
+                   };
+               prefix = "";
+               nested = [];
+             }))
       else loop rest
     | [] ->
-      let beforeChildrenStart =
-        match jsxProps.childrenStart with
-        | Some childrenPos -> posBeforeCursor < childrenPos
-        | None -> posBeforeCursor <= endPos
-      in
       let afterCompName = posBeforeCursor >= posAfterCompName in
-      if afterCompName && beforeChildrenStart then
+      if afterCompName && beforeChildrenStart then (
+        if Debug.verbose () then
+          print_endline "[jsx_props_completable]--> Complete for JSX prop name";
         Some
           (Cjsx
              ( Utils.flattenLongIdent ~jsx:true jsxProps.compName.txt,
                "",
-               allLabels ))
+               allLabels )))
       else None
   in
   loop jsxProps.props

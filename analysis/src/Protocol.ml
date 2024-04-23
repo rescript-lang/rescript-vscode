@@ -50,6 +50,7 @@ type completionItem = {
   insertTextFormat: insertTextFormat option;
   insertText: string option;
   documentation: markupContent option;
+  data: (string * string) list option;
 }
 
 type location = {uri: string; range: range}
@@ -99,16 +100,19 @@ let stringifyMarkupContent (m : markupContent) =
   Printf.sprintf {|{"kind": "%s", "value": "%s"}|} m.kind (Json.escape m.value)
 
 (** None values are not emitted in the output. *)
-let stringifyObject properties =
-  {|{
+let stringifyObject ?(startOnNewline = false) ?(indentation = 1) properties =
+  let indentationStr = String.make (indentation * 2) ' ' in
+  (if startOnNewline then "\n" ^ indentationStr else "")
+  ^ {|{
 |}
   ^ (properties
     |> List.filter_map (fun (key, value) ->
            match value with
            | None -> None
-           | Some v -> Some (Printf.sprintf {|    "%s": %s|} key v))
+           | Some v ->
+             Some (Printf.sprintf {|%s  "%s": %s|} indentationStr key v))
     |> String.concat ",\n")
-  ^ "\n  }"
+  ^ "\n" ^ indentationStr ^ "}"
 
 let wrapInQuotes s = "\"" ^ Json.escape s ^ "\""
 
@@ -137,6 +141,14 @@ let stringifyCompletionItem c =
         | None -> None
         | Some insertTextFormat ->
           Some (Printf.sprintf "%i" (insertTextFormatToInt insertTextFormat)) );
+      ( "data",
+        match c.data with
+        | None -> None
+        | Some fields ->
+          Some
+            (fields
+            |> List.map (fun (key, value) -> (key, Some (wrapInQuotes value)))
+            |> stringifyObject ~indentation:2) );
     ]
 
 let stringifyHover value =

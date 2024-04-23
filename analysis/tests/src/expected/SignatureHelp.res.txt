@@ -10,12 +10,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[(
-  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": ""}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": ""}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -34,12 +33,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[(
-  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": ""}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": ""}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -58,12 +56,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: ~two
 extracted params: 
-[(
-  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": ""}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": ""}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -82,12 +79,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: ~two
 extracted params: 
-[(
-  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": ""}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": ""}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -106,12 +102,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: ~four
 extracted params: 
-[(
-  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": ""}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": ""}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -130,12 +125,11 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: ~four
 extracted params: 
-[(
-  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": ""}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": ""}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
   }],
   "activeSignature": 0,
@@ -154,11 +148,11 @@ ContextPath Value[otherFunc]
 Path otherFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[(string, int, float]
+[string, int, float]
 {
   "signatures": [{
     "label": "(string, int, float) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+    "parameters": [{"label": [1, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": ""}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -176,11 +170,11 @@ ContextPath Value[otherFunc]
 Path otherFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[(string, int, float]
+[string, int, float]
 {
   "signatures": [{
     "label": "(string, int, float) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+    "parameters": [{"label": [1, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": ""}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -198,11 +192,11 @@ ContextPath Value[otherFunc]
 Path otherFunc
 argAtCursor: unlabelled<2>
 extracted params: 
-[(string, int, float]
+[string, int, float]
 {
   "signatures": [{
     "label": "(string, int, float) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+    "parameters": [{"label": [1, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": ""}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 2
@@ -220,11 +214,11 @@ ContextPath Value[Completion, Lib, foo]
 Path Completion.Lib.foo
 argAtCursor: ~age
 extracted params: 
-[(~age: int, ~name: string]
+[~age: int, ~name: string]
 {
   "signatures": [{
     "label": "(~age: int, ~name: string) => string",
-    "parameters": [{"label": [0, 10], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [12, 25], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+    "parameters": [{"label": [1, 10], "documentation": {"kind": "markdown", "value": ""}}, {"label": [12, 25], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -246,7 +240,7 @@ extracted params:
 {
   "signatures": [{
     "label": "string => unit",
-    "parameters": [{"label": [0, 6], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+    "parameters": [{"label": [0, 6], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -265,11 +259,11 @@ ContextPath Value[otherFunc]
 Path otherFunc
 argAtCursor: unlabelled<1>
 extracted params: 
-[(string, int, float]
+[string, int, float]
 {
   "signatures": [{
     "label": "(string, int, float) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+    "parameters": [{"label": [1, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [9, 12], "documentation": {"kind": "markdown", "value": ""}}, {"label": [14, 19], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 1
@@ -287,11 +281,11 @@ ContextPath Value[fn]
 Path fn
 argAtCursor: unlabelled<1>
 extracted params: 
-[(int, string, int]
+[int, string, int]
 {
   "signatures": [{
     "label": "(int, string, int) => unit",
-    "parameters": [{"label": [0, 4], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [6, 12], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [14, 17], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
+    "parameters": [{"label": [1, 4], "documentation": {"kind": "markdown", "value": ""}}, {"label": [6, 12], "documentation": {"kind": "markdown", "value": ""}}, {"label": [14, 17], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 1
@@ -309,11 +303,11 @@ ContextPath Value[fn]
 Path fn
 argAtCursor: unlabelled<1>
 extracted params: 
-[(int, string, int]
+[int, string, int]
 {
   "signatures": [{
     "label": "(int, string, int) => unit",
-    "parameters": [{"label": [0, 4], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [6, 12], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [14, 17], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
+    "parameters": [{"label": [1, 4], "documentation": {"kind": "markdown", "value": ""}}, {"label": [6, 12], "documentation": {"kind": "markdown", "value": ""}}, {"label": [14, 17], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 1
@@ -331,11 +325,11 @@ ContextPath Value[fn]
 Path fn
 argAtCursor: unlabelled<2>
 extracted params: 
-[(int, string, int]
+[int, string, int]
 {
   "signatures": [{
     "label": "(int, string, int) => unit",
-    "parameters": [{"label": [0, 4], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [6, 12], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [14, 17], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}]
+    "parameters": [{"label": [1, 4], "documentation": {"kind": "markdown", "value": ""}}, {"label": [6, 12], "documentation": {"kind": "markdown", "value": ""}}, {"label": [14, 17], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 2
@@ -359,7 +353,7 @@ extracted params:
 {
   "signatures": [{
     "label": "string => unit",
-    "parameters": [{"label": [0, 6], "documentation": {"kind": "markdown", "value": "```rescript\nstring\n```"}}]
+    "parameters": [{"label": [0, 6], "documentation": {"kind": "markdown", "value": ""}}]
   }],
   "activeSignature": 0,
   "activeParameter": 0
@@ -381,13 +375,219 @@ ContextPath Value[someFunc]
 Path someFunc
 argAtCursor: unlabelled<0>
 extracted params: 
-[(
-  int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
+[int, ~two: string=?, ~three: unit => unit, ~four: someVariant, unit]
 {
   "signatures": [{
     "label": "(\n  int,\n  ~two: string=?,\n  ~three: unit => unit,\n  ~four: someVariant,\n  unit,\n) => unit",
-    "parameters": [{"label": [0, 7], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": "```rescript\noption<string>\n```"}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\nsomeVariant\n```\n```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": "```rescript\nint\n```"}}],
+    "parameters": [{"label": [4, 7], "documentation": {"kind": "markdown", "value": ""}}, {"label": [11, 25], "documentation": {"kind": "markdown", "value": ""}}, {"label": [29, 49], "documentation": {"kind": "markdown", "value": ""}}, {"label": [53, 71], "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C0%2C0%5D)"}}, {"label": [75, 79], "documentation": {"kind": "markdown", "value": ""}}],
     "documentation": {"kind": "markdown", "value": " Does stuff. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 85:16
+{
+  "signatures": [{
+    "label": "One({miss?: bool, hit?: bool, stuff?: string})",
+    "parameters": [{"label": [0, 0], "documentation": {"kind": "markdown", "value": ""}}, {"label": [5, 16], "documentation": {"kind": "markdown", "value": ""}}, {"label": [18, 28], "documentation": {"kind": "markdown", "value": ""}}, {"label": [30, 44], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " One is cool. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": -1
+}
+
+Signature help src/SignatureHelp.res 88:18
+{
+  "signatures": [{
+    "label": "One({miss?: bool, hit?: bool, stuff?: string})",
+    "parameters": [{"label": [0, 0], "documentation": {"kind": "markdown", "value": ""}}, {"label": [5, 16], "documentation": {"kind": "markdown", "value": ""}}, {"label": [18, 28], "documentation": {"kind": "markdown", "value": ""}}, {"label": [30, 44], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " One is cool. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelp.res 91:23
+{
+  "signatures": [{
+    "label": "One({miss?: bool, hit?: bool, stuff?: string})",
+    "parameters": [{"label": [0, 0], "documentation": {"kind": "markdown", "value": ""}}, {"label": [5, 16], "documentation": {"kind": "markdown", "value": ""}}, {"label": [18, 28], "documentation": {"kind": "markdown", "value": ""}}, {"label": [30, 44], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " One is cool. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 2
+}
+
+Signature help src/SignatureHelp.res 94:15
+{
+  "signatures": [{
+    "label": "Two(mySpecialThing)",
+    "parameters": [{"label": [4, 18], "documentation": {"kind": "markdown", "value": "```rescript\ntype mySpecialThing = string\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C78%2C0%5D)"}}],
+    "documentation": {"kind": "markdown", "value": " Two is fun! "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 97:19
+{
+  "signatures": [{
+    "label": "Three(mySpecialThing, array<option<string>>)",
+    "parameters": [{"label": [6, 20], "documentation": {"kind": "markdown", "value": "```rescript\ntype mySpecialThing = string\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C78%2C0%5D)"}}, {"label": [22, 43], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " Three is... three "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 100:24
+{
+  "signatures": [{
+    "label": "Three(mySpecialThing, array<option<string>>)",
+    "parameters": [{"label": [6, 20], "documentation": {"kind": "markdown", "value": "```rescript\ntype mySpecialThing = string\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C78%2C0%5D)"}}, {"label": [22, 43], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " Three is... three "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelp.res 105:9
+{
+  "signatures": [{
+    "label": "One({miss?: bool, hit?: bool, stuff?: string})",
+    "parameters": [{"label": [0, 0], "documentation": {"kind": "markdown", "value": ""}}, {"label": [5, 16], "documentation": {"kind": "markdown", "value": ""}}, {"label": [18, 28], "documentation": {"kind": "markdown", "value": ""}}, {"label": [30, 44], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " One is cool. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": -1
+}
+
+Signature help src/SignatureHelp.res 117:42
+argAtCursor: unlabelled<1>
+extracted params: 
+[array<int>, int => int]
+{
+  "signatures": [{
+    "label": "(array<int>, int => int) => array<int>",
+    "parameters": [{"label": [1, 11], "documentation": {"kind": "markdown", "value": ""}}, {"label": [13, 23], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " Main docstring here. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelp.res 136:18
+argAtCursor: unlabelled<0>
+extracted params: 
+[x, tt]
+{
+  "signatures": [{
+    "label": "(x, tt) => string",
+    "parameters": [{"label": [1, 2], "documentation": {"kind": "markdown", "value": "```rescript\ntype x = {age?: int, name?: string}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C121%2C0%5D)"}}, {"label": [4, 6], "documentation": {"kind": "markdown", "value": "```rescript\ntype tt = One\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C127%2C0%5D)"}}],
+    "documentation": {"kind": "markdown", "value": " Some stuff "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 139:22
+argAtCursor: unlabelled<1>
+extracted params: 
+[x, tt]
+{
+  "signatures": [{
+    "label": "(x, tt) => string",
+    "parameters": [{"label": [1, 2], "documentation": {"kind": "markdown", "value": "```rescript\ntype x = {age?: int, name?: string}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C121%2C0%5D)"}}, {"label": [4, 6], "documentation": {"kind": "markdown", "value": "```rescript\ntype tt = One\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C127%2C0%5D)"}}],
+    "documentation": {"kind": "markdown", "value": " Some stuff "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelp.res 143:8
+{
+  "signatures": [{
+    "label": "One({miss?: bool, hit?: bool, stuff?: string})",
+    "parameters": [{"label": [0, 0], "documentation": {"kind": "markdown", "value": ""}}, {"label": [5, 16], "documentation": {"kind": "markdown", "value": ""}}, {"label": [18, 28], "documentation": {"kind": "markdown", "value": ""}}, {"label": [30, 44], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " One is cool. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 2
+}
+
+Signature help src/SignatureHelp.res 145:7
+{
+  "signatures": [{
+    "label": "One({miss?: bool, hit?: bool, stuff?: string})",
+    "parameters": [{"label": [0, 0], "documentation": {"kind": "markdown", "value": ""}}, {"label": [5, 16], "documentation": {"kind": "markdown", "value": ""}}, {"label": [18, 28], "documentation": {"kind": "markdown", "value": ""}}, {"label": [30, 44], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " One is cool. "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 147:7
+{
+  "signatures": [{
+    "label": "Two(mySpecialThing)",
+    "parameters": [{"label": [4, 18], "documentation": {"kind": "markdown", "value": "```rescript\ntype mySpecialThing = string\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C78%2C0%5D)"}}],
+    "documentation": {"kind": "markdown", "value": " Two is fun! "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 149:9
+{
+  "signatures": [{
+    "label": "Three(mySpecialThing, array<option<string>>)",
+    "parameters": [{"label": [6, 20], "documentation": {"kind": "markdown", "value": "```rescript\ntype mySpecialThing = string\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C78%2C0%5D)"}}, {"label": [22, 43], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " Three is... three "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 151:12
+{
+  "signatures": [{
+    "label": "Three(mySpecialThing, array<option<string>>)",
+    "parameters": [{"label": [6, 20], "documentation": {"kind": "markdown", "value": "```rescript\ntype mySpecialThing = string\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22SignatureHelp.res%22%2C78%2C0%5D)"}}, {"label": [22, 43], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": " Three is... three "}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 1
+}
+
+Signature help src/SignatureHelp.res 155:14
+{
+  "signatures": [{
+    "label": "Ok(bool)",
+    "parameters": [{"label": [3, 7], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": "```rescript\nresult<bool, 'a>\n```"}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 158:19
+{
+  "signatures": [{
+    "label": "Error(string)",
+    "parameters": [{"label": [6, 12], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": "```rescript\nresult<'a, string>\n```"}
+  }],
+  "activeSignature": 0,
+  "activeParameter": 0
+}
+
+Signature help src/SignatureHelp.res 161:16
+{
+  "signatures": [{
+    "label": "Some(bool)",
+    "parameters": [{"label": [5, 9], "documentation": {"kind": "markdown", "value": ""}}],
+    "documentation": {"kind": "markdown", "value": "```rescript\noption<bool>\n```"}
   }],
   "activeSignature": 0,
   "activeParameter": 0

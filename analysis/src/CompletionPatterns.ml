@@ -35,8 +35,14 @@ let rec traverseTupleItems tupleItems ~nextPatternPath ~resultFromFoundItemNum
 
 and traversePattern (pat : Parsetree.pattern) ~patternPath ~locHasCursor
     ~firstCharBeforeCursorNoWhite ~posBeforeCursor =
-  let someIfHasCursor v =
-    if locHasCursor pat.Parsetree.ppat_loc then Some v else None
+  let someIfHasCursor v debugId =
+    if locHasCursor pat.Parsetree.ppat_loc then (
+      if Debug.verbose () then
+        Printf.printf
+          "[traversePattern:someIfHasCursor] '%s' has cursor, returning \n"
+          debugId;
+      Some v)
+    else None
   in
   match pat.ppat_desc with
   | Ppat_constant _ | Ppat_interval _ -> None
@@ -57,21 +63,28 @@ and traversePattern (pat : Parsetree.pattern) ~patternPath ~locHasCursor
                   ~firstCharBeforeCursorNoWhite ~posBeforeCursor)
     in
     match orPatWithItem with
-    | None when isPatternHole p1 || isPatternHole p2 -> Some ("", patternPath)
+    | None when isPatternHole p1 || isPatternHole p2 ->
+      if Debug.verbose () then
+        Printf.printf
+          "[traversePattern] found or-pattern that was pattern hole\n";
+      Some ("", patternPath)
     | v -> v)
   | Ppat_any ->
     (* We treat any `_` as an empty completion. This is mainly because we're
        inserting `_` in snippets and automatically put the cursor there. So
        letting it trigger an empty completion improves the ergonomics by a
        lot. *)
-    someIfHasCursor ("", patternPath)
-  | Ppat_var {txt} -> someIfHasCursor (txt, patternPath)
+    someIfHasCursor ("", patternPath) "Ppat_any"
+  | Ppat_var {txt} -> someIfHasCursor (txt, patternPath) "Ppat_var"
   | Ppat_construct ({txt = Lident "()"}, None) ->
     (* switch s { | (<com>) }*)
-    someIfHasCursor ("", patternPath @ [Completable.NTupleItem {itemNum = 0}])
+    someIfHasCursor
+      ("", patternPath @ [Completable.NTupleItem {itemNum = 0}])
+      "Ppat_construct()"
   | Ppat_construct ({txt = Lident prefix}, None) ->
-    someIfHasCursor (prefix, patternPath)
-  | Ppat_variant (prefix, None) -> someIfHasCursor ("#" ^ prefix, patternPath)
+    someIfHasCursor (prefix, patternPath) "Ppat_construct(Lident)"
+  | Ppat_variant (prefix, None) ->
+    someIfHasCursor ("#" ^ prefix, patternPath) "Ppat_variant"
   | Ppat_array arrayPatterns ->
     let nextPatternPath = [Completable.NArray] @ patternPath in
     if List.length arrayPatterns = 0 && locHasCursor pat.ppat_loc then
@@ -94,6 +107,7 @@ and traversePattern (pat : Parsetree.pattern) ~patternPath ~locHasCursor
     (* Empty fields means we're in a record body `{}`. Complete for the fields. *)
     someIfHasCursor
       ("", [Completable.NRecordBody {seenFields = []}] @ patternPath)
+      "Ppat_record(empty)"
   | Ppat_record (fields, _) -> (
     let fieldWithCursor = ref None in
     let fieldWithPatHole = ref None in
@@ -125,10 +139,12 @@ and traversePattern (pat : Parsetree.pattern) ~patternPath ~locHasCursor
           ( "",
             [Completable.NFollowRecordField {fieldName = fname}] @ patternPath
           )
+          "patternhole"
       | Ppat_var {txt} ->
         (* A var means `{s}` or similar. Complete for fields. *)
         someIfHasCursor
           (txt, [Completable.NRecordBody {seenFields}] @ patternPath)
+          "Ppat_var #2"
       | _ ->
         f
         |> traversePattern
@@ -145,6 +161,7 @@ and traversePattern (pat : Parsetree.pattern) ~patternPath ~locHasCursor
       | Some ',' ->
         someIfHasCursor
           ("", [Completable.NRecordBody {seenFields}] @ patternPath)
+          "firstCharBeforeCursorNoWhite:,"
       | _ -> None))
   | Ppat_construct
       ( {txt},

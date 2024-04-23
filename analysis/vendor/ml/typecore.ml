@@ -22,6 +22,7 @@ open Types
 open Typedtree
 open Btype
 open Ctype
+open Error_message_utils
 
 type error =
     Polymorphic_label of Longident.t
@@ -31,11 +32,11 @@ type error =
   | Or_pattern_type_clash of Ident.t * (type_expr * type_expr) list
   | Multiply_bound_variable of string
   | Orpat_vars of Ident.t * Ident.t list
-  | Expr_type_clash of (type_expr * type_expr) list
+  | Expr_type_clash of (type_expr * type_expr) list * (typeClashContext option)
   | Apply_non_function of type_expr
   | Apply_wrong_label of arg_label * type_expr
   | Label_multiply_defined of string
-  | Labels_missing of string list
+  | Labels_missing of string list * bool
   | Label_not_mutable of Longident.t
   | Wrong_name of string * type_expr * string * Path.t * string * string list
   | Name_type_mismatch of
@@ -335,14 +336,14 @@ let unify_pat_types loc env ty ty' =
       raise(Typetexp.Error(loc, env, Typetexp.Variant_tags (l1, l2)))
 
 (* unification inside type_exp and type_expect *)
-let unify_exp_types loc env ty expected_ty =
+let unify_exp_types ?typeClashContext loc env ty expected_ty =
   (* Format.eprintf "@[%a@ %a@]@." Printtyp.raw_type_expr exp.exp_type
     Printtyp.raw_type_expr expected_ty; *)
   try
     unify env ty expected_ty
   with
     Unify trace ->
-      raise(Error(loc, env, Expr_type_clash(trace)))
+      raise(Error(loc, env, Expr_type_clash(trace, typeClashContext)))
   | Tags(l1,l2) ->
       raise(Typetexp.Error(loc, env, Typetexp.Variant_tags (l1, l2)))
 
@@ -610,6 +611,120 @@ let rec expand_path env p =
 let compare_type_path env tpath1 tpath2 =
   Path.same (expand_path env tpath1) (expand_path env tpath2)
 
+let fprintf = Format.fprintf
+
+let rec bottom_aliases = function
+  | (_, one) :: (_, two) :: rest -> begin match bottom_aliases rest with
+      | Some types -> Some types
+      | None -> Some (one, two)
+    end
+  | _ -> None
+
+let simple_conversions = [
+  (("float", "int"), "Belt.Float.toInt");
+  (("float", "string"), "Belt.Float.toString");
+  (("int", "float"), "Belt.Int.toFloat");
+  (("int", "string"), "Belt.Int.toString");
+  (("string", "float"), "Belt.Float.fromString");
+  (("string", "int"), "Belt.Int.fromString");
+]
+
+let print_simple_conversion ppf (actual, expected) =
+  try (
+    let converter = List.assoc (actual, expected) simple_conversions in
+    fprintf ppf "@,@,@[<v 2>You can convert @{<info>%s@} to @{<info>%s@} with @{<info>%s@}.@]" actual expected converter
+  ) with | Not_found -> ()
+  
+let print_simple_message ppf = function
+  | ("float", "int") -> fprintf ppf "@ If this is a literal, try a number without a trailing dot (e.g. @{<info>20@})."
+  | ("int", "float") -> fprintf ppf "@ If this is a literal, try a number with a trailing dot (e.g. @{<info>20.@})."
+  | _ -> ()
+
+let show_extra_help ppf _env trace = begin
+  match bottom_aliases trace with
+  | Some ({Types.desc = Tconstr (actualPath, actualArgs, _)}, {desc = Tconstr (expectedPath, expextedArgs, _)}) -> begin
+      match (actualPath, actualArgs, expectedPath, expextedArgs) with
+      | (Pident {name = actualName}, [], Pident {name = expectedName}, []) -> begin
+          print_simple_conversion ppf (actualName, expectedName);
+          print_simple_message ppf (actualName, expectedName);
+        end
+      | _ -> ()
+    end;
+  | _ -> ();
+end
+
+let rec collect_missing_arguments env type1 type2 = match type1 with
+  (* why do we use Ctype.matches here? Please see https://github.com/rescript-lang/rescript-compiler/pull/2554 *)
+  | {Types.desc=Tarrow (label, argtype, typ, _)} when Ctype.matches env typ type2 ->
+    Some [(label, argtype)]
+  | {desc=Tarrow (label, argtype, typ, _)} -> begin
+      match collect_missing_arguments env typ type2 with
+      | Some res -> Some ((label, argtype) :: res)
+      | None -> None
+    end
+  | _ -> None
+
+let print_expr_type_clash ?typeClashContext env trace ppf = begin
+  (* this is the most frequent error. We should do whatever we can to provide
+      specific guidance to this generic error before giving up *)
+  let bottom_aliases_result = bottom_aliases trace in
+  let missing_arguments = match bottom_aliases_result with
+    | Some (actual, expected) -> collect_missing_arguments env actual expected
+    | None -> assert false
+  in
+  let print_arguments =
+    Format.pp_print_list
+      ~pp_sep:(fun ppf _ -> fprintf ppf ",@ ")
+      (fun ppf (label, argtype) ->
+          match label with
+          | Asttypes.Nolabel -> fprintf ppf "@[%a@]" Printtyp.type_expr argtype
+          | Labelled label ->
+            fprintf ppf "@[(~%s: %a)@]" label Printtyp.type_expr argtype
+          | Optional label ->
+            fprintf ppf "@[(?%s: %a)@]" label Printtyp.type_expr argtype
+      )
+  in
+  match missing_arguments with
+  | Some [singleArgument] ->
+    (* btw, you can't say "final arguments". Intermediate labeled
+        arguments might be the ones missing *)
+    fprintf ppf "@[@{<info>This call is missing an argument@} of type@ %a@]"
+      print_arguments [singleArgument]
+  | Some arguments ->
+    fprintf ppf "@[<hv>@{<info>This call is missing arguments@} of type:@ %a@]"
+      print_arguments arguments
+  | None ->
+    let missing_parameters = match bottom_aliases_result with
+      | Some (actual, expected) -> collect_missing_arguments env expected actual
+      | None -> assert false
+    in
+    begin match missing_parameters with
+      | Some [singleParameter] ->
+        fprintf ppf "@[This value might need to be @{<info>wrapped in a function@ that@ takes@ an@ extra@ parameter@}@ of@ type@ %a@]@,@,"
+          print_arguments [singleParameter];
+        fprintf ppf "@[@{<info>Here's the original error message@}@]@,"
+      | Some arguments ->
+        fprintf ppf "@[This value seems to @{<info>need to be wrapped in a function that takes extra@ arguments@}@ of@ type:@ @[<hv>%a@]@]@,@,"
+          print_arguments arguments;
+        fprintf ppf "@[@{<info>Here's the original error message@}@]@,"
+      | None -> ()
+    end;
+
+    Printtyp.super_report_unification_error ppf env trace
+      (function ppf ->
+          errorTypeText ppf typeClashContext)
+      (function ppf ->
+          errorExpectedTypeText ppf typeClashContext);
+    printExtraTypeClashHelp ppf trace typeClashContext;
+    show_extra_help ppf env trace;
+end
+  
+let reportArityMismatch ~arityA ~arityB ppf =
+  fprintf ppf "This function expected @{<info>%s@} %s, but got @{<error>%s@}"
+    arityB
+    (if arityB = "1" then "argument" else "arguments")
+    arityA
+  
 (* Records *)
 let label_of_kind kind =
   if kind = "record" then "field" else "constructor"
@@ -1577,7 +1692,7 @@ let rec type_approx env sexp =
       let ty = type_approx env e in
       let ty1 = approx_type env sty in
       begin try unify env ty ty1 with Unify trace ->
-        raise(Error(sexp.pexp_loc, env, Expr_type_clash trace))
+        raise(Error(sexp.pexp_loc, env, Expr_type_clash (trace, None)))
       end;
       ty1
   | Pexp_coerce (e, sty1, sty2) ->
@@ -1589,7 +1704,7 @@ let rec type_approx env sexp =
       and ty1 = approx_ty_opt sty1
       and ty2 = approx_type env sty2 in
       begin try unify env ty ty1 with Unify trace ->
-        raise(Error(sexp.pexp_loc, env, Expr_type_clash trace))
+        raise(Error(sexp.pexp_loc, env, Expr_type_clash (trace, None)))
       end;
       ty2
   | _ -> newvar ()
@@ -1819,9 +1934,9 @@ let rec name_pattern default = function
 
 (* Typing of expressions *)
 
-let unify_exp env exp expected_ty =
+let unify_exp ?typeClashContext env exp expected_ty =
   let loc = proper_exp_loc exp in
-  unify_exp_types loc env exp.exp_type expected_ty
+  unify_exp_types ?typeClashContext loc env exp.exp_type expected_ty
 
 
 let is_ignore funct env =
@@ -1850,6 +1965,11 @@ let rec lower_args env seen ty_fun  =
 let not_function env ty =
   let ls, tvar = list_labels env ty in
   ls = [] && not tvar
+
+let check_might_be_component env ty_record =
+  match (expand_head env ty_record).desc with 
+  | Tconstr (path, _, _) when path |> Path.last = "props" -> true 
+  | _ -> false
     
 type lazy_args = 
   (Asttypes.arg_label * (unit -> Typedtree.expression) option) list
@@ -1866,23 +1986,23 @@ let rec type_exp ?recarg env sexp =
    In the principal case, [type_expected'] may be at generic_level.
  *)
 
-and type_expect ?in_function ?recarg env sexp ty_expected =
+and type_expect ?typeClashContext ?in_function ?recarg env sexp ty_expected =
   let previous_saved_types = Cmt_format.get_saved_types () in
   let exp =
     Builtin_attributes.warning_scope sexp.pexp_attributes
       (fun () ->
-         type_expect_ ?in_function ?recarg env sexp ty_expected
+         type_expect_ ?typeClashContext ?in_function ?recarg env sexp ty_expected
       )
   in
   Cmt_format.set_saved_types
   (Cmt_format.Partial_expression exp :: previous_saved_types);
   exp
 
-and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
+and type_expect_ ?typeClashContext ?in_function ?(recarg=Rejected) env sexp ty_expected =
   let loc = sexp.pexp_loc in
   (* Record the expression type before unifying it with the expected type *)
   let rue exp =
-    unify_exp env (re exp) (instance env ty_expected);
+    unify_exp ?typeClashContext env (re exp) (instance env ty_expected);
     exp
   in
   let process_optional_label (id, ld, e) =
@@ -2020,7 +2140,8 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
         Ext_list.exists sexp.pexp_attributes (fun ({txt },_) -> txt = "res.uapp")
         && not @@ Ext_list.exists sexp.pexp_attributes (fun ({txt },_) -> txt = "res.partial")
         && not @@ is_automatic_curried_application env funct in
-      let (args, ty_res, fully_applied) = type_application uncurried env funct sargs in
+      let typeClashContext = typeClashContextFromFunction sexp sfunct in
+      let (args, ty_res, fully_applied) = type_application ?typeClashContext uncurried env funct sargs in
       end_def ();
       unify_var env (newvar()) funct.exp_type;
 
@@ -2072,9 +2193,9 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
          empty pattern matching can be generated by Camlp4 with its
          revised syntax.  Let's accept it for backward compatibility. *)
       let val_cases, partial =
-        type_cases env arg.exp_type ty_expected true loc val_caselist in
+        type_cases ~rootTypeClashContext:Switch env arg.exp_type ty_expected true loc val_caselist in
       let exn_cases, _ =
-        type_cases env Predef.type_exn ty_expected false loc exn_caselist in
+        type_cases ~rootTypeClashContext:Switch env Predef.type_exn ty_expected false loc exn_caselist in
       re {
         exp_desc = Texp_match(arg, val_cases, exn_cases, partial);
         exp_loc = loc; exp_extra = [];
@@ -2186,8 +2307,9 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
               else
                 Some name in
             let labels_missing = fields |> List.filter_map filter_missing in
-            if labels_missing <> [] then
-              raise(Error(loc, env, Labels_missing labels_missing));
+            if labels_missing <> [] then (
+              let might_be_component = check_might_be_component env ty_record in
+              raise(Error(loc, env, Labels_missing (labels_missing, might_be_component))));
             [||], representation
         | [], _ ->
           if fields = [] && repr_opt <> None then
@@ -2211,8 +2333,9 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
                       Overridden ({loc ; txt = Lident lbl.lbl_name}, option_none lbl.lbl_arg loc))
                   label_descriptions
         in
-        if !labels_missing <> [] then
-          raise(Error(loc, env, Labels_missing (List.rev !labels_missing)));
+        if !labels_missing <> [] then (
+          let might_be_component = check_might_be_component env ty_record in
+          raise(Error(loc, env, Labels_missing ((List.rev !labels_missing), might_be_component))));
         let fields =
           Array.map2 (fun descr def -> descr, def)
             label_descriptions label_definitions
@@ -2327,7 +2450,7 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
       let (record, label, opath) = type_label_access env srecord lid in
       let ty_record = if opath = None then newvar () else record.exp_type in
       let (label_loc, label, newval) =
-        type_label_exp false env loc ty_record (lid, label, snewval) in
+        type_label_exp ~typeClashContext:SetRecordField false env loc ty_record (lid, label, snewval) in
       unify_exp env record ty_record;
       if label.lbl_mut = Immutable then
         raise(Error(loc, env, Label_not_mutable lid.txt));
@@ -2343,7 +2466,7 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
       let ty = newgenvar() in
       let to_unify = Predef.type_array ty in
       unify_exp_types loc env to_unify ty_expected;
-      let argl = List.map (fun sarg -> type_expect env sarg ty) sargl in
+      let argl = List.map (fun sarg -> type_expect ~typeClashContext:ArrayValue env sarg ty) sargl in
       re {
         exp_desc = Texp_array argl;
         exp_loc = loc; exp_extra = [];
@@ -2351,10 +2474,10 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
         exp_attributes = sexp.pexp_attributes;
         exp_env = env }
   | Pexp_ifthenelse(scond, sifso, sifnot) ->
-      let cond = type_expect env scond Predef.type_bool in
+      let cond = type_expect ~typeClashContext:IfCondition env scond Predef.type_bool in
       begin match sifnot with
         None ->
-          let ifso = type_expect env sifso Predef.type_unit in
+          let ifso = type_expect ~typeClashContext:IfReturn env sifso Predef.type_unit in
           rue {
             exp_desc = Texp_ifthenelse(cond, ifso, None);
             exp_loc = loc; exp_extra = [];
@@ -2362,10 +2485,10 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
             exp_attributes = sexp.pexp_attributes;
             exp_env = env }
       | Some sifnot ->
-          let ifso = type_expect env sifso ty_expected in
-          let ifnot = type_expect env sifnot ty_expected in
+          let ifso = type_expect ~typeClashContext:IfReturn env sifso ty_expected in
+          let ifnot = type_expect ~typeClashContext:IfReturn env sifnot ty_expected in
           (* Keep sharing *)
-          unify_exp env ifnot ifso.exp_type;
+          unify_exp ~typeClashContext:IfReturn env ifnot ifso.exp_type;
           re {
             exp_desc = Texp_ifthenelse(cond, ifso, Some ifnot);
             exp_loc = loc; exp_extra = [];
@@ -2453,7 +2576,7 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
                 let tv = newvar () in
                 let gen = generalizable tv.level arg.exp_type in
                 (try unify_var env tv arg.exp_type with Unify trace ->
-                  raise(Error(arg.exp_loc, env, Expr_type_clash trace)));
+                  raise(Error(arg.exp_loc, env, Expr_type_clash (trace, typeClashContext))));
                 gen
               end else true
             in
@@ -2843,7 +2966,7 @@ and type_label_access env srecord lid =
 (* Typing format strings for printing or reading.
    These formats are used by functions in modules Printf, Format, and Scanf.
    (Handling of * modifiers contributed by Thorsten Ohl.) *)
-and type_label_exp create env loc ty_expected
+and type_label_exp ?typeClashContext create env loc ty_expected
           (lid, label, sarg) =
   (* Here also ty_expected may be at generic_level *)
   begin_def ();
@@ -2875,7 +2998,7 @@ and type_label_exp create env loc ty_expected
       raise (Error(lid.loc, env, Private_label(lid.txt, ty_expected)));
   let arg =
     let snap = if vars = [] then None else Some (Btype.snapshot ()) in
-    let arg = type_argument env sarg ty_arg (instance env ty_arg) in
+    let arg = type_argument ?typeClashContext env sarg ty_arg (instance env ty_arg) in
     end_def ();
     try
       check_univars env (vars <> []) "field value" arg label.lbl_arg vars;
@@ -2895,7 +3018,7 @@ and type_label_exp create env loc ty_expected
   in
   (lid, label, {arg with exp_type = instance env arg.exp_type})
 
-and type_argument ?recarg env sarg ty_expected' ty_expected =
+and type_argument ?typeClashContext ?recarg env sarg ty_expected' ty_expected =
   (* ty_expected' may be generic *)
   let no_labels ty =
     let ls, tvar = list_labels env ty in
@@ -2975,8 +3098,8 @@ and type_argument ?recarg env sarg ty_expected' ty_expected =
                      func let_var) }
       end
   | _ ->
-      let texp = type_expect ?recarg env sarg ty_expected' in
-      unify_exp env texp ty_expected;
+      let texp = type_expect ?typeClashContext ?recarg env sarg ty_expected' in
+      unify_exp ?typeClashContext env texp ty_expected;
       texp
 and is_automatic_curried_application env funct =
   (* When a curried function is used with uncurried application, treat it as a curried application *)
@@ -2984,7 +3107,7 @@ and is_automatic_curried_application env funct =
   match (expand_head env funct.exp_type).desc with
   | Tarrow _ -> true
   | _ -> false
-and type_application uncurried env funct (sargs : sargs) : targs * Types.type_expr * bool =
+and type_application ?typeClashContext uncurried env funct (sargs : sargs) : targs * Types.type_expr * bool =
   (* funct.exp_type may be generic *)
   let result_type omitted ty_fun =
     List.fold_left
@@ -3035,7 +3158,7 @@ and type_application uncurried env funct (sargs : sargs) : targs * Types.type_ex
       (fully_applied, newT)
     | _ -> (false, newT)
   in
-  let rec type_unknown_args max_arity (args : lazy_args) omitted ty_fun (syntax_args : sargs)
+  let rec type_unknown_args max_arity ~(args : lazy_args) omitted ty_fun (syntax_args : sargs)
      : targs * _ = 
     match syntax_args with
     | [] ->
@@ -3050,14 +3173,14 @@ and type_application uncurried env funct (sargs : sargs) : targs * Types.type_ex
           | Tarrow (Optional l,t1,t2,_) ->
             ignored := (Optional l,t1,ty_fun.level) :: !ignored;
             let arg = Optional l, Some (fun () -> option_none (instance env t1) Location.none) in
-            type_unknown_args max_arity (arg::args) omitted t2 []
+            type_unknown_args max_arity ~args:(arg::args) omitted t2 []
           | _ -> collect_args ())
         else
           collect_args ()
     | [(Nolabel, {pexp_desc = Pexp_construct ({txt = Lident "()"}, None)})]
       when uncurried && omitted = [] && args <> [] && List.length args = List.length !ignored ->
       (* foo(. ) treated as empty application if all args are optional (hence ignored) *)
-        type_unknown_args max_arity args omitted ty_fun []
+        type_unknown_args max_arity ~args omitted ty_fun []
     | (l1, sarg1) :: sargl ->
         let (ty1, ty2) =
           let ty_fun = expand_head env ty_fun in
@@ -3097,9 +3220,9 @@ and type_application uncurried env funct (sargs : sargs) : targs * Types.type_ex
             unify_exp env arg1 (type_option(newvar()));
           arg1
         in
-        type_unknown_args max_arity ((l1, Some arg1) :: args) omitted ty2 sargl
+        type_unknown_args max_arity ~args:((l1, Some arg1) :: args) omitted ty2 sargl
   in
-  let rec type_args max_arity args omitted ~ty_fun ty_fun0  ~(sargs : sargs)  =
+  let rec type_args ?typeClashContext max_arity args omitted ~ty_fun ty_fun0  ~(sargs : sargs)  =
     match expand_head env ty_fun, expand_head env ty_fun0 with
       {desc=Tarrow (l, ty, ty_fun, com); level=lv} ,
       {desc=Tarrow (_, ty0, ty_fun0, _)}
@@ -3122,15 +3245,15 @@ and type_application uncurried env funct (sargs : sargs) : targs * Types.type_ex
              sargs, omitted ,            
              Some (
             if not optional || is_optional l' then
-               (fun () -> type_argument env sarg0 ty ty0)
+               (fun () -> type_argument ?typeClashContext:(typeClashContextForFunctionArgument typeClashContext sarg0) env sarg0 ty ty0)
             else 
-               (fun () -> option_some (type_argument env sarg0
+               (fun () -> option_some (type_argument ?typeClashContext env sarg0
                                              (extract_option_type env ty)
                                              (extract_option_type env ty0))))
         in
-        type_args max_arity ((l,arg)::args) omitted ~ty_fun ty_fun0 ~sargs 
+        type_args ?typeClashContext max_arity ((l,arg)::args) omitted ~ty_fun ty_fun0 ~sargs 
     | _ ->
-        type_unknown_args max_arity args omitted ty_fun0 sargs (* This is the hot path for non-labeled function*)
+        type_unknown_args max_arity ~args omitted ty_fun0 sargs (* This is the hot path for non-labeled function*)
   in
   let () =  
     let ls, tvar = list_labels env funct.exp_type in
@@ -3164,7 +3287,7 @@ and type_application uncurried env funct (sargs : sargs) : targs * Types.type_ex
   | _ ->
       if uncurried then force_uncurried_type funct;
       let ty, max_arity = extract_uncurried_type funct.exp_type in
-      let targs, ret_t = type_args max_arity [] [] ~ty_fun:ty (instance env ty) ~sargs in
+      let targs, ret_t = type_args ?typeClashContext max_arity [] [] ~ty_fun:ty (instance env ty) ~sargs in
       let fully_applied, ret_t =
         update_uncurried_arity funct.exp_type ~nargs:(List.length !ignored + List.length sargs) ret_t in
       targs, ret_t, fully_applied
@@ -3203,10 +3326,11 @@ and type_construct env loc lid sarg ty_expected attrs =
       exp_type = ty_res;
       exp_attributes = attrs;
       exp_env = env } in
+  let typeClashContext = typeClashContextMaybeOption ty_expected ty_res in
   if separate then begin
     end_def ();
     generalize_structure ty_res;
-    unify_exp env {texp with exp_type = instance_def ty_res}
+    unify_exp ?typeClashContext env {texp with exp_type = instance_def ty_res}
                   (instance env ty_expected);
     end_def ();
     List.iter generalize_structure ty_args;
@@ -3218,7 +3342,7 @@ and type_construct env loc lid sarg ty_expected attrs =
     | _ -> assert false
   in
   let texp = {texp with exp_type = ty_res} in
-  if not separate then unify_exp env texp (instance env ty_expected);
+  if not separate then unify_exp ?typeClashContext env texp (instance env ty_expected);
   let recarg =
     match constr.cstr_inlined with
     | None -> Rejected
@@ -3252,12 +3376,13 @@ and type_statement env sexp =
   if is_Tvar ty && ty.level > tv.level then
       Location.prerr_warning loc Warnings.Nonreturning_statement;
   let expected_ty = instance_def Predef.type_unit in
-  unify_exp env exp expected_ty;
+  let typeClashContext = typeClashContextInStatement sexp in
+  unify_exp ?typeClashContext env exp expected_ty;
   exp
 
 (* Typing of match cases *)
 
-and type_cases ?in_function env ty_arg ty_res partial_flag loc caselist : _ * Typedtree.partial =
+and type_cases ?rootTypeClashContext ?in_function env ty_arg ty_res partial_flag loc caselist : _ * Typedtree.partial =
   (* ty_arg is _fully_ generalized *)
   let patterns = List.map (fun {pc_lhs=p} -> p) caselist in
   let contains_polyvars = List.exists contains_polymorphic_variant patterns in
@@ -3364,10 +3489,10 @@ and type_cases ?in_function env ty_arg ty_res partial_flag loc caselist : _ * Ty
           | None -> None
           | Some scond ->
               Some
-                (type_expect ext_env (wrap_unpacks scond unpacks)
+                (type_expect ?typeClashContext:(if Option.is_some rootTypeClashContext then Some IfCondition else None) ext_env (wrap_unpacks scond unpacks)
                    Predef.type_bool)
         in
-        let exp = type_expect ?in_function ext_env sexp ty_res' in
+        let exp = type_expect ?typeClashContext:rootTypeClashContext ?in_function ext_env sexp ty_res' in
         {
          c_lhs = pat;
          c_guard = guard;
@@ -3623,11 +3748,21 @@ let type_expression env sexp =
   Typetexp.reset_type_variables();
   begin_def();
   let exp = type_exp env sexp in
-  if Warnings.is_active Bs_toplevel_expression_unit then 
+  if Warnings.is_active (Bs_toplevel_expression_unit None) then 
     (try unify env exp.exp_type 
       (instance_def Predef.type_unit) with 
-    | Unify _ 
-    | Tags _  -> Location.prerr_warning sexp.pexp_loc Bs_toplevel_expression_unit);
+    | Unify _ ->
+      let buffer = Buffer.create 10 in
+      let formatter = Format.formatter_of_buffer buffer in
+      Printtyp.type_expr formatter exp.exp_type;
+      Format.pp_print_flush formatter ();
+      let returnType = Buffer.contents buffer in
+      Location.prerr_warning sexp.pexp_loc (Bs_toplevel_expression_unit (
+        match sexp.pexp_desc with 
+        | Pexp_apply _ -> Some (returnType, FunctionCall)
+        | _ -> Some (returnType, Other)
+      ))
+    | Tags _  -> Location.prerr_warning sexp.pexp_loc (Bs_toplevel_expression_unit None));
   end_def();
   if not (is_nonexpansive exp) then generalize_expansive env exp.exp_type;
   generalize exp.exp_type;
@@ -3656,61 +3791,86 @@ let report_error env ppf = function
       fprintf ppf "@[The record field %a is polymorphic.@ %s@]"
         longident lid "You cannot instantiate it in a pattern."
   | Constructor_arity_mismatch(lid, expected, provided) ->
-      fprintf ppf
-       "@[The constructor %a@ expects %i argument(s),@ \
-        but is applied here to %i argument(s)@]"
-       longident lid expected provided
+    (* modified *)
+    fprintf ppf
+      "@[This variant constructor, %a, expects %i %s; here, we've %sfound %i.@]"
+      longident lid expected (if expected == 1 then "argument" else "arguments") (if provided < expected then "only " else "") provided
   | Label_mismatch(lid, trace) ->
-      report_unification_error ppf env trace
-        (function ppf ->
-           fprintf ppf "The record field %a@ belongs to the type"
-                   longident lid)
-        (function ppf ->
-           fprintf ppf "but is mixed here with fields of type")
+    (* modified *)
+    super_report_unification_error ppf env trace
+      (function ppf ->
+         fprintf ppf "The record field %a@ belongs to the type"
+           longident lid)
+      (function ppf ->
+         fprintf ppf "but is mixed here with fields of type")
   | Pattern_type_clash trace ->
-      report_unification_error ppf env trace
-        (function ppf ->
-          fprintf ppf "This pattern matches values of type")
-        (function ppf ->
-          fprintf ppf "but a pattern was expected which matches values of type")
+    (* modified *)
+    super_report_unification_error ppf env trace
+      (function ppf ->
+         fprintf ppf "This pattern matches values of type")
+      (function ppf ->
+         fprintf ppf "but a pattern was expected which matches values of type")
   | Or_pattern_type_clash (id, trace) ->
-      report_unification_error ppf env trace
-        (function ppf ->
-          fprintf ppf "The variable %s on the left-hand side of this \
-                       or-pattern has type" (Ident.name id))
-        (function ppf ->
-          fprintf ppf "but on the right-hand side it has type")
+    (* modified *)
+    super_report_unification_error ppf env trace
+      (function ppf ->
+         fprintf ppf "The variable %s on the left-hand side of this or-pattern has type" (Ident.name id))
+      (function ppf ->
+         fprintf ppf "but on the right-hand side it has type")
   | Multiply_bound_variable name ->
       fprintf ppf "Variable %s is bound several times in this matching" name
   | Orpat_vars (id, valid_idents) ->
       fprintf ppf "Variable %s must occur on both sides of this | pattern"
         (Ident.name id);
       spellcheck_idents ppf id valid_idents
-  | Expr_type_clash ( 
+  | Expr_type_clash (( 
+    (_, {desc = Tarrow _}) ::
+    (_, {desc = Tconstr (Pident {name = "function$"},_,_)}) :: _
+   ), _) -> 
+    fprintf ppf "This function is a curried function where an uncurried function is expected"
+  | Expr_type_clash (( 
+    (_, {desc = Tconstr (Pident {name = "function$"}, [{desc=Tvar _}; _],_)}) ::
+    (_, {desc = Tarrow _}) :: _
+   ), _) -> 
+    fprintf ppf "This function is an uncurried function where a curried function is expected"
+  | Expr_type_clash ((
+      (_, {desc = Tconstr (Pident {name = "function$"},[_; tA],_)}) ::
+      (_, {desc = Tconstr (Pident {name = "function$"},[_; tB],_)}) :: _
+    ), _) when Ast_uncurried.type_to_arity tA <> Ast_uncurried.type_to_arity tB ->
+    let arityA = Ast_uncurried.type_to_arity tA |> string_of_int in
+    let arityB = Ast_uncurried.type_to_arity tB |> string_of_int in
+    reportArityMismatch ~arityA ~arityB ppf
+  | Expr_type_clash (( 
       (_, {desc = Tconstr (Pdot (Pdot(Pident {name = "Js_OO"},"Meth",_),a,_),_,_)}) ::
       (_, {desc = Tconstr (Pdot (Pdot(Pident {name = "Js_OO"},"Meth",_),b,_),_,_)}) :: _
-   ) when a <> b -> 
+   ), _) when a <> b -> 
       fprintf ppf "This method has %s but was expected %s" a b 
 
-  | Expr_type_clash trace ->
-      report_unification_error ppf env trace
-        (function ppf ->
-           fprintf ppf "This expression has type")
-        (function ppf ->
-           fprintf ppf "but an expression was expected of type")
+  | Expr_type_clash (trace, typeClashContext) ->
+    (* modified *)
+    fprintf ppf "@[<v>";
+    print_expr_type_clash ?typeClashContext env trace ppf;
+    fprintf ppf "@]"
   | Apply_non_function typ ->
-      reset_and_mark_loops typ;
-      begin match (repr typ).desc with
-        Tarrow _ ->
-          fprintf ppf "@[<v>@[<2>This function has type@ %a@]"
-            type_expr typ;
-          fprintf ppf "@ @[It is applied to too many arguments;@ %s@]@]"
-                      "maybe you forgot a `;'."
+    (* modified *)
+    reset_and_mark_loops typ;
+    begin match (repr typ).desc with
+        Tarrow (_, _inputType, returnType, _) ->
+        let rec countNumberOfArgs count {Types.desc} = match desc with
+          | Tarrow (_, _inputType, returnType, _) -> countNumberOfArgs (count + 1) returnType
+          | _ -> count
+        in
+        let countNumberOfArgs = countNumberOfArgs 1 in
+        let acceptsCount = countNumberOfArgs returnType in
+        fprintf ppf "@[<v>@[<2>This function has type@ @{<info>%a@}@]"
+          type_expr typ;
+        fprintf ppf "@ @[It only accepts %i %s; here, it's called with more.@]@]"
+          acceptsCount (if acceptsCount == 1 then "argument" else "arguments")
       | _ ->
-          fprintf ppf "@[<v>@[<2>This expression has type@ %a@]@ %s@]"
-            type_expr typ
-            "This is not a function; it cannot be applied."
-      end
+        fprintf ppf "@[<v>@[<2>This expression has type@ %a@]@ %s@]"
+          type_expr typ
+          "It is not a function."
+    end
   | Apply_wrong_label (l, ty) ->
       let print_label ppf = function
         | Nolabel -> fprintf ppf "without label"
@@ -3724,28 +3884,35 @@ let report_error env ppf = function
         type_expr ty print_label l
   | Label_multiply_defined s ->
       fprintf ppf "The record field label %s is defined several times" s
-  | Labels_missing labels ->
+  | Labels_missing (labels, might_be_component) ->
       let print_labels ppf =
         List.iter (fun lbl -> fprintf ppf "@ %s" ( lbl)) in
-      fprintf ppf "@[<hov>Some required record fields are missing:%a. If this is a component, add the missing props.@]"
-        print_labels labels
+      let component_text = if might_be_component then " If this is a component, add the missing props." else "" in
+      fprintf ppf "@[<hov>Some required record fields are missing:%a.%s@]"
+        print_labels labels component_text
   | Label_not_mutable lid ->
       fprintf ppf "The record field %a is not mutable" longident lid
   | Wrong_name (eorp, ty, kind, p, name, valid_names) ->
-      reset_and_mark_loops ty;
-      if Path.is_constructor_typath p then begin
-        fprintf ppf "@[The field %s is not part of the record \
-                     argument for the %a constructor@]"
-          name
-          path p;
-      end else begin
-      fprintf ppf "@[@[<2>%s type@ %a@]@ "
-        eorp type_expr ty;
-      fprintf ppf "The %s %s does not belong to type %a@]"
+    (* modified *)
+    reset_and_mark_loops ty;
+    if Path.is_constructor_typath p then begin
+      fprintf ppf "@[The field %s is not part of the record \
+                   argument for the %a constructor@]"
+        name
+        Printtyp.path p;
+    end else begin
+      fprintf ppf "@[<v>";
+
+      fprintf ppf "@[<2>The %s @{<error>%s@} does not belong to type @{<info>%a@}@]@,@,"
         (label_of_kind kind)
-        name (*kind*) path p;
-       end;
-      spellcheck ppf name valid_names;
+        name (*kind*) Printtyp.path p;
+
+      fprintf ppf "@[<2>%s type@ @{<info>%a@}@]"
+        eorp type_expr ty;
+
+      fprintf ppf "@]";      
+    end;
+    spellcheck ppf name valid_names;
   | Name_type_mismatch (kind, lid, tp, tpl) ->
       let name = label_of_kind kind in
       report_ambiguous_type_error ppf env tp tpl
@@ -3770,29 +3937,35 @@ let report_error env ppf = function
   | Not_subtype(tr1, tr2) ->
       report_subtyping_error ppf env tr1 "is not a subtype of" tr2
   | Coercion_failure (ty, ty', trace, b) ->
-      report_unification_error ppf env trace
-        (function ppf ->
-           let ty, ty' = prepare_expansion (ty, ty') in
-           fprintf ppf
-             "This expression cannot be coerced to type@;<1 2>%a;@ it has type"
-           (type_expansion ty) ty')
-        (function ppf ->
-           fprintf ppf "but is here used with type");
-      if b then
-        fprintf ppf ".@.@[<hov>%s@ %s@]"
-          "This simple coercion was not fully general."
-          "Consider using a double coercion."
+    (* modified *)
+    super_report_unification_error ppf env trace
+      (function ppf ->
+         let ty, ty' = Printtyp.prepare_expansion (ty, ty') in
+         fprintf ppf
+           "This expression cannot be coerced to type@;<1 2>%a;@ it has type"
+           (Printtyp.type_expansion ty) ty')
+      (function ppf ->
+         fprintf ppf "but is here used with type");
+    if b then
+      fprintf ppf ".@.@[<hov>%s@ %s@]"
+        "This simple coercion was not fully general."
+        "Consider using a double coercion."
   | Too_many_arguments (in_function, ty) ->
-      reset_and_mark_loops ty;
-      if in_function then begin
-        fprintf ppf "This function expects too many arguments,@ ";
-        fprintf ppf "it should have type@ %a"
+    (* modified *)
+    reset_and_mark_loops ty;
+    if in_function then begin
+      fprintf ppf "@[This function expects too many arguments,@ ";
+      fprintf ppf "it should have type@ %a@]"
+        type_expr ty
+    end else begin
+      match ty with
+      | {desc = Tconstr (Pident {name = "function$"},_,_)} ->
+        fprintf ppf "This expression is expected to have an uncurried function"
+      | _ ->
+        fprintf ppf "@[This expression should not be a function,@ ";
+        fprintf ppf "the expected type is@ %a@]"
           type_expr ty
-      end else begin
-        fprintf ppf "This expression should not be a function,@ ";
-        fprintf ppf "the expected type is@ %a"
-          type_expr ty
-      end
+    end
   | Abstract_wrong_label (l, ty) ->
       let label_mark = function
         | Nolabel -> "but its first argument is not labelled"
@@ -3819,9 +3992,10 @@ let report_error env ppf = function
       fprintf ppf "in an order different from other calls.@ ";
       fprintf ppf "This is only allowed when the real type is known."
   | Less_general (kind, trace) ->
-      report_unification_error ppf env trace
-        (fun ppf -> fprintf ppf "This %s has type" kind)
-        (fun ppf -> fprintf ppf "which is less general than")
+    (* modified *)
+    super_report_unification_error ppf env trace
+      (fun ppf -> fprintf ppf "This %s has type" kind)
+      (fun ppf -> fprintf ppf "which is less general than")
   | Modules_not_allowed ->
       fprintf ppf "Modules are not allowed in this pattern."
   | Cannot_infer_signature ->
@@ -3832,11 +4006,12 @@ let report_error env ppf = function
         "This expression is packed module, but the expected type is@ %a"
         type_expr ty
   | Recursive_local_constraint trace ->
-      report_unification_error ppf env trace
-        (function ppf ->
-           fprintf ppf "Recursive local constraint when unifying")
-        (function ppf ->
-           fprintf ppf "with")
+    (* modified *)
+    super_report_unification_error ppf env trace
+      (function ppf ->
+         fprintf ppf "Recursive local constraint when unifying")
+      (function ppf ->
+         fprintf ppf "with")
   | Unexpected_existential ->
       fprintf ppf
         "Unexpected existential"

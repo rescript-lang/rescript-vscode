@@ -31,6 +31,6 @@ Path ax
     "kind": 12,
     "tags": [],
     "detail": "Test.t",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype t = {name: int}\n```"}
   }]
 

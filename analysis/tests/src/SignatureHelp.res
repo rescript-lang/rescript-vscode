@@ -74,3 +74,90 @@ let fn = (age: int, name: string, year: int) => {
 
 // let _ = fn({ iAmSoSpecial({ someFunc() }) })
 //                                      ^she
+
+/** This is my own special thing. */
+type mySpecialThing = string
+
+type t =
+  | /** One is cool. */ One({miss?: bool, hit?: bool, stuff?: string})
+  | /** Two is fun! */ Two(mySpecialThing)
+  | /** Three is... three */ Three(mySpecialThing, array<option<string>>)
+
+let _one = One({})
+//              ^she
+
+let _one = One({miss: true})
+//                ^she
+
+let _one = One({hit: true, miss: true})
+//                     ^she
+
+let two = Two("true")
+//             ^she
+
+let three = Three("", [])
+//                 ^she
+
+let three2 = Three("", [])
+//                      ^she
+
+let _deepestTakesPrecedence = [12]->Js.Array2.map(v =>
+  if v > 0 {
+    One({})
+    //   ^she
+  } else {
+    Two("")
+  }
+)
+
+/** Main docstring here. */
+let map = (arr, mapper) => {
+  Array.map(mapper, arr)
+}
+
+let _usesCorrectTypeInfo = [12]->map(v => v)
+//                                        ^she
+
+/** Type x... */
+type x = {
+  age?: int,
+  name?: string,
+}
+
+/** Type tt! */
+type tt = One
+
+/** Some stuff */
+let stuffers = (x: x, y: tt) => {
+  ignore(x)
+  ignore(y)
+  "hello"
+}
+
+let _ = stuffers({}, One)
+//                ^she
+
+let _ = stuffers({}, One)
+//                    ^she
+
+let _ = switch _one {
+| One({hit: _hit}) => ""
+//      ^she
+| One(_a) => ""
+//     ^she
+| Two(_ms) => ""
+//     ^she
+| Three(_a, []) => ""
+//       ^she
+| Three(_, _b) => ""
+//          ^she
+}
+
+let _bb = Ok(true)
+//            ^she
+
+let _bbb = Error("err")
+//                 ^she
+
+let _cc = Some(true)
+//              ^she

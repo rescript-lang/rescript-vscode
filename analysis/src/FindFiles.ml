@@ -105,6 +105,18 @@ let getNamespace config =
     either fromString fromName |> Option.map nameSpaceToName
   else None
 
+module StringSet = Set.Make (String)
+
+let getPublic config =
+  let public = config |> Json.get "public" in
+  match public with
+  | None -> None
+  | Some public -> (
+    match public |> Json.array with
+    | None -> None
+    | Some public ->
+      Some (public |> List.filter_map Json.string |> StringSet.of_list))
+
 let collectFiles directory =
   let allFiles = Files.readDirectory directory in
   let compileds = allFiles |> List.filter isCompiledFile |> filterDuplicates in
@@ -124,8 +136,7 @@ let collectFiles directory =
          | Some res -> Some (modName, SharedTypes.Impl {cmt; res}))
 
 (* returns a list of (absolute path to cmt(i), relative path from base to source file) *)
-let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
-  let module StringSet = Set.Make (String) in
+let findProjectFiles ~public ~namespace ~path ~sourceDirectories ~libBs =
   let dirs =
     sourceDirectories |> List.map (Filename.concat path) |> StringSet.of_list
   in
@@ -179,10 +190,18 @@ let findProjectFiles ~namespace ~path ~sourceDirectories ~libBs =
   in
   let result =
     normals
-    |> List.map (fun (name, paths) ->
-           match namespace with
-           | None -> (name, paths)
-           | Some namespace -> (name ^ "-" ^ namespace, paths))
+    |> List.filter_map (fun (name, paths) ->
+           let originalName = name in
+           let name =
+             match namespace with
+             | None -> name
+             | Some namespace -> name ^ "-" ^ namespace
+           in
+           match public with
+           | Some public ->
+             if public |> StringSet.mem originalName then Some (name, paths)
+             else None
+           | None -> Some (name, paths))
   in
   match namespace with
   | None -> result
@@ -214,9 +233,10 @@ let findDependencyFiles base config =
              Json.bind
                (ModuleResolution.resolveNodeModulePath ~startPath:base name)
                (fun path ->
-                 let innerPath = path /+ "bsconfig.json" in
-                 match Files.readFile innerPath with
-                 | Some text -> (
+                 let rescriptJsonPath = path /+ "rescript.json" in
+                 let bsconfigJsonPath = path /+ "bsconfig.json" in
+
+                 let parseText text =
                    match Json.parse text with
                    | Some inner -> (
                      let namespace = getNamespace inner in
@@ -236,13 +256,21 @@ let findDependencyFiles base config =
                          | Some _ -> libBs :: compiledDirectories
                        in
                        let projectFiles =
-                         findProjectFiles ~namespace ~path ~sourceDirectories
-                           ~libBs
+                         findProjectFiles ~public:(getPublic inner) ~namespace
+                           ~path ~sourceDirectories ~libBs
                        in
                        Some (compiledDirectories, projectFiles))
-                   | None -> None)
-                 | None -> None)
+                   | None -> None
+                 in
+
+                 match Files.readFile rescriptJsonPath with
+                 | Some text -> parseText text
+                 | None -> (
+                   match Files.readFile bsconfigJsonPath with
+                   | Some text -> parseText text
+                   | None -> None))
            in
+
            match result with
            | Some (files, directories) -> (files, directories)
            | None ->

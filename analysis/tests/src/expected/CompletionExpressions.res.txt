@@ -31,38 +31,38 @@ Path fnTakingRecord
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nsomeRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "offline",
     "kind": 5,
     "tags": [],
-    "detail": "offline: bool\n\nsomeRecord",
-    "documentation": null
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\noffline: bool\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "online",
     "kind": 5,
     "tags": [],
-    "detail": "online: option<bool>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<bool>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nonline: option<bool>\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "variant",
     "kind": 5,
     "tags": [],
-    "detail": "variant: someVariant\n\nsomeRecord",
-    "documentation": null
+    "detail": "someVariant",
+    "documentation": {"kind": "markdown", "value": "```rescript\nvariant: someVariant\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "polyvariant",
     "kind": 5,
     "tags": [],
-    "detail": "polyvariant: somePolyVariant\n\nsomeRecord",
-    "documentation": null
+    "detail": "somePolyVariant",
+    "documentation": {"kind": "markdown", "value": "```rescript\npolyvariant: somePolyVariant\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "nested",
     "kind": 5,
     "tags": [],
-    "detail": "nested: option<otherRecord>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<otherRecord>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnested: option<otherRecord>\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }]
 
 Complete src/CompletionExpressions.res 29:28
@@ -78,8 +78,8 @@ Path fnTakingRecord
     "label": "nested",
     "kind": 5,
     "tags": [],
-    "detail": "nested: option<otherRecord>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<otherRecord>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnested: option<otherRecord>\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }]
 
 Complete src/CompletionExpressions.res 32:35
@@ -118,32 +118,32 @@ Path fnTakingRecord
     "label": "offline",
     "kind": 5,
     "tags": [],
-    "detail": "offline: bool\n\nsomeRecord",
-    "documentation": null
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\noffline: bool\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "online",
     "kind": 5,
     "tags": [],
-    "detail": "online: option<bool>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<bool>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nonline: option<bool>\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "variant",
     "kind": 5,
     "tags": [],
-    "detail": "variant: someVariant\n\nsomeRecord",
-    "documentation": null
+    "detail": "someVariant",
+    "documentation": {"kind": "markdown", "value": "```rescript\nvariant: someVariant\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "polyvariant",
     "kind": 5,
     "tags": [],
-    "detail": "polyvariant: somePolyVariant\n\nsomeRecord",
-    "documentation": null
+    "detail": "somePolyVariant",
+    "documentation": {"kind": "markdown", "value": "```rescript\npolyvariant: somePolyVariant\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "nested",
     "kind": 5,
     "tags": [],
-    "detail": "nested: option<otherRecord>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<otherRecord>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnested: option<otherRecord>\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }]
 
 Complete src/CompletionExpressions.res 38:37
@@ -159,26 +159,26 @@ Path fnTakingRecord
     "label": "online",
     "kind": 5,
     "tags": [],
-    "detail": "online: option<bool>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<bool>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nonline: option<bool>\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "variant",
     "kind": 5,
     "tags": [],
-    "detail": "variant: someVariant\n\nsomeRecord",
-    "documentation": null
+    "detail": "someVariant",
+    "documentation": {"kind": "markdown", "value": "```rescript\nvariant: someVariant\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "polyvariant",
     "kind": 5,
     "tags": [],
-    "detail": "polyvariant: somePolyVariant\n\nsomeRecord",
-    "documentation": null
+    "detail": "somePolyVariant",
+    "documentation": {"kind": "markdown", "value": "```rescript\npolyvariant: somePolyVariant\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }, {
     "label": "nested",
     "kind": 5,
     "tags": [],
-    "detail": "nested: option<otherRecord>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<otherRecord>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnested: option<otherRecord>\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"}
   }]
 
 Complete src/CompletionExpressions.res 41:44
@@ -195,29 +195,29 @@ Path fnTakingRecord
     "kind": 12,
     "tags": [],
     "detail": "otherRecord",
-    "documentation": null,
-    "insertText": "Some(${1:nested})",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype otherRecord = {someField: int, otherField: string}\n```"},
+    "insertText": "Some(nested)$0",
     "insertTextFormat": 2
   }, {
     "label": "Some(_)",
     "kind": 12,
     "tags": [],
     "detail": "otherRecord",
-    "documentation": null,
-    "insertText": "Some(${1:_})",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype otherRecord = {someField: int, otherField: string}\n```"},
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "None",
     "kind": 12,
     "tags": [],
     "detail": "otherRecord",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype otherRecord = {someField: int, otherField: string}\n```"}
   }, {
     "label": "Some({})",
     "kind": 12,
     "tags": [],
     "detail": "otherRecord",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype otherRecord = {someField: int, otherField: string}\n```"},
     "insertText": "Some({$0})",
     "insertTextFormat": 2
   }]
@@ -246,14 +246,14 @@ Path fnTakingRecord
     "label": "someField",
     "kind": 5,
     "tags": [],
-    "detail": "someField: int\n\notherRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsomeField: int\n```\n\n```rescript\ntype otherRecord = {someField: int, otherField: string}\n```"}
   }, {
     "label": "otherField",
     "kind": 5,
     "tags": [],
-    "detail": "otherField: string\n\notherRecord",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\notherField: string\n```\n\n```rescript\ntype otherRecord = {someField: int, otherField: string}\n```"}
   }]
 
 Complete src/CompletionExpressions.res 50:45
@@ -269,24 +269,24 @@ Path fnTakingRecord
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "Two",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "Two",
     "insertTextFormat": 2
   }, {
     "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "Three(int, string)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(int, string)\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "Three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }]
@@ -304,8 +304,8 @@ Path fnTakingRecord
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }]
@@ -324,7 +324,7 @@ Path fnTakingRecord
     "kind": 12,
     "tags": [],
     "detail": "someRecord",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>, variant: someVariant, polyvariant: somePolyVariant, nested: option<otherRecord>}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -411,7 +411,7 @@ Path fnTakingArray
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -488,7 +488,7 @@ Path fnTakingArray
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -525,7 +525,7 @@ Path fnTakingArray
     "tags": [],
     "detail": "bool",
     "documentation": null,
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Some(true)",
@@ -615,45 +615,45 @@ Path fnTakingRecordWithOptVariant
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null,
-    "insertText": "Some(${1:someVariant})",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
+    "insertText": "Some(someVariant)$0",
     "insertTextFormat": 2
   }, {
     "label": "Some(_)",
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null,
-    "insertText": "Some(${1:_})",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "None",
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three(int, string)\n```"}
   }, {
     "label": "Some(One)",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "Some(One)",
     "insertTextFormat": 2
   }, {
     "label": "Some(Two)",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "Two",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "Some(Two)",
     "insertTextFormat": 2
   }, {
     "label": "Some(Three(_, _))",
     "kind": 4,
     "tags": [],
-    "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "Three(int, string)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(int, string)\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "Some(Three(${1:_}, ${2:_}))",
     "insertTextFormat": 2
   }]
@@ -738,7 +738,7 @@ Path fnTakingInlineRecord
     "kind": 12,
     "tags": [],
     "detail": "otherRecord",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype otherRecord = {someField: int, otherField: string}\n```"},
     "sortText": "A",
     "insertText": "{$0}",
     "insertTextFormat": 2
@@ -757,14 +757,14 @@ Path fnTakingInlineRecord
     "label": "someField",
     "kind": 5,
     "tags": [],
-    "detail": "someField: int\n\notherRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsomeField: int\n```\n\n```rescript\ntype otherRecord = {someField: int, otherField: string}\n```"}
   }, {
     "label": "otherField",
     "kind": 5,
     "tags": [],
-    "detail": "otherField: string\n\notherRecord",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\notherField: string\n```\n\n```rescript\ntype otherRecord = {someField: int, otherField: string}\n```"}
   }]
 
 Complete src/CompletionExpressions.res 159:20
@@ -950,8 +950,8 @@ Path fff
     "label": "someOptField",
     "kind": 5,
     "tags": [],
-    "detail": "someOptField?: bool\n\ntype recordWithOptionalField = {\n  someField: int,\n  someOptField?: bool,\n}",
-    "documentation": null
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\nsomeOptField?: bool\n```\n\n```rescript\ntype recordWithOptionalField = {\n  someField: int,\n  someOptField?: bool,\n}\n```"}
   }]
 
 Complete src/CompletionExpressions.res 205:11
@@ -1072,5 +1072,354 @@ Path commitLocalUpdate
     "sortText": "A",
     "insertText": "${1:recordSourceSelectorProxy} => {$0}",
     "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 257:25
+posCursor:[257:25] posNoWhite:[257:24] Found expr:[257:3->257:26]
+Pexp_apply ...[257:3->257:24] (...[257:25->257:26])
+Completable: Cexpression CArgument Value[fnTakingAsyncCallback]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingAsyncCallback]($0)
+ContextPath Value[fnTakingAsyncCallback]
+Path fnTakingAsyncCallback
+[{
+    "label": "async () => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => promise<unit>",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "async () => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 262:23
+posCursor:[262:23] posNoWhite:[262:22] Found expr:[262:3->262:24]
+Completable: Cexpression CArgument Value[Belt, Array, map]($1)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[Belt, Array, map]($1)
+ContextPath Value[Belt, Array, map]
+Path Belt.Array.map
+[{
+    "label": "v => {}",
+    "kind": 12,
+    "tags": [],
+    "detail": "'a => 'b",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "${1:v} => {$0}",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 271:15
+posCursor:[271:15] posNoWhite:[271:14] Found expr:[271:3->271:16]
+Pexp_apply ...[271:3->271:14] (...[271:15->271:16])
+Completable: Cexpression CArgument Value[takesExotic]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[takesExotic]($0)
+ContextPath Value[takesExotic]
+Path takesExotic
+[{
+    "label": "#\"some exotic\"",
+    "kind": 4,
+    "tags": [],
+    "detail": "#\"some exotic\"",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#\"some exotic\"\n```\n\n```rescript\n[#\"some exotic\"]\n```"},
+    "insertText": "#\"some exotic\"",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 278:23
+posCursor:[278:23] posNoWhite:[278:22] Found expr:[278:3->278:24]
+Pexp_apply ...[278:3->278:22] (...[278:23->278:24])
+Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingPolyVariant]($0)
+ContextPath Value[fnTakingPolyVariant]
+Path fnTakingPolyVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(someRecord, bool)\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "#three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two(bool)\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "#two($0)",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 281:24
+posCursor:[281:24] posNoWhite:[281:23] Found expr:[281:3->290:18]
+Pexp_apply ...[281:3->281:22] (...[281:23->281:25], ...[290:0->290:16])
+Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=#
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingPolyVariant]($0)
+ContextPath Value[fnTakingPolyVariant]
+Path fnTakingPolyVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three(someRecord, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(someRecord, bool)\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two(_)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two(bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two(bool)\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "two($0)",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 284:25
+posCursor:[284:25] posNoWhite:[284:24] Found expr:[284:3->284:26]
+Pexp_apply ...[284:3->284:22] (...[284:23->284:25])
+Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=#o
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingPolyVariant]($0)
+ContextPath Value[fnTakingPolyVariant]
+Path fnTakingPolyVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "one",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 287:24
+posCursor:[287:24] posNoWhite:[287:23] Found expr:[287:3->287:25]
+Pexp_apply ...[287:3->287:22] (...[287:23->287:24])
+Completable: Cexpression CArgument Value[fnTakingPolyVariant]($0)=o
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[fnTakingPolyVariant]($0)
+ContextPath Value[fnTakingPolyVariant]
+Path fnTakingPolyVariant
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(someRecord, bool) | #two(bool)]\n```"},
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 306:41
+XXX Not found!
+Completable: Cexpression Type[withIntLocal]->recordField(superInt)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Type[withIntLocal]
+Path withIntLocal
+[{
+    "label": "SuperInt.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null,
+    "insertText": "SuperInt.make($0)",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 309:36
+posCursor:[309:36] posNoWhite:[309:35] Found expr:[309:3->309:37]
+Pexp_apply ...[309:3->309:35] (...[309:36->309:37])
+Completable: Cexpression CArgument Value[CompletionSupport, makeTestHidden]($0)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
+ContextPath Value[CompletionSupport, makeTestHidden]
+Path CompletionSupport.makeTestHidden
+[{
+    "label": "CompletionSupport.TestHidden.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null,
+    "insertText": "CompletionSupport.TestHidden.make($0)",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 313:36
+posCursor:[313:36] posNoWhite:[313:35] Found expr:[313:3->313:37]
+Pexp_apply ...[313:3->313:35] (...[313:36->313:37])
+Completable: Cexpression CArgument Value[CompletionSupport, makeTestHidden]($0)
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath CArgument Value[CompletionSupport, makeTestHidden]($0)
+ContextPath Value[CompletionSupport, makeTestHidden]
+Path CompletionSupport.makeTestHidden
+[{
+    "label": "TestHidden.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null,
+    "insertText": "TestHidden.make($0)",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 321:11
+posCursor:[321:11] posNoWhite:[321:10] Found expr:[321:3->321:12]
+Pexp_apply ...[321:3->321:10] (...[321:11->321:12])
+Completable: Cexpression CArgument Value[mkStuff]($0)
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath CArgument Value[mkStuff]($0)
+ContextPath Value[mkStuff]
+Path mkStuff
+[{
+    "label": "%re()",
+    "kind": 4,
+    "tags": [],
+    "detail": "Regular expression",
+    "documentation": null,
+    "insertText": "%re(\"/$0/g\")",
+    "insertTextFormat": 2
+  }, {
+    "label": "Js.Re.fromString()",
+    "kind": 12,
+    "tags": [],
+    "detail": "string => t",
+    "documentation": null,
+    "insertText": "Js.Re.fromString($0)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Js.Re.fromStringWithFlags()",
+    "kind": 12,
+    "tags": [],
+    "detail": "(string, ~flags: string) => t",
+    "documentation": null,
+    "insertText": "Js.Re.fromStringWithFlags($0)",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 352:24
+posCursor:[352:24] posNoWhite:[352:23] Found expr:[352:3->352:25]
+Pexp_apply ...[352:3->352:23] (...[352:24->352:25])
+Completable: Cexpression CArgument Value[tArgCompletionTestFn]($0)
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath CArgument Value[tArgCompletionTestFn]($0)
+ContextPath Value[tArgCompletionTestFn]
+Path tArgCompletionTestFn
+[{
+    "label": "Money.fromInt()",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null,
+    "insertText": "Money.fromInt($0)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Money.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => t",
+    "documentation": null,
+    "insertText": "Money.make($0)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Money.zero",
+    "kind": 12,
+    "tags": [],
+    "detail": "t",
+    "documentation": null,
+    "insertText": "Money.zero",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 357:37
+posCursor:[357:37] posNoWhite:[357:36] Found expr:[357:3->357:38]
+Pexp_apply ...[357:3->357:30] (~tVal357:32->357:36=...__ghost__[0:-1->0:-1])
+Completable: Cexpression CArgument Value[labeledTArgCompletionTestFn](~tVal)
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath CArgument Value[labeledTArgCompletionTestFn](~tVal)
+ContextPath Value[labeledTArgCompletionTestFn]
+Path labeledTArgCompletionTestFn
+[{
+    "label": "Money.fromInt()",
+    "kind": 12,
+    "tags": [],
+    "detail": "int => t",
+    "documentation": null,
+    "insertText": "Money.fromInt($0)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Money.make()",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => t",
+    "documentation": null,
+    "insertText": "Money.make($0)",
+    "insertTextFormat": 2
+  }, {
+    "label": "Money.zero",
+    "kind": 12,
+    "tags": [],
+    "detail": "t",
+    "documentation": null,
+    "insertText": "Money.zero",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionExpressions.res 362:18
+posCursor:[362:18] posNoWhite:[362:17] Found expr:[362:3->362:32]
+posCursor:[362:18] posNoWhite:[362:17] Found expr:[362:10->362:18]
+Pexp_field [362:10->362:17] _:[362:19->362:18]
+Completable: Cpath Value[someTyp].""
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath Value[someTyp].""
+ContextPath Value[someTyp]
+Path someTyp
+[{
+    "label": "test",
+    "kind": 5,
+    "tags": [],
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntest: bool\n```\n\n```rescript\ntype someTyp = {test: bool}\n```"}
   }]
 

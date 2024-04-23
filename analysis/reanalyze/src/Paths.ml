@@ -2,6 +2,7 @@ open Common
 module StringMap = Map_string
 
 let bsconfig = "bsconfig.json"
+let rescriptJson = "rescript.json"
 
 let readFile filename =
   try
@@ -13,13 +14,14 @@ let readFile filename =
   with _ -> None
 
 let rec findProjectRoot ~dir =
+  let rescriptJsonFile = Filename.concat dir rescriptJson in
   let bsconfigFile = Filename.concat dir bsconfig in
-  if Sys.file_exists bsconfigFile then dir
+  if Sys.file_exists rescriptJsonFile || Sys.file_exists bsconfigFile then dir
   else
     let parent = dir |> Filename.dirname in
     if parent = dir then (
       prerr_endline
-        ("Error: cannot find project root containing " ^ bsconfig ^ ".");
+        ("Error: cannot find project root containing " ^ rescriptJson ^ ".");
       assert false)
     else findProjectRoot ~dir:parent
 
@@ -79,13 +81,13 @@ module Config = struct
     | Some False -> RunConfig.transitive false
     | _ -> ()
 
-  (* Read the config from bsconfig.json and apply it to runConfig and suppress and unsuppress *)
+  (* Read the config from rescript.json/bsconfig.json and apply it to runConfig and suppress and unsuppress *)
   let processBsconfig () =
     Lazy.force setReScriptProjectRoot;
+    let rescriptFile = Filename.concat runConfig.projectRoot rescriptJson in
     let bsconfigFile = Filename.concat runConfig.projectRoot bsconfig in
-    match readFile bsconfigFile with
-    | None -> ()
-    | Some text -> (
+
+    let processText text =
       match Json.parse text with
       | None -> ()
       | Some json -> (
@@ -97,7 +99,15 @@ module Config = struct
           readTransitive conf
         | None ->
           (* if no "analysis" specified, default to dce *)
-          RunConfig.dce ()))
+          RunConfig.dce ())
+    in
+
+    match readFile rescriptFile with
+    | Some text -> processText text
+    | None -> (
+      match readFile bsconfigFile with
+      | Some text -> processText text
+      | None -> ())
 end
 
 (**

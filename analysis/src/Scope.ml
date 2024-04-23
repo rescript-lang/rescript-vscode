@@ -1,12 +1,8 @@
-type item =
-  | Constructor of string * Location.t
-  | Field of string * Location.t
-  | Module of string * Location.t
-  | Open of string list
-  | Type of string * Location.t
-  | Value of string * Location.t * SharedTypes.Completable.contextPath option
+type item = SharedTypes.ScopeTypes.item
 
 type t = item list
+
+open SharedTypes.ScopeTypes
 
 let itemToString item =
   let str s = if s = "" then "\"\"" else s in
@@ -16,7 +12,7 @@ let itemToString item =
   | Field (s, loc) -> "Field " ^ s ^ " " ^ Loc.toString loc
   | Open sl -> "Open " ^ list sl
   | Module (s, loc) -> "Module " ^ s ^ " " ^ Loc.toString loc
-  | Value (s, loc, _) -> "Value " ^ s ^ " " ^ Loc.toString loc
+  | Value (s, loc, _, _) -> "Value " ^ s ^ " " ^ Loc.toString loc
   | Type (s, loc) -> "Type " ^ s ^ " " ^ Loc.toString loc
   [@@live]
 
@@ -34,14 +30,14 @@ let addValue ~name ~loc ?contextPath x =
      if showDebug then
        Printf.printf "adding value '%s' with ctxPath: %s\n" name
          (SharedTypes.Completable.contextPathToString contextPath));
-  Value (name, loc, contextPath) :: x
+  Value (name, loc, contextPath, x) :: x
 let addType ~name ~loc x = Type (name, loc) :: x
 
 let iterValuesBeforeFirstOpen f x =
   let rec loop items =
     match items with
-    | Value (s, loc, contextPath) :: rest ->
-      f s loc contextPath;
+    | Value (s, loc, contextPath, scope) :: rest ->
+      f s loc contextPath scope;
       loop rest
     | Open _ :: _ -> ()
     | _ :: rest -> loop rest
@@ -52,8 +48,8 @@ let iterValuesBeforeFirstOpen f x =
 let iterValuesAfterFirstOpen f x =
   let rec loop foundOpen items =
     match items with
-    | Value (s, loc, contextPath) :: rest ->
-      if foundOpen then f s loc contextPath;
+    | Value (s, loc, contextPath, scope) :: rest ->
+      if foundOpen then f s loc contextPath scope;
       loop foundOpen rest
     | Open _ :: rest -> loop true rest
     | _ :: rest -> loop foundOpen rest

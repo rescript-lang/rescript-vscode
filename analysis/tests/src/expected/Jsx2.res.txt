@@ -46,26 +46,48 @@ Path M
     "label": "M",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module M",
     "documentation": null
   }, {
     "label": "Map",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module Map",
+    "documentation": null,
+    "data": {
+      "modulePath": "Map",
+      "filePath": "src/Jsx2.res"
+    }
   }, {
     "label": "MapLabels",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module MapLabels",
+    "documentation": null,
+    "data": {
+      "modulePath": "MapLabels",
+      "filePath": "src/Jsx2.res"
+    }
+  }, {
+    "label": "ModuleStuff",
+    "kind": 9,
+    "tags": [],
+    "detail": "module ModuleStuff",
+    "documentation": null,
+    "data": {
+      "modulePath": "ModuleStuff",
+      "filePath": "src/Jsx2.res"
+    }
   }, {
     "label": "MoreLabels",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module MoreLabels",
+    "documentation": null,
+    "data": {
+      "modulePath": "MoreLabels",
+      "filePath": "src/Jsx2.res"
+    }
   }]
 
 Complete src/Jsx2.res 22:19
@@ -313,13 +335,11 @@ Pexp_apply ...[83:20->83:21] (...[80:4->83:19], ...[84:2->85:69])
 posCursor:[80:6] posNoWhite:[80:5] Found expr:[80:4->83:19]
 JSX <M:[80:4->80:5] > _children:80:5
 posCursor:[80:6] posNoWhite:[80:5] Found expr:[80:5->83:20]
-Pexp_construct :::[83:0->83:20] [83:0->83:20]
 posCursor:[80:6] posNoWhite:[80:5] Found expr:__ghost__[80:5->83:20]
 Pexp_construct []:__ghost__[80:5->83:20] None
 posCursor:[80:6] posNoWhite:[80:5] Found expr:[80:4->83:19]
 JSX <M:[80:4->80:5] > _children:80:5
 posCursor:[80:6] posNoWhite:[80:5] Found expr:[80:5->83:20]
-Pexp_construct :::[83:0->83:20] [83:0->83:20]
 posCursor:[80:6] posNoWhite:[80:5] Found expr:__ghost__[80:5->83:20]
 Pexp_construct []:__ghost__[80:5->83:20] None
 []
@@ -336,7 +356,7 @@ Path WithChildren
     "label": "WithChildren",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module WithChildren",
     "documentation": null
   }]
 
@@ -368,8 +388,8 @@ Path React.e
     "label": "element",
     "kind": 22,
     "tags": [],
-    "detail": "type element = Jsx.element",
-    "documentation": null
+    "detail": "type element",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype element = Jsx.element\n```"}
   }]
 
 Complete src/Jsx2.res 96:20
@@ -385,8 +405,12 @@ Path ReactDOMR
     "label": "ReactDOMRe",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module ReactDOMRe",
+    "documentation": null,
+    "data": {
+      "modulePath": "ReactDOMRe",
+      "filePath": "src/Jsx2.res"
+    }
   }]
 
 Complete src/Jsx2.res 102:21
@@ -432,14 +456,14 @@ Path DefineSomeFields.th
     "label": "thisField",
     "kind": 5,
     "tags": [],
-    "detail": "thisField: int\n\ntype r = {thisField: int, thatField: string}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nthisField: int\n```\n\n```rescript\ntype r = {thisField: int, thatField: string}\n```"}
   }, {
     "label": "thatField",
     "kind": 5,
     "tags": [],
-    "detail": "thatField: string\n\ntype r = {thisField: int, thatField: string}",
-    "documentation": null
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nthatField: string\n```\n\n```rescript\ntype r = {thisField: int, thatField: string}\n```"}
   }]
 
 Complete src/Jsx2.res 122:20
@@ -481,7 +505,22 @@ Path Outer.Inner.
 Complete src/Jsx2.res 136:7
 posCursor:[136:7] posNoWhite:[136:6] Found expr:[135:3->138:9]
 JSX <div:[135:3->135:6] x[136:5->136:6]=...[138:4->138:8]> _children:None
-[]
+Completable: Cexpression CJsxPropValue [div] x
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [div] x
+Path ReactDOM.domProps
+Path PervasivesU.JsxDOM.domProps
+[{
+    "label": "\"\"",
+    "kind": 12,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "sortText": "A",
+    "insertText": "{\"$0\"}",
+    "insertTextFormat": 2
+  }]
 
 Complete src/Jsx2.res 150:21
 posCursor:[150:21] posNoWhite:[150:20] Found expr:[150:12->150:32]
@@ -495,7 +534,7 @@ Path Nested.Co
     "label": "Comp",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module Comp",
     "documentation": null
   }]
 
@@ -511,14 +550,13 @@ Path Nested.
     "label": "Comp",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module Comp",
     "documentation": null
   }]
 
 Hover src/Jsx2.res 162:12
 Nothing at that position. Now trying to use completion.
 posCursor:[162:12] posNoWhite:[162:11] Found expr:[162:3->162:21]
-Pexp_construct :::[162:6->162:21] [162:6->162:21]
 posCursor:[162:12] posNoWhite:[162:11] Found expr:[162:6->162:21]
 posCursor:[162:12] posNoWhite:[162:11] Found expr:[162:6->162:20]
 JSX <Comp:[162:6->162:10] age[162:11->162:14]=...[162:15->162:17]> _children:162:18
@@ -531,10 +569,8 @@ Path Comp.make
 Hover src/Jsx2.res 167:16
 Nothing at that position. Now trying to use completion.
 posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:3->167:30]
-Pexp_construct :::[167:7->167:30] [167:7->167:30]
 posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:7->167:30]
 posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:7->167:25]
-Pexp_construct :::[167:10->167:25] [167:10->167:25]
 posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:10->167:25]
 posCursor:[167:16] posNoWhite:[167:15] Found expr:[167:10->167:24]
 JSX <Comp:[167:10->167:14] age[167:15->167:18]=...[167:19->167:21]> _children:167:22

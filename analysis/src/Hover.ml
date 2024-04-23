@@ -14,6 +14,7 @@ let showModuleTopLevel ~docstring ~isType ~name (topLevel : Module.item list) =
     (* TODO indent *)
     |> String.concat "\n"
   in
+  let name = Utils.cutAfterDash name in
   let full =
     Markdown.codeBlock
       ("module "
@@ -27,7 +28,7 @@ let showModuleTopLevel ~docstring ~isType ~name (topLevel : Module.item list) =
   in
   Some (doc ^ full)
 
-let rec showModule ~docstring ~(file : File.t) ~name
+let rec showModule ~docstring ~(file : File.t) ~package ~name
     (declared : Module.t Declared.t option) =
   match declared with
   | None ->
@@ -41,10 +42,12 @@ let rec showModule ~docstring ~(file : File.t) ~name
     showModuleTopLevel ~docstring ~isType ~name items
   | Some ({item = Constraint (_moduleItem, moduleTypeItem)} as declared) ->
     (* show the interface *)
-    showModule ~docstring ~file ~name
+    showModule ~docstring ~file ~name ~package
       (Some {declared with item = moduleTypeItem})
-  | Some {item = Ident path} ->
-    Some ("Unable to resolve module reference " ^ Path.name path)
+  | Some ({item = Ident path} as declared) -> (
+    match References.resolveModuleReference ~file ~package declared with
+    | None -> Some ("Unable to resolve module reference " ^ Path.name path)
+    | Some (_, declared) -> showModule ~docstring ~file ~name ~package declared)
 
 type extractedType = {
   name: string;
@@ -97,27 +100,27 @@ let findRelevantTypesFromType ~file ~package typ =
   let constructors = Shared.findTypeConstructors typesToSearch in
   constructors |> List.filter_map (fromConstructorPath ~env:envToSearch)
 
+let expandTypes ~file ~package ~supportsMarkdownLinks typ =
+  findRelevantTypesFromType typ ~file ~package
+  |> List.map (fun {decl; env; loc; path} ->
+         let linkToTypeDefinitionStr =
+           if supportsMarkdownLinks then
+             Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
+           else ""
+         in
+         Markdown.divider
+         ^ (if supportsMarkdownLinks then Markdown.spacing else "")
+         ^ Markdown.codeBlock
+             (decl
+             |> Shared.declToString ~printNameAsIs:true
+                  (SharedTypes.pathIdentToString path))
+         ^ linkToTypeDefinitionStr ^ "\n")
+
 (* Produces a hover with relevant types expanded in the main type being hovered. *)
 let hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ =
   let typeString = Markdown.codeBlock (typ |> Shared.typeToString) in
-  let types = findRelevantTypesFromType typ ~file ~package in
-  let typeDefinitions =
-    types
-    |> List.map (fun {decl; env; loc; path} ->
-           let linkToTypeDefinitionStr =
-             if supportsMarkdownLinks then
-               Markdown.goToDefinitionText ~env ~pos:loc.Warnings.loc_start
-             else ""
-           in
-           Markdown.divider
-           ^ (if supportsMarkdownLinks then Markdown.spacing else "")
-           ^ Markdown.codeBlock
-               (decl
-               |> Shared.declToString ~printNameAsIs:true
-                    (SharedTypes.pathIdentToString path))
-           ^ linkToTypeDefinitionStr ^ "\n")
-  in
-  typeString :: typeDefinitions |> String.concat "\n"
+  typeString :: expandTypes ~file ~package ~supportsMarkdownLinks typ
+  |> String.concat "\n"
 
 (* Leverages autocomplete functionality to produce a hover for a position. This
    makes it (most often) work with unsaved content. *)
@@ -130,28 +133,29 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
     match completions with
     | {kind = Label typString; docstring} :: _ ->
       let parts =
-        (if typString = "" then [] else [Markdown.codeBlock typString])
-        @ docstring
+        docstring
+        @ if typString = "" then [] else [Markdown.codeBlock typString]
       in
+
       Some (Protocol.stringifyHover (String.concat "\n\n" parts))
     | {kind = Field _; env; docstring} :: _ -> (
       let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
       match
         CompletionBackEnd.completionsGetTypeEnv2 ~debug ~full ~rawOpens ~opens
-          ~pos ~scope completions
+          ~pos completions
       with
       | Some (typ, _env) ->
         let typeString =
           hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ
         in
-        let parts = typeString :: docstring in
+        let parts = docstring @ [typeString] in
         Some (Protocol.stringifyHover (String.concat "\n\n" parts))
       | None -> None)
     | {env} :: _ -> (
       let opens = CompletionBackEnd.getOpens ~debug ~rawOpens ~package ~env in
       match
         CompletionBackEnd.completionsGetTypeEnv2 ~debug ~full ~rawOpens ~opens
-          ~pos ~scope completions
+          ~pos completions
       with
       | Some (typ, _env) ->
         let typeString =
@@ -163,9 +167,14 @@ let getHoverViaCompletions ~debug ~path ~pos ~currentFile ~forHover
 
 let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
   match locItem.locType with
-  | TypeDefinition (name, decl, _stamp) ->
-    let typeDef = Shared.declToString name decl in
-    Some (Markdown.codeBlock typeDef)
+  | TypeDefinition (name, decl, _stamp) -> (
+    let typeDef = Markdown.codeBlock (Shared.declToString name decl) in
+    match decl.type_manifest with
+    | None -> Some typeDef
+    | Some typ ->
+      Some
+        (typeDef :: expandTypes ~file ~package ~supportsMarkdownLinks typ
+        |> String.concat "\n"))
   | LModule (Definition (stamp, _tip)) | LModule (LocalReference (stamp, _tip))
     -> (
     match Stamps.findModule file.stamps stamp with
@@ -179,7 +188,7 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
           | Some d -> (d.name.txt, d.docstring)
           | None -> (file.moduleName, file.structure.docstring)
         in
-        showModule ~docstring ~name ~file declared))
+        showModule ~docstring ~name ~file declared ~package))
   | LModule (GlobalReference (moduleName, path, tip)) -> (
     match ProcessCmt.fileForModule ~package moduleName with
     | None -> None
@@ -199,14 +208,14 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
               | Some d -> (d.name.txt, d.docstring)
               | None -> (file.moduleName, file.structure.docstring)
             in
-            showModule ~docstring ~name ~file declared))))
+            showModule ~docstring ~name ~file ~package declared))))
   | LModule NotFound -> None
   | TopLevelModule name -> (
     match ProcessCmt.fileForModule ~package name with
     | None -> None
     | Some file ->
       showModule ~docstring:file.structure.docstring ~name:file.moduleName ~file
-        None)
+        ~package None)
   | Typed (_, _, Definition (_, (Field _ | Constructor _))) -> None
   | Constant t ->
     Some
@@ -228,12 +237,12 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
       match References.definedForLoc ~file ~package locKind with
       | None ->
         let typeString, docstring = t |> fromType ~docstring:[] in
-        typeString :: docstring
+        docstring @ [typeString]
       | Some (docstring, res) -> (
         match res with
         | `Declared ->
           let typeString, docstring = t |> fromType ~docstring in
-          typeString :: docstring
+          docstring @ [typeString]
         | `Constructor {cname = {txt}; args; docstring} ->
           let typeString, docstring = t |> fromType ~docstring in
           let argsString =
@@ -247,6 +256,6 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
           (Markdown.codeBlock (txt ^ argsString) :: docstring) @ [typeString]
         | `Field ->
           let typeString, docstring = t |> fromType ~docstring in
-          typeString :: docstring)
+          docstring @ [typeString])
     in
     Some (String.concat "\n\n" parts)

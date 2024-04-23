@@ -11,7 +11,7 @@ Hover src/Hover.res 19:11
 {"contents": {"kind": "markdown", "value": "\nThis module is commented\n```rescript\nmodule Dep: {\n  let customDouble: int => int\n}\n```"}}
 
 Hover src/Hover.res 22:11
-{"contents": {"kind": "markdown", "value": "```rescript\nint => int\n```\n\nSome doc comment"}}
+{"contents": {"kind": "markdown", "value": "Some doc comment\n\n```rescript\nint => int\n```"}}
 
 Hover src/Hover.res 26:6
 getLocItem #8: heuristic for JSX with at most one child
@@ -19,7 +19,7 @@ heuristic for: [makeProps, make, createElement], give the loc of `make`
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 33:4
-{"contents": {"kind": "markdown", "value": "```rescript\nunit => int\n```\n\nDoc comment for functionWithTypeAnnotation"}}
+{"contents": {"kind": "markdown", "value": "Doc comment for functionWithTypeAnnotation\n\n```rescript\nunit => int\n```"}}
 
 Hover src/Hover.res 37:13
 getLocItem #5: heuristic for JSX and compiler combined:
@@ -77,10 +77,10 @@ Hover src/Hover.res 106:21
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 116:16
-{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<([< #str(string)] as 'a)> => AA.cond<'a>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
 
 Hover src/Hover.res 119:25
-{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<[< #str(string)]> => AA.cond<[< #str(string)]>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nAA.cond<([< #str(string)] as 'a)> => AA.cond<'a>\n```\n\n---\n\n```\n \n```\n```rescript\ntype AA.cond<'a> = 'a\n  constraint 'a = [< #str(string)]\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C110%2C2%5D)\n"}}
 
 Hover src/Hover.res 122:3
 Nothing at that position. Now trying to use completion.
@@ -91,22 +91,22 @@ Resolved opens 1 pervasives
 {"contents": {"kind": "markdown", "value": "The `@live` decorator is for reanalyze, a static analysis tool for ReScript that can do dead code analysis.\n\n`@live` tells the dead code analysis that the value should be considered live, even though it might appear to be dead. This is typically used in case of FFI where there are indirect ways to access values. It can be added to everything that could otherwise be considered unused by the dead code analysis - values, functions, arguments, records, individual record fields, and so on.\n\n[Read more and see examples in the documentation](https://rescript-lang.org/syntax-lookup#live-decorator).\n\nHint: Did you know you can run an interactive code analysis in your project by running the command `> ReScript: Start Code Analyzer`? Try it!"}}
 
 Hover src/Hover.res 125:4
-{"contents": {"kind": "markdown", "value": "```rescript\n(. unit, unit) => int\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nunit => unit => int\n```"}}
 
 Hover src/Hover.res 131:4
-{"contents": {"kind": "markdown", "value": "```rescript\n(. unit) => (. unit) => int\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\n(unit, unit) => int\n```"}}
 
 Hover src/Hover.res 134:4
-{"contents": {"kind": "markdown", "value": "```rescript\n(. unit, unit) => int\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\n(unit, unit) => int\n```"}}
 
 Hover src/Hover.res 137:5
-{"contents": {"kind": "markdown", "value": "```rescript\n(. unit, unit) => int\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nunit => unit => int\n```"}}
 
 Hover src/Hover.res 144:9
-{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\ndoc comment 1"}}
+{"contents": {"kind": "markdown", "value": "doc comment 1\n\n```rescript\nint\n```"}}
 
 Hover src/Hover.res 148:6
-{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n doc comment 2 "}}
+{"contents": {"kind": "markdown", "value": " doc comment 2 \n\n```rescript\nint\n```"}}
 
 Hover src/Hover.res 165:23
 {"contents": {"kind": "markdown", "value": "```rescript\nfoo<bar>\n```\n\n---\n\n```\n \n```\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C161%2C2%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype bar = {age: int}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C162%2C2%5D)\n"}}
@@ -128,8 +128,8 @@ Path x1
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype bar = {age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype bar = {age: int}\n```"}
   }]
 
 Complete src/Hover.res 173:16
@@ -146,8 +146,8 @@ Path x2
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype bar = {age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype bar = {age: int}\n```"}
   }]
 
 Complete src/Hover.res 182:16
@@ -164,8 +164,8 @@ Path y1
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype bar = {age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype bar = {age: int}\n```"}
   }]
 
 Complete src/Hover.res 185:16
@@ -182,8 +182,8 @@ Path y2
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\ntype bar = {age: int}",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype bar = {age: int}\n```"}
   }]
 
 Hover src/Hover.res 197:4
@@ -206,10 +206,10 @@ Resolved opens 1 pervasives
 {"contents": {"kind": "markdown", "value": "```rescript\nuseR\n```\n\n---\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n"}}
 
 Hover src/Hover.res 230:20
-{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n More Stuff "}}
+{"contents": {"kind": "markdown", "value": " More Stuff \n\n```rescript\nint\n```"}}
 
 Hover src/Hover.res 233:17
-{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n\n More Stuff "}}
+{"contents": {"kind": "markdown", "value": " More Stuff \n\n```rescript\nint\n```"}}
 
 Hover src/Hover.res 245:6
 Nothing at that position. Now trying to use completion.
@@ -223,10 +223,10 @@ ContextPath Value[x]
 Path x
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
-{"contents": {"kind": "markdown", "value": "```rescript\nbool\n```\n\n Mighty fine field here. "}}
+{"contents": {"kind": "markdown", "value": " Mighty fine field here. \n\n```rescript\nbool\n```"}}
 
 Hover src/Hover.res 248:19
-{"contents": {"kind": "markdown", "value": "```rescript\nbool\n```\n\n Mighty fine field here. "}}
+{"contents": {"kind": "markdown", "value": " Mighty fine field here. \n\n```rescript\nbool\n```"}}
 
 Hover src/Hover.res 253:20
 {"contents": {"kind": "markdown", "value": "```rescript\nCoolVariant\n```\n\n Cool variant! \n\n```rescript\nvariant\n```\n\n---\n\n```\n \n```\n```rescript\ntype variant = CoolVariant | OtherCoolVariant\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C251%2C0%5D)\n"}}
@@ -260,4 +260,10 @@ ContextPath CPatternPath(Value[x])->recordField(someField)
 ContextPath Value[x]
 Path x
 {"contents": {"kind": "markdown", "value": "```rescript\nbool\n```"}}
+
+Hover src/Hover.res 263:8
+{"contents": {"kind": "markdown", "value": "\n [`Belt.Array`]()\n\n  **mutable array**: Utilities functions\n\n```rescript\nmodule Array: {\n  module Id\n  module Array\n  module SortArray\n  module MutableQueue\n  module MutableStack\n  module List\n  module Range\n  module Set\n  module Map\n  module MutableSet\n  module MutableMap\n  module HashSet\n  module HashMap\n  module Option\n  module Result\n  module Int\n  module Float\n}\n```"}}
+
+Hover src/Hover.res 266:6
+{"contents": {"kind": "markdown", "value": "```rescript\ntype aliased = variant\n```\n\n---\n\n```\n \n```\n```rescript\ntype variant = CoolVariant | OtherCoolVariant\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C251%2C0%5D)\n"}}
 

@@ -4,13 +4,42 @@ let completion ~debug ~path ~pos ~currentFile =
       Completions.getCompletions ~debug ~path ~pos ~currentFile ~forHover:false
     with
     | None -> []
-    | Some (completions, _, _) -> completions
+    | Some (completions, full, _) ->
+      completions
+      |> List.map (CompletionBackEnd.completionToItem ~full)
+      |> List.map Protocol.stringifyCompletionItem
   in
-  print_endline
-    (completions
-    |> List.map CompletionBackEnd.completionToItem
-    |> List.map Protocol.stringifyCompletionItem
-    |> Protocol.array)
+  completions |> Protocol.array |> print_endline
+
+let completionResolve ~path ~modulePath =
+  (* We ignore the internal module path as of now because there's currently
+     no use case for it. But, if we wanted to move resolving documentation
+     for regular modules and not just file modules to the completionResolve
+     hook as well, it'd be easy to implement here. *)
+  let moduleName, _innerModulePath =
+    match modulePath |> String.split_on_char '.' with
+    | [moduleName] -> (moduleName, [])
+    | moduleName :: rest -> (moduleName, rest)
+    | [] -> raise (Failure "Invalid module path.")
+  in
+  let docstring =
+    match Cmt.loadFullCmtFromPath ~path with
+    | None ->
+      if Debug.verbose () then
+        Printf.printf "[completion_resolve] Could not load cmt\n";
+      Protocol.null
+    | Some full -> (
+      match ProcessCmt.fileForModule ~package:full.package moduleName with
+      | None ->
+        if Debug.verbose () then
+          Printf.printf "[completion_resolve] Did not find file for module %s\n"
+            moduleName;
+        Protocol.null
+      | Some file ->
+        file.structure.docstring |> String.concat "\n\n"
+        |> Protocol.wrapInQuotes)
+  in
+  print_endline docstring
 
 let inlayhint ~path ~pos ~maxLength ~debug =
   let result =
@@ -71,17 +100,20 @@ let hover ~path ~pos ~currentFile ~debug ~supportsMarkdownLinks =
   in
   print_endline result
 
-let signatureHelp ~path ~pos ~currentFile ~debug =
+let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
   let result =
-    match SignatureHelp.signatureHelp ~path ~pos ~currentFile ~debug with
+    match
+      SignatureHelp.signatureHelp ~path ~pos ~currentFile ~debug
+        ~allowForConstructorPayloads
+    with
     | None ->
       {Protocol.signatures = []; activeSignature = None; activeParameter = None}
     | Some res -> res
   in
   print_endline (Protocol.stringifySignatureHelp result)
 
-let codeAction ~path ~pos ~currentFile ~debug =
-  Xform.extractCodeActions ~path ~pos ~currentFile ~debug
+let codeAction ~path ~startPos ~endPos ~currentFile ~debug =
+  Xform.extractCodeActions ~path ~startPos ~endPos ~currentFile ~debug
   |> CodeActions.stringifyCodeActions |> print_endline
 
 let definition ~path ~pos ~debug =
@@ -94,7 +126,7 @@ let definition ~path ~pos ~debug =
       | Some locItem -> (
         match References.definitionForLocItem ~full locItem with
         | None -> None
-        | Some (uri, loc) ->
+        | Some (uri, loc) when not loc.loc_ghost ->
           let isInterface = full.file.uri |> Uri.isInterface in
           let posIsZero {Lexing.pos_lnum; pos_bol; pos_cnum} =
             (* range is zero *)
@@ -113,7 +145,7 @@ let definition ~path ~pos ~debug =
           else
             Some
               {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc}
-        ))
+        | Some _ -> None))
   in
   print_endline
     (match locationOpt with
@@ -163,7 +195,7 @@ let references ~path ~pos ~debug =
   in
   print_endline
     (if allLocs = [] then Protocol.null
-    else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
+     else "[\n" ^ (allLocs |> String.concat ",\n") ^ "\n]")
 
 let rename ~path ~pos ~newName ~debug =
   let result =
@@ -268,7 +300,9 @@ let test ~path =
     let lines = text |> String.split_on_char '\n' in
     let processLine i line =
       let createCurrentFile () =
-        let currentFile, cout = Filename.open_temp_file "def" "txt" in
+        let currentFile, cout =
+          Filename.open_temp_file "def" ("txt." ^ Filename.extension path)
+        in
         let removeLineComment l =
           let len = String.length l in
           let rec loop i =
@@ -302,6 +336,8 @@ let test ~path =
           (match String.sub rest 0 3 with
           | "db+" -> Log.verbose := true
           | "db-" -> Log.verbose := false
+          | "dv+" -> Debug.debugLevel := Verbose
+          | "dv-" -> Debug.debugLevel := Off
           | "def" ->
             print_endline
               ("Definition " ^ path ^ " " ^ string_of_int line ^ ":"
@@ -314,6 +350,11 @@ let test ~path =
             let currentFile = createCurrentFile () in
             completion ~debug:true ~path ~pos:(line, col) ~currentFile;
             Sys.remove currentFile
+          | "cre" ->
+            let modulePath = String.sub rest 3 (String.length rest - 3) in
+            let modulePath = String.trim modulePath in
+            print_endline ("Completion resolve: " ^ modulePath);
+            completionResolve ~path ~modulePath
           | "dce" ->
             print_endline ("DCE " ^ path);
             Reanalyze.RunConfig.runConfig.suppress <- ["src"];
@@ -341,7 +382,8 @@ let test ~path =
               ("Signature help " ^ path ^ " " ^ string_of_int line ^ ":"
              ^ string_of_int col);
             let currentFile = createCurrentFile () in
-            signatureHelp ~path ~pos:(line, col) ~currentFile ~debug:true;
+            signatureHelp ~path ~pos:(line, col) ~currentFile ~debug:true
+              ~allowForConstructorPayloads:true;
             Sys.remove currentFile
           | "int" ->
             print_endline ("Create Interface " ^ path);
@@ -372,13 +414,24 @@ let test ~path =
              ^ string_of_int col);
             typeDefinition ~path ~pos:(line, col) ~debug:true
           | "xfm" ->
-            print_endline
-              ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
-             ^ string_of_int col);
+            let currentFile = createCurrentFile () in
+            (* +2 is to ensure that the character ^ points to is what's considered the end of the selection. *)
+            let endCol = col + try String.index rest '^' + 2 with _ -> 0 in
+            let endPos = (line, endCol) in
+            let startPos = (line, col) in
+            if startPos = endPos then
+              print_endline
+                ("Xform " ^ path ^ " " ^ string_of_int line ^ ":"
+               ^ string_of_int col)
+            else
+              print_endline
+                ("Xform " ^ path ^ " start: " ^ Pos.toString startPos
+               ^ ", end: " ^ Pos.toString endPos);
             let codeActions =
-              Xform.extractCodeActions ~path ~pos:(line, col) ~currentFile:path
+              Xform.extractCodeActions ~path ~startPos ~endPos ~currentFile
                 ~debug:true
             in
+            Sys.remove currentFile;
             codeActions
             |> List.iter (fun {Protocol.title; edit} ->
                    match edit with

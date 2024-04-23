@@ -5,7 +5,7 @@
   "repository": {
     "RE_KEYWORD_CONTROL": {
       "name": "keyword.control",
-      "match": "\\b(and|as|assert|async|await|catch|constraint|downto|else|exception|external|for|if|in|lazy|mutable|rec|switch|to|try|when|while|with)\\b"
+      "match": "\\b(and|as|assert|async|await|catch|constraint|downto|else|exception|external|for|if|in|lazy|mutable|rec|switch|to|try|when|while|with|private)\\b"
     },
     "RE_TO_DOWNTO_AS_LABELS": {
       "patterns": [
@@ -55,7 +55,7 @@
         }
       ]
     },
-    "punctuations": {
+    "punctuation": {
       "patterns": [
         {
           "match": "~",
@@ -90,6 +90,14 @@
           "name": "punctuation.section.braces.end"
         },
         {
+          "match": "\\[",
+          "name": "punctuation.section.brackets.begin"
+        },
+        {
+          "match": "\\]",
+          "name": "punctuation.section.brackets.end"
+        },
+        {
           "match": "\\(",
           "name": "punctuation.section.parens.begin"
         },
@@ -119,6 +127,10 @@
         }
       ]
     },
+    "string-character-escape": {
+      "name": "constant.character.escape",
+      "match": "\\\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|u{[0-9A-Fa-f]+}|[0-2][0-7]{0,2}|3[0-6][0-7]?|37[0-7]?|[4-7][0-7]?|.|$)"
+    },
     "string": {
       "patterns": [
         {
@@ -137,8 +149,7 @@
           },
           "patterns": [
             {
-              "name": "constant.character.escape",
-              "match": "\\\\."
+              "include": "#string-character-escape"
             }
           ]
         },
@@ -148,7 +159,7 @@
           "end": "(?<!\\\\)`",
           "beginCaptures": {
             "1": {
-              "name": "variables.annotation"
+              "name": "entity.name.function"
             },
             "2": {
               "name": "punctuation.definition.string.template.begin"
@@ -160,6 +171,9 @@
             }
           },
           "patterns": [
+            {
+              "include": "#string-character-escape"
+            },
             {
               "name": "meta.template.expression",
               "begin": "\\$\\{",
@@ -182,7 +196,7 @@
                   "include": "#operator"
                 },
                 {
-                  "include": "#punctuations"
+                  "include": "#punctuation"
                 },
                 {
                   "include": "#string"
@@ -280,18 +294,6 @@
               "name": "variable.other.enummember"
             }
           }
-        }
-      ]
-    },
-    "bracketAccess": {
-      "patterns": [
-        {
-          "match": "\\[",
-          "name": "punctuation.section.brackets.begin"
-        },
-        {
-          "match": "\\]",
-          "name": "punctuation.section.brackets.end"
         }
       ]
     },
@@ -481,71 +483,82 @@
           ]
         }
       ]
+    },
+    "ffi": {
+      "name": "source.embedded.javascript",
+      "contentName": "meta.embedded.block.javascript",
+      "begin": "(%|%%)(raw|ffi)(\\()(`)",
+      "end": "(`)(\\))",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.decorator"
+        },
+        "2": {
+          "name": "entity.name.function"
+        },
+        "4": {
+          "name": "punctuation.definition.string.template.begin.embedded-js"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.template.end.embedded-js"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.js"
+        }
+      ]
+    },
+    "ffi-single": {
+      "name": "source.embedded.javascript.single",
+      "match": "(%|%%)(raw|ffi)(\\()(`)(.*?)(`)(\\))",
+      "captures": {
+        "1": {
+          "name": "punctuation.decorator"
+        },
+        "2": {
+          "name": "entity.name.function"
+        },
+        "4": {
+          "name": "punctuation.definition.string.template.begin.embedded-js"
+        },
+        "5": {
+          "patterns": [
+            {
+              "include": "source.js"
+            }
+          ]
+        },
+        "6": {
+          "name": "punctuation.definition.string.template.end.embedded-js"
+        }
+      }
     }
   },
   "patterns": [
-    {
-      "include": "#storage"
-    },
-    {
-      "include": "#constant"
-    },
-    {
-      "include": "#commentLine"
-    },
-    {
-      "include": "#commentBlock"
-    },
-    {
-      "include": "#character"
-    },
-    {
-      "include": "#typeParameter"
-    },
-    {
-      "include": "#string"
-    },
-    {
-      "include": "#attribute"
-    },
-    {
-      "include": "#function"
-    },
-    {
-      "include": "#list"
-    },
-    {
-      "include": "#bracketAccess"
-    },
-    {
-      "include": "#jsx"
-    },
-    {
-      "include": "#operator"
-    },
-    {
-      "include": "#number"
-    },
-    {
-      "include": "#openOrIncludeModule"
-    },
-    {
-      "include": "#moduleDeclaration"
-    },
-    {
-      "include": "#moduleAccess"
-    },
-    {
-      "include": "#constructor"
-    },
-    {
-      "include": "#keyword"
-    },
-    {
-      "include": "#punctuations"
-    },
-    {
-      "include": "#defaultIdIsVariable"
-    }
+    { "include": "#storage" },
+    { "include": "#ffi-single" },
+    { "include": "#ffi" },
+    { "include": "#constant" },
+    { "include": "#commentLine" },
+    { "include": "#commentBlock" },
+    { "include": "#character" },
+    { "include": "#typeParameter" },
+    { "include": "#string" },
+    { "include": "#attribute" },
+    { "include": "#function" },
+    { "include": "#list" },
+    { "include": "#jsx" },
+    { "include": "#operator" },
+    { "include": "#number" },
+    { "include": "#openOrIncludeModule" },
+    { "include": "#moduleDeclaration" },
+    { "include": "#moduleAccess" },
+    { "include": "#constructor" },
+    { "include": "#keyword" },
+    { "include": "#punctuation" },
+    { "include": "#defaultIdIsVariable" }
   ]
 }

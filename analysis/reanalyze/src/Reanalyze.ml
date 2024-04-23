@@ -139,7 +139,9 @@ let cli () =
         "root_path Run all the analyses for all the .cmt files under the root \
          path" );
       ("-ci", Unit (fun () -> Cli.ci := true), "Internal flag for use in CI");
-      ("-config", Unit setConfig, "Read the analysis mode from bsconfig.json");
+      ( "-config",
+        Unit setConfig,
+        "Read the analysis mode from rescript.json/bsconfig.json" );
       ("-dce", Unit (fun () -> setDCE None), "Eperimental DCE");
       ("-debug", Unit (fun () -> Cli.debug := true), "Print debug information");
       ( "-dce-cmt",

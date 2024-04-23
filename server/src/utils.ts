@@ -12,6 +12,8 @@ import * as os from "os";
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
 import * as lookup from "./lookup";
+import { reportError } from "./errorReporter";
+import config from "./config";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -28,7 +30,10 @@ export let findProjectRootOfFile = (
   source: p.DocumentUri
 ): null | p.DocumentUri => {
   let dir = path.dirname(source);
-  if (fs.existsSync(path.join(dir, c.bsconfigPartialPath))) {
+  if (
+    fs.existsSync(path.join(dir, c.rescriptJsonPartialPath)) ||
+    fs.existsSync(path.join(dir, c.bsconfigPartialPath))
+  ) {
     return dir;
   } else {
     if (dir === source) {
@@ -133,6 +138,29 @@ export let formatCode = (
   }
 };
 
+let findReScriptVersion = (filePath: p.DocumentUri): string | undefined => {
+  let projectRoot = findProjectRootOfFile(filePath);
+  if (projectRoot == null) {
+    return undefined;
+  }
+
+  let rescriptBinary = lookup.findFilePathFromProjectRoot(
+    projectRoot,
+    path.join(c.nodeModulesBinDir, c.rescriptBinName)
+  );
+
+  if (rescriptBinary == null) {
+    return undefined;
+  }
+
+  try {
+    let version = childProcess.execSync(`${rescriptBinary} -v`);
+    return version.toString().trim();
+  } catch (e) {
+    return undefined;
+  }
+};
+
 export let runAnalysisAfterSanityCheck = (
   filePath: p.DocumentUri,
   args: Array<any>,
@@ -151,13 +179,24 @@ export let runAnalysisAfterSanityCheck = (
   if (projectRootPath == null && projectRequired) {
     return null;
   }
+  let rescriptVersion = findReScriptVersion(filePath);
   let options: childProcess.ExecFileSyncOptions = {
     cwd: projectRootPath || undefined,
     maxBuffer: Infinity,
+    env: {
+      ...process.env,
+      RESCRIPT_VERSION: rescriptVersion,
+    },
   };
-  let stdout = childProcess.execFileSync(binaryPath, args, options);
-
-  return JSON.parse(stdout.toString());
+  try {
+    let stdout = childProcess.execFileSync(binaryPath, args, options);
+    return JSON.parse(stdout.toString());
+  } catch (e) {
+    console.error(e);
+    // Element 0 is the action we're performing
+    reportError(String(args[0]), String(e));
+    return null;
+  }
 };
 
 export let runAnalysisCommand = (
@@ -192,23 +231,23 @@ export const toCamelCase = (text: string): string => {
     .replace(/(\s|-)+/g, "");
 };
 
-export const getNamespaceNameFromBsConfig = (
+export const getNamespaceNameFromConfigFile = (
   projDir: p.DocumentUri
 ): execResult => {
-  let bsconfig = lookup.readBsConfig(projDir);
+  let config = lookup.readConfig(projDir);
   let result = "";
 
-  if (!bsconfig) {
+  if (!config) {
     return {
       kind: "error",
-      error: "Could not read bsconfig",
+      error: "Could not read ReScript config file",
     };
   }
 
-  if (bsconfig.namespace === true) {
-    result = toCamelCase(bsconfig.name);
-  } else if (typeof bsconfig.namespace === "string") {
-    result = toCamelCase(bsconfig.namespace);
+  if (config.namespace === true) {
+    result = toCamelCase(config.name);
+  } else if (typeof config.namespace === "string") {
+    result = toCamelCase(config.namespace);
   }
 
   return {
@@ -223,7 +262,7 @@ export let getCompiledFilePath = (
 ): execResult => {
   let error: execResult = {
     kind: "error",
-    error: "Could not read bsconfig",
+    error: "Could not read ReScript config file",
   };
   let partialFilePath = filePath.split(projDir)[1];
   let compiledPath = lookup.getFilenameFromBsconfig(projDir, partialFilePath);
@@ -623,3 +662,33 @@ export let rangeContainsRange = (
   }
   return true;
 };
+
+let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
+  if (config.extensionConfiguration.platformPath != null) {
+    return config.extensionConfiguration.platformPath;
+  }
+
+  let rescriptDir = lookup.findFilePathFromProjectRoot(
+    projectRootPath,
+    path.join("node_modules", "rescript")
+  );
+  if (rescriptDir == null) {
+    return null;
+  }
+
+  let platformPath = path.join(rescriptDir, c.platformDir);
+
+  // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
+  if (
+    process.platform == "darwin" &&
+    process.arch == "arm64" &&
+    !fs.existsSync(platformPath)
+  ) {
+    platformPath = path.join(rescriptDir, process.platform);
+  }
+
+  return platformPath;
+};
+
+export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinary(findPlatformPath(projectRootPath), c.bscExeName);

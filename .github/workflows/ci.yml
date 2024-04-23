@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [ master ]
 
+concurrency: 
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     strategy:
@@ -14,13 +18,18 @@ jobs:
       matrix:
         # Stay on the oldest Ubuntu version that's still supported by Github Actions
         # to avoid glibc incompatibilities as far as possible.
-        os: [macos-latest, macos-arm, ubuntu-20.04, windows-latest]
+        os: [
+            macos-13, # x64
+            macos-14, # ARM
+            ubuntu-20.04,
+            windows-latest,
+          ]
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
-          - os: macos-latest
+          - os: macos-13
             artifact-folder: darwin
-          - os: macos-arm
+          - os: macos-14
             artifact-folder: darwinarm64
           - os: ubuntu-20.04
             artifact-folder: linux
@@ -36,10 +45,10 @@ jobs:
         git config --global core.autocrlf false
         git config --global core.eol lf
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Cache OCaml's opam
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.opam
         key: ${{matrix.os}}-rescript-vscode-v4
@@ -50,98 +59,117 @@ jobs:
         ocaml-compiler: 4.14.x
 
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: 16
+        registry-url: 'https://registry.npmjs.org'
 
     - run: npm ci
     - run: opam install dune cppo
     - run: npm run compile
+    - run: npm run bundle
 
     # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
     # Don't add deps. But if you ever do, un-comment these and add an .opam file.
     # - run: opam pin add rescript-editor-analysis.dev . --no-action
     # - run: opam install . --deps-only --with-doc --with-test
 
-    - name: Build and test
+    - name: Build
+      run: opam exec -- make
+
+    - name: Test
       run: opam exec -- make test
-      working-directory: analysis
 
     # Also avoids artifacts upload permission loss:
     # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
     - name: Compress files
       run: |
-        cd analysis
         mkdir ${{matrix.artifact-folder}}
         mv rescript-editor-analysis.exe ${{matrix.artifact-folder}}
+        mv rescript-tools.exe ${{matrix.artifact-folder}}
         tar -cvf binary.tar ${{matrix.artifact-folder}}
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{matrix.os}}
-        path: analysis/binary.tar
+        path: binary.tar
 
   package:
     needs: test
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: 16
+        registry-url: 'https://registry.npmjs.org'
 
     - run: npm ci
     - run: npm run compile
 
     - name: Download MacOS binary
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: macos-latest
-        path: ./server/analysis_binaries
+        name: macos-13
+        path: binaries
     - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
 
     - name: Download MacOS ARM binary
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: macos-arm
-        path: ./server/analysis_binaries
+        name: macos-14
+        path: binaries
     - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
 
     - name: Download Linux binary
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: ubuntu-20.04
-        path: ./server/analysis_binaries
+        path: binaries
     - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
 
     - name: Download Windows binary
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: windows-latest
-        path: ./server/analysis_binaries
+        path: binaries
     - run: tar -xvf binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
 
     - name: Cleanup tar file
       run: rm binary.tar
-      working-directory: ./server/analysis_binaries
+      working-directory: binaries
+
+    - name: Move binaries to folders
+      run: |
+        declare -a platforms=("darwin" "darwinarm64" "linux" "win32")
+
+        for platform in "${platforms[@]}"; do
+            mkdir server/analysis_binaries/"$platform"
+            mv binaries/"$platform"/rescript-editor-analysis.exe server/analysis_binaries/"$platform"
+        done
+
+        for platform in "${platforms[@]}"; do
+            mkdir tools/binaries/"$platform"
+            mv binaries/"$platform"/rescript-tools.exe tools/binaries/"$platform"
+        done
 
     - name: Store short commit SHA for filename
       id: vars
       env:
         COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      run: echo "::set-output name=sha_short::${COMMIT_SHA:0:7}"
+      run: echo "sha_short=${COMMIT_SHA:0:7}" >> $GITHUB_OUTPUT
 
     - name: Store tag name
       id: tag_name
       if: startsWith(github.ref, 'refs/tags/')
-      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
     - name: Increment pre-release version
       if: github.ref == 'refs/heads/master'
@@ -163,19 +191,19 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       run: npx vsce package -o rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: github.ref != 'refs/heads/master'
       with:
         name: rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
         path: rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: github.ref == 'refs/heads/master'
       with:
         name: rescript-vscode-latest-master.vsix
         path: rescript-vscode-latest-master.vsix
     
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: startsWith(github.ref, 'refs/tags/')
       with:
         name: rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix
@@ -201,9 +229,38 @@ jobs:
         files: rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix
 
     - name: Publish extension as pre-release
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' && !startsWith(github.event.head_commit.message, 'publish tools')
       run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} --pre-release ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
 
     - name: Publish extension as release
       if: startsWith(github.ref, 'refs/tags/')
       run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
+
+    - name: Publish LSP as pre-release to NPM
+      if: github.ref == 'refs/heads/master'
+      working-directory: server
+      run: |
+        npm version preminor --preid next-$(git rev-parse --short HEAD)
+        npm publish --access public --tag next
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    - name: Publish LSP to NPM
+      if: startsWith(github.ref, 'refs/tags/')
+      working-directory: server
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    - name: Build @rescript/tools package
+      working-directory: tools
+      run: |
+        npm ci
+        npm run build
+
+    - name: Publish @rescript/tools package
+      if: ${{ startsWith(github.event.head_commit.message, 'publish tools') && (github.ref == 'refs/heads/master') }}
+      working-directory: tools
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

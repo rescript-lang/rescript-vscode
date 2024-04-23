@@ -250,3 +250,115 @@ external commitLocalUpdate: (~updater: RecordSourceSelectorProxy.t => unit) => u
 
 // commitLocalUpdate(~updater=)
 //                            ^com
+
+let fnTakingAsyncCallback = (cb: unit => promise<unit>) => {
+  let _ = cb
+}
+
+// fnTakingAsyncCallback()
+//                       ^com
+
+let arr = ["hello"]
+
+// arr->Belt.Array.map()
+//                     ^com
+
+type exoticPolyvariant = [#"some exotic"]
+
+let takesExotic = (e: exoticPolyvariant) => {
+  ignore(e)
+}
+
+// takesExotic()
+//             ^com
+
+let fnTakingPolyVariant = (a: somePolyVariant) => {
+  ignore(a)
+}
+
+// fnTakingPolyVariant()
+//                     ^com
+
+// fnTakingPolyVariant(#)
+//                      ^com
+
+// fnTakingPolyVariant(#o)
+//                       ^com
+
+// fnTakingPolyVariant(o)
+//                      ^com
+
+module SuperInt: {
+  type t
+  let increment: (t, int) => t
+  let decrement: (t, int => int) => t
+  let make: int => t
+  let toInt: t => int
+} = {
+  type t = int
+  let increment = (t, num) => t + num
+  let decrement = (t, decrementer) => decrementer(t)
+  let make = t => t
+  let toInt = t => t
+}
+
+type withIntLocal = {superInt: SuperInt.t}
+
+// let withInt: withIntLocal = {superInt: }
+//                                       ^com
+
+// CompletionSupport.makeTestHidden()
+//                                  ^com
+
+open CompletionSupport
+// CompletionSupport.makeTestHidden()
+//                                  ^com
+
+let mkStuff = (r: Js.Re.t) => {
+  ignore(r)
+  "hello"
+}
+
+// mkStuff()
+//         ^com
+
+module Money: {
+  type t
+
+  let zero: t
+
+  let nonTType: string
+
+  let make: unit => t
+
+  let fromInt: int => t
+
+  let plus: (t, t) => t
+} = {
+  type t = string
+
+  let zero: t = "0"
+
+  let nonTType = "0"
+
+  let make = (): t => zero
+
+  let fromInt = (int): t => int->Js.Int.toString
+
+  let plus = (m1, _) => m1
+}
+
+let tArgCompletionTestFn = (_tVal: Money.t) => ()
+
+// tArgCompletionTestFn()
+//                      ^com
+
+let labeledTArgCompletionTestFn = (~tVal as _: Money.t) => ()
+
+// labeledTArgCompletionTestFn(~tVal=)
+//                                   ^com
+
+let someTyp: someTyp = {test: true}
+
+// switch someTyp. { | _ => () }
+//                ^com

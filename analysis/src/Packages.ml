@@ -11,14 +11,32 @@ let makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths =
          Hashtbl.replace pathsForModule modName paths);
   pathsForModule
 
+let getReScriptVersion () =
+  (* TODO: Include patch stuff when needed *)
+  let defaultVersion = (11, 0) in
+  try
+    let value = Sys.getenv "RESCRIPT_VERSION" in
+    let version =
+      match value |> String.split_on_char '.' with
+      | major :: minor :: _rest -> (
+        match (int_of_string_opt major, int_of_string_opt minor) with
+        | Some major, Some minor -> (major, minor)
+        | _ -> defaultVersion)
+      | _ -> defaultVersion
+    in
+    version
+  with Not_found -> defaultVersion
+
 let newBsPackage ~rootPath =
-  let bsconfig = Filename.concat rootPath "bsconfig.json" in
-  match Files.readFile bsconfig with
-  | None ->
-    Log.log ("Unable to read " ^ bsconfig);
-    None
-  | Some raw -> (
-    let libBs = BuildSystem.getLibBs rootPath in
+  let rescriptJson = Filename.concat rootPath "rescript.json" in
+  let bsconfigJson = Filename.concat rootPath "bsconfig.json" in
+
+  let parseRaw raw =
+    let libBs =
+      match !Cfg.isDocGenFromCompiler with
+      | true -> BuildSystem.getStdlib rootPath
+      | false -> BuildSystem.getLibBs rootPath
+    in
     match Json.parse raw with
     | Some config -> (
       match FindFiles.findDependencyFiles rootPath config with
@@ -29,13 +47,37 @@ let newBsPackage ~rootPath =
         | Some libBs ->
           Some
             (let namespace = FindFiles.getNamespace config in
+             let rescriptVersion = getReScriptVersion () in
+             let suffix =
+               match config |> Json.get "suffix" with
+               | Some (String suffix) -> suffix
+               | _ -> ".js"
+             in
+             let uncurried =
+               let ns = config |> Json.get "uncurried" in
+               match (rescriptVersion, ns) with
+               | (major, _), None when major >= 11 -> Some true
+               | _, ns -> Option.bind ns Json.bool
+             in
+             let genericJsxModule =
+               let jsxConfig = config |> Json.get "jsx" in
+               match jsxConfig with
+               | Some jsxConfig -> (
+                 match jsxConfig |> Json.get "module" with
+                 | Some (String m) when String.lowercase_ascii m <> "react" ->
+                   Some m
+                 | _ -> None)
+               | None -> None
+             in
+             let uncurried = uncurried = Some true in
              let sourceDirectories =
                FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
                  config
              in
              let projectFilesAndPaths =
-               FindFiles.findProjectFiles ~namespace ~path:rootPath
-                 ~sourceDirectories ~libBs
+               FindFiles.findProjectFiles
+                 ~public:(FindFiles.getPublic config)
+                 ~namespace ~path:rootPath ~sourceDirectories ~libBs
              in
              projectFilesAndPaths
              |> List.iter (fun (_name, paths) -> Log.log (showPaths paths));
@@ -77,14 +119,21 @@ let newBsPackage ~rootPath =
                | None -> []
              in
              let opens =
-               ["Pervasives"; "JsxModules"] :: opens_from_namespace
+               [
+                 (if uncurried then "PervasivesU" else "Pervasives");
+                 "JsxModules";
+               ]
+               :: opens_from_namespace
                |> List.rev_append opens_from_bsc_flags
                |> List.map (fun path -> path @ ["place holder"])
              in
              Log.log
-               ("Opens from bsconfig: "
+               ("Opens from ReScript config file: "
                ^ (opens |> List.map pathToString |> String.concat " "));
              {
+               genericJsxModule;
+               suffix;
+               rescriptVersion;
                rootPath;
                projectFiles =
                  projectFilesAndPaths |> List.map fst |> FileSet.of_list;
@@ -95,65 +144,82 @@ let newBsPackage ~rootPath =
                namespace;
                builtInCompletionModules =
                  (if
-                  opens_from_bsc_flags
-                  |> List.find_opt (fun opn ->
-                         match opn with
-                         | ["RescriptCore"] -> true
-                         | _ -> false)
-                  |> Option.is_some
-                 then
-                  {
-                    arrayModulePath = ["Array"];
-                    optionModulePath = ["Option"];
-                    stringModulePath = ["String"];
-                    intModulePath = ["Int"];
-                    floatModulePath = ["Float"];
-                    promiseModulePath = ["Promise"];
-                    listModulePath = ["List"];
-                    resultModulePath = ["Result"];
-                    exnModulePath = ["Exn"];
-                  }
-                 else if
-                 opens_from_bsc_flags
-                 |> List.find_opt (fun opn ->
-                        match opn with
-                        | ["Belt"] -> true
-                        | _ -> false)
-                 |> Option.is_some
-                then
-                   {
-                     arrayModulePath = ["Array"];
-                     optionModulePath = ["Option"];
-                     stringModulePath = ["Js"; "String2"];
-                     intModulePath = ["Int"];
-                     floatModulePath = ["Float"];
-                     promiseModulePath = ["Js"; "Promise"];
-                     listModulePath = ["List"];
-                     resultModulePath = ["Result"];
-                     exnModulePath = ["Js"; "Exn"];
-                   }
-                 else
-                   {
-                     arrayModulePath = ["Js"; "Array2"];
-                     optionModulePath = ["Belt"; "Option"];
-                     stringModulePath = ["Js"; "String2"];
-                     intModulePath = ["Belt"; "Int"];
-                     floatModulePath = ["Belt"; "Float"];
-                     promiseModulePath = ["Js"; "Promise"];
-                     listModulePath = ["Belt"; "List"];
-                     resultModulePath = ["Belt"; "Result"];
-                     exnModulePath = ["Js"; "Exn"];
-                   });
+                    opens_from_bsc_flags
+                    |> List.find_opt (fun opn ->
+                           match opn with
+                           | ["RescriptCore"] -> true
+                           | _ -> false)
+                    |> Option.is_some
+                  then
+                    {
+                      arrayModulePath = ["Array"];
+                      optionModulePath = ["Option"];
+                      stringModulePath = ["String"];
+                      intModulePath = ["Int"];
+                      floatModulePath = ["Float"];
+                      promiseModulePath = ["Promise"];
+                      listModulePath = ["List"];
+                      resultModulePath = ["Result"];
+                      exnModulePath = ["Exn"];
+                      regexpModulePath = ["RegExp"];
+                    }
+                  else if
+                    opens_from_bsc_flags
+                    |> List.find_opt (fun opn ->
+                           match opn with
+                           | ["Belt"] -> true
+                           | _ -> false)
+                    |> Option.is_some
+                  then
+                    {
+                      arrayModulePath = ["Array"];
+                      optionModulePath = ["Option"];
+                      stringModulePath = ["Js"; "String2"];
+                      intModulePath = ["Int"];
+                      floatModulePath = ["Float"];
+                      promiseModulePath = ["Js"; "Promise"];
+                      listModulePath = ["List"];
+                      resultModulePath = ["Result"];
+                      exnModulePath = ["Js"; "Exn"];
+                      regexpModulePath = ["Js"; "Re"];
+                    }
+                  else
+                    {
+                      arrayModulePath = ["Js"; "Array2"];
+                      optionModulePath = ["Belt"; "Option"];
+                      stringModulePath = ["Js"; "String2"];
+                      intModulePath = ["Belt"; "Int"];
+                      floatModulePath = ["Belt"; "Float"];
+                      promiseModulePath = ["Js"; "Promise"];
+                      listModulePath = ["Belt"; "List"];
+                      resultModulePath = ["Belt"; "Result"];
+                      exnModulePath = ["Js"; "Exn"];
+                      regexpModulePath = ["Js"; "Re"];
+                    });
+               uncurried;
              })))
-    | None -> None)
+    | None -> None
+  in
+
+  match Files.readFile rescriptJson with
+  | Some raw -> parseRaw raw
+  | None -> (
+    Log.log ("Unable to read " ^ rescriptJson);
+    match Files.readFile bsconfigJson with
+    | Some raw -> parseRaw raw
+    | None ->
+      Log.log ("Unable to read " ^ bsconfigJson);
+      None)
 
 let findRoot ~uri packagesByRoot =
   let path = Uri.toPath uri in
   let rec loop path =
     if path = "/" then None
     else if Hashtbl.mem packagesByRoot path then Some (`Root path)
-    else if Files.exists (Filename.concat path "bsconfig.json") then
-      Some (`Bs path)
+    else if
+      Files.exists (Filename.concat path "rescript.json")
+      || Files.exists (Filename.concat path "bsconfig.json")
+    then Some (`Bs path)
     else
       let parent = Filename.dirname path in
       if parent = path then (* reached root *) None else loop parent

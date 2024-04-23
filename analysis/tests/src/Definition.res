@@ -15,7 +15,7 @@ type typeInner = Inner.tInner
 let m1 = List.map
 //            ^hov
 
-open Belt
+open ShadowedBelt
 let m2 = List.map
 //            ^hov
 

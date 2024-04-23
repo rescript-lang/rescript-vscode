@@ -125,24 +125,24 @@ Path someFnTakingVariant
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "Two",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "Two",
     "insertTextFormat": 2
   }, {
     "label": "Three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(int, string)\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "Three(int, string)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(int, string)\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "insertText": "Three(${1:_}, ${2:_})",
     "insertTextFormat": 2
   }]
@@ -160,8 +160,8 @@ Path someFnTakingVariant
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "sortText": "A One",
     "insertText": "One",
     "insertTextFormat": 2
@@ -169,20 +169,28 @@ Path someFnTakingVariant
     "label": "OIncludeMeInCompletions",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module OIncludeMeInCompletions",
     "documentation": null
   }, {
     "label": "Obj",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module Obj",
+    "documentation": null,
+    "data": {
+      "modulePath": "Obj",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }, {
     "label": "Objects",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module Objects",
+    "documentation": null,
+    "data": {
+      "modulePath": "Objects",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }]
 
 Complete src/CompletionFunctionArguments.res 57:33
@@ -199,16 +207,20 @@ Path someFnTakingVariant
     "kind": 12,
     "tags": [],
     "detail": "someVariant",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "sortText": "A Some(_)",
-    "insertText": "Some(${1:_})",
+    "insertText": "Some($0)",
     "insertTextFormat": 2
   }, {
     "label": "Sort",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module Sort",
+    "documentation": null,
+    "data": {
+      "modulePath": "Sort",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }]
 
 Complete src/CompletionFunctionArguments.res 60:44
@@ -224,8 +236,8 @@ Path someFnTakingVariant
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype someVariant = One | Two | Three(int, string)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype someVariant = One | Two | Three(int, string)\n```"},
     "sortText": "A One",
     "insertText": "One",
     "insertTextFormat": 2
@@ -233,20 +245,28 @@ Path someFnTakingVariant
     "label": "OIncludeMeInCompletions",
     "kind": 9,
     "tags": [],
-    "detail": "module",
+    "detail": "module OIncludeMeInCompletions",
     "documentation": null
   }, {
     "label": "Obj",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module Obj",
+    "documentation": null,
+    "data": {
+      "modulePath": "Obj",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }, {
     "label": "Objects",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module Objects",
+    "documentation": null,
+    "data": {
+      "modulePath": "Objects",
+      "filePath": "src/CompletionFunctionArguments.res"
+    }
   }]
 
 Complete src/CompletionFunctionArguments.res 63:23
@@ -350,26 +370,27 @@ Path fnTakingRecord
     "label": "age",
     "kind": 5,
     "tags": [],
-    "detail": "age: int\n\nsomeRecord",
-    "documentation": null
+    "detail": "int",
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>}\n```"}
   }, {
     "label": "offline",
     "kind": 5,
     "tags": [],
-    "detail": "offline: bool\n\nsomeRecord",
-    "documentation": null
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\noffline: bool\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>}\n```"}
   }, {
     "label": "online",
     "kind": 5,
     "tags": [],
-    "detail": "online: option<bool>\n\nsomeRecord",
-    "documentation": null
+    "detail": "option<bool>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nonline: option<bool>\n```\n\n```rescript\ntype someRecord = {age: int, offline: bool, online: option<bool>}\n```"}
   }]
 
 Complete src/CompletionFunctionArguments.res 109:29
 posCursor:[109:29] posNoWhite:[109:28] Found expr:[105:3->114:4]
 JSX <div:[105:3->105:6] onMouseDown[106:4->106:15]=...[106:35->113:5]> _children:114:2
 posCursor:[109:29] posNoWhite:[109:28] Found expr:[106:35->113:5]
+posCursor:[109:29] posNoWhite:[109:28] Found expr:[106:16->113:5]
 posCursor:[109:29] posNoWhite:[109:28] Found expr:[107:6->109:29]
 posCursor:[109:29] posNoWhite:[109:28] Found expr:[108:6->109:29]
 posCursor:[109:29] posNoWhite:[109:28] Found expr:[109:9->109:29]
@@ -395,6 +416,7 @@ Complete src/CompletionFunctionArguments.res 111:27
 posCursor:[111:27] posNoWhite:[111:26] Found expr:[105:3->114:4]
 JSX <div:[105:3->105:6] onMouseDown[106:4->106:15]=...[106:35->113:5]> _children:114:2
 posCursor:[111:27] posNoWhite:[111:26] Found expr:[106:35->113:5]
+posCursor:[111:27] posNoWhite:[111:26] Found expr:[106:16->113:5]
 posCursor:[111:27] posNoWhite:[111:26] Found expr:[107:6->111:27]
 posCursor:[111:27] posNoWhite:[111:26] Found expr:[108:6->111:27]
 posCursor:[111:27] posNoWhite:[111:26] Found expr:[111:9->111:27]
@@ -413,6 +435,29 @@ Path ReactEvent.Mouse.a
     "kind": 12,
     "tags": [],
     "detail": "t => bool",
+    "documentation": null
+  }]
+
+Complete src/CompletionFunctionArguments.res 121:57
+posCursor:[121:57] posNoWhite:[121:56] Found expr:[121:3->121:73]
+Pexp_apply ...[121:3->121:11] (~changefreq121:13->121:23=...[121:24->121:31], ~lastmod121:34->121:41=...[121:42->0:-1], ~priority121:60->121:68=...[121:69->121:72])
+posCursor:[121:57] posNoWhite:[121:56] Found expr:[121:42->0:-1]
+posCursor:[121:57] posNoWhite:[121:56] Found expr:[121:42->0:-1]
+Completable: Cpath Value[fineModuleVal]->
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[fineModuleVal]->
+ContextPath Value[fineModuleVal]
+Path fineModuleVal
+CPPipe env:CompletionFunctionArguments
+CPPipe type path:FineModule.t
+CPPipe pathFromEnv:FineModule found:true
+Path FineModule.
+[{
+    "label": "FineModule.setToFalse",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
     "documentation": null
   }]
 

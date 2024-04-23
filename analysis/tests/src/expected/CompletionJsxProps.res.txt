@@ -48,8 +48,8 @@ Path CompletionSupport.TestComponent.make
     "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
+    "detail": "Two",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "sortText": "A Two",
     "insertText": "{Two}",
     "insertTextFormat": 2
@@ -57,23 +57,41 @@ Path CompletionSupport.TestComponent.make
     "label": "Three(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
+    "detail": "Three(int)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(int)\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "sortText": "A Three(_)",
-    "insertText": "{Three(${1:_})}",
+    "insertText": "{Three($0)}",
     "insertTextFormat": 2
   }, {
     "label": "TableclothMap",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module TableclothMap",
+    "documentation": null,
+    "data": {
+      "modulePath": "TableclothMap",
+      "filePath": "src/CompletionJsxProps.res"
+    }
+  }, {
+    "label": "TypeAtPosCompletion",
+    "kind": 9,
+    "tags": [],
+    "detail": "module TypeAtPosCompletion",
+    "documentation": null,
+    "data": {
+      "modulePath": "TypeAtPosCompletion",
+      "filePath": "src/CompletionJsxProps.res"
+    }
   }, {
     "label": "TypeDefinition",
     "kind": 9,
     "tags": [],
-    "detail": "file module",
-    "documentation": null
+    "detail": "module TypeDefinition",
+    "documentation": null,
+    "data": {
+      "modulePath": "TypeDefinition",
+      "filePath": "src/CompletionJsxProps.res"
+    }
   }]
 
 Complete src/CompletionJsxProps.res 9:52
@@ -88,32 +106,32 @@ Path CompletionSupport.TestComponent.make
     "label": "#one",
     "kind": 4,
     "tags": [],
-    "detail": "#one\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{#one}",
     "insertTextFormat": 2
   }, {
     "label": "#three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "#three(int, bool)\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#three(int, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(int, bool)\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{#three(${1:_}, ${2:_})}",
     "insertTextFormat": 2
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
-    "detail": "#two\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{#two}",
     "insertTextFormat": 2
   }, {
     "label": "#two2",
     "kind": 4,
     "tags": [],
-    "detail": "#two2\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two2",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two2\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{#two2}",
     "insertTextFormat": 2
   }]
@@ -130,24 +148,24 @@ Path CompletionSupport.TestComponent.make
     "label": "#three(_, _)",
     "kind": 4,
     "tags": [],
-    "detail": "#three(int, bool)\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#three(int, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(int, bool)\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{three(${1:_}, ${2:_})}",
     "insertTextFormat": 2
   }, {
     "label": "#two",
     "kind": 4,
     "tags": [],
-    "detail": "#two\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{two}",
     "insertTextFormat": 2
   }, {
     "label": "#two2",
     "kind": 4,
     "tags": [],
-    "detail": "#two2\n\n[#one | #three(int, bool) | #two | #two2]",
-    "documentation": null,
+    "detail": "#two2",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two2\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
     "insertText": "{two2}",
     "insertTextFormat": 2
   }]
@@ -160,7 +178,7 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CJsxPropValue [div] muted
 Path ReactDOM.domProps
-Path Pervasives.JsxDOM.domProps
+Path PervasivesU.JsxDOM.domProps
 [{
     "label": "true",
     "kind": 4,
@@ -183,12 +201,12 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
-Path Pervasives.JsxDOM.domProps
+Path PervasivesU.JsxDOM.domProps
 [{
     "label": "event => {}",
     "kind": 12,
     "tags": [],
-    "detail": "JsxEventC.Mouse.t => unit",
+    "detail": "JsxEventU.Mouse.t => unit",
     "documentation": null,
     "sortText": "A",
     "insertText": "{${1:event} => {$0}}",
@@ -208,7 +226,7 @@ Path CompletionSupport.TestComponent.make
     "kind": 12,
     "tags": [],
     "detail": "testVariant",
-    "documentation": null,
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "sortText": "A",
     "insertText": "{[$0]}",
     "insertTextFormat": 2
@@ -226,25 +244,115 @@ Path CompletionSupport.TestComponent.make
     "label": "One",
     "kind": 4,
     "tags": [],
-    "detail": "One\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
+    "detail": "One",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOne\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "insertText": "One",
     "insertTextFormat": 2
   }, {
     "label": "Two",
     "kind": 4,
     "tags": [],
-    "detail": "Two\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
+    "detail": "Two",
+    "documentation": {"kind": "markdown", "value": "```rescript\nTwo\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
     "insertText": "Two",
     "insertTextFormat": 2
   }, {
     "label": "Three(_)",
     "kind": 4,
     "tags": [],
-    "detail": "Three(int)\n\ntype testVariant = One | Two | Three(int)",
-    "documentation": null,
-    "insertText": "Three(${1:_})",
+    "detail": "Three(int)",
+    "documentation": {"kind": "markdown", "value": "```rescript\nThree(int)\n```\n\n```rescript\ntype testVariant = One | Two | Three(int)\n```"},
+    "insertText": "Three($0)",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionJsxProps.res 31:53
+posCursor:[31:53] posNoWhite:[31:52] Found expr:[31:12->31:54]
+JSX <CompletionSupport.TestComponent:[31:12->31:43] polyArg[31:44->31:51]=...[31:52->31:54]> _children:None
+Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] polyArg->recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [CompletionSupport, TestComponent] polyArg
+Path CompletionSupport.TestComponent.make
+[{
+    "label": "#one",
+    "kind": 4,
+    "tags": [],
+    "detail": "#one",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#one\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
+    "insertText": "#one",
+    "insertTextFormat": 2
+  }, {
+    "label": "#three(_, _)",
+    "kind": 4,
+    "tags": [],
+    "detail": "#three(int, bool)",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#three(int, bool)\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
+    "insertText": "#three(${1:_}, ${2:_})",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
+    "insertText": "#two",
+    "insertTextFormat": 2
+  }, {
+    "label": "#two2",
+    "kind": 4,
+    "tags": [],
+    "detail": "#two2",
+    "documentation": {"kind": "markdown", "value": "```rescript\n#two2\n```\n\n```rescript\n[#one | #three(int, bool) | #two | #two2]\n```"},
+    "insertText": "#two2",
+    "insertTextFormat": 2
+  }]
+
+Complete src/CompletionJsxProps.res 34:49
+posCursor:[34:49] posNoWhite:[34:48] Found expr:[34:12->34:50]
+JSX <CompletionSupport.TestComponent:[34:12->34:43] on[34:44->34:46]=...[34:48->34:49]> _children:None
+Completable: Cexpression CJsxPropValue [CompletionSupport, TestComponent] on=t->recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [CompletionSupport, TestComponent] on
+Path CompletionSupport.TestComponent.make
+[{
+    "label": "true",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null
+  }, {
+    "label": "tsomeVar",
+    "kind": 12,
+    "tags": [],
+    "detail": "[> #two]",
+    "documentation": null
+  }]
+
+Complete src/CompletionJsxProps.res 44:44
+posCursor:[44:44] posNoWhite:[44:43] Found expr:[44:12->44:44]
+JSX <CompletableComponentLazy:[44:12->44:36] status[44:37->44:43]=...__ghost__[0:-1->0:-1]> _children:None
+Completable: Cexpression CJsxPropValue [CompletableComponentLazy] status
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath CJsxPropValue [CompletableComponentLazy] status
+Path CompletableComponentLazy.make
+[{
+    "label": "On",
+    "kind": 4,
+    "tags": [],
+    "detail": "On",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOn\n```\n\n```rescript\ntype status = On | Off\n```"},
+    "insertText": "{On}",
+    "insertTextFormat": 2
+  }, {
+    "label": "Off",
+    "kind": 4,
+    "tags": [],
+    "detail": "Off",
+    "documentation": {"kind": "markdown", "value": "```rescript\nOff\n```\n\n```rescript\ntype status = On | Off\n```"},
+    "insertText": "{Off}",
     "insertTextFormat": 2
   }]
 

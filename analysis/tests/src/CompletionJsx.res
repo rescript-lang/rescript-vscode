@@ -45,3 +45,37 @@ module CompWithoutJsxPpx = {
 
 // <CompWithoutJsxPpx n
 //                     ^com
+
+// <SomeComponent someProp=>
+//                         ^com
+
+// <h1 hidd
+//         ^com
+
+module IntrinsicElementLowercase = {
+  type props = {name?: string, age?: int}
+
+  @module("react")
+  external make: (@as("mesh") _, props) => Jsx.element = "createElement"
+}
+
+// <IntrinsicElementLowercase
+//                            ^com
+
+module MultiPropComp = {
+  type time = Now | Later
+  @react.component
+  let make = (~name, ~age, ~time: time) => {
+    ignore(time)
+    name ++ age
+  }
+}
+
+// <MultiPropComp name="Hello" time= age="35"
+//                                  ^com
+
+// <MultiPropComp name="Hello" time= age
+//                                  ^com
+
+// <MultiPropComp name time= age
+//                          ^com

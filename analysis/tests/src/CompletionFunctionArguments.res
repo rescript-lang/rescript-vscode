@@ -113,3 +113,11 @@ let _ =
       //                   ^com
     }}
   />
+
+let fineModuleVal = {
+  FineModule.online: true,
+  somethingElse: "",
+}
+
+// makeItem(~changefreq=Monthly, ~lastmod=fineModuleVal->, ~priority=Low)
+//                                                       ^com

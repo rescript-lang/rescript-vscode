@@ -206,3 +206,27 @@ let xn: exn = Obj.magic()
 
 // switch xn { | }
 //              ^com
+
+let getThing = async () => One
+
+// switch await getThing() { | }
+//                            ^com
+
+let res: result<someVariant, somePolyVariant> = Ok(One)
+
+// switch res { | Ok() }
+//                   ^com
+
+// switch res { | Error() }
+//                      ^com
+
+@react.component
+let make = (~thing: result<someVariant, unit>) => {
+  switch thing {
+  | Ok(Three(r, _)) =>
+    let _x = r
+  // switch r { | {first, }}
+  //                     ^com
+  | _ => ()
+  }
+}

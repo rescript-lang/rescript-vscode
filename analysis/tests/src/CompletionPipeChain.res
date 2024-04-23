@@ -92,3 +92,14 @@ let renderer = CompletionSupport2.makeRenderer(
   },
   (),
 )
+
+// Console.log(int->)
+//                  ^com
+
+// Console.log(int->t)
+//                   ^com
+
+let r = %re("/t/g")
+
+// r->la
+//      ^com

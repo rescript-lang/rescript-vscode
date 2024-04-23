@@ -25,7 +25,8 @@ let dump_parsetree = ref false          (* -dparsetree *)
 and dump_typedtree = ref false          (* -dtypedtree *)
 and dump_rawlambda = ref false          (* -drawlambda *)
 and dump_lambda = ref false             (* -dlambda *)
-and only_parse = ref false             (* -only-parse *)
+and only_parse = ref false              (* -only-parse *)
+and ignore_parse_errors = ref false     (* -ignore-parse-errors *)
 
 let dont_write_files = ref false        (* set to true under ocamldoc *)
 
@@ -60,11 +61,6 @@ let unboxed_types = ref false
 
 type mli_status =  Mli_exists | Mli_non_exists
 let assume_no_mli = ref Mli_non_exists
-let bs_vscode =
-    try ignore @@ Sys.getenv "BS_VSCODE" ; true with _ -> false
-    (* We get it from environment variable mostly due to
-       we don't want to rebuild when flip on or off
-    *)
 let dont_record_crc_unit : string option ref = ref None
 let bs_gentype = ref false
 let no_assert_false = ref false

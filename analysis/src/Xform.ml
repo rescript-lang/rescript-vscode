@@ -227,7 +227,10 @@ module AddTypeAnnotation = struct
     in
     let rec processFunction ~argNum (e : Parsetree.expression) =
       match e.pexp_desc with
-      | Pexp_fun (argLabel, _, pat, e) ->
+      | Pexp_fun (argLabel, _, pat, e)
+      | Pexp_construct
+          ( {txt = Lident "Function$"},
+            Some {pexp_desc = Pexp_fun (argLabel, _, pat, e)} ) ->
         let isUnlabeledOnlyArg =
           argNum = 1 && argLabel = Nolabel
           &&
@@ -244,9 +247,9 @@ module AddTypeAnnotation = struct
       match si.pstr_desc with
       | Pstr_value (_recFlag, bindings) ->
         let processBinding (vb : Parsetree.value_binding) =
-          (* Can't add a type annotation to a react component, or the compiler crashes *)
-          let isReactComponent = Utils.isReactComponent vb in
-          if not isReactComponent then processPattern vb.pvb_pat;
+          (* Can't add a type annotation to a jsx component, or the compiler crashes *)
+          let isJsxComponent = Utils.isJsxComponent vb in
+          if not isJsxComponent then processPattern vb.pvb_pat;
           processFunction vb.pvb_expr
         in
         bindings |> List.iter (processBinding ~argNum:1);
@@ -298,6 +301,167 @@ module AddTypeAnnotation = struct
           in
           codeActions := codeAction :: !codeActions
         | _ -> ()))
+end
+
+module ExhaustiveSwitch = struct
+  (* Expand expression to be an exhaustive switch of the underlying value *)
+  type posType = Single of Pos.t | Range of Pos.t * Pos.t
+
+  type completionType =
+    | Switch of {
+        pos: Pos.t;
+        switchExpr: Parsetree.expression;
+        completionExpr: Parsetree.expression;
+      }
+    | Selection of {expr: Parsetree.expression}
+
+  module C = struct
+    let extractTypeFromExpr expr ~debug ~path ~currentFile ~full ~pos =
+      match
+        expr.Parsetree.pexp_loc
+        |> CompletionFrontEnd.findTypeOfExpressionAtLoc ~debug ~path
+             ~currentFile
+             ~posCursor:(Pos.ofLexing expr.Parsetree.pexp_loc.loc_start)
+      with
+      | Some (completable, scope) -> (
+        let env = SharedTypes.QueryEnv.fromFile full.SharedTypes.file in
+        let completions =
+          completable
+          |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope ~env
+               ~forHover:true
+        in
+        let rawOpens = Scope.getRawOpens scope in
+        match completions with
+        | {env} :: _ -> (
+          let opens =
+            CompletionBackEnd.getOpens ~debug ~rawOpens ~package:full.package
+              ~env
+          in
+          match
+            CompletionBackEnd.completionsGetCompletionType2 ~debug ~full
+              ~rawOpens ~opens ~pos completions
+          with
+          | Some (typ, _env) ->
+            let extractedType =
+              match typ with
+              | ExtractedType t -> Some t
+              | TypeExpr t ->
+                TypeUtils.extractType t ~env ~package:full.package
+                |> TypeUtils.getExtractedType
+            in
+            extractedType
+          | None -> None)
+        | _ -> None)
+      | _ -> None
+  end
+
+  let mkIteratorSingle ~pos ~result =
+    let expr (iterator : Ast_iterator.iterator) (exp : Parsetree.expression) =
+      (match exp.pexp_desc with
+      | Pexp_ident _ when Loc.hasPosInclusiveEnd ~pos exp.pexp_loc ->
+        (* Exhaustive switch for having the cursor on an identifier. *)
+        result := Some (Selection {expr = exp})
+      | Pexp_match (completionExpr, [])
+        when Loc.hasPosInclusiveEnd ~pos exp.pexp_loc ->
+        (* No cases means there's no `|` yet in the switch, so `switch someExpr` *)
+        result := Some (Switch {pos; switchExpr = exp; completionExpr})
+      | _ -> ());
+      Ast_iterator.default_iterator.expr iterator exp
+    in
+    {Ast_iterator.default_iterator with expr}
+
+  let mkIteratorRange ~startPos ~endPos ~foundSelection =
+    let expr (iterator : Ast_iterator.iterator) (exp : Parsetree.expression) =
+      let expStartPos = Pos.ofLexing exp.pexp_loc.loc_start in
+      let expEndPos = Pos.ofLexing exp.pexp_loc.loc_end in
+
+      (if expStartPos = startPos then
+         match !foundSelection with
+         | None, endExpr -> foundSelection := (Some exp, endExpr)
+         | _ -> ());
+
+      (if expEndPos = endPos then
+         match !foundSelection with
+         | startExp, _ -> foundSelection := (startExp, Some exp));
+
+      Ast_iterator.default_iterator.expr iterator exp
+    in
+    {Ast_iterator.default_iterator with expr}
+
+  let xform ~printExpr ~path ~currentFile ~pos ~full ~structure ~codeActions
+      ~debug =
+    (* TODO: Adapt to '(' as leading/trailing character (skip one col, it's not included in the AST) *)
+    let result = ref None in
+    let foundSelection = ref (None, None) in
+    let iterator =
+      match pos with
+      | Single pos -> mkIteratorSingle ~pos ~result
+      | Range (startPos, endPos) ->
+        mkIteratorRange ~startPos ~endPos ~foundSelection
+    in
+    iterator.structure iterator structure;
+    (match !foundSelection with
+    | Some startExp, Some endExp ->
+      if debug then
+        Printf.printf "found selection: %s -> %s\n"
+          (Loc.toString startExp.pexp_loc)
+          (Loc.toString endExp.pexp_loc);
+      result := Some (Selection {expr = startExp})
+    | _ -> ());
+    match !result with
+    | None -> ()
+    | Some (Selection {expr}) -> (
+      match
+        expr
+        |> C.extractTypeFromExpr ~debug ~path ~currentFile ~full
+             ~pos:(Pos.ofLexing expr.pexp_loc.loc_start)
+      with
+      | None -> ()
+      | Some extractedType -> (
+        let open TypeUtils.Codegen in
+        let exhaustiveSwitch =
+          extractedTypeToExhaustiveCases
+            ~env:(SharedTypes.QueryEnv.fromFile full.file)
+            ~full extractedType
+        in
+        match exhaustiveSwitch with
+        | None -> ()
+        | Some cases ->
+          let range = rangeOfLoc expr.pexp_loc in
+          let newText =
+            printExpr ~range {expr with pexp_desc = Pexp_match (expr, cases)}
+          in
+          let codeAction =
+            CodeActions.make ~title:"Exhaustive switch" ~kind:RefactorRewrite
+              ~uri:path ~newText ~range
+          in
+          codeActions := codeAction :: !codeActions))
+    | Some (Switch {switchExpr; completionExpr; pos}) -> (
+      match
+        completionExpr
+        |> C.extractTypeFromExpr ~debug ~path ~currentFile ~full ~pos
+      with
+      | None -> ()
+      | Some extractedType -> (
+        let open TypeUtils.Codegen in
+        let exhaustiveSwitch =
+          extractedTypeToExhaustiveCases
+            ~env:(SharedTypes.QueryEnv.fromFile full.file)
+            ~full extractedType
+        in
+        match exhaustiveSwitch with
+        | None -> ()
+        | Some cases ->
+          let range = rangeOfLoc switchExpr.pexp_loc in
+          let newText =
+            printExpr ~range
+              {switchExpr with pexp_desc = Pexp_match (completionExpr, cases)}
+          in
+          let codeAction =
+            CodeActions.make ~title:"Exhaustive switch" ~kind:RefactorRewrite
+              ~uri:path ~newText ~range
+          in
+          codeActions := codeAction :: !codeActions))
 end
 
 module AddDocTemplate = struct
@@ -646,7 +810,8 @@ let parseInterface ~filename =
   in
   (structure, printSignatureItem)
 
-let extractCodeActions ~path ~pos ~currentFile ~debug =
+let extractCodeActions ~path ~startPos ~endPos ~currentFile ~debug =
+  let pos = startPos in
   let codeActions = ref [] in
   match Files.classifySourceFile currentFile with
   | Res ->
@@ -664,7 +829,12 @@ let extractCodeActions ~path ~pos ~currentFile ~debug =
     let () =
       match Cmt.loadFullCmtFromPath ~path with
       | Some full ->
-        AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions ~debug
+        AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions ~debug;
+        ExhaustiveSwitch.xform ~printExpr ~path
+          ~pos:
+            (if startPos = endPos then Single startPos
+             else Range (startPos, endPos))
+          ~full ~structure ~codeActions ~debug ~currentFile
       | None -> ()
     in
 

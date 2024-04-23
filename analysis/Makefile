@@ -1,41 +1,36 @@
 SHELL = /bin/bash
 
-build-analysis-binary:
-	rm -f rescript-editor-analysis.exe
-	dune build
-	cp _build/install/default/bin/rescript-editor-analysis rescript-editor-analysis.exe
-
 build-tests:
 	make -C tests build
+
+build-tests-generic-jsx-transform:
+	make -C tests-generic-jsx-transform build
+
+build-tests-incremental-typechecking:
+	make -C tests-incremental-typechecking build
 
 build-reanalyze:
 	make -C reanalyze build
 
-build: build-analysis-binary build-reanalyze build-tests
+build: build-reanalyze build-tests build-tests-generic-jsx-transform build-tests-incremental-typechecking
 
 dce: build-analysis-binary
 	opam exec reanalyze.exe -- -dce-cmt _build -suppress vendor
 
-format:
-	dune build @fmt --auto-promote
-
-test-analysis-binary: build-analysis-binary
+test-analysis-binary:
 	make -C tests test
+	make -C tests-generic-jsx-transform test
+	make -C tests-incremental-typechecking test
 
-test-reanalyze: build-analysis-binary
+test-reanalyze:
 	make -C reanalyze test
 
 test: test-analysis-binary test-reanalyze
 
 clean:
-	rm -f rescript-editor-analysis.exe
-	dune clean
 	make -C tests clean
+	make -C tests-generic-jsx-transform clean
+	make -C tests-incremental-typechecking clean
 	make -C reanalyze clean
 
-checkformat:
-	dune build @fmt
-
-.DEFAULT_GOAL := build
-
-.PHONY: build-analysis-binary build-reanalyze build-tests dce clean format test
+.PHONY: build-reanalyze build-tests dce clean test

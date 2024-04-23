@@ -15,6 +15,9 @@ let endsWith s suffix =
     let l = String.length s in
     p <= String.length s && String.sub s (l - p) p = suffix
 
+let isFirstCharUppercase s =
+  String.length s > 0 && Char.equal s.[0] (Char.uppercase_ascii s.[0])
+
 let cmtPosToPosition {Lexing.pos_lnum; pos_cnum; pos_bol} =
   Protocol.{line = pos_lnum - 1; character = pos_cnum - pos_bol}
 
@@ -153,10 +156,10 @@ let rec unwrapIfOption (t : Types.type_expr) =
   | Tconstr (Path.Pident {name = "option"}, [unwrappedType], _) -> unwrappedType
   | _ -> t
 
-let isReactComponent (vb : Parsetree.value_binding) =
+let isJsxComponent (vb : Parsetree.value_binding) =
   vb.pvb_attributes
   |> List.exists (function
-       | {Location.txt = "react.component"}, _payload -> true
+       | {Location.txt = "react.component" | "jsx.component"}, _payload -> true
        | _ -> false)
 
 let checkName name ~prefix ~exact =
@@ -213,3 +216,60 @@ let rec lastElements list =
 let lowercaseFirstChar s =
   if String.length s = 0 then s
   else String.mapi (fun i c -> if i = 0 then Char.lowercase_ascii c else c) s
+
+let cutAfterDash s =
+  match String.index s '-' with
+  | n -> ( try String.sub s 0 n with Invalid_argument _ -> s)
+  | exception Not_found -> s
+
+let fileNameHasUnallowedChars s =
+  let regexp = Str.regexp "[^A-Za-z0-9_]" in
+  try
+    ignore (Str.search_forward regexp s 0);
+    true
+  with Not_found -> false
+
+(* Flattens any namespace in the provided path.
+   Example:
+    Globals-RescriptBun.URL.t (which is an illegal path because of the namespace) becomes:
+    RescriptBun.Globals.URL.t
+*)
+let rec flattenAnyNamespaceInPath path =
+  match path with
+  | [] -> []
+  | head :: tail ->
+    if String.contains head '-' then
+      let parts = String.split_on_char '-' head in
+      (* Namespaces are in reverse order, so "URL-RescriptBun" where RescriptBun is the namespace. *)
+      (parts |> List.rev) @ flattenAnyNamespaceInPath tail
+    else head :: flattenAnyNamespaceInPath tail
+
+let printMaybeExoticIdent ?(allowUident = false) txt =
+  let len = String.length txt in
+
+  let rec loop i =
+    if i == len then txt
+    else if i == 0 then
+      match String.unsafe_get txt i with
+      | 'A' .. 'Z' when allowUident -> loop (i + 1)
+      | 'a' .. 'z' | '_' -> loop (i + 1)
+      | _ -> "\"" ^ txt ^ "\""
+    else
+      match String.unsafe_get txt i with
+      | 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '\'' | '_' -> loop (i + 1)
+      | _ -> "\"" ^ txt ^ "\""
+  in
+  if Res_token.isKeywordTxt txt then "\"" ^ txt ^ "\"" else loop 0
+
+let findPackageJson root =
+  let path = Uri.toPath root in
+
+  let rec loop path =
+    if path = "/" then None
+    else if Files.exists (Filename.concat path "package.json") then
+      Some (Filename.concat path "package.json")
+    else
+      let parent = Filename.dirname path in
+      if parent = path then (* reached root *) None else loop parent
+  in
+  loop path
