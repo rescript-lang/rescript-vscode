@@ -237,12 +237,12 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
       match References.definedForLoc ~file ~package locKind with
       | None ->
         let typeString, docstring = t |> fromType ~docstring:[] in
-        docstring @ [typeString]
+        typeString :: docstring
       | Some (docstring, res) -> (
         match res with
         | `Declared ->
           let typeString, docstring = t |> fromType ~docstring in
-          docstring @ [typeString]
+          typeString :: docstring
         | `Constructor {cname = {txt}; args; docstring} ->
           let typeString, docstring = t |> fromType ~docstring in
           let argsString =
@@ -253,9 +253,9 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
               |> List.map (fun (t, _) -> Shared.typeToString t)
               |> String.concat ", " |> Printf.sprintf "(%s)"
           in
-          (Markdown.codeBlock (txt ^ argsString) :: docstring) @ [typeString]
+          typeString :: Markdown.codeBlock (txt ^ argsString) :: docstring
         | `Field ->
           let typeString, docstring = t |> fromType ~docstring in
-          docstring @ [typeString])
+          typeString :: docstring)
     in
-    Some (String.concat "\n\n" parts)
+    Some (String.concat Markdown.divider parts)

@@ -5,7 +5,7 @@ Definition src/Definition.res 10:23
 {"uri": "Definition.res", "range": {"start": {"line": 6, "character": 7}, "end": {"line": 6, "character": 13}}}
 
 Hover src/Definition.res 14:14
-{"contents": {"kind": "markdown", "value": " [List.map f [a1; ...; an]] applies function [f] to [a1, ..., an],\n   and builds the list [[f a1; ...; f an]]\n   with the results returned by [f].  Not tail-recursive. \n\n```rescript\n('a => 'b, list<'a>) => list<'b>\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\n('a => 'b, list<'a>) => list<'b>\n```\n [List.map f [a1; ...; an]] applies function [f] to [a1, ..., an],\n   and builds the list [[f a1; ...; f an]]\n   with the results returned by [f].  Not tail-recursive. "}}
 
 Hover src/Definition.res 18:14
 {"contents": {"kind": "markdown", "value": "```rescript\n(list<'a>, 'a => 'b) => list<'b>\n```"}}

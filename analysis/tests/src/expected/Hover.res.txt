@@ -11,7 +11,7 @@ Hover src/Hover.res 19:11
 {"contents": {"kind": "markdown", "value": "\nThis module is commented\n```rescript\nmodule Dep: {\n  let customDouble: int => int\n}\n```"}}
 
 Hover src/Hover.res 22:11
-{"contents": {"kind": "markdown", "value": "Some doc comment\n\n```rescript\nint => int\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nint => int\n```\nSome doc comment"}}
 
 Hover src/Hover.res 26:6
 getLocItem #8: heuristic for JSX with at most one child
@@ -19,7 +19,7 @@ heuristic for: [makeProps, make, createElement], give the loc of `make`
 {"contents": {"kind": "markdown", "value": "```rescript\nint\n```"}}
 
 Hover src/Hover.res 33:4
-{"contents": {"kind": "markdown", "value": "Doc comment for functionWithTypeAnnotation\n\n```rescript\nunit => int\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nunit => int\n```\nDoc comment for functionWithTypeAnnotation"}}
 
 Hover src/Hover.res 37:13
 getLocItem #5: heuristic for JSX and compiler combined:
@@ -103,10 +103,10 @@ Hover src/Hover.res 137:5
 {"contents": {"kind": "markdown", "value": "```rescript\nunit => unit => int\n```"}}
 
 Hover src/Hover.res 144:9
-{"contents": {"kind": "markdown", "value": "doc comment 1\n\n```rescript\nint\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\ndoc comment 1"}}
 
 Hover src/Hover.res 148:6
-{"contents": {"kind": "markdown", "value": " doc comment 2 \n\n```rescript\nint\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n doc comment 2 "}}
 
 Hover src/Hover.res 165:23
 {"contents": {"kind": "markdown", "value": "```rescript\nfoo<bar>\n```\n\n---\n\n```\n \n```\n```rescript\ntype foo<'a> = {content: 'a, zzz: string}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C161%2C2%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype bar = {age: int}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C162%2C2%5D)\n"}}
@@ -206,10 +206,10 @@ Resolved opens 1 pervasives
 {"contents": {"kind": "markdown", "value": "```rescript\nuseR\n```\n\n---\n\n```\n \n```\n```rescript\ntype useR = {x: int, y: list<option<r<float>>>}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C200%2C0%5D)\n\n\n---\n\n```\n \n```\n```rescript\ntype r<'a> = {i: 'a, f: float}\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C101%2C0%5D)\n"}}
 
 Hover src/Hover.res 230:20
-{"contents": {"kind": "markdown", "value": " More Stuff \n\n```rescript\nint\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n More Stuff "}}
 
 Hover src/Hover.res 233:17
-{"contents": {"kind": "markdown", "value": " More Stuff \n\n```rescript\nint\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nint\n```\n More Stuff "}}
 
 Hover src/Hover.res 245:6
 Nothing at that position. Now trying to use completion.
@@ -226,10 +226,10 @@ Resolved opens 1 pervasives
 {"contents": {"kind": "markdown", "value": " Mighty fine field here. \n\n```rescript\nbool\n```"}}
 
 Hover src/Hover.res 248:19
-{"contents": {"kind": "markdown", "value": " Mighty fine field here. \n\n```rescript\nbool\n```"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nbool\n```\n Mighty fine field here. "}}
 
 Hover src/Hover.res 253:20
-{"contents": {"kind": "markdown", "value": "```rescript\nCoolVariant\n```\n\n Cool variant! \n\n```rescript\nvariant\n```\n\n---\n\n```\n \n```\n```rescript\ntype variant = CoolVariant | OtherCoolVariant\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C251%2C0%5D)\n"}}
+{"contents": {"kind": "markdown", "value": "```rescript\nvariant\n```\n\n---\n\n```\n \n```\n```rescript\ntype variant = CoolVariant | OtherCoolVariant\n```\nGo to: [Type definition](command:rescript-vscode.go_to_location?%5B%22Hover.res%22%2C251%2C0%5D)\n\n```rescript\nCoolVariant\n```\n Cool variant! "}}
 
 Hover src/Hover.res 257:23
 Nothing at that position. Now trying to use completion.
