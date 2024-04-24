@@ -16,6 +16,7 @@
 
 - Make sure doc strings are always on top in hovers. https://github.com/rescript-lang/rescript-vscode/pull/956
 - Make JSX completion work for `make` functions of type `React.component<props>`, like what you get when using `React.lazy_`. https://github.com/rescript-lang/rescript-vscode/pull/966
+- Hover: print signature above docstrings. https://github.com/rescript-lang/rescript-vscode/pull/969
 
 #### :rocket: New Feature
 
