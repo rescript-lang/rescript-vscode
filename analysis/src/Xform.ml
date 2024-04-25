@@ -113,22 +113,7 @@ module IfThenElse = struct
       let codeAction =
         CodeActions.make ~title:"Replace with switch" ~kind:RefactorRewrite
           ~command:None
-          ~edit:
-            (Some
-               Protocol.
-                 {
-                   documentChanges =
-                     [
-                       {
-                         textDocument =
-                           {
-                             version = None;
-                             uri = path |> Uri.fromPath |> Uri.toString;
-                           };
-                         edits = [{newText; range}];
-                       };
-                     ];
-                 })
+          ~edit:(Some (CodeActions.makeEdit [{newText; range}] path))
       in
       codeActions := codeAction :: !codeActions
 end
@@ -193,22 +178,7 @@ module AddBracesToFn = struct
       let codeAction =
         CodeActions.make ~title:"Add braces to function" ~kind:RefactorRewrite
           ~command:None
-          ~edit:
-            (Some
-               Protocol.
-                 {
-                   documentChanges =
-                     [
-                       {
-                         textDocument =
-                           {
-                             version = None;
-                             uri = path |> Uri.fromPath |> Uri.toString;
-                           };
-                         edits = [{newText; range}];
-                       };
-                     ];
-                 })
+          ~edit:(Some (CodeActions.makeEdit [{newText; range}] path))
       in
       codeActions := codeAction :: !codeActions
 end
@@ -282,22 +252,7 @@ module AddTypeAnnotation = struct
           let codeAction =
             CodeActions.make ~title:"Add type annotation" ~kind:RefactorRewrite
               ~command:None
-              ~edit:
-                (Some
-                   Protocol.
-                     {
-                       documentChanges =
-                         [
-                           {
-                             textDocument =
-                               {
-                                 version = None;
-                                 uri = path |> Uri.fromPath |> Uri.toString;
-                               };
-                             edits = [{newText; range}];
-                           };
-                         ];
-                     })
+              ~edit:(Some (CodeActions.makeEdit [{newText; range}] path))
           in
           codeActions := codeAction :: !codeActions
         | _ -> ()))
@@ -434,22 +389,7 @@ module ExhaustiveSwitch = struct
           let codeAction =
             CodeActions.make ~command:None ~title:"Exhaustive switch"
               ~kind:RefactorRewrite
-              ~edit:
-                (Some
-                   Protocol.
-                     {
-                       documentChanges =
-                         [
-                           {
-                             textDocument =
-                               {
-                                 version = None;
-                                 uri = path |> Uri.fromPath |> Uri.toString;
-                               };
-                             edits = [{newText; range}];
-                           };
-                         ];
-                     })
+              ~edit:(Some (CodeActions.makeEdit [{newText; range}] path))
           in
           codeActions := codeAction :: !codeActions))
     | Some (Switch {switchExpr; completionExpr; pos}) -> (
@@ -476,22 +416,7 @@ module ExhaustiveSwitch = struct
           let codeAction =
             CodeActions.make ~title:"Exhaustive switch" ~command:None
               ~kind:RefactorRewrite (* ~uri:path ~newText ~range *)
-              ~edit:
-                (Some
-                   Protocol.
-                     {
-                       documentChanges =
-                         [
-                           {
-                             textDocument =
-                               {
-                                 version = None;
-                                 uri = path |> Uri.fromPath |> Uri.toString;
-                               };
-                             edits = [{newText; range}];
-                           };
-                         ];
-                     })
+              ~edit:(Some (CodeActions.makeEdit [{newText; range}] path))
           in
           codeActions := codeAction :: !codeActions))
 end
@@ -589,22 +514,7 @@ module AddDocTemplate = struct
           let codeAction =
             CodeActions.make ~title:"Add Documentation template"
               ~kind:RefactorRewrite ~command:None
-              ~edit:
-                (Some
-                   Protocol.
-                     {
-                       documentChanges =
-                         [
-                           {
-                             textDocument =
-                               {
-                                 version = None;
-                                 uri = path |> Uri.fromPath |> Uri.toString;
-                               };
-                             edits = [{newText; range}];
-                           };
-                         ];
-                     })
+              ~edit:(Some (CodeActions.makeEdit [{newText; range}] path))
           in
           codeActions := codeAction :: !codeActions
         | None -> ())
@@ -690,22 +600,7 @@ module AddDocTemplate = struct
           let codeAction =
             CodeActions.make ~title:"Add Documentation template"
               ~kind:RefactorRewrite ~command:None
-              ~edit:
-                (Some
-                   Protocol.
-                     {
-                       documentChanges =
-                         [
-                           {
-                             textDocument =
-                               {
-                                 version = None;
-                                 uri = path |> Uri.fromPath |> Uri.toString;
-                               };
-                             edits = [{newText; range}];
-                           };
-                         ];
-                     })
+              ~edit:(Some (CodeActions.makeEdit [{newText; range}] path))
           in
           codeActions := codeAction :: !codeActions
         | None -> ())
