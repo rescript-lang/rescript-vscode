@@ -1,268 +1,269 @@
 {
-	"name": "rescript-vscode",
-	"displayName": "ReScript",
-	"description": "ReScript language support (official)",
-	"author": "ReScript Team",
-	"license": "MIT",
-	"version": "1.50.0",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/rescript-lang/rescript-vscode"
-	},
-	"publisher": "chenglou92",
-	"icon": "logo.png",
-	"categories": [
-		"Programming Languages",
-		"Snippets",
-		"Linters",
-		"Formatters"
-	],
-	"keywords": [
-		"rescript",
-		"language-server"
-	],
-	"engines": {
-		"vscode": "^1.68.0"
-	},
-	"activationEvents": [
-		"onLanguage:rescript"
-	],
-	"main": "./client/out/extension",
-	"contributes": {
-		"semanticTokenScopes": [
-			{
-				"scopes": {
-					"interface": [
-						"entity.name.tag"
-					],
-					"modifier": [
-						"punctuation.definition.tag"
-					],
-					"type": [
-						"support.type.primitive"
-					]
-				}
-			}
-		],
-		"jsonValidation": [
-			{
-				"fileMatch": [
-					"bsconfig.json",
-					"rescript.json"
-				],
-				"url": "https://raw.githubusercontent.com/rescript-lang/rescript-compiler/master/docs/docson/build-schema.json"
-			}
-		],
-		"commands": [
-			{
-				"command": "rescript-vscode.create_interface",
-				"title": "ReScript: Create an interface file for this implementation file"
-			},
-			{
-				"command": "rescript-vscode.open_compiled",
-				"category": "ReScript",
-				"title": "Open the compiled JS file for this implementation file",
-				"icon": "$(output)"
-			},
-			{
-				"command": "rescript-vscode.start_code_analysis",
-				"title": "ReScript: Start Code Analyzer"
-			},
-			{
-				"command": "rescript-vscode.stop_code_analysis",
-				"title": "ReScript: Stop Code Analyzer"
-			},
-			{
-				"command": "rescript-vscode.restart_language_server",
-				"title": "ReScript: Restart Language Server"
-			},
-			{
-				"command": "rescript-vscode.switch-impl-intf",
-				"title": "ReScript: Switch implementation/interface",
-				"icon": {
-					"light": "assets/switch-impl-intf-light.svg",
-					"dark": "assets/switch-impl-intf-dark.svg"
-				}
-			},
-			{
-				"command": "rescript-vscode.debug-dump-start",
-				"title": "DEBUG ReScript: Dump analysis info"
-			}
-		],
-		"keybindings": [
-			{
-				"command": "rescript-vscode.switch-impl-intf",
-				"key": "Alt+O",
-				"when": "editorLangId == rescript"
-			}
-		],
-		"menus": {
-			"editor/title": [
-				{
-					"command": "rescript-vscode.open_compiled",
-					"when": "editorLangId == rescript",
-					"group": "navigation"
-				},
-				{
-					"command": "rescript-vscode.switch-impl-intf",
-					"key": "Alt+O",
-					"when": "editorLangId == rescript",
-					"group": "navigation"
-				}
-			]
-		},
-		"snippets": [
-			{
-				"language": "rescript",
-				"path": "./snippets.json"
-			}
-		],
-		"taskDefinitions_unused": [
-			{
-				"type": "bsb",
-				"required": [
-					"task"
-				],
-				"properties": {
-					"task": {
-						"type": "string",
-						"description": "The bsb task"
-					}
-				}
-			}
-		],
-		"configuration": {
-			"type": "object",
-			"title": "ReScript",
-			"properties": {
-				"rescript.settings.allowBuiltInFormatter": {
-					"scope": "language-overridable",
-					"type": "boolean",
-					"default": false,
-					"description": "Whether you want to allow the extension to format your code using its built in formatter when it cannot find a ReScript compiler version in your current project to use for formatting."
-				},
-				"rescript.settings.askToStartBuild": {
-					"scope": "language-overridable",
-					"type": "boolean",
-					"default": true,
-					"description": "Whether you want the extension to prompt for autostarting a ReScript build if a project is opened with no build running."
-				},
-				"rescript.settings.autoRunCodeAnalysis": {
-					"type": "boolean",
-					"default": false,
-					"description": "Automatically start ReScript's code analysis."
-				},
-				"rescript.settings.inlayHints.enable": {
-					"type": "boolean",
-					"default": false,
-					"description": "Enable (experimental) inlay hints."
-				},
-				"rescript.settings.inlayHints.maxLength": {
-					"markdownDescription": "Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown.",
-					"default": 25,
-					"type": [
-						"null",
-						"integer"
-					],
-					"minimum": 0
-				},
-				"rescript.settings.codeLens": {
-					"type": "boolean",
-					"default": false,
-					"description": "Enable (experimental) code lens for function definitions."
-				},
-				"rescript.settings.signatureHelp.enabled": {
-					"type": "boolean",
-					"default": true,
-					"description": "Enable signature help for function calls."
-				},
-				"rescript.settings.signatureHelp.forConstructorPayloads": {
-					"type": "boolean",
-					"default": true,
-					"description": "Enable signature help for variant constructor payloads."
-				},
-				"rescript.settings.incrementalTypechecking.enabled": {
-					"type": "boolean",
-					"default": false,
-					"description": "(beta/experimental) Enable incremental type checking."
-				},
-				"rescript.settings.incrementalTypechecking.acrossFiles": {
-					"type": "boolean",
-					"default": false,
-					"description": "(beta/experimental) Enable incremental type checking across files, so that unsaved file A gets access to unsaved file B."
-				},
-				"rescript.settings.incrementalTypechecking.debugLogging": {
-					"type": "boolean",
-					"default": false,
-					"description": "(debug) Enable debug logging (ends up in the extension output)."
-				},
-				"rescript.settings.binaryPath": {
-					"type": [
-						"string",
-						"null"
-					],
-					"default": null,
-					"description": "Path to the directory where cross-platform ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
-				},
-				"rescript.settings.platformPath": {
-					"type": [
-						"string",
-						"null"
-					],
-					"default": null,
-					"description": "Path to the directory where platform-specific ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
-				}
-			}
-		},
-		"grammars": [
-			{
-				"language": "rescript",
-				"scopeName": "source.rescript",
-				"path": "./grammars/rescript.tmLanguage.json",
-				"embeddedLanguages": {
-					"meta.embedded.block.javascript": "javascript"
-				}
-			},
-			{
-				"scopeName": "markdown.rescript.codeblock",
-				"path": "./grammars/rescript.markdown.json",
-				"injectTo": [
-					"text.html.markdown"
-				],
-				"embeddedLanguages": {
-					"meta.embedded.block.rescript": "rescript"
-				}
-			}
-		],
-		"languages": [
-			{
-				"id": "rescript",
-				"aliases": [
-					"ReScript"
-				],
-				"extensions": [
-					".res",
-					".resi"
-				],
-				"configuration": "./rescript.configuration.json"
-			}
-		]
-	},
-	"scripts": {
-		"clean": "rm -rf client/out server/out",
-		"vscode:prepublish": "npm run clean && npm run bundle",
-		"compile": "tsc -b",
-		"watch": "tsc -b -w",
-		"postinstall": "cd server && npm i && cd ../client && npm i && cd ../tools && npm i && cd ../tools/tests && npm i && cd ../../analysis/tests && npm i && cd ../reanalyze/examples/deadcode && npm i && cd ../termination && npm i",
-		"bundle-server": "esbuild server/src/cli.ts --bundle --sourcemap --outfile=server/out/cli.js --format=cjs --platform=node --loader:.node=file --minify",
-		"bundle-client": "esbuild client/src/extension.ts --bundle --external:vscode --sourcemap --outfile=client/out/extension.js --format=cjs --platform=node --loader:.node=file --minify",
-		"bundle": "npm run bundle-server && npm run bundle-client"
-	},
-	"devDependencies": {
-		"@types/node": "^14.14.41",
-		"@types/vscode": "1.68.0",
-		"esbuild": "^0.20.1",
-		"semver": "^7.3.7",
-		"typescript": "^4.7.3"
-	}
+  "name": "rescript-vscode",
+  "displayName": "ReScript",
+  "description": "ReScript language support (official)",
+  "author": "ReScript Team",
+  "license": "MIT",
+  "version": "1.50.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rescript-lang/rescript-vscode"
+  },
+  "publisher": "chenglou92",
+  "icon": "logo.png",
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters",
+    "Formatters"
+  ],
+  "keywords": [
+    "rescript",
+    "language-server"
+  ],
+  "engines": {
+    "vscode": "^1.68.0"
+  },
+  "activationEvents": [
+    "onLanguage:rescript"
+  ],
+  "main": "./client/out/extension",
+  "contributes": {
+    "semanticTokenScopes": [
+      {
+        "language": "rescript",
+        "scopes": {
+          "interface": [
+            "entity.name.tag"
+          ],
+          "modifier": [
+            "punctuation.definition.tag"
+          ],
+          "type": [
+            "support.type.primitive"
+          ]
+        }
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": [
+          "bsconfig.json",
+          "rescript.json"
+        ],
+        "url": "https://raw.githubusercontent.com/rescript-lang/rescript-compiler/master/docs/docson/build-schema.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "rescript-vscode.create_interface",
+        "title": "ReScript: Create an interface file for this implementation file"
+      },
+      {
+        "command": "rescript-vscode.open_compiled",
+        "category": "ReScript",
+        "title": "Open the compiled JS file for this implementation file",
+        "icon": "$(output)"
+      },
+      {
+        "command": "rescript-vscode.start_code_analysis",
+        "title": "ReScript: Start Code Analyzer"
+      },
+      {
+        "command": "rescript-vscode.stop_code_analysis",
+        "title": "ReScript: Stop Code Analyzer"
+      },
+      {
+        "command": "rescript-vscode.restart_language_server",
+        "title": "ReScript: Restart Language Server"
+      },
+      {
+        "command": "rescript-vscode.switch-impl-intf",
+        "title": "ReScript: Switch implementation/interface",
+        "icon": {
+          "light": "assets/switch-impl-intf-light.svg",
+          "dark": "assets/switch-impl-intf-dark.svg"
+        }
+      },
+      {
+        "command": "rescript-vscode.debug-dump-start",
+        "title": "DEBUG ReScript: Dump analysis info"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "rescript-vscode.switch-impl-intf",
+        "key": "Alt+O",
+        "when": "editorLangId == rescript"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "rescript-vscode.open_compiled",
+          "when": "editorLangId == rescript",
+          "group": "navigation"
+        },
+        {
+          "command": "rescript-vscode.switch-impl-intf",
+          "key": "Alt+O",
+          "when": "editorLangId == rescript",
+          "group": "navigation"
+        }
+      ]
+    },
+    "snippets": [
+      {
+        "language": "rescript",
+        "path": "./snippets.json"
+      }
+    ],
+    "taskDefinitions_unused": [
+      {
+        "type": "bsb",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "The bsb task"
+          }
+        }
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "ReScript",
+      "properties": {
+        "rescript.settings.allowBuiltInFormatter": {
+          "scope": "language-overridable",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether you want to allow the extension to format your code using its built in formatter when it cannot find a ReScript compiler version in your current project to use for formatting."
+        },
+        "rescript.settings.askToStartBuild": {
+          "scope": "language-overridable",
+          "type": "boolean",
+          "default": true,
+          "description": "Whether you want the extension to prompt for autostarting a ReScript build if a project is opened with no build running."
+        },
+        "rescript.settings.autoRunCodeAnalysis": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically start ReScript's code analysis."
+        },
+        "rescript.settings.inlayHints.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable (experimental) inlay hints."
+        },
+        "rescript.settings.inlayHints.maxLength": {
+          "markdownDescription": "Maximum length of character for inlay hints. Set to null to have an unlimited length. Inlay hints that exceed the maximum length will not be shown.",
+          "default": 25,
+          "type": [
+            "null",
+            "integer"
+          ],
+          "minimum": 0
+        },
+        "rescript.settings.codeLens": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable (experimental) code lens for function definitions."
+        },
+        "rescript.settings.signatureHelp.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable signature help for function calls."
+        },
+        "rescript.settings.signatureHelp.forConstructorPayloads": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable signature help for variant constructor payloads."
+        },
+        "rescript.settings.incrementalTypechecking.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "(beta/experimental) Enable incremental type checking."
+        },
+        "rescript.settings.incrementalTypechecking.acrossFiles": {
+          "type": "boolean",
+          "default": false,
+          "description": "(beta/experimental) Enable incremental type checking across files, so that unsaved file A gets access to unsaved file B."
+        },
+        "rescript.settings.incrementalTypechecking.debugLogging": {
+          "type": "boolean",
+          "default": false,
+          "description": "(debug) Enable debug logging (ends up in the extension output)."
+        },
+        "rescript.settings.binaryPath": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Path to the directory where cross-platform ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
+        },
+        "rescript.settings.platformPath": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Path to the directory where platform-specific ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
+        }
+      }
+    },
+    "grammars": [
+      {
+        "language": "rescript",
+        "scopeName": "source.rescript",
+        "path": "./grammars/rescript.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.javascript": "javascript"
+        }
+      },
+      {
+        "scopeName": "markdown.rescript.codeblock",
+        "path": "./grammars/rescript.markdown.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.rescript": "rescript"
+        }
+      }
+    ],
+    "languages": [
+      {
+        "id": "rescript",
+        "aliases": [
+          "ReScript"
+        ],
+        "extensions": [
+          ".res",
+          ".resi"
+        ],
+        "configuration": "./rescript.configuration.json"
+      }
+    ]
+  },
+  "scripts": {
+    "clean": "rm -rf client/out server/out",
+    "vscode:prepublish": "npm run clean && npm run bundle",
+    "compile": "tsc -b",
+    "watch": "tsc -b -w",
+    "postinstall": "cd server && npm i && cd ../client && npm i && cd ../tools && npm i && cd ../tools/tests && npm i && cd ../../analysis/tests && npm i && cd ../reanalyze/examples/deadcode && npm i && cd ../termination && npm i",
+    "bundle-server": "esbuild server/src/cli.ts --bundle --sourcemap --outfile=server/out/cli.js --format=cjs --platform=node --loader:.node=file --minify",
+    "bundle-client": "esbuild client/src/extension.ts --bundle --external:vscode --sourcemap --outfile=client/out/extension.js --format=cjs --platform=node --loader:.node=file --minify",
+    "bundle": "npm run bundle-server && npm run bundle-client"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.41",
+    "@types/vscode": "1.68.0",
+    "esbuild": "^0.20.1",
+    "semver": "^7.3.7",
+    "typescript": "^4.7.3"
+  }
 }
