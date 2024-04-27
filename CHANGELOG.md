@@ -12,6 +12,10 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Fix highlighting of other languages being affected by rescript-vscode. https://github.com/rescript-lang/rescript-vscode/pull/973
+
 #### :nail_care: Polish
 
 - Make sure doc strings are always on top in hovers. https://github.com/rescript-lang/rescript-vscode/pull/956
