@@ -538,7 +538,6 @@
     }
   },
   "patterns": [
-    { "include": "#storage" },
     { "include": "#ffi-single" },
     { "include": "#ffi" },
     { "include": "#constant" },
