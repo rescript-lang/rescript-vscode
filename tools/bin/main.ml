@@ -50,6 +50,12 @@ let main () =
     done;
     Sys.argv.(len - 1) <- "";
     Reanalyze.cli ()
+  | "extract-embedded" :: extPointNames :: filename :: _ ->
+    logAndExit
+      (Ok
+         (Tools.extractEmbedded
+            ~extensionPoints:(extPointNames |> String.split_on_char ',')
+            ~filename))
   | ["-h"] | ["--help"] -> logAndExit (Ok help)
   | ["-v"] | ["--version"] -> logAndExit (Ok version)
   | _ -> logAndExit (Error help)
