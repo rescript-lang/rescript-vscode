@@ -12,6 +12,8 @@
 
 ## master
 
+## 0.6.0
+
 #### :rocket: New Feature
 
 - _internal_ Add experimental command for extracting (string) contents from extension points.
