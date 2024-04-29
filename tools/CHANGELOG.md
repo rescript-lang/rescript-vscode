@@ -12,6 +12,12 @@
 
 ## master
 
+## 0.6.1
+
+#### :rocket: New Feature
+
+- Expose `getBinaryPath` JS function that you can import to get the binary to call for the current platform.
+
 ## 0.6.0
 
 #### :rocket: New Feature
