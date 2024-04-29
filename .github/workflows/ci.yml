@@ -22,6 +22,7 @@ jobs:
             macos-13, # x64
             macos-14, # ARM
             ubuntu-20.04,
+            buildjet-2vcpu-ubuntu-2204-arm, # ARM
             windows-latest,
           ]
         # syntax explanation:
@@ -33,6 +34,8 @@ jobs:
             artifact-folder: darwinarm64
           - os: ubuntu-20.04
             artifact-folder: linux
+          - os: buildjet-2vcpu-ubuntu-2204-arm
+            artifact-folder: linuxarm64
           - os: windows-latest
             artifact-folder: win32
 
@@ -134,6 +137,14 @@ jobs:
     - run: tar -xvf binary.tar
       working-directory: binaries
 
+    - name: Download Linux ARM64 binary
+      uses: actions/download-artifact@v4
+      with:
+        name: buildjet-2vcpu-ubuntu-2204-arm
+        path: binaries
+    - run: tar -xvf binary.tar
+      working-directory: binaries
+
     - name: Download Windows binary
       uses: actions/download-artifact@v4
       with:
@@ -148,7 +159,7 @@ jobs:
 
     - name: Move binaries to folders
       run: |
-        declare -a platforms=("darwin" "darwinarm64" "linux" "win32")
+        declare -a platforms=("darwin" "darwinarm64" "linux" "linuxarm64" "win32")
 
         for platform in "${platforms[@]}"; do
             mkdir server/analysis_binaries/"$platform"
