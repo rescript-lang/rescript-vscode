@@ -477,8 +477,8 @@ let extractEmbedded ~extensionPoints ~filename =
   |> List.map (fun (loc, extensionName, contents) ->
          stringifyObject
            [
-             ("extensionName", Some extensionName);
-             ("contents", Some contents);
+             ("extensionName", Some (wrapInQuotes extensionName));
+             ("contents", Some (wrapInQuotes contents));
              ("loc", Some (Analysis.Utils.cmtLocToRange loc |> stringifyRange));
            ])
   |> array
