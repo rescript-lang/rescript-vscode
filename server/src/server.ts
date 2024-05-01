@@ -1023,6 +1023,69 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
   return response;
 }
 
+enum ExecuteCommands {
+  OpenCompiledFile = "rescriptls/open-compiled-file",
+  OpenInterfaceFile = "rescriptls/open-interface-file",
+  OpenImplentationFile = "rescriptls/open-implementation-file",
+  CreateInterfaceFile = "rescriptls/create-interface-file"
+}
+
+function executeCommand(msg: p.RequestMessage): p.Message {
+  let params = msg.params as p.ExecuteCommandParams;
+  let command = params.command as ExecuteCommands;
+  let args = params.arguments;
+
+  let response: p.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: null,
+  };
+
+  if (!args) {
+    return response;
+  }
+
+  let uri = args[0];
+
+  let reqParams: p.ShowDocumentParams = {
+    uri,
+    takeFocus: true,
+  }
+
+  let request: p.RequestMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: serverSentRequestIdCounter++,
+    method: "window/showDocument",
+    params: reqParams
+  }
+
+  if (command === ExecuteCommands.OpenCompiledFile) {
+    let message = openCompiledFile({ ...msg, params: { uri } })
+    if (p.Message.isResponse(message)) {
+      let { uri } = message.result as p.TextDocumentIdentifier
+      let showDocument: p.RequestMessage = { ...request, params: { uri } }
+      send(showDocument);
+    } else {
+      send(message)
+    }
+  } else if (command === ExecuteCommands.CreateInterfaceFile) {
+    let message = createInterface({ ...msg, params: { uri } })
+    if (p.Message.isResponse(message)) {
+      let { uri } = message.result as p.TextDocumentIdentifier
+      let showDocument: p.RequestMessage = { ...request, params: { uri } }
+      send(showDocument);
+    } else {
+      send(message)
+    }
+  } else if (command === ExecuteCommands.OpenInterfaceFile) {
+    send(request);
+  } else if (command === ExecuteCommands.OpenImplentationFile) {
+    send(request);
+  }
+
+  return response
+}
+
 function onMessage(msg: p.Message) {
   if (p.Message.isNotification(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
@@ -1123,6 +1186,9 @@ function onMessage(msg: p.Message) {
           completionProvider: {
             triggerCharacters: [".", ">", "@", "~", '"', "=", "("],
             resolveProvider: true,
+          },
+          executeCommandProvider: {
+            commands: [ExecuteCommands.OpenImplentationFile, ExecuteCommands.OpenInterfaceFile, ExecuteCommands.OpenCompiledFile, ExecuteCommands.CreateInterfaceFile]
           },
           semanticTokensProvider: {
             legend: {
@@ -1254,6 +1320,8 @@ function onMessage(msg: p.Message) {
       if (extName === c.resExt) {
         send(signatureHelp(msg));
       }
+    } else if (msg.method === p.ExecuteCommandRequest.type.method) {
+      send(executeCommand(msg));
     } else {
       let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,

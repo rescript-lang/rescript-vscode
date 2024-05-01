@@ -25,6 +25,7 @@
 #### :rocket: New Feature
 
 - Add support for the rewatch build system for incremental compilation. https://github.com/rescript-lang/rescript-vscode/pull/965
+- Code Actions: open Implementation/Interface/Compiled Js and create Interface file. https://github.com/rescript-lang/rescript-vscode/pull/767
 
 ## 1.50.0
 

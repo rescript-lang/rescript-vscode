@@ -433,18 +433,22 @@ let test ~path =
             in
             Sys.remove currentFile;
             codeActions
-            |> List.iter (fun {Protocol.title; edit = {documentChanges}} ->
-                   Printf.printf "Hit: %s\n" title;
-                   documentChanges
-                   |> List.iter (fun {Protocol.edits} ->
-                          edits
-                          |> List.iter (fun {Protocol.range; newText} ->
-                                 let indent =
-                                   String.make range.start.character ' '
-                                 in
-                                 Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
-                                   (Protocol.stringifyRange range)
-                                   indent indent newText)))
+            |> List.iter (fun {Protocol.title; edit} ->
+                   match edit with
+                   | Some {documentChanges} ->
+                     Printf.printf "Hit: %s\n" title;
+                     documentChanges
+                     |> List.iter (fun {Protocol.edits} ->
+                            edits
+                            |> List.iter (fun {Protocol.range; newText} ->
+                                   let indent =
+                                     String.make range.start.character ' '
+                                   in
+                                   Printf.printf
+                                     "%s\nnewText:\n%s<--here\n%s%s\n"
+                                     (Protocol.stringifyRange range)
+                                     indent indent newText))
+                   | None -> ())
           | "c-a" ->
             let hint = String.sub rest 3 (String.length rest - 3) in
             print_endline
