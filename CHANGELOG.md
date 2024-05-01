@@ -25,6 +25,8 @@
 #### :rocket: New Feature
 
 - Add support for the rewatch build system for incremental compilation. https://github.com/rescript-lang/rescript-vscode/pull/965
+- Add support for Linux ARM64
+- Statically linked Linux binaries
 
 ## 1.50.0
 

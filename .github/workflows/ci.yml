@@ -12,16 +12,59 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  # Build statically linked Linux binaries in an Alpine-based Docker container
+  # See https://ocamlpro.com/blog/2021_09_02_generating_static_and_portable_executables_with_ocaml
+  # for more info.
+  # The container already comes with all required tools pre-installed
+  # (see https://github.com/rescript-lang/docker-rescript-ci-build/blob/main/Dockerfile).
+  build-linux:
     strategy:
       fail-fast: false
       matrix:
-        # Stay on the oldest Ubuntu version that's still supported by Github Actions
-        # to avoid glibc incompatibilities as far as possible.
+        os: [ubuntu-latest, buildjet-2vcpu-ubuntu-2204-arm]
+        # syntax explanation:
+        # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
+        include:
+          - os: ubuntu-latest
+            artifact-folder: linux
+          - os: buildjet-2vcpu-ubuntu-2204-arm
+            artifact-folder: linuxarm64
+
+    runs-on: ${{matrix.os}}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        uses: docker://ghcr.io/rescript-lang/rescript-ci-build:alpine-3.19-ocaml-5.1.1-01
+        env:
+          DUNE_PROFILE: static        
+        with:
+          args: opam exec -- make
+
+      # Also avoids artifacts upload permission loss:
+      # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
+      - name: Compress files
+        run: |
+          mkdir ${{matrix.artifact-folder}}
+          mv rescript-editor-analysis.exe ${{matrix.artifact-folder}}
+          mv rescript-tools.exe ${{matrix.artifact-folder}}
+          tar -cvf binary.tar ${{matrix.artifact-folder}}
+    
+      - name: "Upload artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{matrix.artifact-folder}}
+          path: binary.tar
+  
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
         os: [
             macos-13, # x64
             macos-14, # ARM
-            ubuntu-20.04,
             windows-latest,
           ]
         # syntax explanation:
@@ -31,8 +74,6 @@ jobs:
             artifact-folder: darwin
           - os: macos-14
             artifact-folder: darwinarm64
-          - os: ubuntu-20.04
-            artifact-folder: linux
           - os: windows-latest
             artifact-folder: win32
 
@@ -106,12 +147,14 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{matrix.os}}
+        name: ${{matrix.artifact-folder}}
         path: binary.tar
 
   package:
-    needs: test
-    runs-on: ubuntu-20.04
+    needs:
+      - build
+      - build-linux
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -125,34 +168,42 @@ jobs:
     - run: npm ci
     - run: npm run compile
 
-    - name: Download MacOS binary
+    - name: Download MacOS binaries
       uses: actions/download-artifact@v4
       with:
-        name: macos-13
+        name: darwin
         path: binaries
     - run: tar -xvf binary.tar
       working-directory: binaries
 
-    - name: Download MacOS ARM binary
+    - name: Download MacOS ARM binaries
       uses: actions/download-artifact@v4
       with:
-        name: macos-14
+        name: darwinarm64
         path: binaries
     - run: tar -xvf binary.tar
       working-directory: binaries
 
-    - name: Download Linux binary
+    - name: Download Linux binaries
       uses: actions/download-artifact@v4
       with:
-        name: ubuntu-20.04
+        name: linux
         path: binaries
     - run: tar -xvf binary.tar
       working-directory: binaries
 
-    - name: Download Windows binary
+    - name: Download Linux ARM binaries
       uses: actions/download-artifact@v4
       with:
-        name: windows-latest
+        name: linuxarm64
+        path: binaries
+    - run: tar -xvf binary.tar
+      working-directory: binaries
+
+    - name: Download Windows binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: win32
         path: binaries
     - run: tar -xvf binary.tar
       working-directory: binaries
@@ -163,7 +214,7 @@ jobs:
 
     - name: Move binaries to folders
       run: |
-        declare -a platforms=("darwin" "darwinarm64" "linux" "win32")
+        declare -a platforms=("darwin" "darwinarm64" "linux" "linuxarm64" "win32")
 
         for platform in "${platforms[@]}"; do
             mkdir server/analysis_binaries/"$platform"
