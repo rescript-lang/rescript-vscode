@@ -55,8 +55,23 @@ jobs:
 
     - name: Use OCaml
       uses: ocaml/setup-ocaml@v2
+      if: matrix.os != 'windows-latest'
       with:
-        ocaml-compiler: 4.14.x
+        ocaml-compiler: 5.1.1
+        opam-pin: false
+        opam-depext: false
+
+    - name: Use OCaml (Windows)
+      uses: ocaml/setup-ocaml@v2
+      if: matrix.os == 'windows-latest'
+      with:
+        ocaml-compiler: ocaml-variants.5.1.1+options,ocaml-option-mingw
+        opam-pin: false
+        opam-depext: false
+        opam-repositories: |
+          windows-5.0: https://github.com/dra27/opam-repository.git#windows-5.0
+          sunset: https://github.com/ocaml-opam/opam-repository-mingw.git#sunset
+          default: https://github.com/ocaml/opam-repository.git
 
     - name: Use Node.js
       uses: actions/setup-node@v4
