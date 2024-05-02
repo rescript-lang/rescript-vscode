@@ -12,6 +12,12 @@
 
 ## master
 
+## 0.6.2
+
+#### :rocket: New Feature
+
+- Ship Linux ARM64 binaries.
+
 ## 0.6.1
 
 #### :rocket: New Feature
