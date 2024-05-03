@@ -481,4 +481,4 @@ let extractEmbedded ~extensionPoints ~filename =
              ("contents", Some (wrapInQuotes contents));
              ("loc", Some (Analysis.Utils.cmtLocToRange loc |> stringifyRange));
            ])
-  |> array
+  |> List.rev |> array

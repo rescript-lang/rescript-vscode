@@ -12,6 +12,10 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- Reverse order of extracted embeds, so they're in the correct order.
+
 ## 0.6.2
 
 #### :rocket: New Feature
