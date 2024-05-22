@@ -9,3 +9,6 @@ let c = x
 
 let foo = (~xx) => xx + 1
 //                 ^ren yy
+
+let foo2 = (~xx) => xx + 1
+//            ^ren yy
