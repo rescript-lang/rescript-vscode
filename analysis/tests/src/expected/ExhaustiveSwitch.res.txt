@@ -149,3 +149,29 @@ newText:
    | Some(Three(_)) => failwith("TODO")
    }
 
+
+Complete src/ExhaustiveSwitch.res 40:24
+XXX Not found!
+Completable: CexhaustiveSwitch Value[withSomeVarian]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[withSomeVarian]
+Path withSomeVarian
+[{
+    "label": "withSomeVariant",
+    "kind": 12,
+    "tags": [],
+    "detail": "someVariant",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntype someVariant = One | Two | Three(option<bool>)\n```"}
+  }, {
+    "label": "withSomeVariant (exhaustive switch)",
+    "kind": 15,
+    "tags": [],
+    "detail": "insert exhaustive switch for value",
+    "documentation": null,
+    "filterText": "withSomeVariant",
+    "insertText": "withSomeVariant {\n   | One => ${1:%todo}\n   | Two => ${2:%todo}\n   | Three(_) => ${3:%todo}\n   }",
+    "insertTextFormat": 2
+  }]
+
+

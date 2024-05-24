@@ -2,8 +2,9 @@ SHELL = /bin/bash
 
 build:
 	dune build
-	cp _build/install/default/bin/rescript-editor-analysis rescript-editor-analysis.exe
-	cp _build/install/default/bin/rescript-tools rescript-tools.exe
+	cp -f _build/install/default/bin/rescript-editor-analysis analysis/rescript-editor-analysis.exe
+	cp -f _build/install/default/bin/rescript-editor-analysis rescript-editor-analysis.exe
+	cp -f _build/install/default/bin/rescript-tools rescript-tools.exe
 
 test:
 	make -C analysis test

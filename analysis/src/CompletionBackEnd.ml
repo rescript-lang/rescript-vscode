@@ -2205,8 +2205,11 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         | _ -> items)))
   | CexhaustiveSwitch {contextPath; exprLoc} ->
     let range = Utils.rangeOfLoc exprLoc in
+    let rescriptMajor, rescriptMinor = Packages.getReScriptVersion () in
     let printFailwithStr num =
-      "${" ^ string_of_int num ^ ":failwith(\"todo\")}"
+      if (rescriptMajor = 11 && rescriptMinor >= 1) || rescriptMajor >= 12 then
+        "${" ^ string_of_int num ^ ":%todo}"
+      else "${" ^ string_of_int num ^ ":failwith(\"todo\")}"
     in
     let withExhaustiveItem ~cases ?(startIndex = 0) (c : Completion.t) =
       (* We don't need to write out `switch` here since we know that's what the
@@ -2285,3 +2288,18 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
                     | true -> Some "true"
                     | false -> None))
            else None)
+  | CextensionNode prefix ->
+    if Utils.startsWith "todo" prefix then
+      let detail =
+        "`%todo` is used to tell the compiler that some code still needs to be \
+         implemented."
+      in
+      [
+        Completion.create "todo" ~kind:(Label "todo") ~detail ~env
+          ~insertText:"todo";
+        Completion.create "todo (with payload)" ~includesSnippets:true
+          ~kind:(Label "todo")
+          ~detail:(detail ^ " With a payload.")
+          ~env ~insertText:"todo(\"${0:TODO}\")";
+      ]
+    else []

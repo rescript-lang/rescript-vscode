@@ -338,6 +338,17 @@ let test ~path =
           | "db-" -> Log.verbose := false
           | "dv+" -> Debug.debugLevel := Verbose
           | "dv-" -> Debug.debugLevel := Off
+          | "ve+" -> (
+            let version = String.sub rest 3 (String.length rest - 3) in
+            let version = String.trim version in
+            if Debug.verbose () then
+              Printf.printf "Setting version: %s\n" version;
+            match String.split_on_char '.' version with
+            | [majorRaw; minorRaw] ->
+              let version = (int_of_string majorRaw, int_of_string minorRaw) in
+              Packages.overrideRescriptVersion := Some version
+            | _ -> ())
+          | "ve-" -> Packages.overrideRescriptVersion := None
           | "def" ->
             print_endline
               ("Definition " ^ path ^ " " ^ string_of_int line ^ ":"
