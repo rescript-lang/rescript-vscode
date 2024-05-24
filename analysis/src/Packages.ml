@@ -11,21 +11,26 @@ let makePathsForModule ~projectFilesAndPaths ~dependenciesFilesAndPaths =
          Hashtbl.replace pathsForModule modName paths);
   pathsForModule
 
+let overrideRescriptVersion = ref None
+
 let getReScriptVersion () =
-  (* TODO: Include patch stuff when needed *)
-  let defaultVersion = (11, 0) in
-  try
-    let value = Sys.getenv "RESCRIPT_VERSION" in
-    let version =
-      match value |> String.split_on_char '.' with
-      | major :: minor :: _rest -> (
-        match (int_of_string_opt major, int_of_string_opt minor) with
-        | Some major, Some minor -> (major, minor)
-        | _ -> defaultVersion)
-      | _ -> defaultVersion
-    in
-    version
-  with Not_found -> defaultVersion
+  match !overrideRescriptVersion with
+  | Some overrideRescriptVersion -> overrideRescriptVersion
+  | None -> (
+    (* TODO: Include patch stuff when needed *)
+    let defaultVersion = (11, 0) in
+    try
+      let value = Sys.getenv "RESCRIPT_VERSION" in
+      let version =
+        match value |> String.split_on_char '.' with
+        | major :: minor :: _rest -> (
+          match (int_of_string_opt major, int_of_string_opt minor) with
+          | Some major, Some minor -> (major, minor)
+          | _ -> defaultVersion)
+        | _ -> defaultVersion
+      in
+      version
+    with Not_found -> defaultVersion)
 
 let newBsPackage ~rootPath =
   let rescriptJson = Filename.concat rootPath "rescript.json" in

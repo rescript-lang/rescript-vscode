@@ -266,3 +266,25 @@ Resolved opens 1 pervasives
     "documentation": null
   }]
 
+Complete src/CompletionAttributes.res 36:14
+posCursor:[36:14] posNoWhite:[36:13] Found expr:[36:12->36:14]
+Completable: CextensionNode(t)
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+[{
+    "label": "todo",
+    "kind": 4,
+    "tags": [],
+    "detail": "`%todo` is used to tell the compiler that some code still needs to be implemented.",
+    "documentation": null,
+    "insertText": "todo"
+  }, {
+    "label": "todo (with payload)",
+    "kind": 4,
+    "tags": [],
+    "detail": "`%todo` is used to tell the compiler that some code still needs to be implemented. With a payload.",
+    "documentation": null,
+    "insertText": "todo(\"${0:TODO}\")",
+    "insertTextFormat": 2
+  }]
+

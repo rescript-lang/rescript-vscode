@@ -642,6 +642,7 @@ module Completable = struct
   type t =
     | Cdecorator of string  (** e.g. @module *)
     | CdecoratorPayload of decoratorPayload
+    | CextensionNode of string  (** e.g. %todo *)
     | CnamedArg of contextPath * string * string list
         (** e.g. (..., "label", ["l1", "l2"]) for ...(...~l1...~l2...~label...) *)
     | Cnone  (** e.g. don't complete inside strings *)
@@ -723,6 +724,7 @@ module Completable = struct
   let toString = function
     | Cpath cp -> "Cpath " ^ contextPathToString cp
     | Cdecorator s -> "Cdecorator(" ^ str s ^ ")"
+    | CextensionNode s -> "CextensionNode(" ^ str s ^ ")"
     | CdecoratorPayload (Module s) -> "CdecoratorPayload(module=" ^ s ^ ")"
     | CdecoratorPayload (ModuleWithImportAttributes _) ->
       "CdecoratorPayload(moduleWithImportAttributes)"

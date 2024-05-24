@@ -34,3 +34,6 @@
 // @module({from: }) external doStuff: t = "default"
 //               ^com
 
+// let dd = %t
+//            ^com
+
