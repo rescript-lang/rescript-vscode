@@ -430,7 +430,30 @@ module ExpandCatchAllForVariants = struct
           in
           codeActions := codeAction :: !codeActions
         else ()
-      (*| Some (Tpolyvariant {constructors}) -> ()*)
+      | Some (Tpolyvariant {constructors}) ->
+        let missingConstructors =
+          constructors
+          |> List.filter (fun (c : SharedTypes.polyVariantConstructor) ->
+                 currentConstructorNames |> List.mem c.name = false)
+        in
+        if List.length missingConstructors > 0 then
+          let newText =
+            missingConstructors
+            |> List.map (fun (c : SharedTypes.polyVariantConstructor) ->
+                   Res_printer.polyVarIdentToString c.name
+                   ^
+                   match c.args with
+                   | [] -> ""
+                   | _ -> "(_)")
+            |> String.concat " | "
+          in
+          let range = rangeOfLoc catchAllCase.pc_lhs.ppat_loc in
+          let codeAction =
+            CodeActions.make ~title:"Expand catch-all" ~kind:RefactorRewrite
+              ~uri:path ~newText ~range
+          in
+          codeActions := codeAction :: !codeActions
+        else ()
       | _ -> ())
 end
 

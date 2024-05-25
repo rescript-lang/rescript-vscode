@@ -206,3 +206,20 @@ newText:
   <--here
   Second | Third | Fourth(_)
 
+Xform src/Xform.res 88:4
+posCursor:[86:16] posNoWhite:[86:14] Found expr:[86:9->90:1]
+Completable: Cpath Value[polyvariant]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[polyvariant]
+Path polyvariant
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Expand catch-all
+
+TextDocumentEdit: Xform.res
+{"start": {"line": 88, "character": 2}, "end": {"line": 88, "character": 3}}
+newText:
+  <--here
+  #second | #"illegal identifier" | #third(_)
+

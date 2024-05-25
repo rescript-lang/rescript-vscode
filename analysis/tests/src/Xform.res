@@ -81,3 +81,11 @@ let _x = switch variant {
 | _ => "other"
 //  ^xfm
 }
+
+let polyvariant: [#first | #second | #"illegal identifier" | #third(int)] = #first
+
+let _y = switch polyvariant {
+| #first => "first"
+| _ => "other"
+//  ^xfm
+}
