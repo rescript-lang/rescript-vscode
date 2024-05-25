@@ -167,7 +167,7 @@ newText:
       }
     }
 
-Xform src/Xform.res 70:5
+Xform src/Xform.res 72:5
 Hit: Extract module as file
 
 CreateFile: ExtractableModule.res
@@ -176,13 +176,15 @@ TextDocumentEdit: ExtractableModule.res
 {"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 0}}
 newText:
 <--here
+/** Doc comment. */
 type t = int
+// A comment here
 let doStuff = a => a + 1
 // ^xfm
 
 
 TextDocumentEdit: src/Xform.res
-{"start": {"line": 68, "character": 0}, "end": {"line": 72, "character": 1}}
+{"start": {"line": 68, "character": 0}, "end": {"line": 74, "character": 1}}
 newText:
 <--here
 
