@@ -117,6 +117,75 @@ module IfThenElse = struct
       codeActions := codeAction :: !codeActions
 end
 
+module ModuleToFile = struct
+  let mkIterator ~pos ~changed ~path ~printStandaloneStructure =
+    let structure_item (iterator : Ast_iterator.iterator)
+        (structure_item : Parsetree.structure_item) =
+      (match structure_item.pstr_desc with
+      | Pstr_module
+          {pmb_loc; pmb_name; pmb_expr = {pmod_desc = Pmod_structure structure}}
+        when structure_item.pstr_loc |> Loc.hasPos ~pos ->
+        let range = rangeOfLoc structure_item.pstr_loc in
+        let newTextInCurrentFile = "" in
+        let textForExtractedFile =
+          printStandaloneStructure ~loc:pmb_loc structure
+        in
+        let moduleName = pmb_name.txt in
+        let newFilePath =
+          Uri.fromPath
+            (Filename.concat (Filename.dirname path) moduleName ^ ".res")
+        in
+        changed :=
+          Some
+            (CodeActions.makeWithDocumentChanges ~title:"Extract module as file"
+               ~kind:RefactorRewrite
+               ~documentChanges:
+                 [
+                   Protocol.CreateFile
+                     {
+                       uri = newFilePath |> Uri.toString;
+                       options =
+                         Some
+                           {overwrite = Some false; ignoreIfExists = Some true};
+                     };
+                   TextDocumentEdit
+                     {
+                       textDocument =
+                         {uri = newFilePath |> Uri.toString; version = None};
+                       edits =
+                         [
+                           {
+                             newText = textForExtractedFile;
+                             range =
+                               {
+                                 start = {line = 0; character = 0};
+                                 end_ = {line = 0; character = 0};
+                               };
+                           };
+                         ];
+                     };
+                   TextDocumentEdit
+                     {
+                       textDocument = {uri = path; version = None};
+                       edits = [{newText = newTextInCurrentFile; range}];
+                     };
+                 ]);
+        ()
+      | _ -> ());
+      Ast_iterator.default_iterator.structure_item iterator structure_item
+    in
+
+    {Ast_iterator.default_iterator with structure_item}
+
+  let xform ~pos ~codeActions ~path ~printStandaloneStructure structure =
+    let changed = ref None in
+    let iterator = mkIterator ~pos ~path ~changed ~printStandaloneStructure in
+    iterator.structure iterator structure;
+    match !changed with
+    | None -> ()
+    | Some codeAction -> codeActions := codeAction :: !codeActions
+end
+
 module AddBracesToFn = struct
   (* Add braces to fn without braces *)
 
@@ -626,7 +695,12 @@ let parseImplementation ~filename =
          ~comments:(comments |> filterComments ~loc:item.pstr_loc)
     |> Utils.indent range.start.character
   in
-  (structure, printExpr, printStructureItem)
+  let printStandaloneStructure ~(loc : Location.t) structure =
+    structure
+    |> Res_printer.printImplementation ~width:!Res_cli.ResClflags.width
+         ~comments:(comments |> filterComments ~loc)
+  in
+  (structure, printExpr, printStructureItem, printStandaloneStructure)
 
 let parseInterface ~filename =
   let {Res_driver.parsetree = structure; comments} =
@@ -654,10 +728,12 @@ let extractCodeActions ~path ~startPos ~endPos ~currentFile ~debug =
   let codeActions = ref [] in
   match Files.classifySourceFile currentFile with
   | Res ->
-    let structure, printExpr, printStructureItem =
+    let structure, printExpr, printStructureItem, printStandaloneStructure =
       parseImplementation ~filename:currentFile
     in
     IfThenElse.xform ~pos ~codeActions ~printExpr ~path structure;
+    ModuleToFile.xform ~pos ~codeActions ~path ~printStandaloneStructure
+      structure;
     AddBracesToFn.xform ~pos ~codeActions ~path ~printStructureItem structure;
     AddDocTemplate.Implementation.xform ~pos ~codeActions ~path
       ~printStructureItem ~structure;

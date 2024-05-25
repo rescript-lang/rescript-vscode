@@ -119,6 +119,8 @@ Path getV
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Hit: Exhaustive switch
+
+TextDocumentEdit: ExhaustiveSwitch.res
 {"start": {"line": 33, "character": 3}, "end": {"line": 33, "character": 10}}
 newText:
    <--here
@@ -138,6 +140,8 @@ Path vvv
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Hit: Exhaustive switch
+
+TextDocumentEdit: ExhaustiveSwitch.res
 {"start": {"line": 36, "character": 3}, "end": {"line": 36, "character": 6}}
 newText:
    <--here

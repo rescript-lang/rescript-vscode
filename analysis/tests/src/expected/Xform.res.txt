@@ -8,6 +8,8 @@ Path kind
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Hit: Replace with switch
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 1}}
 newText:
 <--here
@@ -20,6 +22,8 @@ switch kind {
 
 Xform src/Xform.res 13:15
 Hit: Replace with switch
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 13, "character": 0}, "end": {"line": 13, "character": 79}}
 newText:
 <--here
@@ -30,11 +34,15 @@ switch kind {
 
 Xform src/Xform.res 16:5
 Hit: Add type annotation
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 16, "character": 8}, "end": {"line": 16, "character": 8}}
 newText:
         <--here
         : string
 Hit: Add Documentation template
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 16, "character": 0}, "end": {"line": 16, "character": 18}}
 newText:
 <--here
@@ -45,6 +53,8 @@ let name = "hello"
 
 Xform src/Xform.res 19:5
 Hit: Add Documentation template
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 19, "character": 0}, "end": {"line": 19, "character": 23}}
 newText:
 <--here
@@ -55,6 +65,8 @@ let annotated: int = 34
 
 Xform src/Xform.res 26:10
 Hit: Add type annotation
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 26, "character": 10}, "end": {"line": 26, "character": 11}}
 newText:
           <--here
@@ -62,6 +74,8 @@ newText:
 
 Xform src/Xform.res 30:9
 Hit: Add braces to function
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 26, "character": 0}, "end": {"line": 32, "character": 3}}
 newText:
 <--here
@@ -76,6 +90,8 @@ let foo = x => {
 
 Xform src/Xform.res 34:21
 Hit: Add type annotation
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 34, "character": 24}, "end": {"line": 34, "character": 24}}
 newText:
                         <--here
@@ -83,6 +99,8 @@ newText:
 
 Xform src/Xform.res 38:5
 Hit: Add Documentation template
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 37, "character": 0}, "end": {"line": 38, "character": 40}}
 newText:
 <--here
@@ -94,6 +112,8 @@ let make = (~name) => React.string(name)
 
 Xform src/Xform.res 41:9
 Hit: Add type annotation
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 41, "character": 11}, "end": {"line": 41, "character": 11}}
 newText:
            <--here
@@ -110,6 +130,8 @@ Path name
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 Hit: Add braces to function
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 48, "character": 0}, "end": {"line": 48, "character": 25}}
 newText:
 <--here
@@ -119,6 +141,8 @@ let noBraces = () => {
 
 Xform src/Xform.res 52:34
 Hit: Add braces to function
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 51, "character": 0}, "end": {"line": 54, "character": 1}}
 newText:
 <--here
@@ -131,6 +155,8 @@ let nested = () => {
 
 Xform src/Xform.res 62:6
 Hit: Add braces to function
+
+TextDocumentEdit: Xform.res
 {"start": {"line": 58, "character": 4}, "end": {"line": 62, "character": 7}}
 newText:
     <--here
@@ -140,4 +166,26 @@ newText:
       | #stuff => 4
       }
     }
+
+Xform src/Xform.res 72:5
+Hit: Extract module as file
+
+CreateFile: ExtractableModule.res
+
+TextDocumentEdit: ExtractableModule.res
+{"start": {"line": 0, "character": 0}, "end": {"line": 0, "character": 0}}
+newText:
+<--here
+/** Doc comment. */
+type t = int
+// A comment here
+let doStuff = a => a + 1
+// ^xfm
+
+
+TextDocumentEdit: src/Xform.res
+{"start": {"line": 68, "character": 0}, "end": {"line": 74, "character": 1}}
+newText:
+<--here
+
 

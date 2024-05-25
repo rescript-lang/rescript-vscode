@@ -65,3 +65,11 @@ let bar = () => {
   }
   @res.partial Inner.foo(1)
 }
+
+module ExtractableModule = {
+  /** Doc comment. */
+  type t = int
+  // A comment here
+  let doStuff = a => a + 1
+  // ^xfm
+}
