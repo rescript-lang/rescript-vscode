@@ -2230,13 +2230,13 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Type[withUncurried]
 Path withUncurried
 [{
-    "label": "v => {}",
+    "label": "v => v",
     "kind": 12,
     "tags": [],
     "detail": "int => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:v} => {$0}",
+    "insertText": "${1:v} => ${0:v}",
     "insertTextFormat": 2
   }]
 

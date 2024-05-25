@@ -203,13 +203,13 @@ ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
 Path PervasivesU.JsxDOM.domProps
 [{
-    "label": "event => {}",
+    "label": "event => event",
     "kind": 12,
     "tags": [],
     "detail": "JsxEventU.Mouse.t => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "{${1:event} => {$0}}",
+    "insertText": "{${1:event} => ${0:event}}",
     "insertTextFormat": 2
   }]
 

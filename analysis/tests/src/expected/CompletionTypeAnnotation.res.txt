@@ -156,7 +156,7 @@ Path someFunc
     "detail": "(int, string) => bool",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(${1:v1}, ${2:v2}) => {$0}",
+    "insertText": "(${1:v1}, ${2:v2}) => {${0:()}}",
     "insertTextFormat": 2
   }]
 
