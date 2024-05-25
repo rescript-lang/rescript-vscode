@@ -1,8 +1,8 @@
-type kind = First | Second | Third
+type kind = First | Second | Third | Fourth(int)
 type r = {name: string, age: int}
 
-let ret = _ => assert false
-let kind = assert false
+let ret = _ => assert(false)
+let kind = assert(false)
 
 if kind == First {
   // ^xfm
@@ -63,7 +63,7 @@ let bar = () => {
       }
     //^xfm
   }
-  @res.partial Inner.foo(1)
+  Inner.foo(1, ...)
 }
 
 module ExtractableModule = {
@@ -72,4 +72,37 @@ module ExtractableModule = {
   // A comment here
   let doStuff = a => a + 1
   // ^xfm
+}
+
+let variant = First
+
+let _x = switch variant {
+| First => "first"
+| _ => "other"
+//  ^xfm
+}
+
+let polyvariant: [#first | #second | #"illegal identifier" | #third(int)] = #first
+
+let _y = switch polyvariant {
+| #first => "first"
+| _ => "other"
+//  ^xfm
+}
+
+let variantOpt = Some(variant)
+
+let _x = switch variantOpt {
+| Some(First) => "first"
+| _ => "other"
+//  ^xfm
+}
+
+let polyvariantOpt = Some(polyvariant)
+
+let _x = switch polyvariantOpt {
+| Some(#first) => "first"
+| None => "nothing"
+| _ => "other"
+//  ^xfm
 }

@@ -1005,7 +1005,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
     typedCompletionExpr expr;
     match expr.pexp_desc with
     | Pexp_match (expr, cases)
-      when cases <> [] && locHasCursor expr.pexp_loc = false ->
+      when cases <> []
+           && locHasCursor expr.pexp_loc = false
+           && Option.is_none findThisExprLoc ->
       if Debug.verbose () then
         print_endline "[completionFrontend] Checking each case";
       let ctxPath = exprToContextPath expr in
