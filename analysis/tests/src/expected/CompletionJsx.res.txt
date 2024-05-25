@@ -600,3 +600,18 @@ Path MultiPropComp.make
     "insertTextFormat": 2
   }]
 
+Complete src/CompletionJsx.res 89:26
+posCursor:[89:26] posNoWhite:[89:24] Found expr:[89:4->89:27]
+JSX <Info:[89:4->89:8] _type[89:9->89:14]=...[89:16->89:24]> _children:89:26
+Completable: Cjsx([Info], "", [_type])
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Path Info.make
+[{
+    "label": "key",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null
+  }]
+

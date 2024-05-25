@@ -909,7 +909,10 @@ let findJsxPropsCompletable ~jsxProps ~endPos ~posBeforeCursor
                  nested = [];
                }))
         else None)
-      else if rest = [] && beforeChildrenStart && charAtCursor = '>' then (
+      else if
+        rest = [] && beforeChildrenStart && charAtCursor = '>'
+        && firstCharBeforeCursorNoWhite = Some '='
+      then (
         (* This is a special case for: <SomeComponent someProp=> (completing directly after the '=').
            The completion comes at the end of the component, after the equals sign, but before any
            children starts, and '>' marks that it's at the end of the component JSX.
