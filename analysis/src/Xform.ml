@@ -532,7 +532,7 @@ module ExpandCatchAllForVariants = struct
               "Some("
               ^ (missingConstructors
                 |> List.map (fun (name, hasArgs) ->
-                       name ^ if hasArgs then "" else "(_)")
+                       name ^ if hasArgs then "(_)" else "")
                 |> String.concat " | ")
               ^ ")"
             in

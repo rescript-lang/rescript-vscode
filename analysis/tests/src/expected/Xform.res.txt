@@ -238,7 +238,7 @@ TextDocumentEdit: Xform.res
 {"start": {"line": 96, "character": 2}, "end": {"line": 96, "character": 3}}
 newText:
   <--here
-  Some(Second(_) | Third(_) | Fourth) | None
+  Some(Second | Third | Fourth(_)) | None
 
 Xform src/Xform.res 105:4
 posCursor:[102:16] posNoWhite:[102:14] Found expr:[102:9->107:1]
@@ -255,5 +255,5 @@ TextDocumentEdit: Xform.res
 {"start": {"line": 105, "character": 2}, "end": {"line": 105, "character": 3}}
 newText:
   <--here
-  Some(#"illegal identifier"(_) | #second(_) | #third)
+  Some(#"illegal identifier" | #second | #third(_))
 
