@@ -144,7 +144,10 @@ let definition ~path ~pos ~debug =
           if skipLoc then None
           else
             Some
-              {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc}
+              {
+                Protocol.uri = Files.canonicalizeUri uri;
+                range = Utils.cmtLocToRange loc;
+              }
         | Some _ -> None))
   in
   print_endline
@@ -164,7 +167,10 @@ let typeDefinition ~path ~pos ~debug =
         | None -> None
         | Some (uri, loc) ->
           Some
-            {Protocol.uri = Uri.toString uri; range = Utils.cmtLocToRange loc}))
+            {
+              Protocol.uri = Files.canonicalizeUri uri;
+              range = Utils.cmtLocToRange loc;
+            }))
   in
   print_endline
     (match maybeLocation with
