@@ -24,6 +24,7 @@
 - Make JSX completion work for `make` functions of type `React.component<props>`, like what you get when using `React.lazy_`. https://github.com/rescript-lang/rescript-vscode/pull/966
 - Hover: print signature above docstrings. https://github.com/rescript-lang/rescript-vscode/pull/969
 - Adjust function template snippet return. https://github.com/rescript-lang/rescript-vscode/pull/985
+- Don't expand `type t` maker functions in patterns. https://github.com/rescript-lang/rescript-vscode/pull/986
 
 #### :rocket: New Feature
 
