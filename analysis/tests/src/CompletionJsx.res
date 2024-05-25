@@ -87,7 +87,5 @@ module Info = {
   }
 }
 
-// ^dv+
 // <Info _type={#warning} >
 //                        ^com
-// ^dv-

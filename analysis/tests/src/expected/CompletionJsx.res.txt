@@ -600,13 +600,9 @@ Path MultiPropComp.make
     "insertTextFormat": 2
   }]
 
-
-Complete src/CompletionJsx.res 90:26
-[decoratorCompletion] Found @module with non-string payload
-posCursor:[90:26] posNoWhite:[90:24] Found expr:[90:4->90:27]
-JSX <Info:[90:4->90:8] _type[90:9->90:14]=...[90:16->90:24]> _children:90:26
-[jsx_props_completable]--> Complete for JSX prop name
-[set_result] set new result to Cjsx([Info], "", [_type])
+Complete src/CompletionJsx.res 89:26
+posCursor:[89:26] posNoWhite:[89:24] Found expr:[89:4->89:27]
+JSX <Info:[89:4->89:8] _type[89:9->89:14]=...[89:16->89:24]> _children:89:26
 Completable: Cjsx([Info], "", [_type])
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -618,5 +614,4 @@ Path Info.make
     "detail": "string",
     "documentation": null
   }]
-
 

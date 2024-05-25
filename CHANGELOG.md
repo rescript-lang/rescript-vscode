@@ -16,6 +16,7 @@
 
 - Fix highlighting of other languages being affected by rescript-vscode. https://github.com/rescript-lang/rescript-vscode/pull/973
 - Use canonicalized URIs/paths for jump to definition. https://github.com/rescript-lang/rescript-vscode/pull/982
+- Fix JSX prop special case in end of JSX element. https://github.com/rescript-lang/rescript-vscode/pull/984
 
 #### :nail_care: Polish
 
