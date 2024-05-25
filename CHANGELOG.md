@@ -29,6 +29,7 @@
 - Statically linked Linux binaries
 - Emit `%todo` instead of `failwith("TODO")` when we can (ReScript >= v11.1). https://github.com/rescript-lang/rescript-vscode/pull/981
 - Complete `%todo`. https://github.com/rescript-lang/rescript-vscode/pull/981
+- Add code action for extracting a locally defined module into its own file. https://github.com/rescript-lang/rescript-vscode/pull/983
 
 ## 1.50.0
 
