@@ -1355,8 +1355,9 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
   let printConstructorArgs = printConstructorArgs ~mode in
   let create = Completion.create ?typeArgContext in
   match t with
-  | TtypeT {env; path} ->
-    if Debug.verbose () then print_endline "[complete_typed_value]--> TtypeT";
+  | TtypeT {env; path} when mode = Expression ->
+    if Debug.verbose () then
+      print_endline "[complete_typed_value]--> TtypeT (Expression)";
     (* Find all values in the module with type t *)
     let valueWithTypeT t =
       match t.Types.desc with
@@ -1445,6 +1446,22 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
       create "false" ~kind:(Label "bool") ~env;
     ]
     |> filterItems ~prefix
+  | TtypeT {env; path} ->
+    if Debug.verbose () then
+      print_endline "[complete_typed_value]--> TtypeT (Pattern)";
+    (* This is in patterns. Emit an alias/binding with the module name as a value name. *)
+    if prefix <> "" then []
+    else
+      let moduleName =
+        match path |> Utils.expandPath with
+        | _t :: moduleName :: _rest -> String.uncapitalize_ascii moduleName
+        | _ -> "value"
+      in
+      [
+        create moduleName ~kind:(Label moduleName) ~env
+          ~insertText:("${0:" ^ moduleName ^ "}")
+          ~includesSnippets:true;
+      ]
   | Tvariant {env; constructors; variantDecl; variantName} ->
     if Debug.verbose () then print_endline "[complete_typed_value]--> Tvariant";
     constructors
