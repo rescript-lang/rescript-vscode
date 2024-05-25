@@ -6,7 +6,7 @@ let rec collectPatterns p =
   | _ -> [p]
 
 let transform ~path ~pos ~debug ~typ ~hint =
-  let structure, printExpr, _ = Xform.parseImplementation ~filename:path in
+  let structure, printExpr, _, _ = Xform.parseImplementation ~filename:path in
   match typ with
   | AddMissingCases -> (
     let source = "let " ^ hint ^ " = ()" in

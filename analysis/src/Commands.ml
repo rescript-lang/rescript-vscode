@@ -447,15 +447,23 @@ let test ~path =
             |> List.iter (fun {Protocol.title; edit = {documentChanges}} ->
                    Printf.printf "Hit: %s\n" title;
                    documentChanges
-                   |> List.iter (fun {Protocol.edits} ->
-                          edits
-                          |> List.iter (fun {Protocol.range; newText} ->
-                                 let indent =
-                                   String.make range.start.character ' '
-                                 in
-                                 Printf.printf "%s\nnewText:\n%s<--here\n%s%s\n"
-                                   (Protocol.stringifyRange range)
-                                   indent indent newText)))
+                   |> List.iter (fun dc ->
+                          match dc with
+                          | Protocol.TextDocumentEdit tde ->
+                            Printf.printf "\nTextDocumentEdit: %s\n"
+                              tde.textDocument.uri;
+
+                            tde.edits
+                            |> List.iter (fun {Protocol.range; newText} ->
+                                   let indent =
+                                     String.make range.start.character ' '
+                                   in
+                                   Printf.printf
+                                     "%s\nnewText:\n%s<--here\n%s%s\n"
+                                     (Protocol.stringifyRange range)
+                                     indent indent newText)
+                          | CreateFile cf ->
+                            Printf.printf "\nCreateFile: %s\n" cf.uri))
           | "c-a" ->
             let hint = String.sub rest 3 (String.length rest - 3) in
             print_endline

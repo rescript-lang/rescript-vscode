@@ -65,3 +65,9 @@ let bar = () => {
   }
   @res.partial Inner.foo(1)
 }
+
+module ExtractableModule = {
+  type t = int
+  let doStuff = a => a + 1
+  // ^xfm
+}

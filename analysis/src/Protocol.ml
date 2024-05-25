@@ -75,7 +75,14 @@ type textDocumentEdit = {
   edits: textEdit list;
 }
 
-type codeActionEdit = {documentChanges: textDocumentEdit list}
+type createFileOptions = {overwrite: bool option; ignoreIfExists: bool option}
+type createFile = {uri: string; options: createFileOptions option}
+
+type documentChange =
+  | TextDocumentEdit of textDocumentEdit
+  | CreateFile of createFile
+
+type codeActionEdit = {documentChanges: documentChange list}
 type codeActionKind = RefactorRewrite
 
 type codeAction = {
@@ -232,13 +239,41 @@ let stringifyTextDocumentEdit tde =
     (stringifyoptionalVersionedTextDocumentIdentifier tde.textDocument)
     (tde.edits |> List.map stringifyTextEdit |> array)
 
+let stringifyCreateFile cf =
+  stringifyObject
+    [
+      ("kind", Some "create");
+      ("uri", Some cf.uri);
+      ( "options",
+        match cf.options with
+        | None -> None
+        | Some options ->
+          Some
+            (stringifyObject
+               [
+                 ( "overwrite",
+                   match options.overwrite with
+                   | None -> None
+                   | Some ov -> Some (string_of_bool ov) );
+                 ( "ignoreIfExists",
+                   match options.ignoreIfExists with
+                   | None -> None
+                   | Some i -> Some (string_of_bool i) );
+               ]) );
+    ]
+
+let stringifyDocumentChange dc =
+  match dc with
+  | TextDocumentEdit tde -> stringifyTextDocumentEdit tde
+  | CreateFile cf -> stringifyCreateFile cf
+
 let codeActionKindToString kind =
   match kind with
   | RefactorRewrite -> "refactor.rewrite"
 
 let stringifyCodeActionEdit cae =
   Printf.sprintf {|{"documentChanges": %s}|}
-    (cae.documentChanges |> List.map stringifyTextDocumentEdit |> array)
+    (cae.documentChanges |> List.map stringifyDocumentChange |> array)
 
 let stringifyCodeAction ca =
   Printf.sprintf {|{"title": "%s", "kind": "%s", "edit": %s}|} ca.title

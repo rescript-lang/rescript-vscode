@@ -13,6 +13,15 @@ let make ~title ~kind ~uri ~newText ~range =
     edit =
       {
         documentChanges =
-          [{textDocument = {version = None; uri}; edits = [{newText; range}]}];
+          [
+            TextDocumentEdit
+              {
+                Protocol.textDocument = {version = None; uri};
+                edits = [{newText; range}];
+              };
+          ];
       };
   }
+
+let makeWithDocumentChanges ~title ~kind ~documentChanges =
+  {Protocol.title; codeActionKind = kind; edit = {documentChanges}}
