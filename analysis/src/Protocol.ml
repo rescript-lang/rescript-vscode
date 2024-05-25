@@ -242,8 +242,8 @@ let stringifyTextDocumentEdit tde =
 let stringifyCreateFile cf =
   stringifyObject
     [
-      ("kind", Some "create");
-      ("uri", Some cf.uri);
+      ("kind", Some (wrapInQuotes "create"));
+      ("uri", Some (wrapInQuotes cf.uri));
       ( "options",
         match cf.options with
         | None -> None
