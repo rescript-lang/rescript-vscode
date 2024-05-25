@@ -454,6 +454,99 @@ module ExpandCatchAllForVariants = struct
           in
           codeActions := codeAction :: !codeActions
         else ()
+      | Some (Toption (env, innerType)) -> (
+        if Debug.verbose () then
+          print_endline
+            "[codeAction - ExpandCatchAllForVariants] Found option type";
+        let innerType =
+          match innerType with
+          | ExtractedType t -> Some t
+          | TypeExpr t -> (
+            match TypeUtils.extractType ~env ~package:full.package t with
+            | None -> None
+            | Some (t, _) -> Some t)
+        in
+        match innerType with
+        | Some ((Tvariant _ | Tpolyvariant _) as variant) ->
+          let currentConstructorNames =
+            cases
+            |> List.filter_map (fun (c : Parsetree.case) ->
+                   match c with
+                   | {
+                    pc_lhs =
+                      {
+                        ppat_desc =
+                          Ppat_construct
+                            ( {txt = Lident "Some"},
+                              Some {ppat_desc = Ppat_construct ({txt}, _)} );
+                      };
+                   } ->
+                     Some (Longident.last txt)
+                   | {
+                    pc_lhs =
+                      {
+                        ppat_desc =
+                          Ppat_construct
+                            ( {txt = Lident "Some"},
+                              Some {ppat_desc = Ppat_variant (name, _)} );
+                      };
+                   } ->
+                     Some name
+                   | _ -> None)
+          in
+          let hasNoneCase =
+            cases
+            |> List.exists (fun (c : Parsetree.case) ->
+                   match c.pc_lhs.ppat_desc with
+                   | Ppat_construct ({txt = Lident "None"}, _) -> true
+                   | _ -> false)
+          in
+          let missingConstructors =
+            match variant with
+            | Tvariant {constructors} ->
+              constructors
+              |> List.filter_map (fun (c : SharedTypes.Constructor.t) ->
+                     if currentConstructorNames |> List.mem c.cname.txt = false
+                     then
+                       Some
+                         ( c.cname.txt,
+                           match c.args with
+                           | Args [] -> false
+                           | _ -> true )
+                     else None)
+            | Tpolyvariant {constructors} ->
+              constructors
+              |> List.filter_map
+                   (fun (c : SharedTypes.polyVariantConstructor) ->
+                     if currentConstructorNames |> List.mem c.name = false then
+                       Some
+                         ( Res_printer.polyVarIdentToString c.name,
+                           match c.args with
+                           | [] -> false
+                           | _ -> true )
+                     else None)
+            | _ -> []
+          in
+          if List.length missingConstructors > 0 || not hasNoneCase then
+            let newText =
+              "Some("
+              ^ (missingConstructors
+                |> List.map (fun (name, hasArgs) ->
+                       name ^ if hasArgs then "" else "(_)")
+                |> String.concat " | ")
+              ^ ")"
+            in
+            let newText =
+              if hasNoneCase then newText else newText ^ " | None"
+            in
+            let range = rangeOfLoc catchAllCase.pc_lhs.ppat_loc in
+            let codeAction =
+              CodeActions.make ~title:"Expand catch-all" ~kind:RefactorRewrite
+                ~uri:path ~newText ~range
+            in
+            codeActions := codeAction :: !codeActions
+          else ()
+        | _ -> ())
       | _ -> ())
 end
 

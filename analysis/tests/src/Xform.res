@@ -89,3 +89,20 @@ let _y = switch polyvariant {
 | _ => "other"
 //  ^xfm
 }
+
+let variantOpt = Some(variant)
+
+let _x = switch variantOpt {
+| Some(First) => "first"
+| _ => "other"
+//  ^xfm
+}
+
+let polyvariantOpt = Some(polyvariant)
+
+let _x = switch polyvariantOpt {
+| Some(#first) => "first"
+| None => "nothing"
+| _ => "other"
+//  ^xfm
+}
