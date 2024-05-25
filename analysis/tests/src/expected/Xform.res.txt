@@ -189,3 +189,20 @@ newText:
 <--here
 
 
+Xform src/Xform.res 80:4
+posCursor:[78:16] posNoWhite:[78:14] Found expr:[78:9->82:1]
+Completable: Cpath Value[variant]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[variant]
+Path variant
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Expand catch-all
+
+TextDocumentEdit: Xform.res
+{"start": {"line": 80, "character": 2}, "end": {"line": 80, "character": 3}}
+newText:
+  <--here
+  Second | Third | Fourth(_)
+

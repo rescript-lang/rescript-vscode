@@ -11,6 +11,42 @@ let rangeOfLoc (loc : Location.t) =
   let end_ = loc |> Loc.end_ |> mkPosition in
   {Protocol.start; end_}
 
+let extractTypeFromExpr expr ~debug ~path ~currentFile ~full ~pos =
+  match
+    expr.Parsetree.pexp_loc
+    |> CompletionFrontEnd.findTypeOfExpressionAtLoc ~debug ~path ~currentFile
+         ~posCursor:(Pos.ofLexing expr.Parsetree.pexp_loc.loc_start)
+  with
+  | Some (completable, scope) -> (
+    let env = SharedTypes.QueryEnv.fromFile full.SharedTypes.file in
+    let completions =
+      completable
+      |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope ~env
+           ~forHover:true
+    in
+    let rawOpens = Scope.getRawOpens scope in
+    match completions with
+    | {env} :: _ -> (
+      let opens =
+        CompletionBackEnd.getOpens ~debug ~rawOpens ~package:full.package ~env
+      in
+      match
+        CompletionBackEnd.completionsGetCompletionType2 ~debug ~full ~rawOpens
+          ~opens ~pos completions
+      with
+      | Some (typ, _env) ->
+        let extractedType =
+          match typ with
+          | ExtractedType t -> Some t
+          | TypeExpr t ->
+            TypeUtils.extractType t ~env ~package:full.package
+            |> TypeUtils.getExtractedType
+        in
+        extractedType
+      | None -> None)
+    | _ -> None)
+  | _ -> None
+
 module IfThenElse = struct
   (* Convert if-then-else to switch *)
 
@@ -324,6 +360,80 @@ module AddTypeAnnotation = struct
         | _ -> ()))
 end
 
+module ExpandCatchAllForVariants = struct
+  let mkIterator ~pos ~result =
+    let expr (iterator : Ast_iterator.iterator) (e : Parsetree.expression) =
+      (if e.pexp_loc |> Loc.hasPos ~pos then
+         match e.pexp_desc with
+         | Pexp_match (switchExpr, cases) -> (
+           let catchAllCase =
+             cases
+             |> List.find_opt (fun (c : Parsetree.case) ->
+                    match c with
+                    | {pc_lhs = {ppat_desc = Ppat_any}} -> true
+                    | _ -> false)
+           in
+           match catchAllCase with
+           | None -> ()
+           | Some catchAllCase ->
+             result := Some (switchExpr, catchAllCase, cases))
+         | _ -> ());
+      Ast_iterator.default_iterator.expr iterator e
+    in
+    {Ast_iterator.default_iterator with expr}
+
+  let xform ~path ~pos ~full ~structure ~currentFile ~codeActions ~debug =
+    let result = ref None in
+    let iterator = mkIterator ~pos ~result in
+    iterator.structure iterator structure;
+    match !result with
+    | None -> ()
+    | Some (switchExpr, catchAllCase, cases) -> (
+      if Debug.verbose () then
+        print_endline
+          "[codeAction - ExpandCatchAllForVariants] Found target switch";
+      let currentConstructorNames =
+        cases
+        |> List.filter_map (fun (c : Parsetree.case) ->
+               match c with
+               | {pc_lhs = {ppat_desc = Ppat_construct ({txt}, _)}} ->
+                 Some (Longident.last txt)
+               | {pc_lhs = {ppat_desc = Ppat_variant (name, _)}} -> Some name
+               | _ -> None)
+      in
+      match
+        switchExpr
+        |> extractTypeFromExpr ~debug ~path ~currentFile ~full
+             ~pos:(Pos.ofLexing switchExpr.pexp_loc.loc_end)
+      with
+      | Some (Tvariant {constructors}) ->
+        let missingConstructors =
+          constructors
+          |> List.filter (fun (c : SharedTypes.Constructor.t) ->
+                 currentConstructorNames |> List.mem c.cname.txt = false)
+        in
+        if List.length missingConstructors > 0 then
+          let newText =
+            missingConstructors
+            |> List.map (fun (c : SharedTypes.Constructor.t) ->
+                   c.cname.txt
+                   ^
+                   match c.args with
+                   | Args [] -> ""
+                   | Args _ | InlineRecord _ -> "(_)")
+            |> String.concat " | "
+          in
+          let range = rangeOfLoc catchAllCase.pc_lhs.ppat_loc in
+          let codeAction =
+            CodeActions.make ~title:"Expand catch-all" ~kind:RefactorRewrite
+              ~uri:path ~newText ~range
+          in
+          codeActions := codeAction :: !codeActions
+        else ()
+      (*| Some (Tpolyvariant {constructors}) -> ()*)
+      | _ -> ())
+end
+
 module ExhaustiveSwitch = struct
   (* Expand expression to be an exhaustive switch of the underlying value *)
   type posType = Single of Pos.t | Range of Pos.t * Pos.t
@@ -335,46 +445,6 @@ module ExhaustiveSwitch = struct
         completionExpr: Parsetree.expression;
       }
     | Selection of {expr: Parsetree.expression}
-
-  module C = struct
-    let extractTypeFromExpr expr ~debug ~path ~currentFile ~full ~pos =
-      match
-        expr.Parsetree.pexp_loc
-        |> CompletionFrontEnd.findTypeOfExpressionAtLoc ~debug ~path
-             ~currentFile
-             ~posCursor:(Pos.ofLexing expr.Parsetree.pexp_loc.loc_start)
-      with
-      | Some (completable, scope) -> (
-        let env = SharedTypes.QueryEnv.fromFile full.SharedTypes.file in
-        let completions =
-          completable
-          |> CompletionBackEnd.processCompletable ~debug ~full ~pos ~scope ~env
-               ~forHover:true
-        in
-        let rawOpens = Scope.getRawOpens scope in
-        match completions with
-        | {env} :: _ -> (
-          let opens =
-            CompletionBackEnd.getOpens ~debug ~rawOpens ~package:full.package
-              ~env
-          in
-          match
-            CompletionBackEnd.completionsGetCompletionType2 ~debug ~full
-              ~rawOpens ~opens ~pos completions
-          with
-          | Some (typ, _env) ->
-            let extractedType =
-              match typ with
-              | ExtractedType t -> Some t
-              | TypeExpr t ->
-                TypeUtils.extractType t ~env ~package:full.package
-                |> TypeUtils.getExtractedType
-            in
-            extractedType
-          | None -> None)
-        | _ -> None)
-      | _ -> None
-  end
 
   let mkIteratorSingle ~pos ~result =
     let expr (iterator : Ast_iterator.iterator) (exp : Parsetree.expression) =
@@ -434,7 +504,7 @@ module ExhaustiveSwitch = struct
     | Some (Selection {expr}) -> (
       match
         expr
-        |> C.extractTypeFromExpr ~debug ~path ~currentFile ~full
+        |> extractTypeFromExpr ~debug ~path ~currentFile ~full
              ~pos:(Pos.ofLexing expr.pexp_loc.loc_start)
       with
       | None -> ()
@@ -460,7 +530,7 @@ module ExhaustiveSwitch = struct
     | Some (Switch {switchExpr; completionExpr; pos}) -> (
       match
         completionExpr
-        |> C.extractTypeFromExpr ~debug ~path ~currentFile ~full ~pos
+        |> extractTypeFromExpr ~debug ~path ~currentFile ~full ~pos
       with
       | None -> ()
       | Some extractedType -> (
@@ -743,6 +813,8 @@ let extractCodeActions ~path ~startPos ~endPos ~currentFile ~debug =
       match Cmt.loadFullCmtFromPath ~path with
       | Some full ->
         AddTypeAnnotation.xform ~path ~pos ~full ~structure ~codeActions ~debug;
+        ExpandCatchAllForVariants.xform ~path ~pos ~full ~structure ~codeActions
+          ~currentFile ~debug;
         ExhaustiveSwitch.xform ~printExpr ~path
           ~pos:
             (if startPos = endPos then Single startPos
