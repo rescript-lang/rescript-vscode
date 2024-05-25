@@ -777,7 +777,7 @@ ContextPath CArgument Value[fnTakingCallback]($0)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 [{
-    "label": "() => ()",
+    "label": "() => {}",
     "kind": 12,
     "tags": [],
     "detail": "unit => unit",
@@ -1084,7 +1084,7 @@ ContextPath CArgument Value[fnTakingAsyncCallback]($0)
 ContextPath Value[fnTakingAsyncCallback]
 Path fnTakingAsyncCallback
 [{
-    "label": "async () => ()",
+    "label": "async () => {}",
     "kind": 12,
     "tags": [],
     "detail": "unit => promise<unit>",

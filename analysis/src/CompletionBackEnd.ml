@@ -1745,7 +1745,8 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
         let varName =
           CompletionExpressions.prettyPrintFnTemplateArgName ~env ~full argTyp
         in
-        (" => " ^ varName, " => ${0:" ^ varName ^ "}")
+        ( (" => " ^ if varName = "()" then "{}" else varName),
+          " => ${0:" ^ varName ^ "}" )
       | _ -> (" => {}", " => {${0:()}}")
     in
     [
