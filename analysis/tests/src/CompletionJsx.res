@@ -79,3 +79,15 @@ module MultiPropComp = {
 
 // <MultiPropComp name time= age
 //                          ^com
+
+module Info = {
+  @react.component
+  let make = (~_type: [#warning | #info]) => {
+    React.string((_type :> string))
+  }
+}
+
+// ^dv+
+// <Info _type={#warning} >
+//                        ^com
+// ^dv-
