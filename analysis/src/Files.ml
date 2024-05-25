@@ -20,7 +20,7 @@ let relpath base path =
     let baselen = String.length base in
     let rest = String.sub path baselen (String.length path - baselen) in
     (if rest <> "" && rest.[0] = Filename.dir_sep.[0] then sliceToEnd rest 1
-    else rest)
+     else rest)
     |> removeExtraDots
   else
     let rec loop bp pp =
@@ -102,3 +102,9 @@ let classifySourceFile path =
   if Filename.check_suffix path ".res" && exists path then Res
   else if Filename.check_suffix path ".resi" && exists path then Resi
   else Other
+
+let canonicalizeUri uri =
+  if Cfg.isTestMode.contents then uri |> Uri.toString
+  else
+    let path = Uri.toPath uri in
+    path |> Unix.realpath

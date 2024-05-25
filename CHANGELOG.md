@@ -15,6 +15,7 @@
 #### :bug: Bug Fix
 
 - Fix highlighting of other languages being affected by rescript-vscode. https://github.com/rescript-lang/rescript-vscode/pull/973
+- Use canonicalized URIs/paths for jump to definition. https://github.com/rescript-lang/rescript-vscode/pull/982
 
 #### :nail_care: Polish
 
