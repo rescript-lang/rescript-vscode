@@ -783,7 +783,7 @@ Path fnTakingCallback
     "detail": "unit => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "() => {$0}",
+    "insertText": "() => ${0:()}",
     "insertTextFormat": 2
   }]
 
@@ -808,13 +808,13 @@ ContextPath CArgument Value[fnTakingCallback]($1)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 [{
-    "label": "v => {}",
+    "label": "v => v",
     "kind": 12,
     "tags": [],
     "detail": "bool => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:v} => {$0}",
+    "insertText": "${1:v} => ${0:v}",
     "insertTextFormat": 2
   }]
 
@@ -828,13 +828,13 @@ ContextPath CArgument Value[fnTakingCallback]($2)
 ContextPath Value[fnTakingCallback]
 Path fnTakingCallback
 [{
-    "label": "event => {}",
+    "label": "event => event",
     "kind": 12,
     "tags": [],
     "detail": "ReactEvent.Mouse.t => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:event} => {$0}",
+    "insertText": "${1:event} => ${0:event}",
     "insertTextFormat": 2
   }]
 
@@ -854,7 +854,7 @@ Path fnTakingCallback
     "detail": "(~on: bool, ~off: bool=?, variant) => int",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(~on, ~off=?, ${1:variant}) => {$0}",
+    "insertText": "(~on, ~off=?, ${1:variant}) => {${0:()}}",
     "insertTextFormat": 2
   }]
 
@@ -874,7 +874,7 @@ Path fnTakingCallback
     "detail": "(bool, option<bool>, bool) => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(${1:v1}, ${2:v2}, ${3:v3}) => {$0}",
+    "insertText": "(${1:v1}, ${2:v2}, ${3:v3}) => {${0:()}}",
     "insertTextFormat": 2
   }]
 
@@ -894,7 +894,7 @@ Path fnTakingCallback
     "detail": "(~on: bool=?, ~off: bool=?, unit) => int",
     "documentation": null,
     "sortText": "A",
-    "insertText": "(~on=?, ~off=?, ()) => {$0}",
+    "insertText": "(~on=?, ~off=?, ()) => {${0:()}}",
     "insertTextFormat": 2
   }]
 
@@ -964,13 +964,13 @@ ContextPath CArgument Value[takesCb]($0)
 ContextPath Value[takesCb]
 Path takesCb
 [{
-    "label": "someTyp => {}",
+    "label": "someTyp => someTyp",
     "kind": 12,
     "tags": [],
     "detail": "someTyp => 'a",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:someTyp} => {$0}",
+    "insertText": "${1:someTyp} => ${0:someTyp}",
     "insertTextFormat": 2
   }]
 
@@ -984,13 +984,13 @@ ContextPath CArgument Value[takesCb2]($0)
 ContextPath Value[takesCb2]
 Path takesCb2
 [{
-    "label": "environment => {}",
+    "label": "environment => environment",
     "kind": 12,
     "tags": [],
     "detail": "Environment.t => 'a",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:environment} => {$0}",
+    "insertText": "${1:environment} => ${0:environment}",
     "insertTextFormat": 2
   }]
 
@@ -1004,13 +1004,13 @@ ContextPath CArgument Value[takesCb3]($0)
 ContextPath Value[takesCb3]
 Path takesCb3
 [{
-    "label": "apiCallResult => {}",
+    "label": "apiCallResult => apiCallResult",
     "kind": 12,
     "tags": [],
     "detail": "apiCallResult => 'a",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:apiCallResult} => {$0}",
+    "insertText": "${1:apiCallResult} => ${0:apiCallResult}",
     "insertTextFormat": 2
   }]
 
@@ -1024,13 +1024,13 @@ ContextPath CArgument Value[takesCb4]($0)
 ContextPath Value[takesCb4]
 Path takesCb4
 [{
-    "label": "apiCallResult => {}",
+    "label": "apiCallResult => apiCallResult",
     "kind": 12,
     "tags": [],
     "detail": "option<apiCallResult> => 'a",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:apiCallResult} => {$0}",
+    "insertText": "${1:apiCallResult} => ${0:apiCallResult}",
     "insertTextFormat": 2
   }]
 
@@ -1044,13 +1044,13 @@ ContextPath CArgument Value[takesCb5]($0)
 ContextPath Value[takesCb5]
 Path takesCb5
 [{
-    "label": "apiCallResults => {}",
+    "label": "apiCallResults => apiCallResults",
     "kind": 12,
     "tags": [],
     "detail": "array<option<apiCallResult>> => 'a",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:apiCallResults} => {$0}",
+    "insertText": "${1:apiCallResults} => ${0:apiCallResults}",
     "insertTextFormat": 2
   }]
 
@@ -1064,13 +1064,13 @@ ContextPath CArgument Value[commitLocalUpdate](~updater)
 ContextPath Value[commitLocalUpdate]
 Path commitLocalUpdate
 [{
-    "label": "recordSourceSelectorProxy => {}",
+    "label": "recordSourceSelectorProxy => recordSourceSelectorProxy",
     "kind": 12,
     "tags": [],
     "detail": "RecordSourceSelectorProxy.t => unit",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:recordSourceSelectorProxy} => {$0}",
+    "insertText": "${1:recordSourceSelectorProxy} => ${0:recordSourceSelectorProxy}",
     "insertTextFormat": 2
   }]
 
@@ -1090,7 +1090,7 @@ Path fnTakingAsyncCallback
     "detail": "unit => promise<unit>",
     "documentation": null,
     "sortText": "A",
-    "insertText": "async () => {$0}",
+    "insertText": "async () => ${0:()}",
     "insertTextFormat": 2
   }]
 
@@ -1103,13 +1103,13 @@ ContextPath CArgument Value[Belt, Array, map]($1)
 ContextPath Value[Belt, Array, map]
 Path Belt.Array.map
 [{
-    "label": "v => {}",
+    "label": "v => v",
     "kind": 12,
     "tags": [],
     "detail": "'a => 'b",
     "documentation": null,
     "sortText": "A",
-    "insertText": "${1:v} => {$0}",
+    "insertText": "${1:v} => ${0:v}",
     "insertTextFormat": 2
   }]
 

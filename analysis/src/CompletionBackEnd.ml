@@ -1739,11 +1739,22 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
       | _ -> false
     in
     let asyncPrefix = if isAsync then "async " else "" in
+    let functionBody, functionBodyInsertText =
+      match args with
+      | [(Nolabel, argTyp)] ->
+        let varName =
+          CompletionExpressions.prettyPrintFnTemplateArgName ~env ~full argTyp
+        in
+        ( (" => " ^ if varName = "()" then "{}" else varName),
+          " => ${0:" ^ varName ^ "}" )
+      | _ -> (" => {}", " => {${0:()}}")
+    in
     [
       create
-        (asyncPrefix ^ mkFnArgs ~asSnippet:false ^ " => {}")
+        (asyncPrefix ^ mkFnArgs ~asSnippet:false ^ functionBody)
         ~includesSnippets:true
-        ~insertText:(asyncPrefix ^ mkFnArgs ~asSnippet:true ^ " => " ^ "{$0}")
+        ~insertText:
+          (asyncPrefix ^ mkFnArgs ~asSnippet:true ^ functionBodyInsertText)
         ~sortText:"A" ~kind:(Value typ) ~env;
     ]
   | Tfunction _ ->
