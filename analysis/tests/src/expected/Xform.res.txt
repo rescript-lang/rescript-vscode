@@ -206,8 +206,42 @@ newText:
   <--here
   Second | Third | Fourth(_)
 
-Xform src/Xform.res 88:4
-posCursor:[86:16] posNoWhite:[86:14] Found expr:[86:9->90:1]
+Xform src/Xform.res 86:4
+posCursor:[84:16] posNoWhite:[84:14] Found expr:[84:9->88:1]
+Completable: Cpath Value[variant]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[variant]
+Path variant
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Expand catch-all
+
+TextDocumentEdit: Xform.res
+{"start": {"line": 86, "character": 2}, "end": {"line": 86, "character": 3}}
+newText:
+  <--here
+  Third | Fourth(_)
+
+Xform src/Xform.res 93:4
+posCursor:[90:16] posNoWhite:[90:14] Found expr:[90:9->95:1]
+Completable: Cpath Value[variant]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[variant]
+Path variant
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Expand catch-all
+
+TextDocumentEdit: Xform.res
+{"start": {"line": 93, "character": 2}, "end": {"line": 93, "character": 3}}
+newText:
+  <--here
+  First | Third | Fourth(_)
+
+Xform src/Xform.res 101:4
+posCursor:[99:16] posNoWhite:[99:14] Found expr:[99:9->103:1]
 Completable: Cpath Value[polyvariant]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -218,13 +252,30 @@ Resolved opens 1 pervasives
 Hit: Expand catch-all
 
 TextDocumentEdit: Xform.res
-{"start": {"line": 88, "character": 2}, "end": {"line": 88, "character": 3}}
+{"start": {"line": 101, "character": 2}, "end": {"line": 101, "character": 3}}
 newText:
   <--here
   #second | #"illegal identifier" | #third(_)
 
-Xform src/Xform.res 96:4
-posCursor:[94:16] posNoWhite:[94:14] Found expr:[94:9->98:1]
+Xform src/Xform.res 107:4
+posCursor:[105:16] posNoWhite:[105:14] Found expr:[105:9->109:1]
+Completable: Cpath Value[polyvariant]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[polyvariant]
+Path polyvariant
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Expand catch-all
+
+TextDocumentEdit: Xform.res
+{"start": {"line": 107, "character": 2}, "end": {"line": 107, "character": 3}}
+newText:
+  <--here
+  #"illegal identifier" | #third(_)
+
+Xform src/Xform.res 115:4
+posCursor:[113:16] posNoWhite:[113:14] Found expr:[113:9->117:1]
 Completable: Cpath Value[variantOpt]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -235,13 +286,47 @@ Resolved opens 1 pervasives
 Hit: Expand catch-all
 
 TextDocumentEdit: Xform.res
-{"start": {"line": 96, "character": 2}, "end": {"line": 96, "character": 3}}
+{"start": {"line": 115, "character": 2}, "end": {"line": 115, "character": 3}}
 newText:
   <--here
   Some(Second | Third | Fourth(_)) | None
 
-Xform src/Xform.res 105:4
-posCursor:[102:16] posNoWhite:[102:14] Found expr:[102:9->107:1]
+Xform src/Xform.res 121:4
+posCursor:[119:16] posNoWhite:[119:14] Found expr:[119:9->123:1]
+Completable: Cpath Value[variantOpt]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[variantOpt]
+Path variantOpt
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Expand catch-all
+
+TextDocumentEdit: Xform.res
+{"start": {"line": 121, "character": 2}, "end": {"line": 121, "character": 3}}
+newText:
+  <--here
+  Some(Third | Fourth(_)) | None
+
+Xform src/Xform.res 127:4
+posCursor:[125:16] posNoWhite:[125:14] Found expr:[125:9->129:1]
+Completable: Cpath Value[variantOpt]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[variantOpt]
+Path variantOpt
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Expand catch-all
+
+TextDocumentEdit: Xform.res
+{"start": {"line": 127, "character": 2}, "end": {"line": 127, "character": 3}}
+newText:
+  <--here
+  Some(Third | Fourth(_)) | None
+
+Xform src/Xform.res 136:4
+posCursor:[133:16] posNoWhite:[133:14] Found expr:[133:9->138:1]
 Completable: Cpath Value[polyvariantOpt]
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -252,8 +337,25 @@ Resolved opens 1 pervasives
 Hit: Expand catch-all
 
 TextDocumentEdit: Xform.res
-{"start": {"line": 105, "character": 2}, "end": {"line": 105, "character": 3}}
+{"start": {"line": 136, "character": 2}, "end": {"line": 136, "character": 3}}
 newText:
   <--here
   Some(#"illegal identifier" | #second | #third(_))
+
+Xform src/Xform.res 142:4
+posCursor:[140:16] posNoWhite:[140:14] Found expr:[140:9->144:1]
+Completable: Cpath Value[polyvariantOpt]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[polyvariantOpt]
+Path polyvariantOpt
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+Hit: Expand catch-all
+
+TextDocumentEdit: Xform.res
+{"start": {"line": 142, "character": 2}, "end": {"line": 142, "character": 3}}
+newText:
+  <--here
+  Some(#"illegal identifier" | #third(_)) | None
 

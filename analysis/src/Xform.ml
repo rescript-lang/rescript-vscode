@@ -392,15 +392,28 @@ module ExpandCatchAllForVariants = struct
       if Debug.verbose () then
         print_endline
           "[codeAction - ExpandCatchAllForVariants] Found target switch";
-      let currentConstructorNames =
-        cases
-        |> List.filter_map (fun (c : Parsetree.case) ->
-               match c with
-               | {pc_lhs = {ppat_desc = Ppat_construct ({txt}, _)}} ->
-                 Some (Longident.last txt)
-               | {pc_lhs = {ppat_desc = Ppat_variant (name, _)}} -> Some name
-               | _ -> None)
+      let rec findAllConstructorNames ?(mode : [`option | `default] = `default)
+          ?(constructorNames = []) (p : Parsetree.pattern) =
+        match p.ppat_desc with
+        | Ppat_construct ({txt = Lident "Some"}, Some payload)
+          when mode = `option ->
+          findAllConstructorNames ~mode ~constructorNames payload
+        | Ppat_construct ({txt}, _) -> Longident.last txt :: constructorNames
+        | Ppat_variant (name, _) -> name :: constructorNames
+        | Ppat_or (a, b) ->
+          findAllConstructorNames ~mode ~constructorNames a
+          @ findAllConstructorNames ~mode ~constructorNames b
+          @ constructorNames
+        | _ -> constructorNames
       in
+      let getCurrentConstructorNames ?mode cases =
+        cases
+        |> List.map (fun (c : Parsetree.case) ->
+               if Option.is_some c.pc_guard then []
+               else findAllConstructorNames ?mode c.pc_lhs)
+        |> List.flatten
+      in
+      let currentConstructorNames = getCurrentConstructorNames cases in
       match
         switchExpr
         |> extractTypeFromExpr ~debug ~path ~currentFile ~full
@@ -469,30 +482,7 @@ module ExpandCatchAllForVariants = struct
         match innerType with
         | Some ((Tvariant _ | Tpolyvariant _) as variant) ->
           let currentConstructorNames =
-            cases
-            |> List.filter_map (fun (c : Parsetree.case) ->
-                   match c with
-                   | {
-                    pc_lhs =
-                      {
-                        ppat_desc =
-                          Ppat_construct
-                            ( {txt = Lident "Some"},
-                              Some {ppat_desc = Ppat_construct ({txt}, _)} );
-                      };
-                   } ->
-                     Some (Longident.last txt)
-                   | {
-                    pc_lhs =
-                      {
-                        ppat_desc =
-                          Ppat_construct
-                            ( {txt = Lident "Some"},
-                              Some {ppat_desc = Ppat_variant (name, _)} );
-                      };
-                   } ->
-                     Some name
-                   | _ -> None)
+            getCurrentConstructorNames ~mode:`option cases
           in
           let hasNoneCase =
             cases
