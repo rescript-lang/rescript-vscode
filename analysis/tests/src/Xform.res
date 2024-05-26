@@ -82,10 +82,29 @@ let _x = switch variant {
 //  ^xfm
 }
 
+let _x = switch variant {
+| First | Second => "first"
+| _ => "other"
+//  ^xfm
+}
+
+let _x = switch variant {
+| First if 1 > 2 => "first"
+| Second => "second"
+| _ => "other"
+//  ^xfm
+}
+
 let polyvariant: [#first | #second | #"illegal identifier" | #third(int)] = #first
 
 let _y = switch polyvariant {
 | #first => "first"
+| _ => "other"
+//  ^xfm
+}
+
+let _y = switch polyvariant {
+| #first | #second => "first"
 | _ => "other"
 //  ^xfm
 }
@@ -98,11 +117,29 @@ let _x = switch variantOpt {
 //  ^xfm
 }
 
+let _x = switch variantOpt {
+| Some(First) | Some(Second) => "first"
+| _ => "other"
+//  ^xfm
+}
+
+let _x = switch variantOpt {
+| Some(First | Second) => "first"
+| _ => "other"
+//  ^xfm
+}
+
 let polyvariantOpt = Some(polyvariant)
 
 let _x = switch polyvariantOpt {
 | Some(#first) => "first"
 | None => "nothing"
+| _ => "other"
+//  ^xfm
+}
+
+let _x = switch polyvariantOpt {
+| Some(#first | #second) => "first"
 | _ => "other"
 //  ^xfm
 }
