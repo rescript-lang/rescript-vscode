@@ -406,11 +406,11 @@ module ExpandCatchAllForVariants = struct
           @ constructorNames
         | _ -> constructorNames
       in
-      let getCurrentConstructorNames cases =
+      let getCurrentConstructorNames ?mode cases =
         cases
         |> List.map (fun (c : Parsetree.case) ->
                if Option.is_some c.pc_guard then []
-               else findAllConstructorNames ~mode:`option c.pc_lhs)
+               else findAllConstructorNames ?mode c.pc_lhs)
         |> List.flatten
       in
       let currentConstructorNames = getCurrentConstructorNames cases in
@@ -481,7 +481,9 @@ module ExpandCatchAllForVariants = struct
         in
         match innerType with
         | Some ((Tvariant _ | Tpolyvariant _) as variant) ->
-          let currentConstructorNames = getCurrentConstructorNames cases in
+          let currentConstructorNames =
+            getCurrentConstructorNames ~mode:`option cases
+          in
           let hasNoneCase =
             cases
             |> List.exists (fun (c : Parsetree.case) ->
