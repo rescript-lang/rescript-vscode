@@ -869,11 +869,45 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     | Some (Tpromise (env, typ), _env) ->
       [Completion.create "dummy" ~env ~kind:(Completion.Value typ)]
     | _ -> [])
-  | CPId (path, completionContext) ->
+  | CPId {path; completionContext; loc} ->
     if Debug.verbose () then print_endline "[ctx_path]--> CPId";
-    path
-    |> getCompletionsForPath ~debug ~opens ~full ~pos ~exact ~completionContext
-         ~env ~scope
+    (* Looks up the type of an identifier.
+
+       Because of reasons we sometimes don't get enough type
+       information when looking up identifiers where the type
+       has type parameters. This in turn means less completions.
+
+       There's a heuristic below that tries to look up the type
+       of the ID in the usual way first. But if the type found
+       still has uninstantiated type parameters, we check the
+       location for the identifier from the compiler type artifacts.
+       That type usually has the type params instantiated, if they are.
+       This leads to better completion.
+
+       However, we only do it in incremental type checking mode,
+       because more type information is always available in that mode. *)
+    let useTvarLookup = !Cfg.inIncrementalTypecheckingMode in
+    let byPath =
+      path
+      |> getCompletionsForPath ~debug ~opens ~full ~pos ~exact
+           ~completionContext ~env ~scope
+    in
+    let hasTvars =
+      if useTvarLookup then
+        match byPath with
+        | [{kind = Value typ}] when TypeUtils.hasTvar typ -> true
+        | _ -> false
+      else false
+    in
+    let result =
+      if hasTvars then
+        let byLoc = TypeUtils.findTypeViaLoc loc ~full ~debug in
+        match (byLoc, byPath) with
+        | Some t, [({kind = Value _} as item)] -> [{item with kind = Value t}]
+        | _ -> byPath
+      else byPath
+    in
+    result
   | CPApply (cp, labels) -> (
     if Debug.verbose () then print_endline "[ctx_path]--> CPApply";
     match
@@ -916,7 +950,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         [Completion.create "dummy" ~env ~kind:(Completion.Value retType)]
       | _ -> [])
     | _ -> [])
-  | CPField (CPId (path, Module), fieldName) ->
+  | CPField (CPId {path; completionContext = Module}, fieldName) ->
     if Debug.verbose () then print_endline "[ctx_path]--> CPField: M.field";
     (* M.field *)
     path @ [fieldName]
@@ -1271,13 +1305,9 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     | None -> [])
   | CTypeAtPos loc -> (
     if Debug.verbose () then print_endline "[ctx_path]--> CTypeAtPos";
-    match
-      References.getLocItem ~full ~pos:(Pos.ofLexing loc.loc_start) ~debug
-    with
+    match TypeUtils.findTypeViaLoc loc ~full ~debug with
     | None -> []
-    | Some {locType = Typed (_, typExpr, _)} ->
-      [Completion.create "dummy" ~env ~kind:(Value typExpr)]
-    | _ -> [])
+    | Some typExpr -> [Completion.create "dummy" ~env ~kind:(Value typExpr)])
 
 let getOpens ~debug ~rawOpens ~package ~env =
   if debug && rawOpens <> [] then

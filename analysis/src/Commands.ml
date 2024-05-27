@@ -344,6 +344,8 @@ let test ~path =
           | "db-" -> Log.verbose := false
           | "dv+" -> Debug.debugLevel := Verbose
           | "dv-" -> Debug.debugLevel := Off
+          | "in+" -> Cfg.inIncrementalTypecheckingMode := true
+          | "in-" -> Cfg.inIncrementalTypecheckingMode := false
           | "ve+" -> (
             let version = String.sub rest 3 (String.length rest - 3) in
             let version = String.trim version in
