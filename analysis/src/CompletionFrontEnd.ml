@@ -1094,11 +1094,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
             setResult
               (Cpath
                  (CPId
-                    {
-                      loc = expr.pexp_loc;
-                      path = lidPath;
-                      completionContext = Value;
-                    }))
+                    {loc = lid.loc; path = lidPath; completionContext = Value}))
           else
             match eOpt with
             | Some e when locHasCursor e.pexp_loc -> (
