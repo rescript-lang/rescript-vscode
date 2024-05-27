@@ -34,6 +34,22 @@ export type DiagnosticsResultFormat = Array<{
   };
 }>;
 
+enum ClassifiedMessage {
+  Removable,
+  Default,
+}
+
+let classifyMessage = (msg: string) => {
+  if (
+    msg.endsWith(" is never used") ||
+    msg.endsWith(" has no side effects and can be removed")
+  ) {
+    return ClassifiedMessage.Removable;
+  }
+
+  return ClassifiedMessage.Default;
+};
+
 let resultsToDiagnostics = (
   results: DiagnosticsResultFormat,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
@@ -120,10 +136,7 @@ let resultsToDiagnostics = (
 
       // This heuristic below helps only target dead code that can be removed
       // safely by just removing its text.
-      if (
-        item.message.endsWith(" is never used") ||
-        item.message.endsWith(" has no side effects and can be removed")
-      ) {
+      if (classifyMessage(item.message) === ClassifiedMessage.Removable) {
         {
           let codeAction = new CodeAction("Remove unused");
           codeAction.kind = CodeActionKind.RefactorRewrite;

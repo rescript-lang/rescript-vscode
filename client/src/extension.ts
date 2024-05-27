@@ -19,7 +19,6 @@ import {
   LanguageClientOptions,
   ServerOptions,
   State,
-  Executable,
   TransportKind,
 } from "vscode-languageclient/node";
 
