@@ -104,7 +104,5 @@ let classifySourceFile path =
   else Other
 
 let canonicalizeUri uri =
-  if Cfg.isTestMode.contents then uri |> Uri.toString
-  else
-    let path = Uri.toPath uri in
-    path |> Unix.realpath |> Uri.fromPath |> Uri.toString
+  let path = Uri.toPath uri in
+  path |> Unix.realpath |> Uri.fromPath |> Uri.toString
