@@ -34,6 +34,22 @@ export type DiagnosticsResultFormat = Array<{
   };
 }>;
 
+enum ClassifiedMessage {
+  Removable,
+  Default,
+}
+
+let classifyMessage = (msg: string) => {
+  if (
+    msg.endsWith(" is never used") ||
+    msg.endsWith(" has no side effects and can be removed")
+  ) {
+    return ClassifiedMessage.Removable;
+  }
+
+  return ClassifiedMessage.Default;
+};
+
 let resultsToDiagnostics = (
   results: DiagnosticsResultFormat,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
@@ -91,8 +107,6 @@ let resultsToDiagnostics = (
 
           let codeActionEdit = new WorkspaceEdit();
 
-          // In the future, it would be cool to have an additional code action
-          // here for automatically removing whatever the thing that's dead is.
           codeActionEdit.replace(
             Uri.parse(item.file),
             // Make sure the full line is replaced
@@ -104,6 +118,38 @@ let resultsToDiagnostics = (
             // reanalyze seems to add two extra spaces at the start of the line
             // content to replace.
             text
+          );
+
+          codeAction.edit = codeActionEdit;
+
+          if (diagnosticsResultCodeActions.has(item.file)) {
+            diagnosticsResultCodeActions
+              .get(item.file)
+              .push({ range: issueLocationRange, codeAction });
+          } else {
+            diagnosticsResultCodeActions.set(item.file, [
+              { range: issueLocationRange, codeAction },
+            ]);
+          }
+        }
+      }
+
+      // This heuristic below helps only target dead code that can be removed
+      // safely by just removing its text.
+      if (classifyMessage(item.message) === ClassifiedMessage.Removable) {
+        {
+          let codeAction = new CodeAction("Remove unused");
+          codeAction.kind = CodeActionKind.RefactorRewrite;
+
+          let codeActionEdit = new WorkspaceEdit();
+
+          codeActionEdit.replace(
+            Uri.parse(item.file),
+            new Range(
+              new Position(item.range[0], item.range[1]),
+              new Position(item.range[2], item.range[3])
+            ),
+            ""
           );
 
           codeAction.edit = codeActionEdit;

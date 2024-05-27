@@ -9,6 +9,9 @@ import {
   Uri,
   Range,
   Position,
+  CodeAction,
+  WorkspaceEdit,
+  CodeActionKind,
 } from "vscode";
 
 import {
@@ -16,8 +19,7 @@ import {
   LanguageClientOptions,
   ServerOptions,
   State,
-  Executable,
-  TransportKind
+  TransportKind,
 } from "vscode-languageclient/node";
 
 import * as customCommands from "./commands";
@@ -91,7 +93,11 @@ export function activate(context: ExtensionContext) {
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     let serverOptions: ServerOptions = {
-      run: { module: serverModule, args: ["--node-ipc"], transport: TransportKind.ipc },
+      run: {
+        module: serverModule,
+        args: ["--node-ipc"],
+        transport: TransportKind.ipc,
+      },
       debug: {
         module: serverModule,
         args: ["--node-ipc"],
@@ -189,12 +195,31 @@ export function activate(context: ExtensionContext) {
       let availableActions =
         diagnosticsResultCodeActions.get(document.uri.fsPath) ?? [];
 
-      return availableActions
+      const allRemoveActionEdits = availableActions.filter(
+        ({ codeAction }) => codeAction.title === "Remove unused"
+      );
+
+      const actions: CodeAction[] = availableActions
         .filter(
           ({ range }) =>
             range.contains(rangeOrSelection) || range.isEqual(rangeOrSelection)
         )
         .map(({ codeAction }) => codeAction);
+
+      if (allRemoveActionEdits.length > 0) {
+        const removeAllCodeAction = new CodeAction("Remove all unused in file");
+        const edit = new WorkspaceEdit();
+        allRemoveActionEdits.forEach((subEdit) => {
+          subEdit.codeAction.edit.entries().forEach(([uri, [textEdit]]) => {
+            edit.replace(uri, textEdit.range, textEdit.newText);
+          });
+        });
+        removeAllCodeAction.kind = CodeActionKind.RefactorRewrite;
+        removeAllCodeAction.edit = edit;
+        actions.push(removeAllCodeAction);
+      }
+
+      return actions;
     },
   });
 
