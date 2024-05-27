@@ -960,7 +960,7 @@ let rec contextPathFromCoreType (coreType : Parsetree.core_type) =
          {
            path = lid.txt |> Utils.flattenLongIdent;
            completionContext = Type;
-           loc = coreType.ptyp_loc;
+           loc = lid.loc;
          })
   | _ -> None
 
