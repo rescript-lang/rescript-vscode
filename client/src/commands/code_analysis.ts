@@ -91,8 +91,6 @@ let resultsToDiagnostics = (
 
           let codeActionEdit = new WorkspaceEdit();
 
-          // In the future, it would be cool to have an additional code action
-          // here for automatically removing whatever the thing that's dead is.
           codeActionEdit.replace(
             Uri.parse(item.file),
             // Make sure the full line is replaced
@@ -127,18 +125,12 @@ let resultsToDiagnostics = (
 
           let codeActionEdit = new WorkspaceEdit();
 
-          // In the future, it would be cool to have an additional code action
-          // here for automatically removing whatever the thing that's dead is.
           codeActionEdit.replace(
             Uri.parse(item.file),
-            // Make sure the full line is replaced
-
             new Range(
               new Position(item.range[0], item.range[1]),
               new Position(item.range[2], item.range[3])
             ),
-            // reanalyze seems to add two extra spaces at the start of the line
-            // content to replace.
             ""
           );
 
