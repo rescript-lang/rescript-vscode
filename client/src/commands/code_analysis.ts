@@ -118,7 +118,12 @@ let resultsToDiagnostics = (
         }
       }
 
-      if (item.message.endsWith(" is never used")) {
+      // This heuristic below helps only target dead code that can be removed
+      // safely by just removing its text.
+      if (
+        item.message.endsWith(" is never used") ||
+        item.message.endsWith(" has no side effects and can be removed")
+      ) {
         {
           let codeAction = new CodeAction("Remove unused");
           codeAction.kind = CodeActionKind.RefactorRewrite;
