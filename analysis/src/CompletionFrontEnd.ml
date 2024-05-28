@@ -219,14 +219,24 @@ let rec exprToContextPathInner (e : Parsetree.expression) =
          | [] -> None
          | exp :: _ -> exprToContextPath exp))
   | Pexp_ident {txt = Lident ("|." | "|.u")} -> None
-  | Pexp_ident {txt} -> Some (CPId (Utils.flattenLongIdent txt, Value))
+  | Pexp_ident {txt; loc} ->
+    Some
+      (CPId {path = Utils.flattenLongIdent txt; completionContext = Value; loc})
   | Pexp_field (e1, {txt = Lident name}) -> (
     match exprToContextPath e1 with
     | Some contextPath -> Some (CPField (contextPath, name))
     | _ -> None)
-  | Pexp_field (_, {txt = Ldot (lid, name)}) ->
+  | Pexp_field (_, {loc; txt = Ldot (lid, name)}) ->
     (* Case x.M.field ignore the x part *)
-    Some (CPField (CPId (Utils.flattenLongIdent lid, Module), name))
+    Some
+      (CPField
+         ( CPId
+             {
+               path = Utils.flattenLongIdent lid;
+               completionContext = Module;
+               loc;
+             },
+           name ))
   | Pexp_send (e1, {txt}) -> (
     match exprToContextPath e1 with
     | None -> None
@@ -411,8 +421,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
       let ctxPath =
         if contextPathToSave = None then
           match p with
-          | {ppat_desc = Ppat_var {txt}} ->
-            Some (Completable.CPId ([txt], Value))
+          | {ppat_desc = Ppat_var {txt; loc}} ->
+            Some
+              (Completable.CPId {path = [txt]; completionContext = Value; loc})
           | _ -> None
         else None
       in
@@ -1055,12 +1066,16 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
             setResult
               (Cpath
                  (CPId
-                    ( lidPath,
-                      if
-                        isLikelyModulePath
-                        && expr |> Res_parsetree_viewer.isBracedExpr
-                      then ValueOrField
-                      else Value )))
+                    {
+                      loc = lid.loc;
+                      path = lidPath;
+                      completionContext =
+                        (if
+                           isLikelyModulePath
+                           && expr |> Res_parsetree_viewer.isBracedExpr
+                         then ValueOrField
+                         else Value);
+                    }))
         | Pexp_construct ({txt = Lident ("::" | "()")}, _) ->
           (* Ignore list expressions, used in JSX, unit, and more *) ()
         | Pexp_construct (lid, eOpt) -> (
@@ -1075,7 +1090,11 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
           if
             eOpt = None && (not lid.loc.loc_ghost)
             && lid.loc |> Loc.hasPos ~pos:posBeforeCursor
-          then setResult (Cpath (CPId (lidPath, Value)))
+          then
+            setResult
+              (Cpath
+                 (CPId
+                    {loc = lid.loc; path = lidPath; completionContext = Value}))
           else
             match eOpt with
             | Some e when locHasCursor e.pexp_loc -> (
@@ -1106,7 +1125,12 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
               (* Case x.M.field ignore the x part *)
               let contextPath =
                 Completable.CPField
-                  ( CPId (Utils.flattenLongIdent id, Module),
+                  ( CPId
+                      {
+                        loc = fieldName.loc;
+                        path = Utils.flattenLongIdent id;
+                        completionContext = Module;
+                      },
                     if blankAfterCursor = Some '.' then
                       (* x.M. field  --->  M. *) ""
                     else if name = "_" then ""
@@ -1149,7 +1173,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
               (match compNamePath with
               | [prefix] when Char.lowercase_ascii prefix.[0] = prefix.[0] ->
                 ChtmlElement {prefix}
-              | _ -> Cpath (CPId (compNamePath, Module)))
+              | _ ->
+                Cpath
+                  (CPId
+                     {
+                       loc = compName.loc;
+                       path = compNamePath;
+                       completionContext = Module;
+                     }))
           else iterateJsxProps ~iterator jsxProps
         | Pexp_apply
             ( {pexp_desc = Pexp_ident {txt = Lident ("|." | "|.u")}},
@@ -1356,7 +1387,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
             (lidPath |> String.concat ".")
             (Loc.toString lid.loc);
         if lid.loc |> Loc.hasPos ~pos:posBeforeCursor then
-          setResult (Cpath (CPId (lidPath, Type)))
+          setResult
+            (Cpath
+               (CPId {loc = lid.loc; path = lidPath; completionContext = Type}))
       | _ -> ());
     Ast_iterator.default_iterator.typ iterator core_type
   in
@@ -1374,7 +1407,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
           Printf.printf "Ppat_construct %s:%s\n"
             (lidPath |> String.concat ".")
             (Loc.toString lid.loc);
-        let completion = Completable.Cpath (CPId (lidPath, Value)) in
+        let completion =
+          Completable.Cpath
+            (CPId {loc = lid.loc; path = lidPath; completionContext = Value})
+        in
         match !result with
         | Some (Completable.Cpattern p, scope) ->
           result := Some (Cpattern {p with fallback = Some completion}, scope)
@@ -1392,7 +1428,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
           (lidPath |> String.concat ".")
           (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (lidPath, Module)))
+      setResult
+        (Cpath
+           (CPId {loc = lid.loc; path = lidPath; completionContext = Module}))
     | _ -> ());
     Ast_iterator.default_iterator.module_expr iterator me
   in
@@ -1406,7 +1444,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
           (lidPath |> String.concat ".")
           (Loc.toString lid.loc);
       found := true;
-      setResult (Cpath (CPId (lidPath, Module)))
+      setResult
+        (Cpath
+           (CPId {loc = lid.loc; path = lidPath; completionContext = Module}))
     | _ -> ());
     Ast_iterator.default_iterator.module_type iterator mt
   in
@@ -1422,7 +1462,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
         Printf.printf "Ptype_variant unary %s:%s\n" decl.pcd_name.txt
           (Loc.toString decl.pcd_name.loc);
       found := true;
-      setResult (Cpath (CPId ([decl.pcd_name.txt], Value)))
+      setResult
+        (Cpath
+           (CPId
+              {
+                loc = decl.pcd_name.loc;
+                path = [decl.pcd_name.txt];
+                completionContext = Value;
+              }))
     | _ -> ());
     Ast_iterator.default_iterator.type_kind iterator type_kind
   in
@@ -1459,7 +1506,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
     iterator.structure iterator str |> ignore;
     if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then (
       scope := !lastScopeBeforeCursor;
-      setResult (Cpath (CPId ([""], Value))));
+      setResult
+        (Cpath
+           (CPId {loc = Location.none; path = [""]; completionContext = Value})));
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else if Filename.check_suffix path ".resi" then (
@@ -1468,7 +1517,9 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
     iterator.signature iterator signature |> ignore;
     if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then (
       scope := !lastScopeBeforeCursor;
-      setResult (Cpath (CPId ([""], Type))));
+      setResult
+        (Cpath
+           (CPId {loc = Location.none; path = [""]; completionContext = Type})));
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else None

@@ -6,6 +6,34 @@ let debugLogTypeArgContext {env; typeArgs; typeParams} =
     (typeArgs |> List.map Shared.typeToString |> String.concat ", ")
     (typeParams |> List.map Shared.typeToString |> String.concat ", ")
 
+(** Checks whether this type has any uninstantiated type parameters. *)
+let rec hasTvar (ty : Types.type_expr) : bool =
+  match ty.desc with
+  | Tvar _ -> true
+  | Tarrow (_, ty1, ty2, _) -> hasTvar ty1 || hasTvar ty2
+  | Ttuple tyl -> List.exists hasTvar tyl
+  | Tconstr (_, tyl, _) -> List.exists hasTvar tyl
+  | Tobject (ty, _) -> hasTvar ty
+  | Tfield (_, _, ty1, ty2) -> hasTvar ty1 || hasTvar ty2
+  | Tnil -> false
+  | Tlink ty -> hasTvar ty
+  | Tsubst ty -> hasTvar ty
+  | Tvariant {row_fields; _} ->
+    List.exists
+      (function
+        | _, Types.Rpresent (Some ty) -> hasTvar ty
+        | _, Reither (_, tyl, _, _) -> List.exists hasTvar tyl
+        | _ -> false)
+      row_fields
+  | Tunivar _ -> true
+  | Tpoly (ty, tyl) -> hasTvar ty || List.exists hasTvar tyl
+  | Tpackage (_, _, tyl) -> List.exists hasTvar tyl
+
+let findTypeViaLoc ~full ~debug (loc : Location.t) =
+  match References.getLocItem ~full ~pos:(Pos.ofLexing loc.loc_end) ~debug with
+  | Some {locType = Typed (_, typExpr, _)} -> Some typExpr
+  | _ -> None
+
 let rec pathFromTypeExpr (t : Types.type_expr) =
   match t.desc with
   | Tconstr (Pident {name = "function$"}, [t; _], _) -> pathFromTypeExpr t
@@ -927,7 +955,13 @@ let rec contextPathFromCoreType (coreType : Parsetree.core_type) =
   | Ptyp_constr ({txt = Lident "array"}, [innerTyp]) ->
     Some (Completable.CPArray (innerTyp |> contextPathFromCoreType))
   | Ptyp_constr (lid, _) ->
-    Some (CPId (lid.txt |> Utils.flattenLongIdent, Type))
+    Some
+      (CPId
+         {
+           path = lid.txt |> Utils.flattenLongIdent;
+           completionContext = Type;
+           loc = lid.loc;
+         })
   | _ -> None
 
 let unwrapCompletionTypeIfOption (t : SharedTypes.completionType) =

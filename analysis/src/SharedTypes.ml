@@ -606,7 +606,11 @@ module Completable = struct
     | CPBool
     | CPOption of contextPath
     | CPApply of contextPath * Asttypes.arg_label list
-    | CPId of string list * completionContext
+    | CPId of {
+        path: string list;
+        completionContext: completionContext;
+        loc: Location.t;
+      }
     | CPField of contextPath * string
     | CPObj of contextPath * string
     | CPAwait of contextPath
@@ -689,8 +693,8 @@ module Completable = struct
       ^ ")"
     | CPArray (Some ctxPath) -> "array<" ^ contextPathToString ctxPath ^ ">"
     | CPArray None -> "array"
-    | CPId (sl, completionContext) ->
-      completionContextToString completionContext ^ list sl
+    | CPId {path; completionContext} ->
+      completionContextToString completionContext ^ list path
     | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
     | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
     | CPPipe {contextPath; id; inJsx} ->

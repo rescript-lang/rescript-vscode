@@ -16,14 +16,19 @@ let fullFromUri ~uri =
     let moduleName =
       BuildSystem.namespacedName package.namespace (FindFiles.getName path)
     in
-    let incrementalCmtPath =
-      package.rootPath ^ "/lib/bs/___incremental" ^ "/" ^ moduleName
-      ^
-      match Files.classifySourceFile path with
-      | Resi -> ".cmti"
-      | _ -> ".cmt"
+    let incremental =
+      if !Cfg.inIncrementalTypecheckingMode then
+        let incrementalCmtPath =
+          package.rootPath ^ "/lib/bs/___incremental" ^ "/" ^ moduleName
+          ^
+          match Files.classifySourceFile path with
+          | Resi -> ".cmti"
+          | _ -> ".cmt"
+        in
+        fullForCmt ~moduleName ~package ~uri incrementalCmtPath
+      else None
     in
-    match fullForCmt ~moduleName ~package ~uri incrementalCmtPath with
+    match incremental with
     | Some cmtInfo ->
       if Debug.verbose () then Printf.printf "[cmt] Found incremental cmt\n";
       Some cmtInfo

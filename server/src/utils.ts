@@ -186,6 +186,10 @@ export let runAnalysisAfterSanityCheck = (
     env: {
       ...process.env,
       RESCRIPT_VERSION: rescriptVersion,
+      RESCRIPT_INCREMENTAL_TYPECHECKING:
+        config.extensionConfiguration.incrementalTypechecking?.enabled === true
+          ? "true"
+          : undefined,
     },
   };
   try {
