@@ -152,6 +152,14 @@ and printExprItem expr ~pos ~indentation =
   ^ (expr.pexp_loc |> printLocDenominator ~pos)
   ^
   match expr.Parsetree.pexp_desc with
+  | Pexp_array exprs ->
+    "Pexp_array(\n"
+    ^ addIndentation (indentation + 1)
+    ^ (exprs
+      |> List.map (fun expr ->
+             expr |> printExprItem ~pos ~indentation:(indentation + 1))
+      |> String.concat ("\n" ^ addIndentation (indentation + 1)))
+    ^ "\n" ^ addIndentation indentation ^ ")"
   | Pexp_match (matchExpr, cases) ->
     "Pexp_match("
     ^ printExprItem matchExpr ~pos ~indentation:0
