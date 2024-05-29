@@ -98,12 +98,21 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
                ([Completable.NFollowRecordField {fieldName = fname}] @ exprPath)
       )
     | None, None -> (
+      if Debug.verbose () then (
+        Printf.printf "[traverse_expr] No field with cursor and no expr hole.\n";
+
+        match firstCharBeforeCursorNoWhite with
+        | None -> ()
+        | Some c ->
+          Printf.printf "[traverse_expr] firstCharBeforeCursorNoWhite: %c.\n" c);
+
       (* Figure out if we're completing for a new field.
          If the cursor is inside of the record body, but no field has the cursor,
          and there's no pattern hole. Check the first char to the left of the cursor,
-         ignoring white space. If that's a comma, we assume you're completing for a new field. *)
+         ignoring white space. If that's a comma or {, we assume you're completing for a new field,
+         since you're either between 2 fields (comma to the left) or at the start of the record ({). *)
       match firstCharBeforeCursorNoWhite with
-      | Some ',' ->
+      | Some (',' | '{') ->
         someIfHasCursor ("", [Completable.NRecordBody {seenFields}] @ exprPath)
       | _ -> None))
   | Pexp_construct

@@ -379,6 +379,8 @@ let hook = (config: config) => {
 }
 
 let {name} = hook({
+  //
+  // ^com
   // ope
   //    ^com
   includeName: true,
