@@ -1423,9 +1423,9 @@ Path someTyp
     "documentation": {"kind": "markdown", "value": "```rescript\ntest: bool\n```\n\n```rescript\ntype someTyp = {test: bool}\n```"}
   }]
 
-Complete src/CompletionExpressions.res 381:5
-posCursor:[381:5] posNoWhite:[381:-2] Found expr:[380:13->387:2]
-Pexp_apply ...[380:13->380:17] (...[380:18->387:1])
+Complete src/CompletionExpressions.res 380:22
+posCursor:[380:22] posNoWhite:[380:18] Found expr:[380:13->386:2]
+Pexp_apply ...[380:13->380:17] (...[380:18->386:1])
 Completable: Cexpression CArgument Value[hook]($0)->recordBody
 Raw opens: 1 CompletionSupport.place holder
 Package opens Pervasives.JsxModules.place holder
@@ -1441,9 +1441,9 @@ Path hook
     "documentation": {"kind": "markdown", "value": "```rescript\noperator?: [#\"and\" | #or]\n```\n\n```rescript\ntype config = {includeName: bool, operator: option<[#\"and\" | #or]>, showMore: bool}\n```"}
   }]
 
-Complete src/CompletionExpressions.res 383:8
-posCursor:[383:8] posNoWhite:[383:7] Found expr:[380:13->387:2]
-Pexp_apply ...[380:13->380:17] (...[380:18->387:1])
+Complete src/CompletionExpressions.res 382:8
+posCursor:[382:8] posNoWhite:[382:7] Found expr:[380:13->386:2]
+Pexp_apply ...[380:13->380:17] (...[380:18->386:1])
 Completable: Cexpression CArgument Value[hook]($0)=ope->recordBody
 Raw opens: 1 CompletionSupport.place holder
 Package opens Pervasives.JsxModules.place holder
