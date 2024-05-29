@@ -28,6 +28,7 @@
 - Adjust function template snippet return. https://github.com/rescript-lang/rescript-vscode/pull/985
 - Don't expand `type t` maker functions in patterns. https://github.com/rescript-lang/rescript-vscode/pull/986
 - Use `loc` for identifiers to get more and better completions in certain scenarios with type parameters. https://github.com/rescript-lang/rescript-vscode/pull/993
+- Improve the DX of running the code analyzer some. https://github.com/rescript-lang/rescript-vscode/pull/995
 
 #### :rocket: New Feature
 
