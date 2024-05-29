@@ -168,7 +168,7 @@ newText:
     }
 
 Xform src/Xform.res 72:5
-Hit: Extract module as file
+Hit: Extract local module "ExtractableModule" to file "ExtractableModule.res"
 
 CreateFile: ExtractableModule.res
 

@@ -173,7 +173,10 @@ module ModuleToFile = struct
         in
         changed :=
           Some
-            (CodeActions.makeWithDocumentChanges ~title:"Extract module as file"
+            (CodeActions.makeWithDocumentChanges
+               ~title:
+                 (Printf.sprintf "Extract local module \"%s\" to file \"%s\""
+                    moduleName (moduleName ^ ".res"))
                ~kind:RefactorRewrite
                ~documentChanges:
                  [

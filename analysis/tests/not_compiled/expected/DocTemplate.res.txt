@@ -69,7 +69,7 @@ module T = {
   let b = 1
   //  ^xfm
 }
-Hit: Extract module as file
+Hit: Extract local module "T" to file "T.res"
 
 CreateFile: T.res
 
@@ -100,7 +100,7 @@ newText:
   
   */
   let b = 1
-Hit: Extract module as file
+Hit: Extract local module "T" to file "T.res"
 
 CreateFile: T.res
 
