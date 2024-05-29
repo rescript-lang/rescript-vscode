@@ -84,6 +84,10 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
         (* An expression hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
         someIfHasCursor
           ("", [Completable.NFollowRecordField {fieldName = fname}] @ exprPath)
+      | Pexp_ident {txt = Lident txt} when fname = txt ->
+        (* This is a heuristic for catching writing field names. ReScript has punning for record fields, but the AST doesn't,
+           so punning is represented as the record field name and identifier being the same: {someField}. *)
+        someIfHasCursor (txt, [Completable.NRecordBody {seenFields}] @ exprPath)
       | Pexp_ident {txt = Lident txt} ->
         (* A var means `{someField: s}` or similar. Complete for identifiers or values. *)
         someIfHasCursor (txt, exprPath)
