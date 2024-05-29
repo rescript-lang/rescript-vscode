@@ -84,6 +84,10 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
         (* An expression hole means for example `{someField: <com>}`. We want to complete for the type of `someField`.  *)
         someIfHasCursor
           ("", [Completable.NFollowRecordField {fieldName = fname}] @ exprPath)
+      | Pexp_ident {txt = Lident txt} when fname = txt ->
+        (* This is a heuristic for catching writing field names. ReScript has punning for record fields, but the AST doesn't,
+           so punning is represented as the record field name and identifier being the same: {someField}. *)
+        someIfHasCursor (txt, [Completable.NRecordBody {seenFields}] @ exprPath)
       | Pexp_ident {txt = Lident txt} ->
         (* A var means `{someField: s}` or similar. Complete for identifiers or values. *)
         someIfHasCursor (txt, exprPath)
@@ -94,12 +98,21 @@ let rec traverseExpr (exp : Parsetree.expression) ~exprPath ~pos
                ([Completable.NFollowRecordField {fieldName = fname}] @ exprPath)
       )
     | None, None -> (
+      if Debug.verbose () then (
+        Printf.printf "[traverse_expr] No field with cursor and no expr hole.\n";
+
+        match firstCharBeforeCursorNoWhite with
+        | None -> ()
+        | Some c ->
+          Printf.printf "[traverse_expr] firstCharBeforeCursorNoWhite: %c.\n" c);
+
       (* Figure out if we're completing for a new field.
          If the cursor is inside of the record body, but no field has the cursor,
          and there's no pattern hole. Check the first char to the left of the cursor,
-         ignoring white space. If that's a comma, we assume you're completing for a new field. *)
+         ignoring white space. If that's a comma or {, we assume you're completing for a new field,
+         since you're either between 2 fields (comma to the left) or at the start of the record ({). *)
       match firstCharBeforeCursorNoWhite with
-      | Some ',' ->
+      | Some (',' | '{') ->
         someIfHasCursor ("", [Completable.NRecordBody {seenFields}] @ exprPath)
       | _ -> None))
   | Pexp_construct

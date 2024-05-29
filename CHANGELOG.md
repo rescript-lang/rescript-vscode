@@ -19,6 +19,7 @@
 - Fix JSX prop special case in end of JSX element. https://github.com/rescript-lang/rescript-vscode/pull/984
 - preserve URI format in canonicalizeUri. https://github.com/rescript-lang/rescript-vscode/pull/990
 - Remove workaround for canonicalize function in tests https://github.com/rescript-lang/rescript-vscode/pull/992
+- Get completions for writing new field names in a record body expressions in more cases. https://github.com/rescript-lang/rescript-vscode/pull/997
 
 #### :nail_care: Polish
 

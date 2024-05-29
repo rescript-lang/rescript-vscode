@@ -362,3 +362,26 @@ let someTyp: someTyp = {test: true}
 
 // switch someTyp. { | _ => () }
 //                ^com
+
+type config = {
+  includeName: bool,
+  operator?: [#"and" | #or],
+  showMore: bool,
+}
+
+type hookReturn = {name: string}
+
+let hook = (config: config) => {
+  ignore(config)
+  {
+    name: "tester",
+  }
+}
+
+let {name} = hook({
+  //                  ^com
+  // ope
+  //    ^com
+  includeName: true,
+  showMore: true,
+})
