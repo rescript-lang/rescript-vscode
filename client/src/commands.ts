@@ -1,4 +1,4 @@
-import { DiagnosticCollection, OutputChannel } from "vscode";
+import { DiagnosticCollection, OutputChannel, StatusBarItem } from "vscode";
 
 import {
   DiagnosticsResultCodeActionsMap,
@@ -14,12 +14,14 @@ export const codeAnalysisWithReanalyze = (
   targetDir: string | null,
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
-  outputChannel: OutputChannel
+  outputChannel: OutputChannel,
+  codeAnalysisRunningStatusBarItem: StatusBarItem
 ) => {
   runCodeAnalysisWithReanalyze(
     targetDir,
     diagnosticsCollection,
     diagnosticsResultCodeActions,
-    outputChannel
+    outputChannel,
+    codeAnalysisRunningStatusBarItem
   );
 };

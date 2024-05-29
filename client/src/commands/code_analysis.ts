@@ -12,8 +12,26 @@ import {
   CodeActionKind,
   WorkspaceEdit,
   OutputChannel,
+  StatusBarItem,
 } from "vscode";
 import { analysisProdPath, getAnalysisBinaryPath } from "../utils";
+
+export let statusBarItem = {
+  setToStopText: (codeAnalysisRunningStatusBarItem: StatusBarItem) => {
+    codeAnalysisRunningStatusBarItem.text = "$(debug-stop) Stop Code Analyzer";
+    codeAnalysisRunningStatusBarItem.tooltip = null;
+  },
+  setToRunningText: (codeAnalysisRunningStatusBarItem: StatusBarItem) => {
+    codeAnalysisRunningStatusBarItem.text =
+      "$(loading~spin) Running code analysis...";
+    codeAnalysisRunningStatusBarItem.tooltip = null;
+  },
+  setToFailed: (codeAnalysisRunningStatusBarItem: StatusBarItem) => {
+    codeAnalysisRunningStatusBarItem.text = "$(alert) Failed";
+    codeAnalysisRunningStatusBarItem.tooltip =
+      "Something went wrong when running the code analysis.";
+  },
+};
 
 export type DiagnosticsResultCodeActionsMap = Map<
   string,
@@ -42,6 +60,7 @@ enum ClassifiedMessage {
 let classifyMessage = (msg: string) => {
   if (
     msg.endsWith(" is never used") ||
+    msg.endsWith(" is never used and could have side effects") ||
     msg.endsWith(" has no side effects and can be removed")
   ) {
     return ClassifiedMessage.Removable;
@@ -152,6 +171,12 @@ let resultsToDiagnostics = (
             ""
           );
 
+          codeAction.command = {
+            command: "rescript-vscode.clear_diagnostic",
+            title: "Clear diagnostic",
+            arguments: [diagnostic],
+          };
+
           codeAction.edit = codeActionEdit;
 
           if (diagnosticsResultCodeActions.has(item.file)) {
@@ -177,7 +202,8 @@ export const runCodeAnalysisWithReanalyze = (
   targetDir: string | null,
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
-  outputChannel: OutputChannel
+  outputChannel: OutputChannel,
+  codeAnalysisRunningStatusBarItem: StatusBarItem
 ) => {
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
@@ -188,12 +214,15 @@ export const runCodeAnalysisWithReanalyze = (
     return;
   }
 
+  statusBarItem.setToRunningText(codeAnalysisRunningStatusBarItem);
+
   let opts = ["reanalyze", "-json"];
   let p = cp.spawn(binaryPath, opts, {
     cwd,
   });
 
   if (p.stdout == null) {
+    statusBarItem.setToFailed(codeAnalysisRunningStatusBarItem);
     window.showErrorMessage("Something went wrong.");
     return;
   }
@@ -252,6 +281,7 @@ export const runCodeAnalysisWithReanalyze = (
     if (json == null) {
       // If reanalyze failed for some reason we'll clear the diagnostics.
       diagnosticsCollection.clear();
+      statusBarItem.setToFailed(codeAnalysisRunningStatusBarItem);
       return;
     }
 
@@ -272,5 +302,7 @@ export const runCodeAnalysisWithReanalyze = (
     diagnosticsMap.forEach((diagnostics, filePath) => {
       diagnosticsCollection.set(Uri.parse(filePath), diagnostics);
     });
+
+    statusBarItem.setToStopText(codeAnalysisRunningStatusBarItem);
   });
 };
