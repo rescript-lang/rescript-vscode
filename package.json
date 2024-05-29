@@ -148,11 +148,6 @@
           "default": true,
           "description": "Whether you want the extension to prompt for autostarting a ReScript build if a project is opened with no build running."
         },
-        "rescript.settings.autoRunCodeAnalysis": {
-          "type": "boolean",
-          "default": false,
-          "description": "Automatically start ReScript's code analysis."
-        },
         "rescript.settings.inlayHints.enable": {
           "type": "boolean",
           "default": false,

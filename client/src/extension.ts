@@ -12,6 +12,7 @@ import {
   CodeAction,
   WorkspaceEdit,
   CodeActionKind,
+  Diagnostic,
 } from "vscode";
 
 import {
@@ -23,7 +24,10 @@ import {
 } from "vscode-languageclient/node";
 
 import * as customCommands from "./commands";
-import { DiagnosticsResultCodeActionsMap } from "./commands/code_analysis";
+import {
+  DiagnosticsResultCodeActionsMap,
+  statusBarItem,
+} from "./commands/code_analysis";
 
 let client: LanguageClient;
 
@@ -150,7 +154,8 @@ export function activate(context: ExtensionContext) {
                   inCodeAnalysisState.activatedFromDirectory,
                   diagnosticsCollection,
                   diagnosticsResultCodeActions,
-                  outputChannel
+                  outputChannel,
+                  codeAnalysisRunningStatusBarItem
                 );
               }
             })
@@ -228,6 +233,21 @@ export function activate(context: ExtensionContext) {
     customCommands.createInterface(client);
   });
 
+  commands.registerCommand(
+    "rescript-vscode.clear_diagnostic",
+    (diagnostic: Diagnostic) => {
+      const editor = window.activeTextEditor;
+      if (!editor) {
+        return;
+      }
+
+      const document = editor.document;
+      const diagnostics = diagnosticsCollection.get(document.uri);
+      const newDiagnostics = diagnostics.filter((d) => d !== diagnostic);
+      diagnosticsCollection.set(document.uri, newDiagnostics);
+    }
+  );
+
   commands.registerCommand("rescript-vscode.open_compiled", () => {
     customCommands.openCompiled(client);
   });
@@ -272,13 +292,14 @@ export function activate(context: ExtensionContext) {
     codeAnalysisRunningStatusBarItem.command =
       "rescript-vscode.stop_code_analysis";
     codeAnalysisRunningStatusBarItem.show();
-    codeAnalysisRunningStatusBarItem.text = "$(debug-stop) Stop Code Analyzer";
+    statusBarItem.setToStopText(codeAnalysisRunningStatusBarItem);
 
     customCommands.codeAnalysisWithReanalyze(
       inCodeAnalysisState.activatedFromDirectory,
       diagnosticsCollection,
       diagnosticsResultCodeActions,
-      outputChannel
+      outputChannel,
+      codeAnalysisRunningStatusBarItem
     );
   });
 
@@ -319,7 +340,8 @@ export function activate(context: ExtensionContext) {
       if (
         affectsConfiguration("rescript.settings.inlayHints") ||
         affectsConfiguration("rescript.settings.codeLens") ||
-        affectsConfiguration("rescript.settings.signatureHelp")
+        affectsConfiguration("rescript.settings.signatureHelp") ||
+        affectsConfiguration("rescript.settings.incrementalTypechecking")
       ) {
         commands.executeCommand("rescript-vscode.restart_language_server");
       } else {
@@ -333,15 +355,6 @@ export function activate(context: ExtensionContext) {
       }
     })
   );
-
-  // Autostart code analysis if wanted
-  if (
-    workspace
-      .getConfiguration("rescript.settings")
-      .get<boolean>("autoRunCodeAnalysis")
-  ) {
-    commands.executeCommand("rescript-vscode.start_code_analysis");
-  }
 }
 
 export function deactivate(): Thenable<void> | undefined {
