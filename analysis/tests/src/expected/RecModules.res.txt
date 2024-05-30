@@ -1,25 +1,3 @@
-module rec A: {
-  type t
-
-  @send external child: t => B.t = "child"
-} = A
-
-and B: {
-  type t
-
-  @send external parent: t => A.t = "parent"
-} = B
-
-module C = {
-  type t
-
-  @send external createA: t => A.t = "createA"
-}
-
-module MC = C
-//          ^hov
-module MA = A
-//          ^hov
 Hover src/RecModules.res 18:12
 {"contents": {"kind": "markdown", "value": "```rescript\nmodule C: {\n  type t\n  let createA: t => A.t\n}\n```"}}
 

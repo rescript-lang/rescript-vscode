@@ -1,15 +1,3 @@
-let y = 4
-//  ^def
-
-type t = int
-
-let aabbcc = 3
-let _ = aabbcc
-
-module Inner = {
-  let y = 100
-  //  ^def
-}
 Definition src/DefinitionWithInterface.res 0:4
 {"uri": "DefinitionWithInterface.resi", "range": {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 5}}}
 

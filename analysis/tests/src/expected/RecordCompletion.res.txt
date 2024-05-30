@@ -1,27 +1,3 @@
-type t = {n: array<string>}
-
-let t = {n: []}
-
-type t2 = {n2: t}
-
-let t2 = {n2: t}
-
-// t.n->m
-//       ^com
-
-// t2.n2.n->m
-//           ^com
-
-module R = {
-  type t = {name: string}
-}
-
-let n = {R.name: ""}
-// n.R.
-//     ^com
-
-// n.R. xx
-//     ^com
 Complete src/RecordCompletion.res 8:9
 posCursor:[8:9] posNoWhite:[8:8] Found expr:[8:3->8:9]
 Completable: Cpath Value[t].n->m
