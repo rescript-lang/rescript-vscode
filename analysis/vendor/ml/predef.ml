@@ -39,8 +39,11 @@ and ident_exn = ident_create "exn"
 and ident_array = ident_create "array"
 and ident_list = ident_create "list"
 and ident_option = ident_create "option"
+and ident_result = ident_create "result"
+and ident_dict = ident_create "dict"
 
 and ident_int64 = ident_create "int64"
+and ident_bigint = ident_create "bigint"
 and ident_lazy_t = ident_create "lazy_t"
 and ident_string = ident_create "string"
 and ident_extension_constructor = ident_create "extension_constructor"
@@ -80,9 +83,12 @@ and path_exn = Pident ident_exn
 and path_array = Pident ident_array
 and path_list = Pident ident_list
 and path_option = Pident ident_option
+and path_result = Pident ident_result
+and path_dict = Pident ident_dict
 
 
 and path_int64 = Pident ident_int64
+and path_bigint = Pident ident_bigint
 and path_lazy_t = Pident ident_lazy_t
 and path_string = Pident ident_string
 
@@ -91,6 +97,7 @@ and path_extension_constructor = Pident ident_extension_constructor
 and path_floatarray = Pident ident_floatarray
 
 and path_promise = Pident ident_promise
+and path_uncurried = Pident ident_uncurried
 
 let type_int = newgenty (Tconstr(path_int, [], ref Mnil))
 and type_char = newgenty (Tconstr(path_char, [], ref Mnil))
@@ -102,9 +109,11 @@ and type_exn = newgenty (Tconstr(path_exn, [], ref Mnil))
 and type_array t = newgenty (Tconstr(path_array, [t], ref Mnil))
 and type_list t = newgenty (Tconstr(path_list, [t], ref Mnil))
 and type_option t = newgenty (Tconstr(path_option, [t], ref Mnil))
-
+and type_result t1 t2 = newgenty (Tconstr(path_result, [t1; t2], ref Mnil))
+and type_dict t = newgenty (Tconstr(path_dict, [t], ref Mnil))
 
 and type_int64 = newgenty (Tconstr(path_int64, [], ref Mnil))
+and type_bigint = newgenty (Tconstr(path_bigint, [], ref Mnil))
 and type_lazy_t t = newgenty (Tconstr(path_lazy_t, [t], ref Mnil))
 and type_string = newgenty (Tconstr(path_string, [], ref Mnil))
 
@@ -117,6 +126,8 @@ let ident_match_failure = ident_create_predef_exn "Match_failure"
 
 and ident_invalid_argument = ident_create_predef_exn "Invalid_argument"
 and ident_failure = ident_create_predef_exn "Failure"
+and ident_ok = ident_create_predef_exn "Ok"
+and ident_error = ident_create_predef_exn "Error"
 
 and ident_js_error = ident_create_predef_exn "JsError"
 and ident_not_found = ident_create_predef_exn "Not_found"
@@ -213,6 +224,21 @@ let common_initial_env add_type add_extension empty_env =
      type_arity = 1;
      type_kind = Type_variant([cstr ident_none []; cstr ident_some [tvar]]);
      type_variance = [Variance.covariant]}
+  and decl_result =
+    let tvar1, tvar2 = newgenvar(), newgenvar() in
+    {decl_abstr with
+     type_params = [tvar1; tvar2];
+     type_arity = 2;
+     type_kind =
+     Type_variant([cstr ident_ok [tvar1];
+                   cstr ident_error [tvar2]]);
+     type_variance = [Variance.covariant; Variance.covariant]}
+  and decl_dict =
+    let tvar = newgenvar() in
+    {decl_abstr with
+      type_params = [tvar];
+      type_arity = 1;
+      type_variance = [Variance.full]}
   and decl_uncurried =
     let tvar1, tvar2 = newgenvar(), newgenvar() in
     {decl_abstr with
@@ -275,9 +301,12 @@ let common_initial_env add_type add_extension empty_env =
   add_extension ident_undefined_recursive_module
                          [newgenty (Ttuple[type_string; type_int; type_int])] (
   add_type ident_int64 decl_abstr (
+  add_type ident_bigint decl_abstr (
 
   add_type ident_lazy_t decl_lazy_t (
   add_type ident_option decl_option (
+  add_type ident_result decl_result (
+  add_type ident_dict decl_dict (
   add_type ident_list decl_list (
   add_type ident_array decl_array (
   add_type ident_exn decl_exn (
@@ -291,7 +320,7 @@ let common_initial_env add_type add_extension empty_env =
   add_type ident_extension_constructor decl_abstr (
   add_type ident_floatarray decl_abstr (
     add_type ident_promise decl_promise (
-      empty_env)))))))))))))))))))))))))
+      empty_env))))))))))))))))))))))))))))
 
 let build_initial_env add_type add_exception empty_env =
   let common = common_initial_env add_type add_exception empty_env in

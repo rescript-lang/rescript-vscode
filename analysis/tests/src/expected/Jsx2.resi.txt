@@ -1,3 +1,15 @@
+@react.component
+let make: (~first: string) => React.element
+//  ^hov
+
+let y: int
+//  ^hov
+
+// type t = React.e
+//                 ^com
+
+// let x : React.e
+//                ^com
 Hover src/Jsx2.resi 1:4
 getLocItem #1: heuristic for makeProps in interface files
 n1:componentLike n2:unit n3:string

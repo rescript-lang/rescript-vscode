@@ -1,3 +1,31 @@
+let xx = 10
+
+let y = xx
+//      ^def
+
+module Inner = {
+  type tInner = int
+  let vInner = 34
+}
+
+type typeInner = Inner.tInner
+//                     ^def
+
+// open Belt
+let m1 = List.map
+//            ^hov
+
+open ShadowedBelt
+let m2 = List.map
+//            ^hov
+
+let uncurried = (. x, y) => x + y
+
+uncurried(. 3, 12)->ignore
+// ^hov
+
+uncurried(. 3, 12)->ignore
+// ^def
 Definition src/Definition.res 2:8
 {"uri": "Definition.res", "range": {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 6}}}
 

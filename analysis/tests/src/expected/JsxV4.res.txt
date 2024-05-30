@@ -1,3 +1,61 @@
+@@jsxConfig({version: 4})
+
+module M4 = {
+  type props<'first, 'fun, 'second> = {first: 'first, fun?: 'fun, second?: 'second}
+
+  /** Doc Comment For M4 */
+  let make = ({first, fun: ?__fun, second: ?__second, _}: props<_, _, _>) => {
+    let fun = switch __fun {
+    | Some(fun) => fun
+    | None => ""
+    }
+    let second = switch __second {
+    | Some(second) => second
+    | None => ""
+    }
+
+    React.string(first ++ fun ++ second)
+  }
+  /** Doc Comment For M4 */
+  let make = {
+    let \"JsxV4$M4" = (props: props<_>) => make(props)
+
+    \"JsxV4$M4"
+  }
+}
+
+let _ = React.jsx(M4.make, {first: "abc"})
+//       ^def
+
+// <M4 first="abc" f
+//                  ^com
+
+let _ = React.jsx(M4.make, {first: "abc"})
+//       ^hov
+
+module MM = {
+  type props = {}
+
+  let make = (_: props) => React.null
+  let make = {
+    let \"JsxV4$MM" = props => make(props)
+
+    \"JsxV4$MM"
+  }
+}
+
+module Other = {
+  type props<'name> = {name: 'name}
+
+  let make = ({name, _}: props<_>) => React.string(name)
+  let make = {
+    let \"JsxV4$Other" = (props: props<_>) => make(props)
+
+    \"JsxV4$Other"
+  }
+}
+
+// ^int
 Definition src/JsxV4.res 8:9
 {"uri": "JsxV4.res", "range": {"start": {"line": 5, "character": 6}, "end": {"line": 5, "character": 10}}}
 

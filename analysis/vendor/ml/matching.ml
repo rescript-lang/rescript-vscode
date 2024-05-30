@@ -1599,11 +1599,11 @@ let make_record_matching loc all_labels def = function
             match lbl.lbl_repres with
             | Record_float_unused -> assert false
             | Record_regular | Record_optional_labels _ -> 
-              Lprim (Pfield (lbl.lbl_pos, !Lambda.fld_record lbl), [arg], loc) 
+              Lprim (Pfield (lbl.lbl_pos, Lambda.fld_record lbl), [arg], loc) 
             | Record_inlined _ ->
-              Lprim (Pfield (lbl.lbl_pos, Fld_record_inline {name = lbl.lbl_name}), [arg], loc)
+              Lprim (Pfield (lbl.lbl_pos, Lambda.fld_record_inline lbl), [arg], loc)
             | Record_unboxed _ -> arg
-            | Record_extension -> Lprim (Pfield (lbl.lbl_pos + 1, Fld_record_extension {name = lbl.lbl_name}), [arg], loc) 
+            | Record_extension -> Lprim (Pfield (lbl.lbl_pos + 1, Lambda.fld_record_extension lbl), [arg], loc) 
           in
           let str =
             match lbl.lbl_mut with
@@ -2236,10 +2236,10 @@ let combine_constant names loc arg cst partial ctx def
           fail
           (Pbintcomp(Pint64, Cneq)) (Pbintcomp(Pint64, Clt))
           arg const_lambda_list
-    | Const_nativeint _ ->
+    | Const_bigint _ ->
         make_test_sequence loc
           fail
-          (Pbintcomp(Pnativeint, Cneq)) (Pbintcomp(Pnativeint, Clt))
+          (Pbigintcomp Cneq) (Pbigintcomp Clt)
           arg const_lambda_list
   in lambda1,jumps_union local_jumps total
 

@@ -28,9 +28,11 @@ val type_exn: type_expr
 val type_array: type_expr -> type_expr
 val type_list: type_expr -> type_expr
 val type_option: type_expr -> type_expr
-
+val type_result: type_expr -> type_expr -> type_expr
+val type_dict: type_expr -> type_expr
 
 val type_int64: type_expr
+val type_bigint: type_expr
 val type_lazy_t: type_expr -> type_expr
 val type_extension_constructor:type_expr
 val type_floatarray:type_expr
@@ -46,13 +48,16 @@ val path_exn: Path.t
 val path_array: Path.t
 val path_list: Path.t
 val path_option: Path.t
-
+val path_result: Path.t
+val path_dict: Path.t
 
 val path_int64: Path.t
+val path_bigint: Path.t
 val path_lazy_t: Path.t
 val path_extension_constructor: Path.t
 val path_floatarray: Path.t
 val path_promise: Path.t
+val path_uncurried: Path.t
 
 val path_match_failure: Path.t
 val path_assert_failure : Path.t

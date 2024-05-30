@@ -227,7 +227,7 @@ let newHover ~full:{file; package} ~supportsMarkdownLinks locItem =
          | Const_float _ -> "float"
          | Const_int32 _ -> "int32"
          | Const_int64 _ -> "int64"
-         | Const_nativeint _ -> "int"))
+         | Const_bigint _ -> "bigint"))
   | Typed (_, t, locKind) ->
     let fromType ~docstring typ =
       ( hoverWithExpandedTypes ~file ~package ~supportsMarkdownLinks typ,

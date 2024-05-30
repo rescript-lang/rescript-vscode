@@ -2396,9 +2396,9 @@ and unify3 env t1 t1' t2 t2' =
       link_type t2' t1;
   | (Tfield _, Tfield _) -> (* special case for GADTs *)
       unify_fields env t1' t2'
-  | (Tconstr (Pident {name="function$"}, [tFun; _], _), Tarrow _) when !Config.uncurried = Uncurried ->
+  | (Tconstr (Pident {name="function$"}, [t_fun; _], _), Tarrow _) when !Config.uncurried = Uncurried ->
       (* subtype: an uncurried function is cast to a curried one *)
-      unify2 env tFun t2
+      unify2 env t_fun t2
   | _ ->
     begin match !umode with
     | Expression ->
@@ -3904,6 +3904,11 @@ let subtypes = TypePairs.create 17
 let subtype_error env trace =
   raise (Subtype (expand_trace env (List.rev trace), []))
 
+let extract_concrete_typedecl_opt env t = 
+  match extract_concrete_typedecl env t with 
+  | v -> Some v 
+  | exception Not_found -> None
+
 let rec subtype_rec env trace t1 t2 cstrs =
   let t1 = repr t1 in
   let t2 = repr t2 in
@@ -3939,8 +3944,14 @@ let rec subtype_rec env trace t1 t2 cstrs =
               let (co, cn) = Variance.get_upper v in
               if co then
                 if cn then
-                  (trace, newty2 t1.level (Ttuple[t1]),
-                   newty2 t2.level (Ttuple[t2]), !univar_pairs) :: cstrs
+                  (* Invariant type argument: check both ways *)
+                  if
+                    subtype_rec env ((t1, t2)::trace) t1 t2 [] = [] &&
+                    subtype_rec env ((t2, t1)::trace) t2 t1 [] = [] then
+                    cstrs
+                  else
+                      (trace, newty2 t1.level (Ttuple[t1]),
+                      newty2 t2.level (Ttuple[t2]), !univar_pairs) :: cstrs
                 else subtype_rec env ((t1, t2)::trace) t1 t2 cstrs
               else
                 if cn then subtype_rec env ((t2, t1)::trace) t2 t1 cstrs
@@ -3951,13 +3962,28 @@ let rec subtype_rec env trace t1 t2 cstrs =
         end
     | (Tconstr(p1, _, _), _) when generic_private_abbrev env p1 ->
         subtype_rec env trace (expand_abbrev_opt env t1) t2 cstrs
-    | (Tconstr(_, [], _), Tconstr(path, [], _)) when Variant_coercion.can_coerce_path path && 
-        extract_concrete_typedecl env t1 |> Variant_coercion.can_try_coerce_variant_to_primitive |> Option.is_some
+    | (Tconstr(p1, [], _), Tconstr(p2, [], _)) when Path.same p1 Predef.path_int && Path.same p2 Predef.path_float ->
+        cstrs 
+    | (Tconstr(path, [], _), Tconstr(_, [], _)) when Variant_coercion.can_coerce_primitive path && 
+        extract_concrete_typedecl_opt env t2 |> Variant_coercion.can_try_coerce_variant_to_primitive_opt |> Option.is_some
+        ->
+      (* type coercion for primitives (int/float/string) to elgible unboxed variants:
+         - must be unboxed
+         - must have a constructor case with a supported and matching primitive payload *)
+      (match Variant_coercion.can_try_coerce_variant_to_primitive_opt (extract_concrete_typedecl_opt env t2) with
+      | Some (constructors, true) -> 
+        if Variant_coercion.variant_has_catch_all_case constructors (fun p -> Path.same p path) then
+          cstrs
+        else 
+          (trace, t1, t2, !univar_pairs)::cstrs
+      | _ -> (trace, t1, t2, !univar_pairs)::cstrs)
+    | (Tconstr(_, [], _), Tconstr(path, [], _)) when Variant_coercion.can_coerce_primitive path && 
+        extract_concrete_typedecl_opt env t1 |> Variant_coercion.can_try_coerce_variant_to_primitive_opt |> Option.is_some
         ->
       (* type coercion for variants to primitives *)
-      (match Variant_coercion.can_try_coerce_variant_to_primitive (extract_concrete_typedecl env t1) with
-      | Some constructors -> 
-        if constructors |> Variant_coercion.can_coerce_variant ~path then
+      (match Variant_coercion.can_try_coerce_variant_to_primitive_opt (extract_concrete_typedecl_opt env t1) with
+      | Some (constructors, unboxed) -> 
+        if constructors |> Variant_coercion.variant_has_same_runtime_representation_as_target ~target_path:path ~unboxed then
           cstrs
         else 
           (trace, t1, t2, !univar_pairs)::cstrs

@@ -1,3 +1,17 @@
+let ax = 4
+let _ = ax
+let ax = ""
+let _ = ax
+module Test = {
+  type t = {name: int}
+  let add = (ax: t) => ax.name + 1
+}
+let ax: Test.t = {name: 4}
+// ax->
+//     ^com
+
+// ax
+//   ^com
 Complete src/CompletePrioritize2.res 9:7
 posCursor:[9:7] posNoWhite:[9:6] Found expr:[9:3->0:-1]
 Completable: Cpath Value[ax]->

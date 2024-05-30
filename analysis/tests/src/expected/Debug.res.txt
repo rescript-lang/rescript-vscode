@@ -1,3 +1,20 @@
+// turn on by adding this comment // ^db+
+
+let _ = ShadowedBelt.List.map
+//                         ^def
+
+open Js
+module Before = {
+  open Belt
+  let _ = Id.getCmpInternal
+}
+module Inner = {
+  // eqN
+  //    ^com
+  open List
+  let _ = map
+}
+// ^db-
 Definition src/Debug.res 2:27
 {"uri": "ShadowedBelt.res", "range": {"start": {"line": 1, "character": 6}, "end": {"line": 1, "character": 9}}}
 

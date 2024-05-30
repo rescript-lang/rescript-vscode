@@ -77,7 +77,7 @@ let findArgCompletables ~(args : arg list) ~endPos ~posBeforeCursor
       if CursorPosition.locIsEmpty exp.pexp_loc ~pos:posBeforeCursor then
         someArgHadEmptyExprLoc := true;
 
-      if Res_parsetree_viewer.isTemplateLiteral exp then None
+      if Res_parsetree_viewer.is_template_literal exp then None
       else if exp.pexp_loc |> Loc.hasPos ~pos:posBeforeCursor then (
         if Debug.verbose () then
           print_endline
@@ -281,7 +281,7 @@ let rec exprToContextPathInner (e : Parsetree.expression) =
 
 and exprToContextPath (e : Parsetree.expression) =
   match
-    ( Res_parsetree_viewer.hasAwaitAttribute e.pexp_attributes,
+    ( Res_parsetree_viewer.has_await_attribute e.pexp_attributes,
       exprToContextPathInner e )
   with
   | true, Some ctxPath -> Some (CPAwait ctxPath)
@@ -1072,7 +1072,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                       completionContext =
                         (if
                            isLikelyModulePath
-                           && expr |> Res_parsetree_viewer.isBracedExpr
+                           && expr |> Res_parsetree_viewer.is_braced_expr
                          then ValueOrField
                          else Value);
                     }))
@@ -1143,7 +1143,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
             | Some contextPath -> setResult (Cpath (CPField (contextPath, "")))
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
-          when Res_parsetree_viewer.isJsxExpression expr ->
+          when Res_parsetree_viewer.is_jsx_expression expr ->
           inJsxContext := true;
           let jsxProps = CompletionJsx.extractJsxProps ~compName ~args in
           let compNamePath = flattenLidCheckDot ~jsx:true compName in
@@ -1500,7 +1500,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
 
   if Filename.check_suffix path ".res" then (
     let parser =
-      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+      Res_driver.parsing_engine.parse_implementation ~for_printer:false
     in
     let {Res_driver.parsetree = str} = parser ~filename:currentFile in
     iterator.structure iterator str |> ignore;
@@ -1512,7 +1512,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
     if !found = false then if debug then Printf.printf "XXX Not found!\n";
     !result)
   else if Filename.check_suffix path ".resi" then (
-    let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
+    let parser = Res_driver.parsing_engine.parse_interface ~for_printer:false in
     let {Res_driver.parsetree = signature} = parser ~filename:currentFile in
     iterator.signature iterator signature |> ignore;
     if blankAfterCursor = Some ' ' || blankAfterCursor = Some '\n' then (

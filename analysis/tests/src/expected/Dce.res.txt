@@ -1,3 +1,7 @@
+// Note: in test mode this only reports on src/dce
+
+// ^dce
+
 DCE src/Dce.res
 issues:1
 

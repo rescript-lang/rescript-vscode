@@ -1,3 +1,12 @@
+let date = Some(Js.Date.make())
+
+type withDate = {date: Js.Date.t}
+
+// let x = switch date { | }
+//                        ^com
+
+// let x: withDate = {date: }
+//                         ^com
 Complete src/CompletionTypeT.res 4:26
 XXX Not found!
 Completable: Cpattern Value[date]

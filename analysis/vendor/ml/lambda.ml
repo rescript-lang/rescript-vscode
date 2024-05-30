@@ -86,21 +86,47 @@ let mutable_flag_of_tag_info (tag : tag_info) =
   | Blk_some 
    -> Immutable
 
+type label = Types.label_description
 
-let blk_record = ref (fun _ _ _ -> 
-  assert false
-  )
+let find_name (attr : Parsetree.attribute) =
+  match attr with
+  | ( { txt = "as" },
+      PStr
+        [
+          {
+            pstr_desc =
+              Pstr_eval ({ pexp_desc = Pexp_constant (Pconst_string (s, _)) }, _);
+          };
+        ] ) ->
+      Some s
+  | _ -> None
+     
+let blk_record (fields : (label * _) array) mut record_repr =
+  let all_labels_info =
+    Ext_array.map fields (fun (lbl, _) ->
+        Ext_list.find_def lbl.lbl_attributes find_name lbl.lbl_name)
+  in
+  Blk_record
+    { fields = all_labels_info; mutable_flag = mut; record_repr }
 
 
-let blk_record_ext =  ref (fun fields mutable_flag -> 
-    let all_labels_info = fields |> Array.map (fun (x,_) -> x.Types.lbl_name) in    
-    Blk_record_ext {fields = all_labels_info; mutable_flag }
-  )
+let blk_record_ext fields mutable_flag =
+  let all_labels_info =
+    Array.map
+      (fun ((lbl : label), _) ->
+        Ext_list.find_def lbl.Types.lbl_attributes find_name lbl.lbl_name)
+      fields
+  in
+  Blk_record_ext {fields = all_labels_info; mutable_flag }
 
-let blk_record_inlined = ref (fun fields name num_nonconst optional_labels ~tag ~attrs mutable_flag -> 
-  let fields = fields |> Array.map (fun (x,_) -> x.Types.lbl_name) in    
+let blk_record_inlined fields name num_nonconst optional_labels ~tag ~attrs mutable_flag =
+  let fields =
+    Array.map
+      (fun ((lbl : label), _) ->
+        Ext_list.find_def lbl.lbl_attributes find_name lbl.lbl_name)
+      fields
+  in
   Blk_record_inlined {fields; name; num_nonconst; tag; mutable_flag; optional_labels; attrs }
-) 
 
 let ref_tag_info : tag_info = 
   Blk_record {fields = [| "contents" |]; mutable_flag = Mutable; record_repr = Record_regular}
@@ -117,9 +143,17 @@ type field_dbg_info =
   | Fld_variant
   | Fld_cons 
   | Fld_array
-  
-let fld_record = ref (fun (lbl : Types.label_description) ->
-  Fld_record {name = lbl.lbl_name; mutable_flag = Mutable})
+
+let fld_record (lbl : label) =
+  Fld_record
+    {
+      name = Ext_list.find_def lbl.lbl_attributes find_name lbl.lbl_name;
+      mutable_flag = lbl.lbl_mut;
+    }
+
+let fld_record_extension (lbl : label) =
+  Fld_record_extension
+    { name = Ext_list.find_def lbl.lbl_attributes find_name lbl.lbl_name }
 
 let ref_field_info : field_dbg_info = 
   Fld_record { name = "contents"; mutable_flag = Mutable}
@@ -131,8 +165,21 @@ type set_field_dbg_info =
     | Fld_record_extension_set of string
 
 let ref_field_set_info : set_field_dbg_info = Fld_record_set "contents"    
-let fld_record_set = ref ( fun (lbl : Types.label_description) ->
-  Fld_record_set lbl.lbl_name  )
+let fld_record_set (lbl : label) =
+  Fld_record_set
+    (Ext_list.find_def lbl.lbl_attributes find_name lbl.lbl_name)
+
+let fld_record_inline (lbl : label) =
+  Fld_record_inline
+    { name = Ext_list.find_def lbl.lbl_attributes find_name lbl.lbl_name }
+
+let fld_record_inline_set (lbl : label) =
+  Fld_record_inline_set
+    (Ext_list.find_def lbl.lbl_attributes find_name lbl.lbl_name)
+
+let fld_record_extension_set (lbl : label) =
+  Fld_record_extension_set
+    (Ext_list.find_def lbl.lbl_attributes find_name lbl.lbl_name)
 
 type immediate_or_pointer =
   | Immediate
@@ -182,6 +229,12 @@ type primitive =
   | Pnegfloat | Pabsfloat
   | Paddfloat | Psubfloat | Pmulfloat | Pdivfloat
   | Pfloatcomp of comparison
+  (* BigInt operations *)
+  | Pnegbigint | Paddbigint | Psubbigint | Ppowbigint
+  | Pmulbigint | Pdivbigint | Pmodbigint
+  | Pandbigint | Porbigint | Pxorbigint
+  | Plslbigint | Pasrbigint
+  | Pbigintcomp of comparison
   (* String operations *)
   | Pstringlength | Pstringrefu  | Pstringrefs
   | Pbyteslength | Pbytesrefu | Pbytessetu | Pbytesrefs | Pbytessets
@@ -226,7 +279,7 @@ and value_kind =
 
 
 and boxed_integer = Primitive.boxed_integer =
-    Pnativeint | Pint32 | Pint64
+    Pbigint | Pint32 | Pint64
 
 
 and raise_kind =
@@ -267,10 +320,10 @@ type let_kind = Strict | Alias | StrictOpt | Variable
 type function_attribute = {
   inline : inline_attribute;
   is_a_functor: bool;
-  stub: bool;
   return_unit : bool;
   async : bool;
-  oneUnitArg : bool;
+  directive : string option;
+  one_unit_arg : bool;
 }
 
 type lambda =
@@ -337,14 +390,11 @@ let lambda_unit = Lconst const_unit
 let default_function_attribute = {
   inline = Default_inline;
   is_a_functor = false;
-  stub = false;
   return_unit = false;
   async = false;
-  oneUnitArg = false;
+  one_unit_arg = false;
+  directive = None;
 }
-
-let default_stub_attribute =
-  { default_function_attribute with stub = true }
 
 (* Build sharing keys *)
 (*

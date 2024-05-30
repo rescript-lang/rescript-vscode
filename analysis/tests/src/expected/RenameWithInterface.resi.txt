@@ -1,3 +1,5 @@
+let x: int
+//  ^ren y
 Rename src/RenameWithInterface.resi 0:4 y
 [
 {

@@ -1,3 +1,5 @@
+let x = 2
+//  ^ref
 References src/ReferencesWithInterface.res 0:4
 [
 {"uri": "Cross.res", "range": {"start": {"line": 9, "character": 52}, "end": {"line": 9, "character": 53}}},

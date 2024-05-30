@@ -1,3 +1,7 @@
+open! ShadowedBelt
+
+let m = List.map
+//           ^hov
 Hover src/Auto.res 2:13
 {"contents": {"kind": "markdown", "value": "```rescript\n(list<'a>, 'a => 'b) => list<'b>\n```"}}
 
