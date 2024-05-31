@@ -259,7 +259,7 @@ let printMaybeExoticIdent ?(allowUident = false) txt =
       | 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '\'' | '_' -> loop (i + 1)
       | _ -> "\"" ^ txt ^ "\""
   in
-  if Res_token.isKeywordTxt txt then "\"" ^ txt ^ "\"" else loop 0
+  if Res_token.is_keyword_txt txt then "\"" ^ txt ^ "\"" else loop 0
 
 let findPackageJson root =
   let path = Uri.toPath root in

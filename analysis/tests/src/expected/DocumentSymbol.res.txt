@@ -90,8 +90,8 @@ DocumentSymbol src/DocumentSymbol.res
     {
       "name": "make",
       "kind": 12,
-      "range": {"start": {"line": 27, "character": 4}, "end": {"line": 27, "character": 98}},
-      "selectionRange": {"start": {"line": 27, "character": 4}, "end": {"line": 27, "character": 98}}
+      "range": {"start": {"line": 26, "character": 4}, "end": {"line": 27, "character": 98}},
+      "selectionRange": {"start": {"line": 26, "character": 4}, "end": {"line": 27, "character": 98}}
     }]
   }]
 },

@@ -3,10 +3,10 @@ let document_syntax ~path =
     diagnostics
     |> List.map (fun diagnostic ->
            let _, startline, startcol =
-             Location.get_pos_info (Res_diagnostics.getStartPos diagnostic)
+             Location.get_pos_info (Res_diagnostics.get_start_pos diagnostic)
            in
            let _, endline, endcol =
-             Location.get_pos_info (Res_diagnostics.getEndPos diagnostic)
+             Location.get_pos_info (Res_diagnostics.get_end_pos diagnostic)
            in
            Protocol.stringifyDiagnostic
              {
@@ -21,13 +21,14 @@ let document_syntax ~path =
   in
   if FindFiles.isImplementation path then
     let parseImplementation =
-      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+      Res_driver.parsing_engine.parse_implementation ~for_printer:false
         ~filename:path
     in
     get_diagnostics parseImplementation.diagnostics
   else if FindFiles.isInterface path then
     let parseInterface =
-      Res_driver.parsingEngine.parseInterface ~forPrinter:false ~filename:path
+      Res_driver.parsing_engine.parse_interface ~for_printer:false
+        ~filename:path
     in
     get_diagnostics parseInterface.diagnostics
   else []

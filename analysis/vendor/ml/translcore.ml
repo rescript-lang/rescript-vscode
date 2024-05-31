@@ -57,6 +57,7 @@ type specialized = {
   stringcomp : Lambda.primitive;
   bytescomp : Lambda.primitive;
   int64comp : Lambda.primitive;
+  bigintcomp : Lambda.primitive;
   simplify_constant_constructor : bool;
 }
 
@@ -82,6 +83,7 @@ let comparisons_table =
             Pccall
               (Primitive.simple ~name:"caml_bytes_equal" ~arity:2 ~alloc:false);
           int64comp = Pbintcomp (Pint64, Ceq);
+          bigintcomp = Pbigintcomp Ceq;
           simplify_constant_constructor = true;
         } );
       ( "%notequal",
@@ -102,6 +104,7 @@ let comparisons_table =
               (Primitive.simple ~name:"caml_bytes_notequal" ~arity:2
                  ~alloc:false);
           int64comp = Pbintcomp (Pint64, Cneq);
+          bigintcomp = Pbigintcomp Cneq;
           simplify_constant_constructor = true;
         } );
       ( "%lessthan",
@@ -122,6 +125,7 @@ let comparisons_table =
               (Primitive.simple ~name:"caml_bytes_lessthan" ~arity:2
                  ~alloc:false);
           int64comp = Pbintcomp (Pint64, Clt);
+          bigintcomp = Pbigintcomp Clt;
           simplify_constant_constructor = false;
         } );
       ( "%greaterthan",
@@ -144,6 +148,7 @@ let comparisons_table =
               (Primitive.simple ~name:"caml_bytes_greaterthan" ~arity:2
                  ~alloc:false);
           int64comp = Pbintcomp (Pint64, Cgt);
+          bigintcomp = Pbigintcomp Cgt;
           simplify_constant_constructor = false;
         } );
       ( "%lessequal",
@@ -166,6 +171,7 @@ let comparisons_table =
               (Primitive.simple ~name:"caml_bytes_lessequal" ~arity:2
                  ~alloc:false);
           int64comp = Pbintcomp (Pint64, Cle);
+          bigintcomp = Pbigintcomp Cle;
           simplify_constant_constructor = false;
         } );
       ( "%greaterequal",
@@ -188,6 +194,7 @@ let comparisons_table =
               (Primitive.simple ~name:"caml_bytes_greaterequal" ~arity:2
                  ~alloc:false);
           int64comp = Pbintcomp (Pint64, Cge);
+          bigintcomp = Pbigintcomp Cge;
           simplify_constant_constructor = false;
         } );
       ( "%compare",
@@ -214,6 +221,9 @@ let comparisons_table =
           int64comp =
             Pccall
               (Primitive.simple ~name:"caml_int64_compare" ~arity:2 ~alloc:false);
+          bigintcomp =
+            Pccall
+              (Primitive.simple ~name:"caml_bigint_compare" ~arity:2 ~alloc:false);
           simplify_constant_constructor = false;
         } );
       ( "%bs_max",
@@ -226,6 +236,7 @@ let comparisons_table =
           floatcomp = arity2 "caml_float_max";
           stringcomp = arity2 "caml_string_max";
           int64comp = arity2 "caml_int64_max";
+          bigintcomp = arity2 "caml_bigint_max";
           simplify_constant_constructor = false;
         } );
       ( "%bs_min",
@@ -237,6 +248,7 @@ let comparisons_table =
           floatcomp = arity2 "caml_float_min";
           stringcomp = arity2 "caml_string_min";
           int64comp = arity2 "caml_int64_min";
+          bigintcomp = arity2 "caml_bigint_min";
           simplify_constant_constructor = false;
         } );
       ( "%bs_equal_null",
@@ -249,6 +261,7 @@ let comparisons_table =
           floatcomp = arity2 "caml_float_equal_null";
           stringcomp = arity2 "caml_string_equal_null";
           int64comp = arity2 "caml_int64_equal_null";
+          bigintcomp = arity2 "caml_bigint_equal_null";
           simplify_constant_constructor = true;
         } );
       ( "%bs_equal_undefined",
@@ -261,6 +274,7 @@ let comparisons_table =
           floatcomp = arity2 "caml_float_equal_undefined";
           stringcomp = arity2 "caml_string_equal_undefined";
           int64comp = arity2 "caml_int64_equal_undefined";
+          bigintcomp = arity2 "caml_bigint_equal_undefined";
           simplify_constant_constructor = true;
         } );
       ( "%bs_equal_nullable",
@@ -273,6 +287,7 @@ let comparisons_table =
           floatcomp = arity2 "caml_float_equal_nullable";
           stringcomp = arity2 "caml_string_equal_nullable";
           int64comp = arity2 "caml_int64_equal_nullable";
+          bigintcomp = arity2 "caml_bigint_equal_nullable";
           simplify_constant_constructor = true;
         } );
     ]
@@ -330,6 +345,11 @@ let primitives_table =
       ("%lslint", Plslint);
       ("%lsrint", Plsrint);
       ("%asrint", Pasrint);
+      ("%andbigint", Pandbigint);
+      ("%orbigint", Porbigint);
+      ("%xorbigint", Pxorbigint);
+      ("%lslbigint", Plslbigint);
+      ("%asrbigint", Pasrbigint);
       ("%eq", Pintcomp Ceq);
       ("%noteq", Pintcomp Cneq);
       ("%ltint", Pintcomp Clt);
@@ -350,6 +370,19 @@ let primitives_table =
       ("%lefloat", Pfloatcomp Cle);
       ("%gtfloat", Pfloatcomp Cgt);
       ("%gefloat", Pfloatcomp Cge);
+      ("%negbigint", Pnegbigint);
+      ("%addbigint", Paddbigint);
+      ("%subbigint", Psubbigint);
+      ("%mulbigint", Pmulbigint);
+      ("%divbigint", Pdivbigint);
+      ("%powbigint", Ppowbigint);
+      ("%modbigint", Pmodbigint);
+      ("%eqbigint", Pbigintcomp Ceq);
+      ("%noteqbigint", Pbigintcomp Cneq);
+      ("%ltbigint", Pbigintcomp Clt);
+      ("%lebigint", Pbigintcomp Cle);
+      ("%gtbigint", Pbigintcomp Cgt);
+      ("%gebigint", Pbigintcomp Cge);
       ("%string_length", Pstringlength);
       ("%string_safe_get", Pstringrefs);
       ("%string_unsafe_get", Pstringrefu);
@@ -383,12 +416,12 @@ let primitives_table =
       ("%int64_lsl", Plslbint Pint64);
       ("%int64_lsr", Plsrbint Pint64);
       ("%int64_asr", Pasrbint Pint64);
-      ("%nativeint_of_int32", Pcvtbint (Pint32, Pnativeint));
-      ("%nativeint_to_int32", Pcvtbint (Pnativeint, Pint32));
+      ("%bigint_of_int32", Pcvtbint (Pint32, Pbigint));
+      ("%bigint_to_int32", Pcvtbint (Pbigint, Pint32));
       ("%int64_of_int32", Pcvtbint (Pint32, Pint64));
       ("%int64_to_int32", Pcvtbint (Pint64, Pint32));
-      ("%int64_of_nativeint", Pcvtbint (Pnativeint, Pint64));
-      ("%int64_to_nativeint", Pcvtbint (Pint64, Pnativeint));
+      ("%int64_of_bigint", Pcvtbint (Pbigint, Pint64));
+      ("%int64_to_bigint", Pcvtbint (Pint64, Pbigint));
       ("%opaque", Popaque);
       ("%uncurried_apply", Puncurried_apply);
     ]
@@ -396,7 +429,7 @@ let primitives_table =
 let find_primitive prim_name = Hashtbl.find primitives_table prim_name
 
 let specialize_comparison
-    ({ gencomp; intcomp; floatcomp; stringcomp; bytescomp; int64comp; boolcomp } :
+    ({ gencomp; intcomp; floatcomp; stringcomp; bytescomp; int64comp; bigintcomp; boolcomp } :
       specialized) env ty =
   match () with
   | ()
@@ -408,6 +441,7 @@ let specialize_comparison
   | () when is_base_type env ty Predef.path_string -> stringcomp
   | () when is_base_type env ty Predef.path_bytes -> bytescomp
   | () when is_base_type env ty Predef.path_int64 -> int64comp
+  | () when is_base_type env ty Predef.path_bigint -> bigintcomp
   | () when is_base_type env ty Predef.path_bool -> boolcomp
   | () -> gencomp
 
@@ -437,7 +471,7 @@ let transl_primitive loc p env ty =
           params = [ parm ];
           body = Matching.inline_lazy_force (Lvar parm) Location.none;
           loc;
-          attr = default_stub_attribute;
+          attr = default_function_attribute;
         }
   | Ploc kind -> (
       let lam = lam_of_loc kind loc in
@@ -449,7 +483,7 @@ let transl_primitive loc p env ty =
           Lfunction
             {
               params = [ param ];
-              attr = default_stub_attribute;
+              attr = default_function_attribute;
               loc;
               body = Lprim (Pmakeblock Blk_tuple, [ lam; Lvar param ], loc);
             }
@@ -471,7 +505,7 @@ let transl_primitive loc p env ty =
         Lfunction
           {
             params;
-            attr = default_stub_attribute;
+            attr = default_function_attribute;
             loc;
             body = Lprim (prim, List.map (fun id -> Lvar id) params, loc);
           }
@@ -683,6 +717,11 @@ let try_ids = Hashtbl.create 8
 
 let has_async_attribute exp = exp.exp_attributes |> List.exists (fun ({txt}, _payload) -> txt = "res.async")
 
+let extract_directive_for_fn exp = 
+  exp.exp_attributes |> List.find_map (
+    fun ({txt}, payload) -> if txt = "directive" then Ast_payload.is_single_string payload else None)
+
+
 let rec transl_exp e =
   List.iter (Translattribute.check_attribute e) e.exp_attributes;
   transl_exp0 e
@@ -698,6 +737,11 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
       transl_let rec_flag pat_expr_list (transl_exp body)
   | Texp_function { arg_label = _; param; cases; partial } ->
       let async = has_async_attribute e in
+      let directive = (
+        match extract_directive_for_fn e with 
+        | None -> None 
+        | Some (directive, _) -> Some directive
+      ) in
       let params, body, return_unit =
         let pl = push_defaults e.exp_loc [] cases partial in
         transl_function e.exp_loc partial param pl
@@ -708,6 +752,7 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
           inline = Translattribute.get_inline_attribute e.exp_attributes;
           async;
           return_unit;
+          directive;
         }
       in
       let loc = e.exp_loc in
@@ -763,10 +808,18 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
         Translattribute.get_and_remove_inlined_attribute funct
       in
       let uncurried_partial_application =
+        (* In case of partial application foo(args, ...) when some args are missing,
+           get the arity *)
         let uncurried_partial_app = Ext_list.exists e.exp_attributes (fun ({txt },_) -> txt = "res.partial") in
         if uncurried_partial_app then
-          let arity_opt = Ast_uncurried.uncurried_type_get_arity_opt ~env:funct.exp_env funct.exp_type in   
-          arity_opt
+          let arity_opt = Ast_uncurried.uncurried_type_get_arity_opt ~env:funct.exp_env funct.exp_type in
+          match arity_opt with
+            | Some arity ->
+              let real_args = List.filter (fun (_, x) -> Option.is_some x) oargs in
+              if arity > List.length real_args then
+                Some arity
+              else None 
+            | None -> None
         else
           None in
       transl_apply ~inlined ~uncurried_partial_application (transl_exp funct) oargs e.exp_loc
@@ -886,17 +939,17 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
       | Record_float_unused -> assert false
       | Record_regular | Record_optional_labels _ ->
           Lprim
-            (Pfield (lbl.lbl_pos, !Lambda.fld_record lbl), [ targ ], e.exp_loc)
+            (Pfield (lbl.lbl_pos, Lambda.fld_record lbl), [ targ ], e.exp_loc)
       | Record_inlined _ ->
           Lprim
-            ( Pfield (lbl.lbl_pos, Fld_record_inline { name = lbl.lbl_name }),
+            ( Pfield (lbl.lbl_pos, Lambda.fld_record_inline lbl),
               [ targ ],
               e.exp_loc )
       | Record_unboxed _ -> targ
       | Record_extension ->
           Lprim
             ( Pfield
-                (lbl.lbl_pos + 1, Fld_record_extension { name = lbl.lbl_name }),
+                (lbl.lbl_pos + 1, Lambda.fld_record_extension lbl),
               [ targ ],
               e.exp_loc ))
   | Texp_setfield (arg, _, lbl, newval) ->
@@ -904,12 +957,12 @@ and transl_exp0 (e : Typedtree.expression) : Lambda.lambda =
         match lbl.lbl_repres with
         | Record_float_unused -> assert false
         | Record_regular | Record_optional_labels _ ->
-            Psetfield (lbl.lbl_pos, !Lambda.fld_record_set lbl)
+            Psetfield (lbl.lbl_pos, Lambda.fld_record_set lbl)
         | Record_inlined _ ->
-            Psetfield (lbl.lbl_pos, Fld_record_inline_set lbl.lbl_name)
+            Psetfield (lbl.lbl_pos, Lambda.fld_record_inline_set lbl)
         | Record_unboxed _ -> assert false
         | Record_extension ->
-            Psetfield (lbl.lbl_pos + 1, Fld_record_extension_set lbl.lbl_name)
+            Psetfield (lbl.lbl_pos + 1, Lambda.fld_record_extension_set lbl)
       in
       Lprim (access, [ transl_exp arg; transl_exp newval ], e.exp_loc)
   | Texp_array expr_list ->
@@ -1025,7 +1078,7 @@ and transl_apply ?(inlined = Default_inline) ?(uncurried_partial_application=Non
                 {
                   params = [ id_arg ];
                   body = lam;
-                  attr = default_stub_attribute;
+                  attr = default_function_attribute;
                   loc;
                 }
         in
@@ -1036,7 +1089,7 @@ and transl_apply ?(inlined = Default_inline) ?(uncurried_partial_application=Non
     | [] -> lapply lam (List.rev_map fst args)
   in
   match uncurried_partial_application with
-    | Some arity when arity > List.length sargs ->
+  | Some arity ->
     let extra_arity = arity - List.length sargs in
     let none_ids = ref [] in
     let args = Ext_list.filter_map sargs (function
@@ -1167,13 +1220,13 @@ and transl_record loc env fields repres opt_init_expr =
                     match repres with
                     | Record_float_unused -> assert false
                     | Record_regular | Record_optional_labels _ ->
-                        Pfield (i, !Lambda.fld_record lbl)
+                        Pfield (i, Lambda.fld_record lbl)
                     | Record_inlined _ ->
-                        Pfield (i, Fld_record_inline { name = lbl.lbl_name })
+                        Pfield (i, Lambda.fld_record_inline lbl)
                     | Record_unboxed _ -> assert false
                     | Record_extension ->
                         Pfield
-                          (i + 1, Fld_record_extension { name = lbl.lbl_name })
+                          (i + 1, Lambda.fld_record_extension lbl)
                   in
                   Lprim (access, [ Lvar init_id ], loc)
               | Overridden (_lid, expr) -> transl_exp expr)
@@ -1193,14 +1246,14 @@ and transl_record loc env fields repres opt_init_expr =
             | Record_float_unused -> assert false
             | Record_regular ->
                 Lconst
-                  (Const_block (!Lambda.blk_record fields mut Record_regular, cl))
+                  (Const_block (Lambda.blk_record fields mut Record_regular, cl))
             | Record_optional_labels _ ->
                 Lconst
-                  (Const_block (!Lambda.blk_record fields mut Record_optional, cl))
+                  (Const_block (Lambda.blk_record fields mut Record_optional, cl))
             | Record_inlined { tag; name; num_nonconsts; optional_labels; attrs } ->
                 Lconst
                   (Const_block
-                     ( !Lambda.blk_record_inlined fields name num_nonconsts optional_labels ~tag ~attrs
+                     ( Lambda.blk_record_inlined fields name num_nonconsts optional_labels ~tag ~attrs
                          mut,
                        cl ))
             | Record_unboxed _ ->
@@ -1210,19 +1263,19 @@ and transl_record loc env fields repres opt_init_expr =
             match repres with
             | Record_regular ->
                 Lprim
-                  ( Pmakeblock (!Lambda.blk_record fields mut Record_regular),
+                  ( Pmakeblock (Lambda.blk_record fields mut Record_regular),
                     ll,
                     loc )
             | Record_optional_labels _ ->
                 Lprim
-                  ( Pmakeblock (!Lambda.blk_record fields mut Record_optional),
+                  ( Pmakeblock (Lambda.blk_record fields mut Record_optional),
                     ll,
                     loc )
             | Record_float_unused -> assert false
             | Record_inlined { tag; name; num_nonconsts; optional_labels; attrs } ->
                 Lprim
                   ( Pmakeblock
-                      (!Lambda.blk_record_inlined fields name num_nonconsts optional_labels ~tag ~attrs
+                      (Lambda.blk_record_inlined fields name num_nonconsts optional_labels ~tag ~attrs
                          mut),
                     ll,
                     loc )
@@ -1237,7 +1290,7 @@ and transl_record loc env fields repres opt_init_expr =
                 in
                 let slot = transl_extension_path env path in
                 Lprim
-                  ( Pmakeblock (!Lambda.blk_record_ext fields mut),
+                  ( Pmakeblock (Lambda.blk_record_ext fields mut),
                     slot :: ll,
                     loc ))
         in
@@ -1257,13 +1310,13 @@ and transl_record loc env fields repres opt_init_expr =
                 match repres with
                 | Record_float_unused -> assert false
                 | Record_regular | Record_optional_labels _ ->
-                    Psetfield (lbl.lbl_pos, !Lambda.fld_record_set lbl)
+                    Psetfield (lbl.lbl_pos, Lambda.fld_record_set lbl)
                 | Record_inlined _ ->
-                    Psetfield (lbl.lbl_pos, Fld_record_inline_set lbl.lbl_name)
+                    Psetfield (lbl.lbl_pos, Lambda.fld_record_inline_set lbl)
                 | Record_unboxed _ -> assert false
                 | Record_extension ->
                     Psetfield
-                      (lbl.lbl_pos + 1, Fld_record_extension_set lbl.lbl_name)
+                      (lbl.lbl_pos + 1, Lambda.fld_record_extension_set lbl)
               in
               Lsequence
                 (Lprim (upd, [ Lvar copy_id; transl_exp expr ], loc), cont)

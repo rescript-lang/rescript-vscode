@@ -427,7 +427,7 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
       in
       let iterator = {Ast_iterator.default_iterator with expr; pat} in
       let parser =
-        Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+        Res_driver.parsing_engine.parse_implementation ~for_printer:false
       in
       let {Res_driver.parsetree = structure} = parser ~filename:currentFile in
       iterator.structure iterator structure |> ignore;
@@ -456,8 +456,8 @@ let signatureHelp ~path ~pos ~currentFile ~debug ~allowForConstructorPayloads =
           let fnTypeStr = Shared.typeToString type_expr in
           let typeStrForParser = labelPrefix ^ fnTypeStr in
           let {Res_driver.parsetree = signature} =
-            Res_driver.parseInterfaceFromSource ~forPrinter:false
-              ~displayFilename:"<missing-file>" ~source:typeStrForParser
+            Res_driver.parse_interface_from_source ~for_printer:false
+              ~display_filename:"<missing-file>" ~source:typeStrForParser
           in
 
           let parameters =

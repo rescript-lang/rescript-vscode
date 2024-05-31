@@ -247,7 +247,7 @@ let command ~debug ~emitter ~path =
                ~lid ~debug;
       Ast_iterator.default_iterator.expr iterator e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
-      when Res_parsetree_viewer.isJsxExpression e ->
+      when Res_parsetree_viewer.is_jsx_expression e ->
       (*
          Angled brackets:
           - These are handled in the grammar:  <>  </>  </  />
@@ -283,18 +283,18 @@ let command ~debug ~emitter ~path =
         (* there's an off-by one somehow in the AST *)
       in
       (if not selfClosing then
-       let lineStart, colStart = Loc.start pexp_loc in
-       let lineEnd, colEnd = Loc.end_ pexp_loc in
-       let length = if lineStart = lineEnd then colEnd - colStart else 0 in
-       let lineEndWhole, colEndWhole = Loc.end_ e.pexp_loc in
-       if length > 0 && colEndWhole > length then (
-         emitter
-         |> emitJsxClose ~debug ~lid:lident.txt
-              ~pos:(lineEndWhole, colEndWhole - 1);
-         emitter (* <foo ...props > <-- *)
-         |> emitJsxTag ~debug ~name:">" ~pos:posOfGreatherthanAfterProps;
-         emitter (* <foo> ... </foo> <-- *)
-         |> emitJsxTag ~debug ~name:">" ~pos:posOfFinalGreatherthan));
+         let lineStart, colStart = Loc.start pexp_loc in
+         let lineEnd, colEnd = Loc.end_ pexp_loc in
+         let length = if lineStart = lineEnd then colEnd - colStart else 0 in
+         let lineEndWhole, colEndWhole = Loc.end_ e.pexp_loc in
+         if length > 0 && colEndWhole > length then (
+           emitter
+           |> emitJsxClose ~debug ~lid:lident.txt
+                ~pos:(lineEndWhole, colEndWhole - 1);
+           emitter (* <foo ...props > <-- *)
+           |> emitJsxTag ~debug ~name:">" ~pos:posOfGreatherthanAfterProps;
+           emitter (* <foo> ... </foo> <-- *)
+           |> emitJsxTag ~debug ~name:">" ~pos:posOfFinalGreatherthan));
 
       args |> List.iter (fun (_lbl, arg) -> iterator.expr iterator arg)
     | Pexp_apply
@@ -440,7 +440,7 @@ let command ~debug ~emitter ~path =
 
   if Files.classifySourceFile path = Res then (
     let parser =
-      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
+      Res_driver.parsing_engine.parse_implementation ~for_printer:false
     in
     let {Res_driver.parsetree = structure; diagnostics} =
       parser ~filename:path
@@ -450,7 +450,7 @@ let command ~debug ~emitter ~path =
         (List.length structure) (List.length diagnostics);
     iterator.structure iterator structure |> ignore)
   else
-    let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
+    let parser = Res_driver.parsing_engine.parse_interface ~for_printer:false in
     let {Res_driver.parsetree = signature; diagnostics} =
       parser ~filename:path
     in

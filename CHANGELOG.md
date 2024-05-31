@@ -42,6 +42,10 @@
 - Add code action for expanding catch-all patterns. https://github.com/rescript-lang/rescript-vscode/pull/987
 - Add code actions for removing unused code (per item and for an entire file), driven by `reanalyze`. https://github.com/rescript-lang/rescript-vscode/pull/989
 
+#### :house: Internal
+
+- Update parser and compiler support files to the latest version. https://github.com/rescript-lang/rescript-vscode/pull/998
+
 ## 1.50.0
 
 #### :rocket: New Feature
