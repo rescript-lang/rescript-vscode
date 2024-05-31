@@ -230,3 +230,15 @@ let make = (~thing: result<someVariant, unit>) => {
   | _ => ()
   }
 }
+
+type results = {
+  query: string,
+  nbHits: int,
+}
+
+type hitsUse = {results: results, hits: array<string>}
+
+let hitsUse = (): hitsUse => Obj.magic()
+
+// let {results: {query, nbHits}, } = hitsUse()
+//                               ^com

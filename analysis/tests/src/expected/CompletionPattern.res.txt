@@ -1207,3 +1207,19 @@ Path r
     "documentation": {"kind": "markdown", "value": "```rescript\nnest: nestedRecord\n```\n\n```rescript\ntype someRecord = {first: int, second: (bool, option<someRecord>), optThird: option<[#first | #second(someRecord)]>, nest: nestedRecord}\n```"}
   }]
 
+Complete src/CompletionPattern.res 242:33
+posCursor:[242:33] posNoWhite:[242:32] Found pattern:[242:7->242:35]
+Completable: Cpattern Value[hitsUse](Nolabel)->recordBody
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[hitsUse](Nolabel)
+ContextPath Value[hitsUse]
+Path hitsUse
+[{
+    "label": "hits",
+    "kind": 5,
+    "tags": [],
+    "detail": "array<string>",
+    "documentation": {"kind": "markdown", "value": "```rescript\nhits: array<string>\n```\n\n```rescript\ntype hitsUse = {results: results, hits: array<string>}\n```"}
+  }]
+

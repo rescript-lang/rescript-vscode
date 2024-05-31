@@ -1026,8 +1026,10 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
       cases
       |> List.iter (fun (case : Parsetree.case) ->
              let oldScope = !scope in
-             if locHasCursor case.pc_rhs.pexp_loc = false then
-               completePattern ?contextPath:ctxPath case.pc_lhs;
+             if
+               locHasCursor case.pc_rhs.pexp_loc = false
+               && locHasCursor case.pc_lhs.ppat_loc
+             then completePattern ?contextPath:ctxPath case.pc_lhs;
              scopePattern ?contextPath:ctxPath case.pc_lhs;
              Ast_iterator.default_iterator.case iterator case;
              scope := oldScope);
