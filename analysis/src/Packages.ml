@@ -44,165 +44,167 @@ let newBsPackage ~rootPath =
     in
     match Json.parse raw with
     | Some config -> (
-      match FindFiles.findDependencyFiles rootPath config with
-      | None -> None
-      | Some (dependencyDirectories, dependenciesFilesAndPaths) -> (
-        match libBs with
+      let namespace = FindFiles.getNamespace config in
+      let rescriptVersion = getReScriptVersion () in
+      let suffix =
+        match config |> Json.get "suffix" with
+        | Some (String suffix) -> suffix
+        | _ -> ".js"
+      in
+      let uncurried =
+        let ns = config |> Json.get "uncurried" in
+        match (rescriptVersion, ns) with
+        | (major, _), None when major >= 11 -> Some true
+        | _, ns -> Option.bind ns Json.bool
+      in
+      let genericJsxModule =
+        let jsxConfig = config |> Json.get "jsx" in
+        match jsxConfig with
+        | Some jsxConfig -> (
+          match jsxConfig |> Json.get "module" with
+          | Some (String m) when String.lowercase_ascii m <> "react" -> Some m
+          | _ -> None)
         | None -> None
-        | Some libBs ->
-          Some
-            (let namespace = FindFiles.getNamespace config in
-             let rescriptVersion = getReScriptVersion () in
-             let suffix =
-               match config |> Json.get "suffix" with
-               | Some (String suffix) -> suffix
-               | _ -> ".js"
-             in
-             let uncurried =
-               let ns = config |> Json.get "uncurried" in
-               match (rescriptVersion, ns) with
-               | (major, _), None when major >= 11 -> Some true
-               | _, ns -> Option.bind ns Json.bool
-             in
-             let genericJsxModule =
-               let jsxConfig = config |> Json.get "jsx" in
-               match jsxConfig with
-               | Some jsxConfig -> (
-                 match jsxConfig |> Json.get "module" with
-                 | Some (String m) when String.lowercase_ascii m <> "react" ->
-                   Some m
-                 | _ -> None)
-               | None -> None
-             in
-             let uncurried = uncurried = Some true in
-             let sourceDirectories =
-               FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
-                 config
-             in
-             let projectFilesAndPaths =
-               FindFiles.findProjectFiles
-                 ~public:(FindFiles.getPublic config)
-                 ~namespace ~path:rootPath ~sourceDirectories ~libBs
-             in
-             projectFilesAndPaths
-             |> List.iter (fun (_name, paths) -> Log.log (showPaths paths));
-             let pathsForModule =
-               makePathsForModule ~projectFilesAndPaths
-                 ~dependenciesFilesAndPaths
-             in
-             let opens_from_namespace =
-               match namespace with
-               | None -> []
-               | Some namespace ->
-                 let cmt = Filename.concat libBs namespace ^ ".cmt" in
-                 Log.log
-                   ("############ Namespaced as " ^ namespace ^ " at " ^ cmt);
-                 Hashtbl.add pathsForModule namespace (Namespace {cmt});
-                 let path = [FindFiles.nameSpaceToName namespace] in
-                 [path]
-             in
-             Log.log
-               ("Dependency dirs: "
-               ^ String.concat " "
-                   (dependencyDirectories |> List.map Utils.dumpPath));
-             let opens_from_bsc_flags =
-               let bind f x = Option.bind x f in
-               match Json.get "bsc-flags" config |> bind Json.array with
-               | Some l ->
-                 List.fold_left
-                   (fun opens item ->
-                     match item |> Json.string with
-                     | None -> opens
-                     | Some s -> (
-                       let parts = String.split_on_char ' ' s in
-                       match parts with
-                       | "-open" :: name :: _ ->
-                         let path = name |> String.split_on_char '.' in
-                         path :: opens
-                       | _ -> opens))
-                   [] l
-               | None -> []
-             in
-             let opens =
-               [
-                 (if uncurried then "PervasivesU" else "Pervasives");
-                 "JsxModules";
-               ]
-               :: opens_from_namespace
-               |> List.rev_append opens_from_bsc_flags
-               |> List.map (fun path -> path @ ["place holder"])
-             in
-             Log.log
-               ("Opens from ReScript config file: "
-               ^ (opens |> List.map pathToString |> String.concat " "));
-             {
-               genericJsxModule;
-               suffix;
-               rescriptVersion;
-               rootPath;
-               projectFiles =
-                 projectFilesAndPaths |> List.map fst |> FileSet.of_list;
-               dependenciesFiles =
-                 dependenciesFilesAndPaths |> List.map fst |> FileSet.of_list;
-               pathsForModule;
-               opens;
-               namespace;
-               builtInCompletionModules =
-                 (if
-                    opens_from_bsc_flags
-                    |> List.find_opt (fun opn ->
-                           match opn with
-                           | ["RescriptCore"] -> true
-                           | _ -> false)
-                    |> Option.is_some
-                  then
-                    {
-                      arrayModulePath = ["Array"];
-                      optionModulePath = ["Option"];
-                      stringModulePath = ["String"];
-                      intModulePath = ["Int"];
-                      floatModulePath = ["Float"];
-                      promiseModulePath = ["Promise"];
-                      listModulePath = ["List"];
-                      resultModulePath = ["Result"];
-                      exnModulePath = ["Exn"];
-                      regexpModulePath = ["RegExp"];
-                    }
-                  else if
-                    opens_from_bsc_flags
-                    |> List.find_opt (fun opn ->
-                           match opn with
-                           | ["Belt"] -> true
-                           | _ -> false)
-                    |> Option.is_some
-                  then
-                    {
-                      arrayModulePath = ["Array"];
-                      optionModulePath = ["Option"];
-                      stringModulePath = ["Js"; "String2"];
-                      intModulePath = ["Int"];
-                      floatModulePath = ["Float"];
-                      promiseModulePath = ["Js"; "Promise"];
-                      listModulePath = ["List"];
-                      resultModulePath = ["Result"];
-                      exnModulePath = ["Js"; "Exn"];
-                      regexpModulePath = ["Js"; "Re"];
-                    }
-                  else
-                    {
-                      arrayModulePath = ["Js"; "Array2"];
-                      optionModulePath = ["Belt"; "Option"];
-                      stringModulePath = ["Js"; "String2"];
-                      intModulePath = ["Belt"; "Int"];
-                      floatModulePath = ["Belt"; "Float"];
-                      promiseModulePath = ["Js"; "Promise"];
-                      listModulePath = ["Belt"; "List"];
-                      resultModulePath = ["Belt"; "Result"];
-                      exnModulePath = ["Js"; "Exn"];
-                      regexpModulePath = ["Js"; "Re"];
-                    });
-               uncurried;
-             })))
+      in
+      let uncurried = uncurried = Some true in
+      match libBs with
+      | None -> None
+      | Some libBs ->
+        let cached = Cache.readCache (Cache.targetFileFromLibBs libBs) in
+        let projectFiles, dependenciesFiles, pathsForModule =
+          match cached with
+          | Some cached ->
+            ( cached.projectFiles,
+              cached.dependenciesFiles,
+              cached.pathsForModule )
+          | None ->
+            let dependenciesFilesAndPaths =
+              match FindFiles.findDependencyFiles rootPath config with
+              | None -> []
+              | Some (_dependencyDirectories, dependenciesFilesAndPaths) ->
+                dependenciesFilesAndPaths
+            in
+            let sourceDirectories =
+              FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
+                config
+            in
+            let projectFilesAndPaths =
+              FindFiles.findProjectFiles
+                ~public:(FindFiles.getPublic config)
+                ~namespace ~path:rootPath ~sourceDirectories ~libBs
+            in
+            let pathsForModule =
+              makePathsForModule ~projectFilesAndPaths
+                ~dependenciesFilesAndPaths
+            in
+            let projectFiles =
+              projectFilesAndPaths |> List.map fst |> FileSet.of_list
+            in
+            let dependenciesFiles =
+              dependenciesFilesAndPaths |> List.map fst |> FileSet.of_list
+            in
+            (projectFiles, dependenciesFiles, pathsForModule)
+        in
+        Some
+          (let opens_from_namespace =
+             match namespace with
+             | None -> []
+             | Some namespace ->
+               let cmt = Filename.concat libBs namespace ^ ".cmt" in
+               Hashtbl.add pathsForModule namespace (Namespace {cmt});
+               let path = [FindFiles.nameSpaceToName namespace] in
+               [path]
+           in
+           let opens_from_bsc_flags =
+             let bind f x = Option.bind x f in
+             match Json.get "bsc-flags" config |> bind Json.array with
+             | Some l ->
+               List.fold_left
+                 (fun opens item ->
+                   match item |> Json.string with
+                   | None -> opens
+                   | Some s -> (
+                     let parts = String.split_on_char ' ' s in
+                     match parts with
+                     | "-open" :: name :: _ ->
+                       let path = name |> String.split_on_char '.' in
+                       path :: opens
+                     | _ -> opens))
+                 [] l
+             | None -> []
+           in
+           let opens =
+             [(if uncurried then "PervasivesU" else "Pervasives"); "JsxModules"]
+             :: opens_from_namespace
+             |> List.rev_append opens_from_bsc_flags
+             |> List.map (fun path -> path @ ["place holder"])
+           in
+           {
+             genericJsxModule;
+             suffix;
+             rescriptVersion;
+             rootPath;
+             projectFiles;
+             dependenciesFiles;
+             pathsForModule;
+             opens;
+             namespace;
+             builtInCompletionModules =
+               (if
+                  opens_from_bsc_flags
+                  |> List.find_opt (fun opn ->
+                         match opn with
+                         | ["RescriptCore"] -> true
+                         | _ -> false)
+                  |> Option.is_some
+                then
+                  {
+                    arrayModulePath = ["Array"];
+                    optionModulePath = ["Option"];
+                    stringModulePath = ["String"];
+                    intModulePath = ["Int"];
+                    floatModulePath = ["Float"];
+                    promiseModulePath = ["Promise"];
+                    listModulePath = ["List"];
+                    resultModulePath = ["Result"];
+                    exnModulePath = ["Exn"];
+                    regexpModulePath = ["RegExp"];
+                  }
+                else if
+                  opens_from_bsc_flags
+                  |> List.find_opt (fun opn ->
+                         match opn with
+                         | ["Belt"] -> true
+                         | _ -> false)
+                  |> Option.is_some
+                then
+                  {
+                    arrayModulePath = ["Array"];
+                    optionModulePath = ["Option"];
+                    stringModulePath = ["Js"; "String2"];
+                    intModulePath = ["Int"];
+                    floatModulePath = ["Float"];
+                    promiseModulePath = ["Js"; "Promise"];
+                    listModulePath = ["List"];
+                    resultModulePath = ["Result"];
+                    exnModulePath = ["Js"; "Exn"];
+                    regexpModulePath = ["Js"; "Re"];
+                  }
+                else
+                  {
+                    arrayModulePath = ["Js"; "Array2"];
+                    optionModulePath = ["Belt"; "Option"];
+                    stringModulePath = ["Js"; "String2"];
+                    intModulePath = ["Belt"; "Int"];
+                    floatModulePath = ["Belt"; "Float"];
+                    promiseModulePath = ["Js"; "Promise"];
+                    listModulePath = ["Belt"; "List"];
+                    resultModulePath = ["Belt"; "Result"];
+                    exnModulePath = ["Js"; "Exn"];
+                    regexpModulePath = ["Js"; "Re"];
+                  });
+             uncurried;
+           }))
     | None -> None
   in
 

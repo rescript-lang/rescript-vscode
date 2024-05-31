@@ -110,6 +110,11 @@ let main () =
         path line col
   in
   match args with
+  | [_; "cache-project"; rootPath] -> (
+    let uri = Uri.fromPath rootPath in
+    match Packages.getPackage ~uri with
+    | Some package -> Cache.cacheProject package
+    | None -> ())
   | [_; "completion"; path; line; col; currentFile] ->
     printHeaderInfo path line col;
     Commands.completion ~debug ~path
