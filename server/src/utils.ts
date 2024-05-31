@@ -192,11 +192,14 @@ export let runAnalysisAfterSanityCheck = (
           : undefined,
     },
   };
+  let stdout = "";
   try {
-    let stdout = childProcess.execFileSync(binaryPath, args, options);
-    return JSON.parse(stdout.toString());
+    stdout = childProcess.execFileSync(binaryPath, args, options).toString();
+    return JSON.parse(stdout);
   } catch (e) {
     console.error(e);
+    console.error("Original response: ", stdout);
+    console.error("Args: ", args);
     // Element 0 is the action we're performing
     reportError(String(args[0]), String(e));
     return null;
