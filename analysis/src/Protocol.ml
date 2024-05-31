@@ -91,6 +91,8 @@ type codeAction = {
   edit: codeActionEdit;
 }
 
+let wrapInQuotes s = "\"" ^ Json.escape s ^ "\""
+
 let null = "null"
 let array l = "[" ^ String.concat ", " l ^ "]"
 
@@ -103,7 +105,8 @@ let stringifyRange r =
     (stringifyPosition r.end_)
 
 let stringifyMarkupContent (m : markupContent) =
-  Printf.sprintf {|{"kind": "%s", "value": "%s"}|} m.kind (Json.escape m.value)
+  Printf.sprintf {|{"kind": %s, "value": %s}|} (wrapInQuotes m.kind)
+    (wrapInQuotes m.value)
 
 (** None values are not emitted in the output. *)
 let stringifyObject ?(startOnNewline = false) ?(indentation = 1) properties =
@@ -119,8 +122,6 @@ let stringifyObject ?(startOnNewline = false) ?(indentation = 1) properties =
              Some (Printf.sprintf {|%s  "%s": %s|} indentationStr key v))
     |> String.concat ",\n")
   ^ "\n" ^ indentationStr ^ "}"
-
-let wrapInQuotes s = "\"" ^ Json.escape s ^ "\""
 
 let optWrapInQuotes s =
   match s with
@@ -162,7 +163,7 @@ let stringifyHover value =
     (stringifyMarkupContent {kind = "markdown"; value})
 
 let stringifyLocation (h : location) =
-  Printf.sprintf {|{"uri": "%s", "range": %s}|} (Json.escape h.uri)
+  Printf.sprintf {|{"uri": %s, "range": %s}|} (wrapInQuotes h.uri)
     (stringifyRange h.range)
 
 let stringifyDocumentSymbolItems items =
@@ -209,27 +210,27 @@ let stringifyDocumentSymbolItems items =
 let stringifyRenameFile {oldUri; newUri} =
   Printf.sprintf {|{
   "kind": "rename",
-  "oldUri": "%s",
-  "newUri": "%s"
+  "oldUri": %s,
+  "newUri": %s
 }|}
-    (Json.escape oldUri) (Json.escape newUri)
+    (wrapInQuotes oldUri) (wrapInQuotes newUri)
 
 let stringifyTextEdit (te : textEdit) =
   Printf.sprintf {|{
   "range": %s,
-  "newText": "%s"
+  "newText": %s
   }|}
-    (stringifyRange te.range) (Json.escape te.newText)
+    (stringifyRange te.range) (wrapInQuotes te.newText)
 
 let stringifyoptionalVersionedTextDocumentIdentifier td =
   Printf.sprintf {|{
   "version": %s,
-  "uri": "%s"
+  "uri": %s
   }|}
     (match td.version with
     | None -> null
     | Some v -> string_of_int v)
-    (Json.escape td.uri)
+    (wrapInQuotes td.uri)
 
 let stringifyTextDocumentEdit tde =
   Printf.sprintf {|{
@@ -276,26 +277,27 @@ let stringifyCodeActionEdit cae =
     (cae.documentChanges |> List.map stringifyDocumentChange |> array)
 
 let stringifyCodeAction ca =
-  Printf.sprintf {|{"title": "%s", "kind": "%s", "edit": %s}|} ca.title
-    (codeActionKindToString ca.codeActionKind)
+  Printf.sprintf {|{"title": %s, "kind": %s, "edit": %s}|}
+    (wrapInQuotes ca.title)
+    (wrapInQuotes (codeActionKindToString ca.codeActionKind))
     (ca.edit |> stringifyCodeActionEdit)
 
 let stringifyHint hint =
   Printf.sprintf
     {|{
     "position": %s,
-    "label": "%s",
+    "label": %s,
     "kind": %i,
     "paddingLeft": %b,
     "paddingRight": %b
 }|}
     (stringifyPosition hint.position)
-    (Json.escape hint.label) hint.kind hint.paddingLeft hint.paddingRight
+    (wrapInQuotes hint.label) hint.kind hint.paddingLeft hint.paddingRight
 
 let stringifyCommand (command : command) =
-  Printf.sprintf {|{"title": "%s", "command": "%s"}|}
-    (Json.escape command.title)
-    (Json.escape command.command)
+  Printf.sprintf {|{"title": %s, "command": %s}|}
+    (wrapInQuotes command.title)
+    (wrapInQuotes command.command)
 
 let stringifyCodeLens (codeLens : codeLens) =
   Printf.sprintf
@@ -319,10 +321,10 @@ let stringifySignatureInformation (signatureInformation : signatureInformation)
     =
   Printf.sprintf
     {|{
-    "label": "%s",
+    "label": %s,
     "parameters": %s%s
   }|}
-    (Json.escape signatureInformation.label)
+    (wrapInQuotes signatureInformation.label)
     (signatureInformation.parameters
     |> List.map stringifyParameterInformation
     |> array)
@@ -352,8 +354,8 @@ let stringifyDiagnostic d =
   Printf.sprintf
     {|{
   "range": %s,
-  "message": "%s",
+  "message": %s,
   "severity": %d,
   "source": "ReScript"
 }|}
-    (stringifyRange d.range) (Json.escape d.message) d.severity
+    (stringifyRange d.range) (wrapInQuotes d.message) d.severity
