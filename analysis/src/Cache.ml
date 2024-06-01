@@ -21,6 +21,8 @@ let readCache filename =
     with _ -> None
   else None
 
+let deleteCache filename = try Sys.remove filename with _ -> ()
+
 let targetFileFromLibBs libBs = Filename.concat libBs ".project-files-cache"
 
 let cacheProject (package : package) =
@@ -32,8 +34,8 @@ let cacheProject (package : package) =
     }
   in
   match BuildSystem.getLibBs package.rootPath with
-  | None -> ()
+  | None -> print_endline "\"ERR\""
   | Some libBs ->
     let targetFile = targetFileFromLibBs libBs in
     writeCache targetFile cached;
-    print_endline "OK"
+    print_endline "\"OK\""

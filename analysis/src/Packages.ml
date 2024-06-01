@@ -231,7 +231,7 @@ let findRoot ~uri packagesByRoot =
       let parent = Filename.dirname path in
       if parent = path then (* reached root *) None else loop parent
   in
-  loop (Filename.dirname path)
+  loop (if Sys.is_directory path then path else Filename.dirname path)
 
 let getPackage ~uri =
   let open SharedTypes in

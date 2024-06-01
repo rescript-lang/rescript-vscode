@@ -190,6 +190,10 @@ export let runAnalysisAfterSanityCheck = (
         config.extensionConfiguration.incrementalTypechecking?.enabled === true
           ? "true"
           : undefined,
+      RESCRIPT_PROJECT_CONFIG_CACHE:
+        config.extensionConfiguration.cache?.projectConfig?.enabled === true
+          ? "true"
+          : undefined,
     },
   };
   let stdout = "";
