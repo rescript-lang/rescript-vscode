@@ -33,7 +33,7 @@ let fullFromUri ~uri =
       if Debug.verbose () then Printf.printf "[cmt] Found incremental cmt\n";
       Some cmtInfo
     | None -> (
-      match Hashtbl.find_opt package.pathsForModule moduleName with
+      match Hashtbl.find_opt (Lazy.force package.pathsForModule) moduleName with
       | Some paths ->
         let cmt = getCmtPath ~uri paths in
         fullForCmt ~moduleName ~package ~uri cmt
@@ -42,8 +42,8 @@ let fullFromUri ~uri =
         None))
 
 let fullsFromModule ~package ~moduleName =
-  if Hashtbl.mem package.pathsForModule moduleName then
-    let paths = Hashtbl.find package.pathsForModule moduleName in
+  if Hashtbl.mem (Lazy.force package.pathsForModule) moduleName then
+    let paths = Hashtbl.find (Lazy.force package.pathsForModule) moduleName in
     let uris = getUris paths in
     uris |> List.filter_map (fun uri -> fullFromUri ~uri)
   else []

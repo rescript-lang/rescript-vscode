@@ -1114,7 +1114,7 @@ let removeOpensFromCompletionPath ~rawOpens ~package completionPath =
   in
   let completionPathMinusOpens =
     completionPath |> Utils.flattenAnyNamespaceInPath
-    |> removeRawOpens package.opens
+    |> removeRawOpens (Lazy.force package.opens)
     |> removeRawOpens rawOpens
   in
   completionPathMinusOpens

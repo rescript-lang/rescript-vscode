@@ -28,9 +28,9 @@ let targetFileFromLibBs libBs = Filename.concat libBs ".project-files-cache"
 let cacheProject (package : package) =
   let cached =
     {
-      projectFiles = package.projectFiles;
-      dependenciesFiles = package.dependenciesFiles;
-      pathsForModule = package.pathsForModule;
+      projectFiles = Lazy.force package.projectFiles;
+      dependenciesFiles = Lazy.force package.dependenciesFiles;
+      pathsForModule = Lazy.force package.pathsForModule;
     }
   in
   match BuildSystem.getLibBs package.rootPath with

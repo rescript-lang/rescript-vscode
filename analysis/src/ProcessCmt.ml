@@ -663,7 +663,7 @@ let fileForCmt ~moduleName ~cmt ~uri =
       Some file)
 
 let fileForModule moduleName ~package =
-  match Hashtbl.find_opt package.pathsForModule moduleName with
+  match Hashtbl.find_opt (Lazy.force package.pathsForModule) moduleName with
   | Some paths ->
     let uri = getUri paths in
     let cmt = getCmtPath ~uri paths in

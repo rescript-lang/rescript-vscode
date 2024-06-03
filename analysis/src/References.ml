@@ -66,7 +66,7 @@ let getLocItem ~full ~pos ~debug =
   | [
    ({locType = Typed (_, _, LocalReference _)} as li1);
    ({locType = Typed (_, _, GlobalReference ("Js_OO", ["unsafe_downgrade"], _))}
-   as li2);
+    as li2);
    li3;
   ]
   (* For older compiler 9.0 or earlier *)
@@ -211,7 +211,9 @@ let definedForLoc ~file ~package locKind =
 
 (** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
 let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
-  match Hashtbl.find_opt package.pathsForModule file.moduleName with
+  match
+    Hashtbl.find_opt (Lazy.force package.pathsForModule) file.moduleName
+  with
   | None -> None
   | Some paths -> (
     match paths with
@@ -362,7 +364,7 @@ let definitionForLocItem ~full:{file; package} locItem =
     None
   | TopLevelModule name -> (
     maybeLog ("Toplevel " ^ name);
-    match Hashtbl.find_opt package.pathsForModule name with
+    match Hashtbl.find_opt (Lazy.force package.pathsForModule) name with
     | None -> None
     | Some paths ->
       let uri = getUri paths in
@@ -486,7 +488,8 @@ let forLocalStamp ~full:{file; extra; package} stamp (tip : Tip.t) =
             maybeLog ("Now checking path " ^ pathToString path);
             let thisModuleName = file.moduleName in
             let externals =
-              package.projectFiles |> FileSet.elements
+              Lazy.force package.projectFiles
+              |> FileSet.elements
               |> List.filter (fun name -> name <> file.moduleName)
               |> List.map (fun moduleName ->
                      Cmt.fullsFromModule ~package ~moduleName
@@ -521,7 +524,8 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
   match locItem.locType with
   | TopLevelModule moduleName ->
     let otherModulesReferences =
-      package.projectFiles |> FileSet.elements
+      Lazy.force package.projectFiles
+      |> FileSet.elements
       |> Utils.filterMap (fun name ->
              match ProcessCmt.fileForModule ~package name with
              | None -> None
@@ -539,7 +543,7 @@ let allReferencesForLocItem ~full:({file; package} as full) locItem =
       |> List.flatten
     in
     let targetModuleReferences =
-      match Hashtbl.find_opt package.pathsForModule moduleName with
+      match Hashtbl.find_opt (Lazy.force package.pathsForModule) moduleName with
       | None -> []
       | Some paths ->
         let moduleSrcToRef src = {uri = Uri.fromPath src; locOpt = None} in
