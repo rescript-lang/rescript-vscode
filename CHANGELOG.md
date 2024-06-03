@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.52.0
+
 #### :bug: Bug Fix
 
 - Fix highlighting of other languages being affected by rescript-vscode. https://github.com/rescript-lang/rescript-vscode/pull/973
