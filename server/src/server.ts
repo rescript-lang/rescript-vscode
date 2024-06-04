@@ -205,20 +205,53 @@ let sendCompilationFinishedMessage = () => {
   send(notification);
 };
 
+let debug = false;
+
+let syncProjectConfigCache = (rootPath: string) => {
+  try {
+    if (debug) console.log("syncing project config cache for " + rootPath);
+    utils.runAnalysisAfterSanityCheck(rootPath, ["cache-project", rootPath]);
+    if (debug) console.log("OK - synced project config cache for " + rootPath);
+  } catch (e) {
+    if (debug) console.error(e);
+  }
+};
+
+let deleteProjectConfigCache = (rootPath: string) => {
+  try {
+    if (debug) console.log("deleting project config cache for " + rootPath);
+    utils.runAnalysisAfterSanityCheck(rootPath, ["cache-delete", rootPath]);
+    if (debug) console.log("OK - deleted project config cache for " + rootPath);
+  } catch (e) {
+    if (debug) console.error(e);
+  }
+};
+
 let compilerLogsWatcher = chokidar
   .watch([], {
     awaitWriteFinish: {
       stabilityThreshold: 1,
     },
   })
-  .on("all", (_e, _changedPath) => {
-    sendUpdatedDiagnostics();
-    sendCompilationFinishedMessage();
-    if (config.extensionConfiguration.inlayHints?.enable === true) {
-      sendInlayHintsRefresh();
-    }
-    if (config.extensionConfiguration.codeLens === true) {
-      sendCodeLensRefresh();
+  .on("all", (_e, changedPath) => {
+    if (changedPath.includes("build.ninja")) {
+      if (
+        config.extensionConfiguration.cache?.projectConfig?.enabled === true
+      ) {
+        let projectRoot = utils.findProjectRootOfFile(changedPath);
+        if (projectRoot != null) {
+          syncProjectConfigCache(projectRoot);
+        }
+      }
+    } else {
+      sendUpdatedDiagnostics();
+      sendCompilationFinishedMessage();
+      if (config.extensionConfiguration.inlayHints?.enable === true) {
+        sendInlayHintsRefresh();
+      }
+      if (config.extensionConfiguration.codeLens === true) {
+        sendCodeLensRefresh();
+      }
     }
   });
 let stopWatchingCompilerLog = () => {
@@ -257,6 +290,14 @@ let openedFile = (fileUri: string, fileContent: string) => {
       compilerLogsWatcher.add(
         path.join(projectRootPath, c.compilerLogPartialPath)
       );
+      if (
+        config.extensionConfiguration.cache?.projectConfig?.enabled === true
+      ) {
+        compilerLogsWatcher.add(
+          path.join(projectRootPath, c.buildNinjaPartialPath)
+        );
+        syncProjectConfigCache(projectRootPath);
+      }
     }
     let root = projectsFiles.get(projectRootPath)!;
     root.openFiles.add(filePath);
@@ -335,6 +376,10 @@ let closedFile = (fileUri: string) => {
         compilerLogsWatcher.unwatch(
           path.join(projectRootPath, c.compilerLogPartialPath)
         );
+        compilerLogsWatcher.unwatch(
+          path.join(projectRootPath, c.buildNinjaPartialPath)
+        );
+        deleteProjectConfigCache(projectRootPath);
         deleteProjectDiagnostics(projectRootPath);
         if (root.bsbWatcherByEditor !== null) {
           root.bsbWatcherByEditor.kill();

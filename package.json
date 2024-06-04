@@ -192,6 +192,11 @@
           "default": false,
           "description": "(debug) Enable debug logging (ends up in the extension output)."
         },
+        "rescript.settings.cache.projectConfig.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "(beta/experimental) Enable project config caching. Can speed up latency dramatically."
+        },
         "rescript.settings.binaryPath": {
           "type": [
             "string",

@@ -341,7 +341,8 @@ export function activate(context: ExtensionContext) {
         affectsConfiguration("rescript.settings.inlayHints") ||
         affectsConfiguration("rescript.settings.codeLens") ||
         affectsConfiguration("rescript.settings.signatureHelp") ||
-        affectsConfiguration("rescript.settings.incrementalTypechecking")
+        affectsConfiguration("rescript.settings.incrementalTypechecking") ||
+        affectsConfiguration("rescript.settings.cache")
       ) {
         commands.executeCommand("rescript-vscode.restart_language_server");
       } else {

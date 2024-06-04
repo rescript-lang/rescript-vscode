@@ -110,6 +110,23 @@ let main () =
         path line col
   in
   match args with
+  | [_; "cache-project"; rootPath] -> (
+    Cfg.readProjectConfigCache := false;
+    let uri = Uri.fromPath rootPath in
+    match Packages.getPackage ~uri with
+    | Some package -> Cache.cacheProject package
+    | None -> print_endline "\"ERR\"")
+  | [_; "cache-delete"; rootPath] -> (
+    Cfg.readProjectConfigCache := false;
+    let uri = Uri.fromPath rootPath in
+    match Packages.findRoot ~uri (Hashtbl.create 0) with
+    | Some (`Bs rootPath) -> (
+      match BuildSystem.getLibBs rootPath with
+      | None -> print_endline "\"ERR\""
+      | Some libBs ->
+        Cache.deleteCache (Cache.targetFileFromLibBs libBs);
+        print_endline "\"OK\"")
+    | _ -> print_endline "\"ERR: Did not find root \"")
   | [_; "completion"; path; line; col; currentFile] ->
     printHeaderInfo path line col;
     Commands.completion ~debug ~path

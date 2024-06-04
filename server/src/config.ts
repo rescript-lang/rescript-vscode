@@ -21,6 +21,11 @@ export interface extensionConfiguration {
     acrossFiles?: boolean;
     debugLogging?: boolean;
   };
+  cache?: {
+    projectConfig?: {
+      enabled?: boolean;
+    };
+  };
 }
 
 // All values here are temporary, and will be overridden as the server is
@@ -43,7 +48,12 @@ let config: { extensionConfiguration: extensionConfiguration } = {
     incrementalTypechecking: {
       enabled: false,
       acrossFiles: false,
-      debugLogging: true,
+      debugLogging: false,
+    },
+    cache: {
+      projectConfig: {
+        enabled: false,
+      },
     },
   },
 };

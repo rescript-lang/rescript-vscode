@@ -44,6 +44,7 @@ export let bsconfigPartialPath = "bsconfig.json";
 export let rescriptJsonPartialPath = "rescript.json";
 export let compilerDirPartialPath = path.join("lib", "bs");
 export let compilerLogPartialPath = path.join("lib", "bs", ".compiler.log");
+export let buildNinjaPartialPath = path.join("lib", "bs", "build.ninja");
 export let resExt = ".res";
 export let resiExt = ".resi";
 export let cmiExt = ".cmi";
