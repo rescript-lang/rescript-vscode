@@ -1,13 +1,14 @@
-import * as childProcess from "child_process";
+import * as path from "node:path";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as childProcess from "node:child_process";
 import * as p from "vscode-languageserver-protocol";
-import * as path from "path";
 import * as t from "vscode-languageserver-types";
 import {
   RequestMessage,
   ResponseMessage,
 } from "vscode-languageserver-protocol";
-import fs from "fs";
-import * as os from "os";
+import memo from "memize";
 
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
@@ -26,7 +27,7 @@ export let createFileInTempDir = (extension = "") => {
 
 // TODO: races here?
 // TODO: this doesn't handle file:/// scheme
-export let findProjectRootOfFile = (
+export let findProjectRootOfFile = memo((
   source: p.DocumentUri
 ): null | p.DocumentUri => {
   let dir = path.dirname(source);
@@ -43,10 +44,10 @@ export let findProjectRootOfFile = (
       return findProjectRootOfFile(dir);
     }
   }
-};
+});
 
 // Check if binaryName exists inside binaryDirPath and return the joined path.
-export let findBinary = (
+export let findBinary = memo((
   binaryDirPath: p.DocumentUri | null,
   binaryName: string
 ): p.DocumentUri | null => {
@@ -59,7 +60,21 @@ export let findBinary = (
   } else {
     return null;
   }
-};
+});
+
+export let findRescriptBinary = memo((
+  projectRootPath: p.DocumentUri | null
+) =>
+  config.extensionConfiguration.binaryPath == null
+    ? lookup.findFilePathFromProjectRoot(
+        projectRootPath,
+        path.join(c.nodeModulesBinDir, c.rescriptBinName)
+      )
+    : findBinary(
+        config.extensionConfiguration.binaryPath,
+        c.rescriptBinName
+      )
+);
 
 type execResult =
   | {
@@ -138,28 +153,14 @@ export let formatCode = (
   }
 };
 
-let findReScriptVersion = (filePath: p.DocumentUri): string | undefined => {
-  let projectRoot = findProjectRootOfFile(filePath);
-  if (projectRoot == null) {
-    return undefined;
-  }
-
-  let rescriptBinary = lookup.findFilePathFromProjectRoot(
-    projectRoot,
-    path.join(c.nodeModulesBinDir, c.rescriptBinName)
-  );
-
-  if (rescriptBinary == null) {
-    return undefined;
-  }
-
+let findReScriptVersion = memo((): string | undefined => {
   try {
-    let version = childProcess.execSync(`${rescriptBinary} -v`);
-    return version.toString().trim();
+    let { version } = require('rescript/package.json');
+    return version;
   } catch (e) {
     return undefined;
   }
-};
+});
 
 export let runAnalysisAfterSanityCheck = (
   filePath: p.DocumentUri,
@@ -179,7 +180,7 @@ export let runAnalysisAfterSanityCheck = (
   if (projectRootPath == null && projectRequired) {
     return null;
   }
-  let rescriptVersion = findReScriptVersion(filePath);
+  let rescriptVersion = findReScriptVersion();
   let options: childProcess.ExecFileSyncOptions = {
     cwd: projectRootPath || undefined,
     maxBuffer: Infinity,
