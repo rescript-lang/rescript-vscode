@@ -18,6 +18,10 @@
 
 ## 1.52.0
 
+#### :rocket: New Feature
+
+- Experimental support for caching the project config to reduce latency. https://github.com/rescript-lang/rescript-vscode/pull/1000
+
 #### :bug: Bug Fix
 
 - Fix highlighting of other languages being affected by rescript-vscode. https://github.com/rescript-lang/rescript-vscode/pull/973
