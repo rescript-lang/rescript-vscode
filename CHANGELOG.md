@@ -12,6 +12,10 @@
 
 ## master
 
+#### :bug: Bug Fix
+
+- Fix edge case in switch expr completion. https://github.com/rescript-lang/rescript-vscode/pull/1002
+
 ## 1.52.0
 
 #### :bug: Bug Fix
