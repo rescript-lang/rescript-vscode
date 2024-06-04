@@ -385,3 +385,6 @@ let {name} = hook({
   includeName: true,
   showMore: true,
 })
+
+// switch someTyp. { | }
+//                ^com
