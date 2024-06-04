@@ -235,9 +235,13 @@ let compilerLogsWatcher = chokidar
   })
   .on("all", (_e, changedPath) => {
     if (changedPath.includes("build.ninja")) {
-      let projectRoot = utils.findProjectRootOfFile(changedPath);
-      if (projectRoot != null) {
-        syncProjectConfigCache(projectRoot);
+      if (
+        config.extensionConfiguration.cache?.projectConfig?.enabled === true
+      ) {
+        let projectRoot = utils.findProjectRootOfFile(changedPath);
+        if (projectRoot != null) {
+          syncProjectConfigCache(projectRoot);
+        }
       }
     } else {
       sendUpdatedDiagnostics();
