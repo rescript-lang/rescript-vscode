@@ -1459,3 +1459,22 @@ Path hook
     "documentation": {"kind": "markdown", "value": "```rescript\noperator?: [#\"and\" | #or]\n```\n\n```rescript\ntype config = {includeName: bool, operator: option<[#\"and\" | #or]>, showMore: bool}\n```"}
   }]
 
+Complete src/CompletionExpressions.res 388:18
+posCursor:[388:18] posNoWhite:[388:17] Found expr:[388:3->388:24]
+posCursor:[388:18] posNoWhite:[388:17] Found expr:[388:10->388:18]
+Pexp_field [388:10->388:17] _:[388:19->388:18]
+Completable: Cpath Value[someTyp].""
+Raw opens: 1 CompletionSupport.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives CompletionSupport.res
+ContextPath Value[someTyp].""
+ContextPath Value[someTyp]
+Path someTyp
+[{
+    "label": "test",
+    "kind": 5,
+    "tags": [],
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\ntest: bool\n```\n\n```rescript\ntype someTyp = {test: bool}\n```"}
+  }]
+

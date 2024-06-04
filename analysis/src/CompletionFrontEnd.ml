@@ -587,6 +587,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
         if Debug.verbose () && debugTypedCompletionExpr then
           print_endline "[typedCompletionExpr] No cases, rest";
         ()
+      | Pexp_match (expr, [{pc_lhs; pc_rhs}])
+        when locHasCursor expr.pexp_loc
+             && CompletionExpressions.isExprHole pc_rhs
+             && CompletionPatterns.isPatternHole pc_lhs ->
+        if Debug.verbose () && debugTypedCompletionExpr then
+          print_endline
+            "[typedCompletionExpr] No cases (expr and pat holes), rest";
+        ()
       | Pexp_match
           ( exp,
             [
