@@ -25,7 +25,6 @@ let deleteCache filename = try Sys.remove filename with _ -> ()
 
 let targetFileFromLibBs libBs = Filename.concat libBs ".project-files-cache"
 
-(* TODO: Fix the potential infinite loop here *)
 let cacheProject (package : package) =
   let cached =
     {
