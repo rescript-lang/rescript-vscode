@@ -1057,7 +1057,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
             resultModulePath;
             regexpModulePath;
           } =
-            Lazy.force package.builtInCompletionModules
+            package.builtInCompletionModules
           in
           Some
             (match builtin with
@@ -1316,7 +1316,7 @@ let getOpens ~debug ~rawOpens ~package ~env =
       ^ string_of_int (List.length rawOpens)
       ^ " "
       ^ String.concat " ... " (rawOpens |> List.map pathToString));
-  let packageOpens = Lazy.force package.opens in
+  let packageOpens = package.opens in
   if debug && packageOpens <> [] then
     Printf.printf "%s\n"
       ("Package opens "
@@ -1812,8 +1812,7 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
     if Debug.verbose () then print_endline "[complete_typed_value]--> Texn";
     [
       create
-        ((Lazy.force full.package.builtInCompletionModules).exnModulePath
-         @ ["Error(error)"]
+        (full.package.builtInCompletionModules.exnModulePath @ ["Error(error)"]
         |> ident)
         ~kind:(Label "Catches errors from JavaScript errors.")
         ~docstring:

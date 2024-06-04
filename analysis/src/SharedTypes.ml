@@ -500,20 +500,18 @@ type package = {
   genericJsxModule: string option;
   suffix: string;
   rootPath: filePath;
-  projectFiles: FileSet.t lazy_t;
-  dependenciesFiles: FileSet.t lazy_t;
-  pathsForModule: (file, paths) Hashtbl.t lazy_t;
+  projectFiles: FileSet.t;
+  dependenciesFiles: FileSet.t;
+  pathsForModule: (file, paths) Hashtbl.t;
   namespace: string option;
-  builtInCompletionModules: builtInCompletionModules lazy_t;
-  opens: path list lazy_t;
+  builtInCompletionModules: builtInCompletionModules;
+  opens: path list;
   uncurried: bool;
   rescriptVersion: int * int;
 }
 
 let allFilesInPackage package =
-  FileSet.union
-    (Lazy.force package.projectFiles)
-    (Lazy.force package.dependenciesFiles)
+  FileSet.union package.projectFiles package.dependenciesFiles
 
 type full = {extra: extra; file: File.t; package: package}
 

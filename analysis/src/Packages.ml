@@ -74,91 +74,70 @@ let newBsPackage ~rootPath =
         let projectFiles, dependenciesFiles, pathsForModule =
           match cached with
           | Some cached ->
-            ( Lazy.from_val cached.projectFiles,
-              Lazy.from_val cached.dependenciesFiles,
-              Lazy.from_val cached.pathsForModule )
+            ( cached.projectFiles,
+              cached.dependenciesFiles,
+              cached.pathsForModule )
           | None ->
             let dependenciesFilesAndPaths =
-              Lazy.from_fun (fun () ->
-                  match FindFiles.findDependencyFiles rootPath config with
-                  | None -> []
-                  | Some (_dependencyDirectories, dependenciesFilesAndPaths) ->
-                    dependenciesFilesAndPaths)
+              match FindFiles.findDependencyFiles rootPath config with
+              | None -> []
+              | Some (_dependencyDirectories, dependenciesFilesAndPaths) ->
+                dependenciesFilesAndPaths
             in
             let sourceDirectories =
-              Lazy.from_fun (fun () ->
-                  FindFiles.getSourceDirectories ~includeDev:true
-                    ~baseDir:rootPath config)
+              FindFiles.getSourceDirectories ~includeDev:true ~baseDir:rootPath
+                config
             in
             let projectFilesAndPaths =
-              Lazy.from_fun (fun () ->
-                  FindFiles.findProjectFiles
-                    ~public:(FindFiles.getPublic config)
-                    ~namespace ~path:rootPath
-                    ~sourceDirectories:(Lazy.force sourceDirectories)
-                    ~libBs)
+              FindFiles.findProjectFiles
+                ~public:(FindFiles.getPublic config)
+                ~namespace ~path:rootPath ~sourceDirectories ~libBs
             in
             let pathsForModule =
-              Lazy.from_fun (fun () ->
-                  makePathsForModule
-                    ~projectFilesAndPaths:(Lazy.force projectFilesAndPaths)
-                    ~dependenciesFilesAndPaths:
-                      (Lazy.force dependenciesFilesAndPaths))
+              makePathsForModule ~projectFilesAndPaths
+                ~dependenciesFilesAndPaths
             in
             let projectFiles =
-              Lazy.from_fun (fun () ->
-                  projectFilesAndPaths |> Lazy.force |> List.map fst
-                  |> FileSet.of_list)
+              projectFilesAndPaths |> List.map fst |> FileSet.of_list
             in
             let dependenciesFiles =
-              Lazy.from_fun (fun () ->
-                  dependenciesFilesAndPaths |> Lazy.force |> List.map fst
-                  |> FileSet.of_list)
+              dependenciesFilesAndPaths |> List.map fst |> FileSet.of_list
             in
             (projectFiles, dependenciesFiles, pathsForModule)
         in
         Some
           (let opens_from_namespace =
-             Lazy.from_fun (fun () ->
-                 match namespace with
-                 | None -> []
-                 | Some namespace ->
-                   let cmt = Filename.concat libBs namespace ^ ".cmt" in
-                   Hashtbl.add
-                     (Lazy.force pathsForModule)
-                     namespace
-                     (Namespace {cmt});
-                   let path = [FindFiles.nameSpaceToName namespace] in
-                   [path])
+             match namespace with
+             | None -> []
+             | Some namespace ->
+               let cmt = Filename.concat libBs namespace ^ ".cmt" in
+               Hashtbl.add pathsForModule namespace (Namespace {cmt});
+               let path = [FindFiles.nameSpaceToName namespace] in
+               [path]
            in
            let opens_from_bsc_flags =
-             Lazy.from_fun (fun () ->
-                 let bind f x = Option.bind x f in
-                 match Json.get "bsc-flags" config |> bind Json.array with
-                 | Some l ->
-                   List.fold_left
-                     (fun opens item ->
-                       match item |> Json.string with
-                       | None -> opens
-                       | Some s -> (
-                         let parts = String.split_on_char ' ' s in
-                         match parts with
-                         | "-open" :: name :: _ ->
-                           let path = name |> String.split_on_char '.' in
-                           path :: opens
-                         | _ -> opens))
-                     [] l
-                 | None -> [])
+             let bind f x = Option.bind x f in
+             match Json.get "bsc-flags" config |> bind Json.array with
+             | Some l ->
+               List.fold_left
+                 (fun opens item ->
+                   match item |> Json.string with
+                   | None -> opens
+                   | Some s -> (
+                     let parts = String.split_on_char ' ' s in
+                     match parts with
+                     | "-open" :: name :: _ ->
+                       let path = name |> String.split_on_char '.' in
+                       path :: opens
+                     | _ -> opens))
+                 [] l
+             | None -> []
            in
            let opens =
-             Lazy.from_fun (fun () ->
-                 [
-                   (if uncurried then "PervasivesU" else "Pervasives");
-                   "JsxModules";
-                 ]
-                 :: Lazy.force opens_from_namespace
-                 |> List.rev_append (Lazy.force opens_from_bsc_flags)
-                 |> List.map (fun path -> path @ ["place holder"]))
+             [(if uncurried then "PervasivesU" else "Pervasives"); "JsxModules"]
+             :: opens_from_namespace
+             |> List.rev_append opens_from_bsc_flags
+             |> List.map (fun path -> path @ ["place holder"])
            in
            {
              genericJsxModule;
@@ -171,60 +150,59 @@ let newBsPackage ~rootPath =
              opens;
              namespace;
              builtInCompletionModules =
-               Lazy.from_fun (fun () ->
-                   if
-                     opens_from_bsc_flags |> Lazy.force
-                     |> List.find_opt (fun opn ->
-                            match opn with
-                            | ["RescriptCore"] -> true
-                            | _ -> false)
-                     |> Option.is_some
-                   then
-                     {
-                       arrayModulePath = ["Array"];
-                       optionModulePath = ["Option"];
-                       stringModulePath = ["String"];
-                       intModulePath = ["Int"];
-                       floatModulePath = ["Float"];
-                       promiseModulePath = ["Promise"];
-                       listModulePath = ["List"];
-                       resultModulePath = ["Result"];
-                       exnModulePath = ["Exn"];
-                       regexpModulePath = ["RegExp"];
-                     }
-                   else if
-                     opens_from_bsc_flags |> Lazy.force
-                     |> List.find_opt (fun opn ->
-                            match opn with
-                            | ["Belt"] -> true
-                            | _ -> false)
-                     |> Option.is_some
-                   then
-                     {
-                       arrayModulePath = ["Array"];
-                       optionModulePath = ["Option"];
-                       stringModulePath = ["Js"; "String2"];
-                       intModulePath = ["Int"];
-                       floatModulePath = ["Float"];
-                       promiseModulePath = ["Js"; "Promise"];
-                       listModulePath = ["List"];
-                       resultModulePath = ["Result"];
-                       exnModulePath = ["Js"; "Exn"];
-                       regexpModulePath = ["Js"; "Re"];
-                     }
-                   else
-                     {
-                       arrayModulePath = ["Js"; "Array2"];
-                       optionModulePath = ["Belt"; "Option"];
-                       stringModulePath = ["Js"; "String2"];
-                       intModulePath = ["Belt"; "Int"];
-                       floatModulePath = ["Belt"; "Float"];
-                       promiseModulePath = ["Js"; "Promise"];
-                       listModulePath = ["Belt"; "List"];
-                       resultModulePath = ["Belt"; "Result"];
-                       exnModulePath = ["Js"; "Exn"];
-                       regexpModulePath = ["Js"; "Re"];
-                     });
+               (if
+                  opens_from_bsc_flags
+                  |> List.find_opt (fun opn ->
+                         match opn with
+                         | ["RescriptCore"] -> true
+                         | _ -> false)
+                  |> Option.is_some
+                then
+                  {
+                    arrayModulePath = ["Array"];
+                    optionModulePath = ["Option"];
+                    stringModulePath = ["String"];
+                    intModulePath = ["Int"];
+                    floatModulePath = ["Float"];
+                    promiseModulePath = ["Promise"];
+                    listModulePath = ["List"];
+                    resultModulePath = ["Result"];
+                    exnModulePath = ["Exn"];
+                    regexpModulePath = ["RegExp"];
+                  }
+                else if
+                  opens_from_bsc_flags
+                  |> List.find_opt (fun opn ->
+                         match opn with
+                         | ["Belt"] -> true
+                         | _ -> false)
+                  |> Option.is_some
+                then
+                  {
+                    arrayModulePath = ["Array"];
+                    optionModulePath = ["Option"];
+                    stringModulePath = ["Js"; "String2"];
+                    intModulePath = ["Int"];
+                    floatModulePath = ["Float"];
+                    promiseModulePath = ["Js"; "Promise"];
+                    listModulePath = ["List"];
+                    resultModulePath = ["Result"];
+                    exnModulePath = ["Js"; "Exn"];
+                    regexpModulePath = ["Js"; "Re"];
+                  }
+                else
+                  {
+                    arrayModulePath = ["Js"; "Array2"];
+                    optionModulePath = ["Belt"; "Option"];
+                    stringModulePath = ["Js"; "String2"];
+                    intModulePath = ["Belt"; "Int"];
+                    floatModulePath = ["Belt"; "Float"];
+                    promiseModulePath = ["Js"; "Promise"];
+                    listModulePath = ["Belt"; "List"];
+                    resultModulePath = ["Belt"; "Result"];
+                    exnModulePath = ["Js"; "Exn"];
+                    regexpModulePath = ["Js"; "Re"];
+                  });
              uncurried;
            }))
     | None -> None
