@@ -10,7 +10,7 @@ let inIncrementalTypecheckingMode =
        | _ -> false
      with _ -> false)
 
-let useProjectConfigCache =
+let readProjectConfigCache =
   ref
     (try
        match Sys.getenv "RESCRIPT_PROJECT_CONFIG_CACHE" with

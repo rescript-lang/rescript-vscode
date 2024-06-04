@@ -12,7 +12,7 @@ let writeCache filename (data : cached) =
   close_out oc
 
 let readCache filename =
-  if !Cfg.useProjectConfigCache && Sys.file_exists filename then
+  if !Cfg.readProjectConfigCache && Sys.file_exists filename then
     try
       let ic = open_in_bin filename in
       let data : cached = Marshal.from_channel ic in

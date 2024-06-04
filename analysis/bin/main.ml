@@ -111,13 +111,13 @@ let main () =
   in
   match args with
   | [_; "cache-project"; rootPath] -> (
-    Cfg.useProjectConfigCache := false;
+    Cfg.readProjectConfigCache := false;
     let uri = Uri.fromPath rootPath in
     match Packages.getPackage ~uri with
     | Some package -> Cache.cacheProject package
     | None -> print_endline "\"ERR\"")
   | [_; "cache-delete"; rootPath] -> (
-    Cfg.useProjectConfigCache := false;
+    Cfg.readProjectConfigCache := false;
     let uri = Uri.fromPath rootPath in
     match Packages.findRoot ~uri (Hashtbl.create 0) with
     | Some (`Bs rootPath) -> (
