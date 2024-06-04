@@ -111,7 +111,7 @@ let newBsPackage ~rootPath =
              | None -> []
              | Some namespace ->
                let cmt = Filename.concat libBs namespace ^ ".cmt" in
-               Hashtbl.add pathsForModule namespace (Namespace {cmt});
+               Hashtbl.replace pathsForModule namespace (Namespace {cmt});
                let path = [FindFiles.nameSpaceToName namespace] in
                [path]
            in
