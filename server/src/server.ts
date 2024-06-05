@@ -258,12 +258,18 @@ let openedFile = (fileUri: string, fileContent: string) => {
       if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
         ic.recreateIncrementalFileFolder(projectRootPath);
       }
+      const namespaceName =
+        utils.getNamespaceNameFromConfigFile(projectRootPath);
+
       projectRootState = {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
         filesDiagnostics: {},
+        namespaceName:
+          namespaceName.kind === "success" ? namespaceName.result : null,
         rescriptVersion: utils.findReScriptVersion(projectRootPath),
         bsbWatcherByEditor: null,
+        bscBinaryLocation: utils.findBscExeBinary(projectRootPath),
         hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
           projectRootPath
         )
@@ -795,7 +801,9 @@ function format(msg: p.RequestMessage): Array<p.Message> {
     let code = getOpenedFileContent(params.textDocument.uri);
 
     let projectRootPath = utils.findProjectRootOfFile(filePath);
-    let bscExeBinaryPath = utils.findBscExeBinary(projectRootPath);
+    let project =
+      projectRootPath != null ? projectsFiles.get(projectRootPath) : null;
+    let bscExeBinaryPath = project?.bscBinaryLocation ?? null;
 
     let formattedResult = utils.formatCode(
       bscExeBinaryPath,

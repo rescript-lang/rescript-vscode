@@ -58,15 +58,19 @@ export let findProjectRootOfFile = (
       if (
         foundRootFromProjectFiles == null ||
         rootPath.length > foundRootFromProjectFiles.length
-      )
+      ) {
         foundRootFromProjectFiles = rootPath;
+      }
     }
   }
 
   if (foundRootFromProjectFiles != null) {
     return foundRootFromProjectFiles;
   } else {
-    return findProjectRootOfFileInDir(source);
+    const isDir = path.extname(source) === "";
+    return findProjectRootOfFileInDir(
+      isDir ? path.join(source, "dummy.res") : source
+    );
   }
 };
 

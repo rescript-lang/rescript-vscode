@@ -10,6 +10,8 @@ interface projectFiles {
   filesWithDiagnostics: Set<string>;
   filesDiagnostics: filesDiagnostics;
   rescriptVersion: string | undefined;
+  bscBinaryLocation: string | null;
+  namespaceName: string | null;
 
   bsbWatcherByEditor: null | cp.ChildProcess;
 
