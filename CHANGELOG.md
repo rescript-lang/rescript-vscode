@@ -12,6 +12,10 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- Reduce latency of language server by caching a few project config related things. https://github.com/rescript-lang/rescript-vscode/pull/1003
+
 #### :bug: Bug Fix
 
 - Fix edge case in switch expr completion. https://github.com/rescript-lang/rescript-vscode/pull/1002
