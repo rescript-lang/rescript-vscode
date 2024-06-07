@@ -1,5 +1,11 @@
 # ReScript Tools
 
+## System Requirements
+
+### Linux
+
+The `musl` package needs to be installed to be able to run the binary.
+
 ## Install
 
 ```sh
