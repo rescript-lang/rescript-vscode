@@ -12,6 +12,12 @@
 
 ## master
 
+## 0.6.3
+
+#### :bug: Bug Fix
+
+- Make sure Linux binaries are statically linked.
+
 #### :nail_care: Polish
 
 - Reverse order of extracted embeds, so they're in the correct order.
