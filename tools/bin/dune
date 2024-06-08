@@ -11,4 +11,4 @@
  (name main)
  (libraries tools)
  (flags
-  (-w "+6+26+27+32+33+39")))
+  (:standard -w "+6+26+27+32+33+39")))
