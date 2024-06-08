@@ -38,10 +38,14 @@ jobs:
 
       - name: Build
         uses: docker://ghcr.io/rescript-lang/rescript-ci-build:alpine-3.19-ocaml-5.1.1-01
-        env:
-          DUNE_PROFILE: static        
         with:
-          args: opam exec -- make
+          args: opam exec -- dune build --profile static
+
+      - name: Copy and strip binaries
+        run: |
+          cp -f _build/install/default/bin/rescript-editor-analysis rescript-editor-analysis.exe
+          cp -f _build/install/default/bin/rescript-tools rescript-tools.exe
+          strip rescript-editor-analysis.exe rescript-tools.exe
 
       # Also avoids artifacts upload permission loss:
       # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
@@ -135,6 +139,10 @@ jobs:
 
     - name: Test
       run: opam exec -- make test
+
+    - name: Strip binaries
+      if: matrix.os != 'windows-latest'
+      run: strip rescript-editor-analysis.exe rescript-tools.exe
 
     # Also avoids artifacts upload permission loss:
     # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
