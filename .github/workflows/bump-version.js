@@ -1,4 +1,5 @@
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const semver = require("semver");
 
@@ -47,4 +48,7 @@ if (!semver.valid(newVersion)) {
   throw new Error("Invalid version string: ", newVersion);
 }
 
-console.log(`::set-output name=new_version::${newVersion}`);
+fs.appendFileSync(
+  process.env.GITHUB_ENV,
+  `new_version=${newVersion}${os.EOL}`
+);
