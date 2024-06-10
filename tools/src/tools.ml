@@ -469,6 +469,12 @@ let extractDocs ~entryPointFile ~debug =
                             (extractDocsForModule
                                ~modulePath:(interface.name :: modulePath)
                                interface))
+                     | Module {type_ = Constraint (Structure m, Ident _)} ->
+                       (* module M: T = {  }. Print M *)
+                       Some
+                         (Module
+                            (extractDocsForModule
+                               ~modulePath:(m.name :: modulePath) m))
                      | _ -> None);
           }
         in

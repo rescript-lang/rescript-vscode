@@ -306,5 +306,41 @@
         "col": 3
       }
     }]
+  }, 
+  {
+    "id": "DocExtractionRes.M",
+    "name": "M",
+    "kind": "module",
+    "docstrings": ["implementation of Example module type"],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 1,
+      "col": 1
+    },
+    "items": [
+    {
+      "id": "DocExtractionRes.M.t",
+      "kind": "type",
+      "name": "t",
+      "signature": "type t = int",
+      "docstrings": ["main type"],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 123,
+        "col": 3
+      }
+    }, 
+    {
+      "id": "DocExtractionRes.M.f",
+      "kind": "value",
+      "name": "f",
+      "signature": "let f: int => int",
+      "docstrings": ["identity function"],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 128,
+        "col": 7
+      }
+    }]
   }]
 }

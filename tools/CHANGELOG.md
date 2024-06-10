@@ -12,6 +12,10 @@
 
 ## master
 
+### :bug: Bug Fix
+
+- Print module structure with signature to module path. https://github.com/rescript-lang/rescript-vscode/pull/1018
+
 ## 0.6.3
 
 #### :bug: Bug Fix
