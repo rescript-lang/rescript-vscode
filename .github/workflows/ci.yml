@@ -288,6 +288,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         token: "${{ secrets.GITHUB_TOKEN }}"
+        tag_name: "latest-master"
         prerelease: true
         generate_release_notes: true
         name: "Latest master"
