@@ -14,6 +14,7 @@ import * as c from "./constants";
 import * as lookup from "./lookup";
 import { reportError } from "./errorReporter";
 import config from "./config";
+import { filesDiagnostics, projectsFiles } from "./projectFiles";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -24,9 +25,7 @@ export let createFileInTempDir = (extension = "") => {
   return path.join(os.tmpdir(), tempFileName);
 };
 
-// TODO: races here?
-// TODO: this doesn't handle file:/// scheme
-export let findProjectRootOfFile = (
+let findProjectRootOfFileInDir = (
   source: p.DocumentUri
 ): null | p.DocumentUri => {
   let dir = path.dirname(source);
@@ -40,8 +39,38 @@ export let findProjectRootOfFile = (
       // reached top
       return null;
     } else {
-      return findProjectRootOfFile(dir);
+      return findProjectRootOfFileInDir(dir);
     }
+  }
+};
+
+// TODO: races here?
+// TODO: this doesn't handle file:/// scheme
+export let findProjectRootOfFile = (
+  source: p.DocumentUri
+): null | p.DocumentUri => {
+  // First look in project files
+  let foundRootFromProjectFiles: string | null = null;
+
+  for (const rootPath of projectsFiles.keys()) {
+    if (source.startsWith(rootPath)) {
+      // Prefer the longest path (most nested)
+      if (
+        foundRootFromProjectFiles == null ||
+        rootPath.length > foundRootFromProjectFiles.length
+      ) {
+        foundRootFromProjectFiles = rootPath;
+      }
+    }
+  }
+
+  if (foundRootFromProjectFiles != null) {
+    return foundRootFromProjectFiles;
+  } else {
+    const isDir = path.extname(source) === "";
+    return findProjectRootOfFileInDir(
+      isDir ? path.join(source, "dummy.res") : source
+    );
   }
 };
 
@@ -138,7 +167,9 @@ export let formatCode = (
   }
 };
 
-let findReScriptVersion = (filePath: p.DocumentUri): string | undefined => {
+export let findReScriptVersion = (
+  filePath: p.DocumentUri
+): string | undefined => {
   let projectRoot = findProjectRootOfFile(filePath);
   if (projectRoot == null) {
     return undefined;
@@ -161,17 +192,20 @@ let findReScriptVersion = (filePath: p.DocumentUri): string | undefined => {
   }
 };
 
+let binaryPath: string | null = null;
+if (fs.existsSync(c.analysisDevPath)) {
+  binaryPath = c.analysisDevPath;
+} else if (fs.existsSync(c.analysisProdPath)) {
+  binaryPath = c.analysisProdPath;
+} else {
+}
+
 export let runAnalysisAfterSanityCheck = (
   filePath: p.DocumentUri,
   args: Array<any>,
   projectRequired = false
 ) => {
-  let binaryPath;
-  if (fs.existsSync(c.analysisDevPath)) {
-    binaryPath = c.analysisDevPath;
-  } else if (fs.existsSync(c.analysisProdPath)) {
-    binaryPath = c.analysisProdPath;
-  } else {
+  if (binaryPath == null) {
     return null;
   }
 
@@ -179,7 +213,10 @@ export let runAnalysisAfterSanityCheck = (
   if (projectRootPath == null && projectRequired) {
     return null;
   }
-  let rescriptVersion = findReScriptVersion(filePath);
+  let rescriptVersion =
+    projectsFiles.get(projectRootPath ?? "")?.rescriptVersion ??
+    findReScriptVersion(filePath);
+
   let options: childProcess.ExecFileSyncOptions = {
     cwd: projectRootPath || undefined,
     maxBuffer: Infinity,
@@ -449,9 +486,6 @@ let parseFileAndRange = (fileAndRange: string) => {
 };
 
 // main parsing logic
-export type filesDiagnostics = {
-  [key: string]: p.Diagnostic[];
-};
 type parsedCompilerLogResult = {
   done: boolean;
   result: filesDiagnostics;

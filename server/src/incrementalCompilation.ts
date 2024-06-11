@@ -10,6 +10,7 @@ import config, { send } from "./config";
 import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { fileCodeActions } from "./codeActions";
+import { projectsFiles } from "./projectFiles";
 
 function debug() {
   return (
@@ -75,8 +76,6 @@ type IncrementallyCompiledFileInfo = {
     callArgs: Promise<Array<string> | null>;
     /** The location of the incremental folder for this project. */
     incrementalFolderPath: string;
-    /** The ReScript version. */
-    rescriptVersion: string;
   };
   /** Any code actions for this incremental file. */
   codeActions: Array<fileCodeActions>;
@@ -284,6 +283,8 @@ function getBscArgs(
       });
     } else if (buildSystem === "rewatch") {
       try {
+        const project = projectsFiles.get(entry.project.rootPath);
+        if (project?.rescriptVersion == null) return;
         let rewatchPath = path.resolve(
           entry.project.workspaceRootPath,
           "node_modules/@rolandpeelen/rewatch/rewatch"
@@ -292,7 +293,7 @@ function getBscArgs(
           cp
             .execFileSync(rewatchPath, [
               "--rescript-version",
-              entry.project.rescriptVersion,
+              project.rescriptVersion,
               "--compiler-args",
               entry.file.sourceFilePath,
             ])
@@ -364,21 +365,21 @@ function triggerIncrementalCompilationOfFile(
   if (incrementalFileCacheEntry == null) {
     // New file
     const projectRootPath = utils.findProjectRootOfFile(filePath);
-    const workspaceRootPath = projectRootPath
-      ? utils.findProjectRootOfFile(projectRootPath)
-      : null;
     if (projectRootPath == null) {
       if (debug())
         console.log("Did not find project root path for " + filePath);
       return;
     }
-    const namespaceName = utils.getNamespaceNameFromConfigFile(projectRootPath);
-    if (namespaceName.kind === "error") {
-      if (debug())
-        console.log("Getting namespace config errored for " + filePath);
+    const project = projectsFiles.get(projectRootPath);
+    if (project == null) {
+      if (debug()) console.log("Did not find open project for " + filePath);
       return;
     }
-    const bscBinaryLocation = utils.findBscExeBinary(projectRootPath);
+    const workspaceRootPath = projectRootPath
+      ? utils.findProjectRootOfFile(projectRootPath)
+      : null;
+
+    const bscBinaryLocation = project.bscBinaryLocation;
     if (bscBinaryLocation == null) {
       if (debug())
         console.log("Could not find bsc binary location for " + filePath);
@@ -387,27 +388,14 @@ function triggerIncrementalCompilationOfFile(
     const ext = filePath.endsWith(".resi") ? ".resi" : ".res";
     const moduleName = path.basename(filePath, ext);
     const moduleNameNamespaced =
-      namespaceName.result !== ""
-        ? `${moduleName}-${namespaceName.result}`
+      project.namespaceName != null
+        ? `${moduleName}-${project.namespaceName}`
         : moduleName;
 
     const incrementalFolderPath = path.join(
       projectRootPath,
       INCREMENTAL_FILE_FOLDER_LOCATION
     );
-
-    let rescriptVersion = "";
-    try {
-      rescriptVersion = cp
-        .execFileSync(bscBinaryLocation, ["-version"])
-        .toString()
-        .trim();
-    } catch (e) {
-      console.error(e);
-    }
-    if (rescriptVersion.startsWith("ReScript ")) {
-      rescriptVersion = rescriptVersion.replace("ReScript ", "");
-    }
 
     let originalTypeFileLocation = path.resolve(
       projectRootPath,
@@ -436,7 +424,6 @@ function triggerIncrementalCompilationOfFile(
         callArgs: Promise.resolve([]),
         bscBinaryLocation,
         incrementalFolderPath,
-        rescriptVersion,
       },
       buildRewatch: null,
       buildNinja: null,
@@ -488,6 +475,16 @@ function verifyTriggerToken(filePath: string, triggerToken: number): boolean {
   );
 }
 async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
+  const project = projectsFiles.get(entry.project.rootPath);
+  if (project?.rescriptVersion == null) {
+    if (debug()) {
+      console.log(
+        "Found no project (or ReScript version) for " +
+          entry.file.sourceFilePath
+      );
+    }
+    return null;
+  }
   const res = await getBscArgs(entry);
   if (res == null) return null;
   let astArgs: Array<Array<string>> = [];
@@ -547,7 +544,7 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   });
 
   callArgs.push("-color", "never");
-  if (parseInt(entry.project.rescriptVersion.split(".")[0] ?? "10") >= 11) {
+  if (parseInt(project.rescriptVersion.split(".")[0] ?? "10") >= 11) {
     // Only available in v11+
     callArgs.push("-ignore-parse-errors");
   }

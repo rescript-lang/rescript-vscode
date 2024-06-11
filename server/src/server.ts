@@ -22,12 +22,11 @@ import * as c from "./constants";
 import * as chokidar from "chokidar";
 import { assert } from "console";
 import { fileURLToPath } from "url";
-import * as cp from "node:child_process";
 import { WorkspaceEdit } from "vscode-languageserver";
-import { filesDiagnostics } from "./utils";
 import { onErrorReported } from "./errorReporter";
 import * as ic from "./incrementalCompilation";
 import config, { extensionConfiguration } from "./config";
+import { projectsFiles } from "./projectFiles";
 
 // This holds client capabilities specific to our extension, and not necessarily
 // related to the LS protocol. It's for enabling/disabling features that might
@@ -49,23 +48,7 @@ let serverSentRequestIdCounter = 0;
 // https://microsoft.github.io/language-server-protocol/specification#exit
 let shutdownRequestAlreadyReceived = false;
 let stupidFileContentCache: Map<string, string> = new Map();
-let projectsFiles: Map<
-  string, // project root path
-  {
-    openFiles: Set<string>;
-    filesWithDiagnostics: Set<string>;
-    filesDiagnostics: filesDiagnostics;
 
-    bsbWatcherByEditor: null | cp.ChildProcess;
-
-    // This keeps track of whether we've prompted the user to start a build
-    // automatically, if there's no build currently running for the project. We
-    // only want to prompt the user about this once, or it becomes
-    // annoying.
-    // The type `never` means that we won't show the prompt if the project is inside node_modules
-    hasPromptedToStartBuild: boolean | "never";
-  }
-> = new Map();
 // ^ caching AND states AND distributed system. Why does LSP has to be stupid like this
 
 // This keeps track of code actions extracted from diagnostics.
@@ -275,11 +258,18 @@ let openedFile = (fileUri: string, fileContent: string) => {
       if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
         ic.recreateIncrementalFileFolder(projectRootPath);
       }
+      const namespaceName =
+        utils.getNamespaceNameFromConfigFile(projectRootPath);
+
       projectRootState = {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
         filesDiagnostics: {},
+        namespaceName:
+          namespaceName.kind === "success" ? namespaceName.result : null,
+        rescriptVersion: utils.findReScriptVersion(projectRootPath),
         bsbWatcherByEditor: null,
+        bscBinaryLocation: utils.findBscExeBinary(projectRootPath),
         hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
           projectRootPath
         )
@@ -811,7 +801,9 @@ function format(msg: p.RequestMessage): Array<p.Message> {
     let code = getOpenedFileContent(params.textDocument.uri);
 
     let projectRootPath = utils.findProjectRootOfFile(filePath);
-    let bscExeBinaryPath = utils.findBscExeBinary(projectRootPath);
+    let project =
+      projectRootPath != null ? projectsFiles.get(projectRootPath) : null;
+    let bscExeBinaryPath = project?.bscBinaryLocation ?? null;
 
     let formattedResult = utils.formatCode(
       bscExeBinaryPath,
