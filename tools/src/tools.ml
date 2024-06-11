@@ -64,7 +64,7 @@ and docsForModule = {
   docstring: string list;
   deprecated: string option;
   name: string;
-  moduletype: string option;
+  moduletypeid: string option;
   source: source;
   items: docItem list;
 }
@@ -203,8 +203,8 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
           match m.deprecated with
           | Some d -> Some (wrapInQuotes d)
           | None -> None );
-        ( "moduletype",
-          match m.moduletype with
+        ( "moduletypeid",
+          match m.moduletypeid with
           | Some path -> Some (wrapInQuotes path)
           | None -> None );
         ("docstrings", Some (stringifyDocstrings m.docstring));
@@ -368,7 +368,7 @@ let extractDocs ~entryPointFile ~debug =
             id = modulePath |> List.rev |> ident;
             docstring = structure.docstring |> List.map String.trim;
             name = structure.name;
-            moduletype = None;
+            moduletypeid = None;
             deprecated = structure.deprecated;
             source =
               {
@@ -452,7 +452,7 @@ let extractDocs ~entryPointFile ~debug =
                             {
                               id = modulePath |> List.rev |> ident;
                               name = m.name;
-                              moduletype = None;
+                              moduletypeid = None;
                               docstring = item.docstring @ m.docstring;
                               deprecated = item.deprecated;
                               source;
@@ -489,7 +489,14 @@ let extractDocs ~entryPointFile ~debug =
                          extractDocsForModule ~modulePath:(m.name :: modulePath)
                            m
                        in
-                       Some (Module {docs with moduletype = Some (Path.name p)})
+                       Some
+                         (Module
+                            {
+                              docs with
+                              moduletypeid =
+                                Some
+                                  (makeId ~identifier:(Path.name p) modulePath);
+                            })
                      | _ -> None);
           }
         in
