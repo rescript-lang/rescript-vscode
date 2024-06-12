@@ -494,8 +494,7 @@ let extractDocs ~entryPointFile ~debug =
                             {
                               docs with
                               moduletypeid =
-                                Some
-                                  (makeId ~identifier:(Path.name p) modulePath);
+                                Some (makeId ~identifier:(Path.name p) []);
                             })
                      | _ -> None);
           }
