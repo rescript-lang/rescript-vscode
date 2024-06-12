@@ -12,6 +12,10 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Add `moduletypeid` field for explicitly annotated module type. https://github.com/rescript-lang/rescript-vscode/pull/1019
+
 ### :bug: Bug Fix
 
 - Print module structure with signature to module path. https://github.com/rescript-lang/rescript-vscode/pull/1018
