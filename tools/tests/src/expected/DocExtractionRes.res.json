@@ -311,7 +311,7 @@
     "id": "DocExtractionRes.M",
     "name": "M",
     "kind": "module",
-    "moduletypeid": "Example",
+    "moduletypeid": "DocExtractionRes.Example",
     "docstrings": ["implementation of Example module type"],
     "source": {
       "filepath": "src/DocExtractionRes.res",

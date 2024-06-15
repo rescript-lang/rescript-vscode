@@ -489,12 +489,26 @@ let extractDocs ~entryPointFile ~debug =
                          extractDocsForModule ~modulePath:(m.name :: modulePath)
                            m
                        in
+                       let identModulePath = p |> Path.head |> Ident.name in
+
+                       let moduleTypeIdPath =
+                         match
+                           ProcessCmt.fileForModule ~package:full.package
+                             identModulePath
+                           |> Option.is_none
+                         with
+                         | true -> modulePath
+                         | false -> []
+                       in
+
                        Some
                          (Module
                             {
                               docs with
                               moduletypeid =
-                                Some (makeId ~identifier:(Path.name p) []);
+                                Some
+                                  (makeId ~identifier:(Path.name p)
+                                     moduleTypeIdPath);
                             })
                      | _ -> None);
           }
