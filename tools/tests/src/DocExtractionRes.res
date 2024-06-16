@@ -137,7 +137,7 @@ module A: MT = {
 }
 
 module C = {
-  module D: MT = {// generates "moduletypeid": "Example.C.MT" - but should be Example.MT
+  module D: MT = {
     let x = 42
   }
 }
