@@ -343,5 +343,91 @@
         "col": 7
       }
     }]
+  }, 
+  {
+    "id": "DocExtractionRes.MT",
+    "name": "MT",
+    "kind": "moduleType",
+    "docstrings": [],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 131,
+      "col": 13
+    },
+    "items": [
+    {
+      "id": "DocExtractionRes.MT.x",
+      "kind": "value",
+      "name": "x",
+      "signature": "let x: int",
+      "docstrings": [],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 132,
+        "col": 3
+      }
+    }]
+  }, 
+  {
+    "id": "DocExtractionRes.A",
+    "name": "A",
+    "kind": "module",
+    "moduletypeid": "DocExtractionRes.MT",
+    "docstrings": [],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 1,
+      "col": 1
+    },
+    "items": [
+    {
+      "id": "DocExtractionRes.A.x",
+      "kind": "value",
+      "name": "x",
+      "signature": "let x: int",
+      "docstrings": [],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 136,
+        "col": 7
+      }
+    }]
+  }, 
+  {
+    "id": "DocExtractionRes.C",
+    "name": "C",
+    "kind": "module",
+    "docstrings": [],
+    "source": {
+      "filepath": "src/DocExtractionRes.res",
+      "line": 139,
+      "col": 8
+    },
+    "items": [
+    {
+      "id": "DocExtractionRes.C.D",
+      "name": "D",
+      "kind": "module",
+      "moduletypeid": "DocExtractionRes.MT",
+      "docstrings": [],
+      "source": {
+        "filepath": "src/DocExtractionRes.res",
+        "line": 1,
+        "col": 1
+      },
+      "items": [
+      {
+        "id": "DocExtractionRes.C.D.x",
+        "kind": "value",
+        "name": "x",
+        "signature": "let x: int",
+        "docstrings": [],
+        "source": {
+          "filepath": "src/DocExtractionRes.res",
+          "line": 141,
+          "col": 9
+        }
+      }]
+    }]
   }]
 }

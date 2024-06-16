@@ -128,4 +128,18 @@ module M: Example = {
   let f = (x: int) => x
 }
 
+module type MT = {
+  let x: int
+}
+
+module A: MT = {
+  let x = 42
+}
+
+module C = {
+  module D: MT = {// generates "moduletypeid": "Example.C.MT" - but should be Example.MT
+    let x = 42
+  }
+}
+
 // ^dex
