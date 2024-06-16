@@ -497,8 +497,8 @@ let extractDocs ~entryPointFile ~debug =
                              identModulePath
                            |> Option.is_none
                          with
-                         | true -> modulePath
                          | false -> []
+                         | true -> [modulePath |> List.rev |> List.hd]
                        in
 
                        Some
