@@ -300,13 +300,17 @@ jobs:
         name: "Latest master"
         files: rescript-vscode-latest-master.vsix
 
+    - name: Generate release notes from changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: sed -e "/^## ${{ steps.tag_name.outputs.tag }}/,/^## / ! d" CHANGELOG.md | head -n -2 > RELEASE.md
+
     - name: Publish release version to GitHub
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
         token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
-        generate_release_notes: true
+        body_path: RELEASE.md
         name: ${{ steps.tag_name.outputs.tag }}
         files: rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix
 
