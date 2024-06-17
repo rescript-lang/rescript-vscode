@@ -297,10 +297,10 @@
         }
       ]
     },
-    "list": {
+    "entity-literal": {
       "patterns": [
         {
-          "match": "\\b(list)(\\{)",
+          "match": "\\b(list|dict)(\\{)",
           "captures": {
             "1": {
               "name": "keyword"
@@ -548,7 +548,7 @@
     { "include": "#string" },
     { "include": "#attribute" },
     { "include": "#function" },
-    { "include": "#list" },
+    { "include": "#entity-literal" },
     { "include": "#jsx" },
     { "include": "#operator" },
     { "include": "#number" },
