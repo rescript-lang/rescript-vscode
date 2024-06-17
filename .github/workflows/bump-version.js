@@ -49,6 +49,6 @@ if (!semver.valid(newVersion)) {
 }
 
 fs.appendFileSync(
-  process.env.GITHUB_ENV,
+  process.env.GITHUB_OUTPUT,
   `new_version=${newVersion}${os.EOL}`
 );
