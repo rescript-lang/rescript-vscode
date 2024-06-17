@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.54.0
+
 #### :nail_care: Polish
 
 - Reduce latency of language server by caching a few project config related things. https://github.com/rescript-lang/rescript-vscode/pull/1003
