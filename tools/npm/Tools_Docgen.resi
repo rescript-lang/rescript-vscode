@@ -55,6 +55,7 @@ type rec item =
       docstrings: array<string>,
       deprecated?: string,
       name: string,
+      moduletypeid?: string,
       source: source,
       items: array<item>,
     })
