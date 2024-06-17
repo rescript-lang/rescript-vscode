@@ -12,6 +12,8 @@
 
 ## master
 
+## 0.6.4
+
 #### :rocket: New Feature
 
 - Add `moduletypeid` field for explicitly annotated module type. https://github.com/rescript-lang/rescript-vscode/pull/1019
