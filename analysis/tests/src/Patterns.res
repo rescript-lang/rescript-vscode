@@ -15,7 +15,6 @@ module A = {
 
   let A([v1, _, _]) | _ as v1 = assert false
 
-  let lazy lazyy = lazy 3
 }
 
 let y = A.xxx
@@ -30,7 +29,4 @@ let n2 = A.a
 //         ^def
 
 let n3 = A.v1
-//         ^def
-
-let n4 = A.lazyy
 //         ^def
