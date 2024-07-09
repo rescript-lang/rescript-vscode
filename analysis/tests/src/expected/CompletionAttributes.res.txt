@@ -25,18 +25,6 @@ Resolved opens 1 pervasives
     "detail": "Package",
     "documentation": null
   }, {
-    "label": "./TableclothMap.ml",
-    "kind": 4,
-    "tags": [],
-    "detail": "Local file",
-    "documentation": null
-  }, {
-    "label": "./TableclothMap.mli",
-    "kind": 4,
-    "tags": [],
-    "detail": "Local file",
-    "documentation": null
-  }, {
     "label": "./test.json",
     "kind": 4,
     "tags": [],
@@ -204,18 +192,6 @@ Resolved opens 1 pervasives
     "detail": "Package",
     "documentation": null
   }, {
-    "label": "./TableclothMap.ml",
-    "kind": 4,
-    "tags": [],
-    "detail": "Local file",
-    "documentation": null
-  }, {
-    "label": "./TableclothMap.mli",
-    "kind": 4,
-    "tags": [],
-    "detail": "Local file",
-    "documentation": null
-  }, {
     "label": "./test.json",
     "kind": 4,
     "tags": [],
@@ -239,18 +215,6 @@ Resolved opens 1 pervasives
     "kind": 4,
     "tags": [],
     "detail": "Package",
-    "documentation": null
-  }, {
-    "label": "./TableclothMap.ml",
-    "kind": 4,
-    "tags": [],
-    "detail": "Local file",
-    "documentation": null
-  }, {
-    "label": "./TableclothMap.mli",
-    "kind": 4,
-    "tags": [],
-    "detail": "Local file",
     "documentation": null
   }, {
     "label": "./test.json",
