@@ -70,3 +70,9 @@ let external_polyfill = "Caml_external_polyfill"
 let caml_js_exceptions = "Caml_js_exceptions"
 
 let caml_splice_call = "Caml_splice_call"
+
+let deriving = "Runtime_deriving"
+
+let promise = "Runtime_promise"
+
+let astExtensions = "Runtime_ast_extensions"

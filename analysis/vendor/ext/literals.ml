@@ -99,10 +99,6 @@ let suffix_cmxa = ".cmxa"
 
 let suffix_mll = ".mll"
 
-let suffix_ml = ".ml"
-
-let suffix_mli = ".mli"
-
 let suffix_res = ".res"
 
 let suffix_resi = ".resi"
@@ -130,10 +126,10 @@ let esmodule = "esmodule"
 let commonjs = "commonjs"
 
 let es6 = "es6"
-[@@ocaml.deprecated "Will be removed in v12"]
+(* [@@deprecated "Will be removed in v12"] *)
 
 let es6_global = "es6-global"
-[@@ocaml.deprecated "Will be removed in v12"]
+(* [@@deprecated "Will be removed in v12"] *)
 
 let unused_attribute = "Unused attribute "
 
