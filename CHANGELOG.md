@@ -12,13 +12,12 @@
 
 ## master
 
+## 1.56.0
+
 #### :bug: Bug Fix
 
 - Fix a regression with incremental typechecking in monorepos with rewatch, where the workspace directory was not properly set.
-
-#### :bug: Bug Fix
-
-- When log files are deleted (due to a clean), the editor tooling doesn't crash anymore
+- When log files are deleted (due to a clean), the editor tooling doesn't crash anymore.
 
 #### :rocket: New Feature
 
