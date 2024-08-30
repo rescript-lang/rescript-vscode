@@ -95,6 +95,7 @@ let nameSpaceToName n =
 
 let getNamespace config =
   let ns = config |> Json.get "namespace" in
+  let namespaceEntry = config |> Json.get "namespace-entry" in
   let fromString = ns |> bind Json.string in
   let isNamespaced =
     ns |> bind Json.bool |> Option.value ~default:(fromString |> Option.is_some)
@@ -102,7 +103,10 @@ let getNamespace config =
   let either x y = if x = None then y else x in
   if isNamespaced then
     let fromName = config |> Json.get "name" |> bind Json.string in
-    either fromString fromName |> Option.map nameSpaceToName
+    let name = either fromString fromName |> Option.map nameSpaceToName in
+    match (namespaceEntry, name) with
+    | Some _, Some name -> Some ("@" ^ name)
+    | _ -> name
   else None
 
 module StringSet = Set.Make (String)
