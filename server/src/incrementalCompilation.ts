@@ -378,7 +378,6 @@ function triggerIncrementalCompilationOfFile(
     const workspaceRootPath = projectRootPath
       ? utils.findProjectRootOfFile(projectRootPath, true)
       : null;
-    console.log("Workspace root path: " + workspaceRootPath);
 
     const bscBinaryLocation = project.bscBinaryLocation;
     if (bscBinaryLocation == null) {
