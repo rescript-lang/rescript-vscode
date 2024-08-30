@@ -47,13 +47,14 @@ let findProjectRootOfFileInDir = (
 // TODO: races here?
 // TODO: this doesn't handle file:/// scheme
 export let findProjectRootOfFile = (
-  source: p.DocumentUri
+  source: p.DocumentUri,
+  skipParent?: boolean
 ): null | p.DocumentUri => {
   // First look in project files
   let foundRootFromProjectFiles: string | null = null;
 
   for (const rootPath of projectsFiles.keys()) {
-    if (source.startsWith(rootPath)) {
+    if (source.startsWith(rootPath) && (!skipParent || source !== rootPath)) {
       // Prefer the longest path (most nested)
       if (
         foundRootFromProjectFiles == null ||

@@ -227,13 +227,17 @@ let compilerLogsWatcher = chokidar
         }
       }
     } else {
-      sendUpdatedDiagnostics();
-      sendCompilationFinishedMessage();
-      if (config.extensionConfiguration.inlayHints?.enable === true) {
-        sendInlayHintsRefresh();
-      }
-      if (config.extensionConfiguration.codeLens === true) {
-        sendCodeLensRefresh();
+      try {
+        sendUpdatedDiagnostics();
+        sendCompilationFinishedMessage();
+        if (config.extensionConfiguration.inlayHints?.enable === true) {
+          sendInlayHintsRefresh();
+        }
+        if (config.extensionConfiguration.codeLens === true) {
+          sendCodeLensRefresh();
+        }
+      } catch {
+        console.log("Error while sending updated diagnostics");
       }
     }
   });

@@ -376,7 +376,7 @@ function triggerIncrementalCompilationOfFile(
       return;
     }
     const workspaceRootPath = projectRootPath
-      ? utils.findProjectRootOfFile(projectRootPath)
+      ? utils.findProjectRootOfFile(projectRootPath, true)
       : null;
 
     const bscBinaryLocation = project.bscBinaryLocation;
