@@ -25,7 +25,7 @@ export let createFileInTempDir = (extension = "") => {
   return path.join(os.tmpdir(), tempFileName);
 };
 
-let findProjectRootOfFileInDir = (
+export let findProjectRootOfFileInDir = (
   source: p.DocumentUri
 ): null | p.DocumentUri => {
   let dir = path.dirname(source);
