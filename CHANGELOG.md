@@ -12,6 +12,10 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Add hightlighting for the new dict literal syntax `dict{}`. https://github.com/rescript-lang/rescript-vscode/pull/934
+
 ## 1.56.0
 
 #### :bug: Bug Fix
