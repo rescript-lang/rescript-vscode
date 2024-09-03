@@ -12,6 +12,12 @@
 
 ## master
 
+## 1.58.0
+
+#### :bug: Bug fix
+
+- Fix an issue where the extension would still crash in a monorepo with rewatch
+
 #### :rocket: New Feature
 
 - Add hightlighting for the new dict literal syntax `dict{}`. https://github.com/rescript-lang/rescript-vscode/pull/934
