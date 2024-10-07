@@ -42,7 +42,7 @@ At the root:
 
 ```sh
 # If you haven't created the switch, do it. OPAM(https://opam.ocaml.org)
-opam switch 4.14.0 # can also create local switch with opam switch create . 4.14.0
+opam switch 5.2.0 # can also create local switch with opam switch create . 5.2.0
 
 # Install dev dependencies from OPAM
 opam install . --deps-only
@@ -50,6 +50,9 @@ opam install . --deps-only
 # For IDE support, install the OCaml language server and OCaml Formatter
 opam install ocaml-lsp-server ocamlformat
 ```
+
+You need `dune` to build the OCaml source code, if it is not available in your shell try running `eval $(opam env)`.
+If `dune` is present, run `make build` to build the OCaml projects and copy the binaries to the root.
 
 ## Build & Run
 
