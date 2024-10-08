@@ -1,5 +1,3 @@
-(*  *)
-
 (** Transform the AST types to the more generic Oak format *)
 module Oak = struct
   type application = {name: string; argument: oak}
@@ -20,7 +18,10 @@ module Oak = struct
 
   let rec mk_type_desc (desc : Types.type_desc) : oak =
     match desc with
-    | Tvar _ -> Ident "type_desc.Tvar"
+    | Tvar var -> (
+      match var with
+      | None -> Application {name = "type_desc.Tvar"; argument = Ident "None"}
+      | Some s -> Application {name = "type_desc.Tvar"; argument = Ident s})
     | Tarrow (_, t1, t2, _) ->
       Application
         {
@@ -113,6 +114,13 @@ end
 
 (** Transform the Oak types to string *)
 module CodePrinter = struct
+  (** 
+    The idea is that we capture events in a context type.
+    Doing this allows us to reason about the current state of the writer
+    and whether the next expression fits on the current line or not.
+
+  *)
+
   type writerEvents =
     | Write of string
     | WriteLine
@@ -310,24 +318,3 @@ end
 let print_type_expr (typ : Types.type_expr) : string =
   CodePrinter.genOak (Oak.mk_type_desc typ.desc) CodePrinter.emptyContext
   |> CodePrinter.dump
-
-(* let oak =
-   Oak.Application
-     {
-       Oak.name = "foo";
-       argument =
-         Oak.Tuple [{Oak.name = "foo"; value = Oak.Ident "baaaaaaaaaaaaaaaaar"}];
-     } *)
-(* Oak.Record
-   [
-     {Oak.name = "foo"; value = Oak.Ident "baaaaaaaaaaaaaaaaar"};
-     {Oak.name = "member"; value = Oak.Ident "Zigbar"};
-   ] *)
-
-(* let _ =
-   CodePrinter.genOak oak CodePrinter.emptyContext
-   |> CodePrinter.dump |> Format.printf "%s\n" *)
-
-(*
-    Interpret using  ocaml /home/nojaf/projects/rescript-vscode/tools/src/print_tast.ml
-*)

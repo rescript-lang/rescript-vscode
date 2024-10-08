@@ -18,7 +18,8 @@ type constructorDoc = {
   items: constructorPayload option;
 }
 
-type valueSignature = {parameters: string list; returnType: string}
+type typeDoc = {path: string; genericParameters: typeDoc list}
+type valueSignature = {parameters: typeDoc list; returnType: typeDoc}
 
 type source = {filepath: string; line: int; col: int}
 
@@ -108,6 +109,19 @@ let stringifyConstructorPayload ~indentation
             |> array) );
       ]
 
+let rec stringifyTypeDoc ~indentation (td : typeDoc) : string =
+  let open Protocol in
+  let ps =
+    match td.genericParameters with
+    | [] -> None
+    | ts ->
+      ts |> List.map (stringifyTypeDoc ~indentation:(indentation + 1))
+      |> fun ts -> Some (array ts)
+  in
+
+  stringifyObject ~indentation:(indentation + 1)
+    [("path", Some (wrapInQuotes td.path)); ("genericTypeParameters", ps)]
+
 let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
   let open Protocol in
   match detail with
@@ -151,7 +165,19 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                      ])
             |> array) );
       ]
-  | Signature {parameters; returnType} -> returnType
+  | Signature {parameters; returnType} ->
+    let ps =
+      match parameters with
+      | [] -> None
+      | ps ->
+        ps |> List.map (stringifyTypeDoc ~indentation:(indentation + 1))
+        |> fun ps -> Some (array ps)
+    in
+    stringifyObject ~startOnNewline:false ~indentation
+      [
+        ("parameters", ps);
+        ("returnType", Some (stringifyTypeDoc ~indentation returnType));
+      ]
 
 let stringifySource ~indentation source =
   let open Protocol in
@@ -320,9 +346,47 @@ let typeDetail typ ~env ~full =
          })
   | _ -> None
 
-let valueDetail (item : SharedTypes.Module.item) (typ : Types.type_expr) =
-  let s = Print_tast.print_type_expr typ in
-  Some (Signature {parameters = []; returnType = s})
+(* split a list into two parts all the items except the last one and the last item *)
+let splitLast l =
+  let rec splitLast' acc = function
+    | [] -> failwith "splitLast: empty list"
+    | [x] -> (List.rev acc, x)
+    | x :: xs -> splitLast' (x :: acc) xs
+  in
+  splitLast' [] l
+
+let isFunction = function
+  | Path.Pident {name = "function$"} -> true
+  | _ -> false
+
+let valueDetail (typ : Types.type_expr) =
+  Printf.printf "%s\n" (Print_tast.print_type_expr typ);
+  let rec collectSignatureTypes (typ_desc : Types.type_desc) =
+    match typ_desc with
+    | Tlink t -> collectSignatureTypes t.desc
+    | Tconstr (path, [t; _], _) when isFunction path ->
+      collectSignatureTypes t.desc
+    | Tconstr (path, ts, _) -> (
+      let p = Print_tast.Oak.path_to_string path in
+      match ts with
+      | [] -> [{path = p; genericParameters = []}]
+      | ts ->
+        let ts =
+          ts
+          |> List.concat_map (fun (t : Types.type_expr) ->
+                 collectSignatureTypes t.desc)
+        in
+        [{path = p; genericParameters = ts}])
+    | Tarrow (_, t1, t2, _) ->
+      collectSignatureTypes t1.desc @ collectSignatureTypes t2.desc
+    | Tvar None -> [{path = "_"; genericParameters = []}]
+    | _ -> []
+  in
+  match collectSignatureTypes typ.desc with
+  | [] -> None
+  | ts ->
+    let parameters, returnType = splitLast ts in
+    Some (Signature {parameters; returnType})
 
 let makeId modulePath ~identifier =
   identifier :: modulePath |> List.rev |> SharedTypes.ident
@@ -335,65 +399,6 @@ let getSource ~rootPath ({loc_start} : Location.t) =
     |> String.concat "/"
   in
   {filepath; line = line + 1; col = col + 1}
-
-let dump ~entryPointFile ~debug =
-  let path =
-    match Filename.is_relative entryPointFile with
-    | true -> Unix.realpath entryPointFile
-    | false -> entryPointFile
-  in
-  if debug then Printf.printf "extracting docs for %s\n" path;
-  let result =
-    match
-      FindFiles.isImplementation path = false
-      && FindFiles.isInterface path = false
-    with
-    | false -> (
-      let path =
-        if FindFiles.isImplementation path then
-          let pathAsResi =
-            (path |> Filename.dirname) ^ "/"
-            ^ (path |> Filename.basename |> Filename.chop_extension)
-            ^ ".resi"
-          in
-          if Sys.file_exists pathAsResi then (
-            if debug then
-              Printf.printf "preferring found resi file for impl: %s\n"
-                pathAsResi;
-            pathAsResi)
-          else path
-        else path
-      in
-      match Cmt.loadFullCmtFromPath ~path with
-      | None ->
-        Error
-          (Printf.sprintf
-             "error: failed to generate doc for %s, try to build the project"
-             path)
-      | Some full ->
-        let file = full.file in
-        let structure = file.structure in
-        let open SharedTypes in
-        let extractDocsForModule (structure : Module.structure) =
-          structure.items
-          |> List.filter_map (fun (item : Module.item) ->
-                 match item.kind with
-                 | Value typ -> (
-                   match valueDetail item typ with
-                   | Some (Signature {returnType = rt}) -> Some rt
-                   | _ -> None)
-                 | _ -> None)
-          |> String.concat "\n"
-        in
-        let docs = extractDocsForModule structure in
-        Ok docs)
-    | true ->
-      Error
-        (Printf.sprintf
-           "error: failed to read %s, expected an .res or .resi file" path)
-  in
-
-  result
 
 let extractDocs ~entryPointFile ~debug =
   let path =
@@ -471,7 +476,7 @@ let extractDocs ~entryPointFile ~debug =
                                 ^ Shared.typeToString typ;
                               name = item.name;
                               deprecated = item.deprecated;
-                              detail = valueDetail item typ;
+                              detail = valueDetail typ;
                               source;
                             })
                      | Type (typ, _) ->
