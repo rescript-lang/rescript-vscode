@@ -31,6 +31,11 @@ let version = Version.version
 
 let main () =
   match Sys.argv |> Array.to_list |> List.tl with
+  | "temp" :: rest -> (
+    match rest with
+    | ["-h"] | ["--help"] -> logAndExit (Ok docHelp)
+    | [path] -> logAndExit (Tools.dump ~entryPointFile:path ~debug:false)
+    | _ -> logAndExit (Error docHelp))
   | "doc" :: rest -> (
     match rest with
     | ["-h"] | ["--help"] -> logAndExit (Ok docHelp)

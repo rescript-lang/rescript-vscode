@@ -50,12 +50,65 @@ module Oak = struct
     | Tobject _ -> Ident "type_desc.Tobject"
     | Tfield _ -> Ident "type_desc.Tfield"
     | Tnil -> Ident "type_desc.Tnil"
-    | Tlink {desc} -> Ident "type_desc.Tlink"
+    | Tlink {desc} ->
+      Application {name = "type_desc.Tlink"; argument = mk_type_desc desc}
     | Tsubst _ -> Ident "type_desc.Tsubst"
-    | Tvariant row_descr -> Ident "type_desc.Tvariant"
+    | Tvariant row_descr ->
+      Application
+        {name = "type_desc.Tvariant"; argument = mk_row_desc row_descr}
     | Tunivar _ -> Ident "type_desc.Tunivar"
     | Tpoly _ -> Ident "type_desc.Tpoly"
     | Tpackage _ -> Ident "type_desc.Tpackage"
+
+  and mk_row_desc (row_desc : Types.row_desc) : oak =
+    let fields =
+      [
+        {
+          name = "row_fields";
+          value =
+            ( row_desc.row_fields
+            |> List.map (fun (label, row_field) ->
+                   Tuple
+                     [
+                       {name = "label"; value = Ident label};
+                       {name = "row_field"; value = mk_row_field row_field};
+                     ])
+            |> fun ts -> List ts );
+        };
+        {name = "row_more"; value = mk_type_desc row_desc.row_more.desc};
+        {name = "row_closed"; value = mk_bool row_desc.row_closed};
+        {name = "row_fixed"; value = mk_bool row_desc.row_fixed};
+      ]
+    in
+    match row_desc.row_name with
+    | None -> Record fields
+    | Some (path, ts) ->
+      Record
+        ({
+           name = "row_name";
+           value =
+             Tuple
+               [
+                 {name = "Path.t"; value = Ident (path_to_string path)};
+                 {
+                   name = "fields";
+                   value =
+                     List
+                       (ts
+                       |> List.map (fun (t : Types.type_expr) ->
+                              mk_type_desc t.desc));
+                 };
+               ];
+         }
+        :: fields)
+
+  and mk_row_field (row_field : Types.row_field) : oak =
+    match row_field with
+    | Rpresent _ -> Ident "row_field.Rpresent"
+    | Reither _ -> Ident "row_field.Reither"
+    | Rabsent -> Ident "row_field.Rabsent"
+
+  and mk_bool (b : bool) : oak = if b then Ident "true" else Ident "false"
 end
 
 (** Transform the Oak types to string *)
@@ -116,7 +169,7 @@ module CodePrinter = struct
 
   let sepNln ctx =
     {ctx with events = WriteLine :: ctx.events; current_line_column = 0}
-
+  let sepSpace ctx = !-" " ctx
   let sepComma ctx = !-", " ctx
   let sepSemi ctx = !-"; " ctx
   let sepOpenT ctx = !-"(" ctx
@@ -126,6 +179,7 @@ module CodePrinter = struct
   let sepOpenL ctx = !-"[" ctx
   let sepCloseL ctx = !-"]" ctx
   let sepEq ctx = !-" = " ctx
+  let wrapInParentheses f = sepOpenT +> f +> sepCloseT
   let indent ctx =
     let nextIdent = ctx.current_indent + ctx.indent_size in
     {
@@ -197,14 +251,18 @@ module CodePrinter = struct
     in
     let long =
       !-(application.name) +> sepOpenT
-      +> indentAndNln (genOak application.argument)
-      +> sepNln +> sepCloseT
+      +> (match application.argument with
+         | Oak.List _ | Oak.Record _ -> genOak application.argument
+         | _ -> indentAndNln (genOak application.argument) +> sepNln)
+      +> sepCloseT
     in
     expressionFitsOnRestOfLine short long
 
   and genRecord (recordFields : Oak.namedField list) : appendEvents =
     let short =
-      sepOpenR +> col genNamedField sepSemi recordFields +> sepCloseR
+      sepOpenR +> sepSpace
+      +> col genNamedField sepSemi recordFields
+      +> sepSpace +> sepCloseR
     in
     let long =
       sepOpenR
@@ -232,9 +290,19 @@ module CodePrinter = struct
     expressionFitsOnRestOfLine short long
 
   and genList (items : Oak.oak list) : appendEvents =
-    let short = sepOpenL +> col genOak sepSemi items +> sepCloseL in
+    let genItem = function
+      | Oak.Tuple _ as item -> wrapInParentheses (genOak item)
+      | item -> genOak item
+    in
+    let short =
+      match items with
+      | [] -> sepOpenL +> sepCloseL
+      | _ ->
+        sepOpenL +> sepSpace +> col genItem sepSemi items +> sepSpace
+        +> sepCloseL
+    in
     let long =
-      sepOpenL +> indentAndNln (col genOak sepNln items) +> sepNln +> sepCloseL
+      sepOpenL +> indentAndNln (col genItem sepNln items) +> sepNln +> sepCloseL
     in
     expressionFitsOnRestOfLine short long
 end

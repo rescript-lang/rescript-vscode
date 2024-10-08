@@ -322,7 +322,6 @@ let typeDetail typ ~env ~full =
 
 let valueDetail (item : SharedTypes.Module.item) (typ : Types.type_expr) =
   let s = Print_tast.print_type_expr typ in
-  Format.printf "%s\n" s;
   Some (Signature {parameters = []; returnType = s})
 
 let makeId modulePath ~identifier =
@@ -336,6 +335,65 @@ let getSource ~rootPath ({loc_start} : Location.t) =
     |> String.concat "/"
   in
   {filepath; line = line + 1; col = col + 1}
+
+let dump ~entryPointFile ~debug =
+  let path =
+    match Filename.is_relative entryPointFile with
+    | true -> Unix.realpath entryPointFile
+    | false -> entryPointFile
+  in
+  if debug then Printf.printf "extracting docs for %s\n" path;
+  let result =
+    match
+      FindFiles.isImplementation path = false
+      && FindFiles.isInterface path = false
+    with
+    | false -> (
+      let path =
+        if FindFiles.isImplementation path then
+          let pathAsResi =
+            (path |> Filename.dirname) ^ "/"
+            ^ (path |> Filename.basename |> Filename.chop_extension)
+            ^ ".resi"
+          in
+          if Sys.file_exists pathAsResi then (
+            if debug then
+              Printf.printf "preferring found resi file for impl: %s\n"
+                pathAsResi;
+            pathAsResi)
+          else path
+        else path
+      in
+      match Cmt.loadFullCmtFromPath ~path with
+      | None ->
+        Error
+          (Printf.sprintf
+             "error: failed to generate doc for %s, try to build the project"
+             path)
+      | Some full ->
+        let file = full.file in
+        let structure = file.structure in
+        let open SharedTypes in
+        let extractDocsForModule (structure : Module.structure) =
+          structure.items
+          |> List.filter_map (fun (item : Module.item) ->
+                 match item.kind with
+                 | Value typ -> (
+                   match valueDetail item typ with
+                   | Some (Signature {returnType = rt}) -> Some rt
+                   | _ -> None)
+                 | _ -> None)
+          |> String.concat "\n"
+        in
+        let docs = extractDocsForModule structure in
+        Ok docs)
+    | true ->
+      Error
+        (Printf.sprintf
+           "error: failed to read %s, expected an .res or .resi file" path)
+  in
+
+  result
 
 let extractDocs ~entryPointFile ~debug =
   let path =
