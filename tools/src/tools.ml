@@ -18,11 +18,14 @@ type constructorDoc = {
   items: constructorPayload option;
 }
 
+type valueSignature = {parameters: string list; returnType: string}
+
 type source = {filepath: string; line: int; col: int}
 
 type docItemDetail =
   | Record of {fieldDocs: fieldDoc list}
   | Variant of {constructorDocs: constructorDoc list}
+  | Signature of valueSignature
 
 type docItem =
   | Value of {
@@ -31,6 +34,7 @@ type docItem =
       signature: string;
       name: string;
       deprecated: string option;
+      detail: docItemDetail option;
       source: source;
     }
   | Type of {
@@ -147,6 +151,7 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
                      ])
             |> array) );
       ]
+  | Signature {parameters; returnType} -> returnType
 
 let stringifySource ~indentation source =
   let open Protocol in
@@ -160,7 +165,7 @@ let stringifySource ~indentation source =
 let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
   let open Protocol in
   match item with
-  | Value {id; docstring; signature; name; deprecated; source} ->
+  | Value {id; docstring; signature; name; deprecated; source; detail} ->
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("id", Some (wrapInQuotes id));
@@ -173,6 +178,11 @@ let rec stringifyDocItem ?(indentation = 0) ~originalEnv (item : docItem) =
         ("signature", Some (signature |> String.trim |> wrapInQuotes));
         ("docstrings", Some (stringifyDocstrings docstring));
         ("source", Some (stringifySource ~indentation:(indentation + 1) source));
+        ( "detail",
+          match detail with
+          | None -> None
+          | Some detail ->
+            Some (stringifyDetail ~indentation:(indentation + 1) detail) );
       ]
   | Type {id; docstring; signature; name; deprecated; detail; source} ->
     stringifyObject ~startOnNewline:true ~indentation
@@ -310,6 +320,11 @@ let typeDetail typ ~env ~full =
          })
   | _ -> None
 
+let valueDetail (item : SharedTypes.Module.item) (typ : Types.type_expr) =
+  let s = Print_tast.print_type_expr typ in
+  Format.printf "%s\n" s;
+  Some (Signature {parameters = []; returnType = s})
+
 let makeId modulePath ~identifier =
   identifier :: modulePath |> List.rev |> SharedTypes.ident
 
@@ -398,6 +413,7 @@ let extractDocs ~entryPointFile ~debug =
                                 ^ Shared.typeToString typ;
                               name = item.name;
                               deprecated = item.deprecated;
+                              detail = valueDetail item typ;
                               source;
                             })
                      | Type (typ, _) ->
