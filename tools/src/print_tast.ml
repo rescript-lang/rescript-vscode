@@ -45,92 +45,104 @@ module Oak = struct
     | Rpresent _ -> Ident "row_field.Rpresent"
     | Reither _ -> Ident "row_field.Reither"
     | Rabsent -> Ident "row_field.Rabsent"
-  let rec mk_type_desc (desc : Types.type_desc) : oak =
+
+  let rec mk_type_desc_cps (desc : Types.type_desc) (continuation : oak -> oak)
+      : oak =
     match desc with
-    | Tvar var -> (
-      match var with
-      | None -> Application {name = "type_desc.Tvar"; argument = Ident "None"}
-      | Some s -> Application {name = "type_desc.Tvar"; argument = Ident s})
+    | Tvar var ->
+      continuation
+        (Application {name = "type_desc.Tvar"; argument = mk_string_option var})
     | Tarrow (_, t1, t2, _) ->
-      Application
-        {
-          name = "type_desc.Tarrow";
-          argument =
-            Tuple
-              [
-                {name = "t1"; value = mk_type_desc t1.desc};
-                {name = "t2"; value = mk_type_desc t2.desc};
-              ];
-        }
-    | Ttuple _ -> Ident "type_desc.Ttuple"
+      mk_type_desc_cps t1.desc (fun t1_result ->
+          mk_type_desc_cps t2.desc (fun t2_result ->
+              continuation
+                (Application
+                   {
+                     name = "type_desc.Tarrow";
+                     argument =
+                       Tuple
+                         [
+                           {name = "t1"; value = t1_result};
+                           {name = "t2"; value = t2_result};
+                         ];
+                   })))
+    | Ttuple _ -> continuation (Ident "type_desc.Ttuple")
     | Tconstr (path, ts, _) ->
       let ts =
-        ts |> List.map (fun (t : Types.type_expr) -> mk_type_desc t.desc)
+        List.map
+          (fun (t : Types.type_expr) -> mk_type_desc_cps t.desc (fun t -> t))
+          ts
       in
-      Application
-        {
-          name = "type_desc.Tconstr";
-          argument =
-            Tuple
-              [
-                {name = "path"; value = Ident (path_to_string path)};
-                {name = "ts"; value = List ts};
-              ];
-        }
-    | Tobject _ -> Ident "type_desc.Tobject"
-    | Tfield _ -> Ident "type_desc.Tfield"
-    | Tnil -> Ident "type_desc.Tnil"
+      continuation
+        (Application
+           {
+             name = "type_desc.Tconstr";
+             argument =
+               Tuple
+                 [
+                   {name = "path"; value = Ident (path_to_string path)};
+                   {name = "ts"; value = List ts};
+                 ];
+           })
+    | Tobject _ -> continuation (Ident "type_desc.Tobject")
+    | Tfield _ -> continuation (Ident "type_desc.Tfield")
+    | Tnil -> continuation (Ident "type_desc.Tnil")
     | Tlink {desc} ->
-      Application {name = "type_desc.Tlink"; argument = mk_type_desc desc}
-    | Tsubst _ -> Ident "type_desc.Tsubst"
+      mk_type_desc_cps desc (fun result ->
+          continuation
+            (Application {name = "type_desc.Tlink"; argument = result}))
+    | Tsubst _ -> continuation (Ident "type_desc.Tsubst")
     | Tvariant row_descr ->
-      Application
-        {name = "type_desc.Tvariant"; argument = mk_row_desc row_descr}
-    | Tunivar _ -> Ident "type_desc.Tunivar"
-    | Tpoly _ -> Ident "type_desc.Tpoly"
-    | Tpackage _ -> Ident "type_desc.Tpackage"
+      continuation
+        (Application {name = "type_desc.Tvariant"; argument = Ident "row_descr"})
+    | Tunivar _ -> continuation (Ident "type_desc.Tunivar")
+    | Tpoly _ -> continuation (Ident "type_desc.Tpoly")
+    | Tpackage _ -> continuation (Ident "type_desc.Tpackage")
 
-  and mk_row_desc (row_desc : Types.row_desc) : oak =
-    let fields =
-      [
-        {
-          name = "row_fields";
-          value =
-            ( row_desc.row_fields
-            |> List.map (fun (label, row_field) ->
-                   Tuple
-                     [
-                       {name = "label"; value = Ident label};
-                       {name = "row_field"; value = mk_row_field row_field};
-                     ])
-            |> fun ts -> List ts );
-        };
-        {name = "row_more"; value = mk_type_desc row_desc.row_more.desc};
-        {name = "row_closed"; value = mk_bool row_desc.row_closed};
-        {name = "row_fixed"; value = mk_bool row_desc.row_fixed};
-      ]
-    in
-    match row_desc.row_name with
-    | None -> Record fields
-    | Some (path, ts) ->
-      Record
-        ({
-           name = "row_name";
+  let mk_type_desc (desc : Types.type_desc) : oak =
+    mk_type_desc_cps desc (fun result -> result)
+
+  (* and mk_row_desc (row_desc : Types.row_desc) : oak =
+     let fields =
+       [
+         {
+           name = "row_fields";
            value =
-             Tuple
-               [
-                 {name = "Path.t"; value = Ident (path_to_string path)};
-                 {
-                   name = "fields";
-                   value =
-                     List
-                       (ts
-                       |> List.map (fun (t : Types.type_expr) ->
-                              mk_type_desc t.desc));
-                 };
-               ];
-         }
-        :: fields)
+             ( row_desc.row_fields
+             |> List.map (fun (label, row_field) ->
+                    Tuple
+                      [
+                        {name = "label"; value = Ident label};
+                        {name = "row_field"; value = mk_row_field row_field};
+                      ])
+             |> fun ts -> List ts );
+         };
+         {name = "row_more"; value = mk_type_desc row_desc.row_more.desc};
+         {name = "row_closed"; value = mk_bool row_desc.row_closed};
+         {name = "row_fixed"; value = mk_bool row_desc.row_fixed};
+       ]
+     in
+     match row_desc.row_name with
+     | None -> Record fields
+     | Some (path, ts) ->
+       Record
+         ({
+            name = "row_name";
+            value =
+              Tuple
+                [
+                  {name = "Path.t"; value = Ident (path_to_string path)};
+                  {
+                    name = "fields";
+                    value =
+                      List
+                        (ts
+                        |> List.map (fun (t : Types.type_expr) ->
+                               mk_type_desc t.desc));
+                  };
+                ];
+          }
+         :: fields) *)
 
   let mk_package (package : SharedTypes.package) : oak =
     Record
