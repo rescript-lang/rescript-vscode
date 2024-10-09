@@ -45,24 +45,32 @@ module Oak = struct
     | Rpresent _ -> Ident "row_field.Rpresent"
     | Reither _ -> Ident "row_field.Reither"
     | Rabsent -> Ident "row_field.Rabsent"
-  let rec mk_type_desc (desc : Types.type_desc) : oak =
+
+  let name_of_type_desc (desc : Types.type_desc) =
     match desc with
+    | Tvar _ -> "Tvar"
+    | Tarrow _ -> "Tarrow"
+    | Ttuple _ -> "Ttuple"
+    | Tconstr _ -> "Tconstr"
+    | Tobject _ -> "Tobject"
+    | Tfield _ -> "Tfield"
+    | Tnil -> "Tnil"
+    | Tlink _ -> "Tlink"
+    | Tsubst _ -> "Tsubst"
+    | Tvariant _ -> "Tvariant"
+    | Tunivar _ -> "Tunivar"
+    | Tpoly _ -> "Tpoly"
+    | Tpackage _ -> "Tpackage"
+
+  let rec mk_type_desc (desc : Types.type_desc) : oak =
+    Printf.printf "entering mk_type_desc for %s\n" (name_of_type_desc desc);
+    match desc with
+    | Tlink {desc} ->
+      Application {name = "type_desc.Tlink"; argument = mk_type_desc desc}
     | Tvar var -> (
       match var with
       | None -> Application {name = "type_desc.Tvar"; argument = Ident "None"}
       | Some s -> Application {name = "type_desc.Tvar"; argument = Ident s})
-    | Tarrow (_, t1, t2, _) ->
-      Application
-        {
-          name = "type_desc.Tarrow";
-          argument =
-            Tuple
-              [
-                {name = "t1"; value = mk_type_desc t1.desc};
-                {name = "t2"; value = mk_type_desc t2.desc};
-              ];
-        }
-    | Ttuple _ -> Ident "type_desc.Ttuple"
     | Tconstr (path, ts, _) ->
       let ts =
         ts |> List.map (fun (t : Types.type_expr) -> mk_type_desc t.desc)
@@ -77,11 +85,21 @@ module Oak = struct
                 {name = "ts"; value = List ts};
               ];
         }
+    | Tarrow (_, t1, t2, _) ->
+      Application
+        {
+          name = "type_desc.Tarrow";
+          argument =
+            Tuple
+              [
+                {name = "t1"; value = mk_type_desc t1.desc};
+                {name = "t2"; value = mk_type_desc t2.desc};
+              ];
+        }
+    | Ttuple _ -> Ident "type_desc.Ttuple"
     | Tobject _ -> Ident "type_desc.Tobject"
     | Tfield _ -> Ident "type_desc.Tfield"
     | Tnil -> Ident "type_desc.Tnil"
-    | Tlink {desc} ->
-      Application {name = "type_desc.Tlink"; argument = mk_type_desc desc}
     | Tsubst _ -> Ident "type_desc.Tsubst"
     | Tvariant row_descr ->
       Application
