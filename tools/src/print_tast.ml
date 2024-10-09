@@ -1,3 +1,5 @@
+open Analysis
+
 (** Transform the AST types to the more generic Oak format *)
 module Oak = struct
   type application = {name: string; argument: oak}
@@ -10,12 +12,39 @@ module Oak = struct
     | Ident of string
     | Tuple of namedField list
     | List of oak list
+    | String of string
+  let mk_bool (b : bool) : oak = if b then Ident "true" else Ident "false"
 
-  let rec path_to_string = function
-    | Path.Pident id -> Ident.name id
-    | Path.Pdot (p, s, _) -> path_to_string p ^ "." ^ s
-    | Path.Papply (p1, p2) -> path_to_string p1 ^ "(" ^ path_to_string p2 ^ ")"
+  let mk_string_option (o : string option) : oak =
+    match o with
+    | None -> Ident "None"
+    | Some s -> Application {name = "Some"; argument = String s}
 
+  let mk_string_list (items : string list) : oak =
+    List (items |> List.map (fun s -> String s))
+
+  let path_to_string path =
+    let buf = Buffer.create 64 in
+    let rec aux = function
+      | Path.Pident id -> Buffer.add_string buf (Ident.name id)
+      | Path.Pdot (p, s, _) ->
+        aux p;
+        Buffer.add_char buf '.';
+        Buffer.add_string buf s
+      | Path.Papply (p1, p2) ->
+        aux p1;
+        Buffer.add_char buf '(';
+        aux p2;
+        Buffer.add_char buf ')'
+    in
+    aux path;
+    Buffer.contents buf
+
+  let mk_row_field (row_field : Types.row_field) : oak =
+    match row_field with
+    | Rpresent _ -> Ident "row_field.Rpresent"
+    | Reither _ -> Ident "row_field.Reither"
+    | Rabsent -> Ident "row_field.Rabsent"
   let rec mk_type_desc (desc : Types.type_desc) : oak =
     match desc with
     | Tvar var -> (
@@ -103,13 +132,57 @@ module Oak = struct
          }
         :: fields)
 
-  and mk_row_field (row_field : Types.row_field) : oak =
-    match row_field with
-    | Rpresent _ -> Ident "row_field.Rpresent"
-    | Reither _ -> Ident "row_field.Reither"
-    | Rabsent -> Ident "row_field.Rabsent"
+  let mk_package (package : SharedTypes.package) : oak =
+    Record
+      [
+        {
+          name = "genericJsxModule";
+          value = mk_string_option package.genericJsxModule;
+        };
+      ]
 
-  and mk_bool (b : bool) : oak = if b then Ident "true" else Ident "false"
+  let mk_Uri (uri : Uri.t) : oak = String (Uri.toString uri)
+
+  let mk_item (item : SharedTypes.Module.item) : oak =
+    let kind =
+      match item.kind with
+      | SharedTypes.Module.Value v ->
+        Application
+          {name = "SharedTypes.Module.Value"; argument = mk_type_desc v.desc}
+      | SharedTypes.Module.Type _ -> Ident "Type"
+      | SharedTypes.Module.Module _ -> Ident "Module"
+    in
+    Record
+      [
+        {name = "kind"; value = kind};
+        {name = "name"; value = String item.name};
+        {name = "docstring"; value = mk_string_list item.docstring};
+        {name = "deprecated"; value = mk_string_option item.deprecated};
+      ]
+
+  let mk_structure (structure : SharedTypes.Module.structure) : oak =
+    Record
+      [
+        {name = "name"; value = String structure.name};
+        {name = "docstring"; value = mk_string_list structure.docstring};
+        {name = "items"; value = List (List.map mk_item structure.items)};
+        {name = "deprecated"; value = mk_string_option structure.deprecated};
+      ]
+
+  let mk_file (file : SharedTypes.File.t) : oak =
+    Record
+      [
+        {name = "uri"; value = mk_Uri file.uri};
+        {name = "moduleName"; value = String file.moduleName};
+        {name = "structure"; value = mk_structure file.structure};
+      ]
+
+  let mk_full (full : SharedTypes.full) : oak =
+    Record
+      [
+        {name = "package"; value = mk_package full.package};
+        {name = "file"; value = mk_file full.file};
+      ]
 end
 
 (** Transform the Oak types to string *)
@@ -231,23 +304,31 @@ module CodePrinter = struct
 
   (** Fold all the events in context into text *)
   let dump (ctx : context) =
-    let addSpaces n = String.make n ' ' in
+    let buf = Buffer.create 1024 in
+    let addSpaces n = Buffer.add_string buf (String.make n ' ') in
 
     List.fold_right
-      (fun event (acc, current_indent) ->
+      (fun event current_indent ->
         match event with
-        | Write str -> (acc ^ str, current_indent)
-        | WriteLine -> (acc ^ "\n" ^ addSpaces current_indent, current_indent)
-        | IndentBy n -> (acc, current_indent + n)
-        | UnindentBy n -> (acc, current_indent - n))
-      ctx.events ("", 0)
-    |> fst
+        | Write str ->
+          Buffer.add_string buf str;
+          current_indent
+        | WriteLine ->
+          Buffer.add_char buf '\n';
+          addSpaces current_indent;
+          current_indent
+        | IndentBy n -> current_indent + n
+        | UnindentBy n -> current_indent - n)
+      ctx.events ctx.current_indent
+    |> ignore;
+    Buffer.contents buf
 
   let rec genOak (oak : Oak.oak) : appendEvents =
     match oak with
     | Oak.Application application -> genApplication application
     | Oak.Record record -> genRecord record
     | Oak.Ident ident -> genIdent ident
+    | Oak.String str -> !-(Format.sprintf "\"%s\"" str)
     | Oak.Tuple ts -> genTuple ts
     | Oak.List xs -> genList xs
 
@@ -268,9 +349,12 @@ module CodePrinter = struct
 
   and genRecord (recordFields : Oak.namedField list) : appendEvents =
     let short =
-      sepOpenR +> sepSpace
-      +> col genNamedField sepSemi recordFields
-      +> sepSpace +> sepCloseR
+      match recordFields with
+      | [] -> sepOpenR +> sepCloseR
+      | fields ->
+        sepOpenR +> sepSpace
+        +> col genNamedField sepSemi fields
+        +> sepSpace +> sepCloseR
     in
     let long =
       sepOpenR
@@ -292,7 +376,7 @@ module CodePrinter = struct
       !-(field.name) +> sepEq
       +>
       match field.value with
-      | Oak.List _ -> genOak field.value
+      | Oak.List _ | Oak.Record _ -> genOak field.value
       | _ -> indentAndNln (genOak field.value)
     in
     expressionFitsOnRestOfLine short long
@@ -317,4 +401,8 @@ end
 
 let print_type_expr (typ : Types.type_expr) : string =
   CodePrinter.genOak (Oak.mk_type_desc typ.desc) CodePrinter.emptyContext
+  |> CodePrinter.dump
+
+let print_full (full : SharedTypes.full) : string =
+  CodePrinter.genOak (Oak.mk_full full) CodePrinter.emptyContext
   |> CodePrinter.dump

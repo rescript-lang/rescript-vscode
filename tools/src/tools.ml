@@ -640,3 +640,43 @@ let extractEmbedded ~extensionPoints ~filename =
              ("loc", Some (Analysis.Utils.cmtLocToRange loc |> stringifyRange));
            ])
   |> List.rev |> array
+
+let dump entryPointFile =
+  let path =
+    match Filename.is_relative entryPointFile with
+    | true -> Unix.realpath entryPointFile
+    | false -> entryPointFile
+  in
+  let result =
+    match
+      FindFiles.isImplementation path = false
+      && FindFiles.isInterface path = false
+    with
+    | false -> (
+      let path =
+        if FindFiles.isImplementation path then
+          let pathAsResi =
+            (path |> Filename.dirname) ^ "/"
+            ^ (path |> Filename.basename |> Filename.chop_extension)
+            ^ ".resi"
+          in
+          if Sys.file_exists pathAsResi then (
+            Printf.printf "preferring found resi file for impl: %s\n" pathAsResi;
+            pathAsResi)
+          else path
+        else path
+      in
+      match Cmt.loadFullCmtFromPath ~path with
+      | None ->
+        Error
+          (Printf.sprintf
+             "error: failed to generate doc for %s, try to build the project"
+             path)
+      | Some full -> Ok (Print_tast.print_full full))
+    | true ->
+      Error
+        (Printf.sprintf
+           "error: failed to read %s, expected an .res or .resi file" path)
+  in
+
+  result
