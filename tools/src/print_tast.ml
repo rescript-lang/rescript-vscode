@@ -123,12 +123,85 @@ module Transform = struct
          }
         :: fields)
 
+  let mk_FileSet (fileSet : SharedTypes.FileSet.t) : oak =
+    List (fileSet |> SharedTypes.FileSet.to_list |> List.map (fun s -> String s))
+
+  let mk_builtInCompletionModules
+      (builtInCompletionModules : SharedTypes.builtInCompletionModules) : oak =
+    Record
+      [
+        {
+          name = "arrayModulePath";
+          value = mk_string_list builtInCompletionModules.arrayModulePath;
+        };
+        {
+          name = "optionModulePath";
+          value = mk_string_list builtInCompletionModules.optionModulePath;
+        };
+        {
+          name = "stringModulePath";
+          value = mk_string_list builtInCompletionModules.stringModulePath;
+        };
+        {
+          name = "intModulePath";
+          value = mk_string_list builtInCompletionModules.intModulePath;
+        };
+        {
+          name = "floatModulePath";
+          value = mk_string_list builtInCompletionModules.floatModulePath;
+        };
+        {
+          name = "promiseModulePath";
+          value = mk_string_list builtInCompletionModules.promiseModulePath;
+        };
+        {
+          name = "listModulePath";
+          value = mk_string_list builtInCompletionModules.listModulePath;
+        };
+        {
+          name = "resultModulePath";
+          value = mk_string_list builtInCompletionModules.resultModulePath;
+        };
+        {
+          name = "exnModulePath";
+          value = mk_string_list builtInCompletionModules.exnModulePath;
+        };
+        {
+          name = "regexpModulePath";
+          value = mk_string_list builtInCompletionModules.regexpModulePath;
+        };
+      ]
+
   let mk_package (package : SharedTypes.package) : oak =
     Record
       [
         {
           name = "genericJsxModule";
           value = mk_string_option package.genericJsxModule;
+        };
+        {name = "suffix"; value = String package.suffix};
+        {name = "rootPath"; value = String package.rootPath};
+        {name = "projectFiles"; value = mk_FileSet package.projectFiles};
+        {
+          name = "dependenciesFiles";
+          value = mk_FileSet package.dependenciesFiles;
+        };
+        {name = "namespace"; value = mk_string_option package.namespace};
+        {
+          name = "builtInCompletionModules";
+          value = mk_builtInCompletionModules package.builtInCompletionModules;
+        };
+        {name = "opens"; value = mk_string_list (List.concat package.opens)};
+        {name = "uncurried"; value = mk_bool package.uncurried};
+        {
+          name = "rescriptVersion";
+          value =
+            (let major, minor = package.rescriptVersion in
+             Tuple
+               [
+                 {name = "major"; value = String (string_of_int major)};
+                 {name = "minor"; value = String (string_of_int minor)};
+               ]);
         };
       ]
 
