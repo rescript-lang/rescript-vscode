@@ -31,6 +31,7 @@ let version = Version.version
 
 let main () =
   match Sys.argv |> Array.to_list |> List.tl with
+  | ["dump"; file] -> Tools.dump file |> logAndExit
   | "doc" :: rest -> (
     match rest with
     | ["-h"] | ["--help"] -> logAndExit (Ok docHelp)
