@@ -1,12 +1,10 @@
 (* open Analysis *)
 
 module DSL = struct
-  type application = {name: string; argument: oak}
-
-  and namedField = {name: string; value: oak}
+  type namedField = {name: string; value: oak}
 
   and oak =
-    | Application of application
+    | Application of string * oak
     | Record of namedField list
     | Ident of string
     | Tuple of namedField list
@@ -90,7 +88,7 @@ module CodePrinter = struct
     let mode =
       match ctx.mode with
       | Standard -> "Standard"
-      | TrySingleLine _ -> "TrySingleLine"
+      | TrySingleLine -> "TrySingleLine"
       | ConfirmedMultiline -> "ConfirmedMultiline"
     in
     Format.printf
@@ -199,24 +197,20 @@ module CodePrinter = struct
 
   let rec genOak (oak : oak) : appendEvents =
     match oak with
-    | Application application -> genApplication application
+    | Application (name, argument) -> genApplication name argument
     | Record record -> genRecord record
     | Ident ident -> genIdent ident
     | String str -> !-(Format.sprintf "\"%s\"" str)
     | Tuple ts -> genTuple ts
     | List xs -> genList xs
 
-  and genApplication (application : application) : appendEvents =
-    let short =
-      !-(application.name) +> sepOpenT
-      +> genOak application.argument
-      +> sepCloseT
-    in
+  and genApplication (name : string) (argument : oak) : appendEvents =
+    let short = !-name +> sepOpenT +> genOak argument +> sepCloseT in
     let long =
-      !-(application.name) +> sepOpenT
-      +> (match application.argument with
-         | List _ | Record _ -> genOak application.argument
-         | _ -> indentAndNln (genOak application.argument) +> sepNln)
+      !-name +> sepOpenT
+      +> (match argument with
+         | List _ | Record _ -> genOak argument
+         | _ -> indentAndNln (genOak argument) +> sepNln)
       +> sepCloseT
     in
     expressionFitsOnRestOfLine short long

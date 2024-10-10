@@ -8,7 +8,7 @@ module Transform = struct
   let mk_string_option (o : string option) : oak =
     match o with
     | None -> Ident "None"
-    | Some s -> Application {name = "Some"; argument = String s}
+    | Some s -> Application ("Some", String s)
 
   let mk_string_list (items : string list) : oak =
     List (items |> List.map (fun s -> String s))
@@ -36,50 +36,105 @@ module Transform = struct
     | Reither _ -> Ident "row_field.Reither"
     | Rabsent -> Ident "row_field.Rabsent"
 
+  let mk_field_kind = function
+    | Types.Fvar _ -> Ident "field_kind.Fvar"
+    | Types.Fpresent -> Ident "field_kind.Fpresent"
+    | Types.Fabsent -> Ident "field_kind.Fabsent"
+
   let rec mk_type_desc (desc : Types.type_desc) : oak =
     match desc with
-    | Tlink {desc} ->
-      Application {name = "type_desc.Tlink"; argument = mk_type_desc desc}
+    | Tlink {desc} -> Application ("type_desc.Tlink", mk_type_desc desc)
     | Tvar var -> (
       match var with
-      | None -> Application {name = "type_desc.Tvar"; argument = Ident "None"}
-      | Some s -> Application {name = "type_desc.Tvar"; argument = Ident s})
+      | None -> Application ("type_desc.Tvar", Ident "None")
+      | Some s -> Application ("type_desc.Tvar", Ident s))
     | Tconstr (path, ts, _) ->
       let ts =
         ts |> List.map (fun (t : Types.type_expr) -> mk_type_desc t.desc)
       in
       Application
-        {
-          name = "type_desc.Tconstr";
-          argument =
-            Tuple
-              [
-                {name = "path"; value = Ident (path_to_string path)};
-                {name = "ts"; value = List ts};
-              ];
-        }
+        ( "type_desc.Tconstr",
+          Tuple
+            [
+              {name = "path"; value = Ident (path_to_string path)};
+              {name = "ts"; value = List ts};
+            ] )
     | Tarrow (_, t1, t2, _) ->
       Application
-        {
-          name = "type_desc.Tarrow";
-          argument =
+        ( "type_desc.Tarrow",
+          Tuple
+            [
+              {name = "t1"; value = mk_type_desc t1.desc};
+              {name = "t2"; value = mk_type_desc t2.desc};
+            ] )
+    | Ttuple ts ->
+      let ts =
+        ts |> List.map (fun (t : Types.type_expr) -> mk_type_desc t.desc)
+      in
+      Application ("type_desc.Ttuple", List ts)
+    | Tobject (t, r) -> (
+      match !r with
+      | None -> Application ("type_desc.Tobject", mk_type_desc t.desc)
+      | Some (path, ts) ->
+        Application
+          ( "type_desc.Tobject",
             Tuple
               [
-                {name = "t1"; value = mk_type_desc t1.desc};
-                {name = "t2"; value = mk_type_desc t2.desc};
-              ];
-        }
-    | Ttuple _ -> Ident "type_desc.Ttuple"
-    | Tobject _ -> Ident "type_desc.Tobject"
-    | Tfield _ -> Ident "type_desc.Tfield"
-    | Tnil -> Ident "type_desc.Tnil"
-    | Tsubst _ -> Ident "type_desc.Tsubst"
-    | Tvariant row_descr ->
+                {name = "type_expr"; value = mk_type_desc t.desc};
+                {name = "path"; value = Ident (path_to_string path)};
+                {
+                  name = "ts";
+                  value =
+                    List
+                      (ts
+                      |> List.map (fun (t : Types.type_expr) ->
+                             mk_type_desc t.desc));
+                };
+              ] ))
+    | Tfield (field, fk, t1, t2) ->
       Application
-        {name = "type_desc.Tvariant"; argument = mk_row_desc row_descr}
-    | Tunivar _ -> Ident "type_desc.Tunivar"
-    | Tpoly _ -> Ident "type_desc.Tpoly"
-    | Tpackage _ -> Ident "type_desc.Tpackage"
+        ( "type_desc.Tfield",
+          Tuple
+            [
+              {name = "name"; value = String field};
+              {name = "field_kind"; value = mk_field_kind fk};
+              {name = "t1"; value = mk_type_desc t1.desc};
+              {name = "t2"; value = mk_type_desc t2.desc};
+            ] )
+    | Tnil -> Ident "type_desc.Tnil"
+    | Tsubst t -> Application ("type_desc.Tsubst", mk_type_desc t.desc)
+    | Tvariant row_descr ->
+      Application ("type_desc.Tvariant", mk_row_desc row_descr)
+    | Tunivar so -> Application ("type_desc.Tunivar", mk_string_option so)
+    | Tpoly (t, ts) ->
+      let ts =
+        ts |> List.map (fun (t : Types.type_expr) -> mk_type_desc t.desc)
+      in
+      Application
+        ( "type_desc.Tpoly",
+          Tuple
+            [
+              {name = "t"; value = mk_type_desc t.desc};
+              {name = "ts"; value = List ts};
+            ] )
+    | Tpackage (path, lids, ts) ->
+      let lids =
+        lids
+        |> List.map (fun (lid : Longident.t) ->
+               List
+                 (Longident.flatten lid |> List.map (fun ident -> String ident)))
+      in
+      let ts =
+        ts |> List.map (fun (t : Types.type_expr) -> mk_type_desc t.desc)
+      in
+      Application
+        ( "type_desc.Tpackage",
+          Tuple
+            [
+              {name = "path"; value = Ident (path_to_string path)};
+              {name = "lids"; value = List lids};
+              {name = "ts"; value = List ts};
+            ] )
 
   and mk_row_desc (row_desc : Types.row_desc) : oak =
     let fields =
@@ -211,8 +266,7 @@ module Transform = struct
     let kind =
       match item.kind with
       | SharedTypes.Module.Value v ->
-        Application
-          {name = "SharedTypes.Module.Value"; argument = mk_type_desc v.desc}
+        Application ("SharedTypes.Module.Value", mk_type_desc v.desc)
       | SharedTypes.Module.Type _ -> Ident "Type"
       | SharedTypes.Module.Module _ -> Ident "Module"
     in
