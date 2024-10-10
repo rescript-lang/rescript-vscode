@@ -182,5 +182,4 @@ let print_type_expr (typ : Types.type_expr) : string =
 
 let print_full (full : SharedTypes.full) : string =
   CodePrinter.genOak (Transform.mk_full full) CodePrinter.emptyContext
-  |> CodePrinter.debug_context
   |> CodePrinter.dump

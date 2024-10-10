@@ -22,7 +22,6 @@ module CodePrinter = struct
     The idea is that we capture events in a context type.
     Doing this allows us to reason about the current state of the writer
     and whether the next expression fits on the current line or not.
-
   *)
 
   type writerEvents =
@@ -31,14 +30,26 @@ module CodePrinter = struct
     | IndentBy of int
     | UnindentBy of int
 
+  type writerMode = Standard | TrySingleLine | ConfirmedMultiline
+
+  (* Type representing the writer context during code printing
+
+     - [indent_size] is the configured indentation size, typically 2
+     - [max_line_length] is the maximum line length before we break the line
+     - [current_indent] is the current indentation size
+     - [current_line_column] is the characters written on the current line
+     - [line_count] is the number of lines written
+     - [events] is the write events in reverse order, head event is last written
+     - [mode] is the current writer mode (Standard or SingleLine)
+  *)
   type context = {
     indent_size: int;
     max_line_length: int;
     current_indent: int;
     current_line_column: int;
-    events: writerEvents list;
     line_count: int;
-    nesting_level: int;
+    events: writerEvents list;
+    mode: writerMode;
   }
 
   type appendEvents = context -> context
@@ -46,12 +57,12 @@ module CodePrinter = struct
   let emptyContext =
     {
       indent_size = 2;
-      max_line_length = 80;
+      max_line_length = 120;
       current_indent = 0;
       current_line_column = 0;
-      events = [];
       line_count = 0;
-      nesting_level = 0;
+      events = [];
+      mode = Standard;
     }
 
   (** Fold all the events in context into text *)
@@ -76,22 +87,30 @@ module CodePrinter = struct
     Buffer.contents buf
 
   let debug_context (ctx : context) =
-    Format.printf "Current indent: %d, Current line: %d, Events: %d\n"
-      ctx.current_indent ctx.line_count (List.length ctx.events);
+    let mode =
+      match ctx.mode with
+      | Standard -> "Standard"
+      | TrySingleLine _ -> "TrySingleLine"
+      | ConfirmedMultiline -> "ConfirmedMultiline"
+    in
+    Format.printf
+      "Current indent: %d, Current column: %d, # Lines: %d Events: %d, Mode: %s\n"
+      ctx.current_indent ctx.current_line_column ctx.line_count
+      (List.length ctx.events) mode;
     ctx
 
-  let increase_nesting ctx = {ctx with nesting_level = ctx.nesting_level + 1}
-
-  let decrease_nesting ctx =
-    {ctx with nesting_level = max 0 (ctx.nesting_level - 1)}
-
-  (* Type representing the writer context during code printing
-
-      - [indent_size] is the configured indentation size, typically 2
-      - [current_indent] is the current indentation size
-      - [current_line_column] is the characters written on the current line
-      - [events] is the write events in reverse order, head event is last written
-  *)
+  let updateMode (newlineWasAdded : bool) (ctx : context) =
+    match ctx.mode with
+    | Standard -> ctx
+    | ConfirmedMultiline -> ctx
+    | TrySingleLine ->
+      {
+        ctx with
+        mode =
+          (if newlineWasAdded || ctx.current_line_column > ctx.max_line_length
+           then ConfirmedMultiline
+           else TrySingleLine);
+      }
 
   let id x = x
 
@@ -102,9 +121,14 @@ module CodePrinter = struct
       events = Write str :: ctx.events;
       current_line_column = ctx.current_line_column + String.length str;
     }
+    |> updateMode false
 
   (** compose two context transforming functions *)
-  let ( +> ) f g ctx = g (f ctx)
+  let ( +> ) f g ctx =
+    let fCtx = f ctx in
+    match fCtx.mode with
+    | ConfirmedMultiline -> fCtx
+    | _ -> g fCtx
 
   let sepNln ctx =
     {
@@ -113,6 +137,8 @@ module CodePrinter = struct
       current_line_column = ctx.current_indent;
       line_count = ctx.line_count + 1;
     }
+    |> updateMode true
+
   let sepSpace ctx = !-" " ctx
   let sepComma ctx = !-", " ctx
   let sepSemi ctx = !-"; " ctx
@@ -156,13 +182,20 @@ module CodePrinter = struct
 
   let expressionFitsOnRestOfLine (f : appendEvents) (fallback : appendEvents)
       (ctx : context) =
-    (* create a short context and check if the expression fits on the current line *)
-    let shortCtx = f ctx in
-    if
-      ctx.line_count == shortCtx.line_count
-      && shortCtx.current_line_column <= ctx.max_line_length
-    then shortCtx
-    else fallback ctx
+    match ctx.mode with
+    | ConfirmedMultiline -> ctx
+    | _ -> (
+      let shortCtx =
+        match ctx.mode with
+        | Standard -> {ctx with mode = TrySingleLine}
+        | _ -> ctx
+      in
+      let resultCtx = f shortCtx in
+      match resultCtx.mode with
+      | ConfirmedMultiline -> fallback ctx
+      | TrySingleLine -> {resultCtx with mode = ctx.mode}
+      | Standard ->
+        failwith "Unexpected Standard mode after trying SingleLine mode")
 
   let rec genOak (oak : oak) : appendEvents =
     match oak with
@@ -240,6 +273,11 @@ module CodePrinter = struct
     expressionFitsOnRestOfLine short long
 end
 
+(*
+    Interpret using  ocaml /home/nojaf/projects/rescript-vscode/tools/src/prettier_printer.ml
+*)
+
+(*
 open DSL
 
 let oak =
@@ -271,10 +309,6 @@ let oak =
       {name = "foo"; value = Ident "baaaaaaaaaaaaaaaaar"};
     ]
 
-(* let _ =
+ let _ =
    CodePrinter.genOak oak {CodePrinter.emptyContext with max_line_length = 20}
    |> CodePrinter.dump |> Format.printf "%s\n" *)
-
-(*
-    Interpret using  ocaml /home/nojaf/projects/rescript-vscode/tools/src/prettier_printer.ml
-*)
