@@ -245,13 +245,18 @@ module CodePrinter = struct
   and genIdent (ident : string) : appendEvents = !-ident
 
   and genNamedField (field : namedField) : appendEvents =
-    let short = !-(field.name) +> sepEq +> genOak field.value in
+    let genValue =
+      match field.value with
+      | Tuple _ -> sepOpenT +> genOak field.value +> sepCloseT
+      | _ -> genOak field.value
+    in
+    let short = !-(field.name) +> sepEq +> genValue in
     let long =
       !-(field.name) +> sepEq
       +>
       match field.value with
       | List _ | Record _ -> genOak field.value
-      | _ -> indentAndNln (genOak field.value)
+      | _ -> indentAndNln genValue
     in
     expressionFitsOnRestOfLine short long
 
