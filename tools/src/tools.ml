@@ -367,7 +367,7 @@ let valueDetail (typ : Types.type_expr) =
     | Tconstr (path, [t; _], _) when isFunction path ->
       collectSignatureTypes t.desc
     | Tconstr (path, ts, _) -> (
-      let p = Print_tast.Oak.path_to_string path in
+      let p = Print_tast.Transform.path_to_string path in
       match ts with
       | [] -> [{path = p; genericParameters = []}]
       | ts ->
