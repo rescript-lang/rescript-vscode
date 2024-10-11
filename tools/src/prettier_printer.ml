@@ -1,5 +1,3 @@
-(* open Analysis *)
-
 module DSL = struct
   type namedField = {name: string; value: oak}
 
@@ -271,43 +269,3 @@ module CodePrinter = struct
     in
     expressionFitsOnRestOfLine short long
 end
-
-(*
-    Interpret using  ocaml /home/nojaf/projects/rescript-vscode/tools/src/prettier_printer.ml
-*)
-
-(*
-open DSL
-
-let oak =
-  DSL.Record
-    [
-      {
-        name = "zig";
-        value =
-          DSL.Record
-            [
-              {name = "foo"; value = Ident "baaaaaaaaaaaaaaaaar"};
-              {name = "member"; value = Ident "Zigbaaaaaaaaar"};
-            ];
-      };
-      {
-        name = "roxas";
-        value =
-          List
-            [
-              Ident "jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj";
-              Ident "meeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-              DSL.Record
-                [
-                  {name = "foo"; value = Ident "baaaaaaaaaaaaaaaaar"};
-                  {name = "member"; value = Ident "Zigbaaaaaaaaar"};
-                ];
-            ];
-      };
-      {name = "foo"; value = Ident "baaaaaaaaaaaaaaaaar"};
-    ]
-
- let _ =
-   CodePrinter.genOak oak {CodePrinter.emptyContext with max_line_length = 20}
-   |> CodePrinter.dump |> Format.printf "%s\n" *)
