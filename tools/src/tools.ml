@@ -641,42 +641,27 @@ let extractEmbedded ~extensionPoints ~filename =
            ])
   |> List.rev |> array
 
+(** Dump the contents of a typed tree file *)
 let dump entryPointFile =
   let path =
-    match Filename.is_relative entryPointFile with
-    | true -> Unix.realpath entryPointFile
-    | false -> entryPointFile
+    if Filename.is_relative entryPointFile then Unix.realpath entryPointFile
+    else entryPointFile
   in
   let result =
-    match
+    if
       FindFiles.isImplementation path = false
       && FindFiles.isInterface path = false
-    with
-    | false -> (
-      let path =
-        if FindFiles.isImplementation path then
-          let pathAsResi =
-            (path |> Filename.dirname) ^ "/"
-            ^ (path |> Filename.basename |> Filename.chop_extension)
-            ^ ".resi"
-          in
-          if Sys.file_exists pathAsResi then (
-            Printf.printf "preferring found resi file for impl: %s\n" pathAsResi;
-            pathAsResi)
-          else path
-        else path
-      in
+    then
+      Error
+        (Printf.sprintf
+           "error: failed to read %s, expected an .res or .resi file" path)
+    else
       match Cmt.loadFullCmtFromPath ~path with
       | None ->
         Error
           (Printf.sprintf
-             "error: failed to generate doc for %s, try to build the project"
-             path)
-      | Some full -> Ok (Print_tast.print_full full))
-    | true ->
-      Error
-        (Printf.sprintf
-           "error: failed to read %s, expected an .res or .resi file" path)
+             "error: failed to dump for %s, try to build the project" path)
+      | Some full -> Ok (Print_tast.print_full full)
   in
 
   result
