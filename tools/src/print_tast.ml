@@ -38,6 +38,8 @@ module Transform = struct
     aux path;
     Buffer.contents buf
 
+  let mk_path path = Ident (path_to_string path)
+
   let mk_row_field (row_field : Types.row_field) : oak =
     match row_field with
     | Rpresent _ -> Ident "row_field.Rpresent"
@@ -58,7 +60,7 @@ module Transform = struct
         ( "type_desc.Tconstr",
           Tuple
             [
-              {name = "path"; value = Ident (path_to_string path)};
+              {name = "path"; value = mk_path path};
               {name = "ts"; value = mk_type_expr_list ts};
             ] )
     | Tarrow (_, t1, t2, _) ->
@@ -79,7 +81,7 @@ module Transform = struct
             Tuple
               [
                 {name = "type_expr"; value = mk_type_desc t.desc};
-                {name = "path"; value = Ident (path_to_string path)};
+                {name = "path"; value = mk_path path};
                 {
                   name = "ts";
                   value =
@@ -123,7 +125,7 @@ module Transform = struct
         ( "type_desc.Tpackage",
           Tuple
             [
-              {name = "path"; value = Ident (path_to_string path)};
+              {name = "path"; value = mk_path path};
               {name = "lids"; value = List lids};
               {name = "ts"; value = mk_type_expr_list ts};
             ] )
@@ -157,7 +159,7 @@ module Transform = struct
            value =
              Tuple
                [
-                 {name = "Path.t"; value = Ident (path_to_string path)};
+                 {name = "Path.t"; value = mk_path path};
                  {
                    name = "fields";
                    value =
@@ -419,8 +421,30 @@ module Transform = struct
         {name = "name"; value = String type_.name};
         {name = "attributes"; value = mk_attribute_list type_.attributes};
       ]
+  let rec mk_structure (structure : SharedTypes.Module.structure) : oak =
+    Record
+      [
+        {name = "name"; value = String structure.name};
+        {name = "docstring"; value = mk_string_list structure.docstring};
+        {name = "items"; value = List (List.map mk_item structure.items)};
+        {name = "deprecated"; value = mk_string_option structure.deprecated};
+      ]
 
-  let mk_item (item : SharedTypes.Module.item) : oak =
+  and mk_module (module_ : SharedTypes.Module.t) : oak =
+    match module_ with
+    | SharedTypes.Module.Ident path -> Application ("Ident", mk_path path)
+    | SharedTypes.Module.Structure structure ->
+      Application ("Structure", mk_structure structure)
+    | SharedTypes.Module.Constraint (t1, t2) ->
+      Application
+        ( "Constraint",
+          Tuple
+            [
+              {name = "t1"; value = mk_module t1};
+              {name = "t2"; value = mk_module t2};
+            ] )
+
+  and mk_item (item : SharedTypes.Module.item) : oak =
     let kind =
       match item.kind with
       | SharedTypes.Module.Value v ->
@@ -433,7 +457,14 @@ module Transform = struct
                 {name = "type"; value = mk_type t};
                 {name = "rec_status"; value = mk_rec_status rec_status};
               ] )
-      | SharedTypes.Module.Module _ -> Ident "Module"
+      | SharedTypes.Module.Module m ->
+        Application
+          ( "Module",
+            Record
+              [
+                {name = "type_"; value = mk_module m.type_};
+                {name = "isModuleType"; value = mk_bool m.isModuleType};
+              ] )
     in
     Record
       [
@@ -441,15 +472,6 @@ module Transform = struct
         {name = "kind"; value = kind};
         {name = "docstring"; value = mk_string_list item.docstring};
         {name = "deprecated"; value = mk_string_option item.deprecated};
-      ]
-
-  let mk_structure (structure : SharedTypes.Module.structure) : oak =
-    Record
-      [
-        {name = "name"; value = String structure.name};
-        {name = "docstring"; value = mk_string_list structure.docstring};
-        {name = "items"; value = List (List.map mk_item structure.items)};
-        {name = "deprecated"; value = mk_string_option structure.deprecated};
       ]
 
   let mk_file (file : SharedTypes.File.t) : oak =
