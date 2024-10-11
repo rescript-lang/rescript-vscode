@@ -1,7 +1,8 @@
-#use "prettier_printer.ml";;
 (*
+#use "prettier_printer.ml";;
+
     Interpret using  ocaml ./tools/src/printer_sandbox.ml
-*)
+
 
 open DSL
 
@@ -37,3 +38,4 @@ let oak =
 let _ =
   CodePrinter.genOak oak {CodePrinter.emptyContext with max_line_length = 20}
   |> CodePrinter.dump |> Format.printf "%s\n"
+*)

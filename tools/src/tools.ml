@@ -360,7 +360,6 @@ let isFunction = function
   | _ -> false
 
 let valueDetail (typ : Types.type_expr) =
-  Printf.printf "%s\n" (Print_tast.print_type_expr typ);
   let rec collectSignatureTypes (typ_desc : Types.type_desc) =
     match typ_desc with
     | Tlink t -> collectSignatureTypes t.desc

@@ -30,6 +30,14 @@
       "filepath": "src/DocExtraction2.resi",
       "line": 7,
       "col": 1
+    },
+    "detail": {
+      "parameters": [{
+          "path": "unit"
+        }],
+      "returnType": {
+        "path": "t"
+      }
     }
   }, 
   {
@@ -65,6 +73,14 @@
         "filepath": "src/DocExtraction2.resi",
         "line": 15,
         "col": 3
+      },
+      "detail": {
+        "parameters": [{
+            "path": "unit"
+          }],
+        "returnType": {
+          "path": "t"
+        }
       }
     }]
   }]

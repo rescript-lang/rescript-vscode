@@ -29,6 +29,11 @@
         "filepath": "src/ModC.resi",
         "line": 5,
         "col": 3
+      },
+      "detail": {
+        "returnType": {
+          "path": "string"
+        }
       }
     }]
   }]
