@@ -14,7 +14,8 @@ Usage: rescript-tools [command]
 
 Commands:
 
-doc                   Generate documentation
+doc <file>            Generate documentation
+dump <file>           Dump the TAST of a file
 reanalyze             Reanalyze
 -v, --version         Print version
 -h, --help            Print help|}
