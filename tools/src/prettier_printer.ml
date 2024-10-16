@@ -111,7 +111,7 @@ module CodePrinter = struct
   let id x = x
 
   (** add a write event to the context *)
-  let ( !- ) str ctx =
+  let write str ctx =
     {
       ctx with
       events = Write str :: ctx.events;
@@ -135,16 +135,16 @@ module CodePrinter = struct
     }
     |> updateMode true
 
-  let sepSpace ctx = !-" " ctx
-  let sepComma ctx = !-", " ctx
-  let sepSemi ctx = !-"; " ctx
-  let sepOpenT ctx = !-"(" ctx
-  let sepCloseT ctx = !-")" ctx
-  let sepOpenR ctx = !-"{" ctx
-  let sepCloseR ctx = !-"}" ctx
-  let sepOpenL ctx = !-"[" ctx
-  let sepCloseL ctx = !-"]" ctx
-  let sepEq ctx = !-" = " ctx
+  let sepSpace ctx = write " " ctx
+  let sepComma ctx = write ", " ctx
+  let sepSemi ctx = write "; " ctx
+  let sepOpenT ctx = write "(" ctx
+  let sepCloseT ctx = write ")" ctx
+  let sepOpenR ctx = write "{" ctx
+  let sepCloseR ctx = write "}" ctx
+  let sepOpenL ctx = write "[" ctx
+  let sepCloseL ctx = write "]" ctx
+  let sepEq ctx = write " = " ctx
   let wrapInParentheses f = sepOpenT +> f +> sepCloseT
   let indent ctx =
     let nextIdent = ctx.current_indent + ctx.indent_size in
@@ -198,14 +198,14 @@ module CodePrinter = struct
     | Application (name, argument) -> genApplication name argument
     | Record record -> genRecord record
     | Ident ident -> genIdent ident
-    | String str -> !-(Format.sprintf "\"%s\"" str)
+    | String str -> write (Format.sprintf "\"%s\"" str)
     | Tuple ts -> genTuple ts
     | List xs -> genList xs
 
   and genApplication (name : string) (argument : oak) : appendEvents =
-    let short = !-name +> sepOpenT +> genOak argument +> sepCloseT in
+    let short = write name +> sepOpenT +> genOak argument +> sepCloseT in
     let long =
-      !-name +> sepOpenT
+      write name +> sepOpenT
       +> (match argument with
          | List _ | Record _ -> genOak argument
          | _ -> indentAndNln (genOak argument) +> sepNln)
@@ -234,7 +234,7 @@ module CodePrinter = struct
     let long = col genNamedField sepNln oaks in
     expressionFitsOnRestOfLine short long
 
-  and genIdent (ident : string) : appendEvents = !-ident
+  and genIdent (ident : string) : appendEvents = write ident
 
   and genNamedField (field : namedField) : appendEvents =
     let genValue =
@@ -242,9 +242,9 @@ module CodePrinter = struct
       | Tuple _ -> sepOpenT +> genOak field.value +> sepCloseT
       | _ -> genOak field.value
     in
-    let short = !-(field.name) +> sepEq +> genValue in
+    let short = write (field.name) +> sepEq +> genValue in
     let long =
-      !-(field.name) +> sepEq
+      write (field.name) +> sepEq
       +>
       match field.value with
       | List _ | Record _ -> genOak field.value
