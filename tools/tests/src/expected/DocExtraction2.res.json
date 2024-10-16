@@ -31,13 +31,17 @@
       "line": 7,
       "col": 1
     },
-    "detail": {
+    "detail": 
+    {
+      "kind": "signature",
+      "items": {
       "parameters": [{
           "path": "unit"
         }],
       "returnType": {
         "path": "t"
       }
+    }
     }
   }, 
   {
@@ -74,13 +78,17 @@
         "line": 15,
         "col": 3
       },
-      "detail": {
+      "detail": 
+      {
+        "kind": "signature",
+        "items": {
         "parameters": [{
             "path": "unit"
           }],
         "returnType": {
           "path": "t"
         }
+      }
       }
     }]
   }]

@@ -46,13 +46,17 @@
       "line": 17,
       "col": 5
     },
-    "detail": {
+    "detail": 
+    {
+      "kind": "signature",
+      "items": {
       "parameters": [{
           "path": "string"
         }],
       "returnType": {
         "path": "t"
       }
+    }
     }
   }, 
   {
@@ -66,13 +70,17 @@
       "line": 23,
       "col": 5
     },
-    "detail": {
+    "detail": 
+    {
+      "kind": "signature",
+      "items": {
       "parameters": [{
           "path": "t"
         }],
       "returnType": {
         "path": "t"
       }
+    }
     }
   }, 
   {
@@ -86,10 +94,14 @@
       "line": 26,
       "col": 5
     },
-    "detail": {
+    "detail": 
+    {
+      "kind": "signature",
+      "items": {
       "returnType": {
         "path": "int"
       }
+    }
     }
   }, 
   {
@@ -206,13 +218,17 @@
         "line": 49,
         "col": 7
       },
-      "detail": {
+      "detail": 
+      {
+        "kind": "signature",
+        "items": {
         "parameters": [{
             "path": "SomeInnerModule.status"
           }],
         "returnType": {
           "path": "bool"
         }
+      }
       }
     }, 
     {
@@ -298,13 +314,17 @@
         "line": 71,
         "col": 3
       },
-      "detail": {
+      "detail": 
+      {
+        "kind": "signature",
+        "items": {
         "parameters": [{
             "path": "unit"
           }],
         "returnType": {
           "path": "t"
         }
+      }
       }
     }]
   }, 
@@ -342,13 +362,17 @@
         "line": 109,
         "col": 3
       },
-      "detail": {
+      "detail": 
+      {
+        "kind": "signature",
+        "items": {
         "parameters": [{
             "path": "t"
           }],
         "returnType": {
           "path": "t"
         }
+      }
       }
     }]
   }, 
@@ -387,13 +411,17 @@
         "line": 128,
         "col": 7
       },
-      "detail": {
+      "detail": 
+      {
+        "kind": "signature",
+        "items": {
         "parameters": [{
             "path": "int"
           }],
         "returnType": {
           "path": "int"
         }
+      }
       }
     }]
   }, 
@@ -419,10 +447,14 @@
         "line": 132,
         "col": 3
       },
-      "detail": {
+      "detail": 
+      {
+        "kind": "signature",
+        "items": {
         "returnType": {
           "path": "int"
         }
+      }
       }
     }]
   }, 
@@ -449,10 +481,14 @@
         "line": 136,
         "col": 7
       },
-      "detail": {
+      "detail": 
+      {
+        "kind": "signature",
+        "items": {
         "returnType": {
           "path": "int"
         }
+      }
       }
     }]
   }, 
@@ -490,10 +526,14 @@
           "line": 141,
           "col": 9
         },
-        "detail": {
+        "detail": 
+        {
+          "kind": "signature",
+          "items": {
           "returnType": {
             "path": "int"
           }
+        }
         }
       }]
     }]

@@ -173,10 +173,16 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
         ps |> List.map (stringifyTypeDoc ~indentation:(indentation + 1))
         |> fun ps -> Some (array ps)
     in
-    stringifyObject ~startOnNewline:false ~indentation
+    stringifyObject ~startOnNewline:true ~indentation
       [
-        ("parameters", ps);
-        ("returnType", Some (stringifyTypeDoc ~indentation returnType));
+        ("kind", Some (wrapInQuotes "signature"));
+        ( "items",
+          Some
+            (stringifyObject ~startOnNewline:false ~indentation
+               [
+                 ("parameters", ps);
+                 ("returnType", Some (stringifyTypeDoc ~indentation returnType));
+               ]) );
       ]
 
 let stringifySource ~indentation source =
