@@ -361,15 +361,11 @@ let splitLast l =
   in
   splitLast' [] l
 
-let isFunction = function
-  | Path.Pident {name = "function$"} -> true
-  | _ -> false
-
 let valueDetail (typ : Types.type_expr) =
   let rec collectSignatureTypes (typ_desc : Types.type_desc) =
     match typ_desc with
     | Tlink t -> collectSignatureTypes t.desc
-    | Tconstr (path, [t; _], _) when isFunction path ->
+    | Tconstr (Path.Pident {name = "function$"}, [t; _], _) ->
       collectSignatureTypes t.desc
     | Tconstr (path, ts, _) -> (
       let p = Print_tast.Transform.path_to_string path in
