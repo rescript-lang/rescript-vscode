@@ -120,11 +120,20 @@ module CodePrinter = struct
     |> updateMode false
 
   (** compose two context transforming functions *)
-  let ( +> ) f g ctx =
+  let compose_aux f g ctx =
     let fCtx = f ctx in
     match fCtx.mode with
     | ConfirmedMultiline -> fCtx
     | _ -> g fCtx
+
+  let compose (fs : appendEvents list) ctx =
+    let rec visit fs =
+      match fs with
+      | [] -> id
+      | [f] -> f
+      | f :: g :: rest -> visit (compose_aux f g :: rest)
+    in
+    visit fs ctx
 
   let sepNln ctx =
     {
@@ -145,7 +154,7 @@ module CodePrinter = struct
   let sepOpenL ctx = write "[" ctx
   let sepCloseL ctx = write "]" ctx
   let sepEq ctx = write " = " ctx
-  let wrapInParentheses f = sepOpenT +> f +> sepCloseT
+  let wrapInParentheses f = compose [sepOpenT; f; sepCloseT]
   let indent ctx =
     let nextIdent = ctx.current_indent + ctx.indent_size in
     {
@@ -163,7 +172,7 @@ module CodePrinter = struct
       events = UnindentBy ctx.indent_size :: ctx.events;
     }
 
-  let indentAndNln f = indent +> sepNln +> f +> unindent
+  let indentAndNln f = compose [indent; sepNln; f; unindent]
 
   let col (f : 't -> appendEvents) (intertwine : appendEvents) items ctx =
     let rec visit items ctx =
@@ -171,7 +180,7 @@ module CodePrinter = struct
       | [] -> ctx
       | [item] -> f item ctx
       | item :: rest ->
-        let ctx' = (f item +> intertwine) ctx in
+        let ctx' = compose [f item; intertwine] ctx in
         visit rest ctx'
     in
     visit items ctx
@@ -203,29 +212,42 @@ module CodePrinter = struct
     | List xs -> genList xs
 
   and genApplication (name : string) (argument : oak) : appendEvents =
-    let short = write name +> sepOpenT +> genOak argument +> sepCloseT in
+    let short = compose [write name; sepOpenT; genOak argument; sepCloseT] in
     let long =
-      write name +> sepOpenT
-      +> (match argument with
-         | List _ | Record _ -> genOak argument
-         | _ -> indentAndNln (genOak argument) +> sepNln)
-      +> sepCloseT
+      compose
+        [
+          write name;
+          sepOpenT;
+          (match argument with
+          | List _ | Record _ -> genOak argument
+          | _ -> compose [indentAndNln (genOak argument); sepNln]);
+          sepCloseT;
+        ]
     in
     expressionFitsOnRestOfLine short long
 
   and genRecord (recordFields : namedField list) : appendEvents =
     let short =
       match recordFields with
-      | [] -> sepOpenR +> sepCloseR
+      | [] -> compose [sepOpenR; sepCloseR]
       | fields ->
-        sepOpenR +> sepSpace
-        +> col genNamedField sepSemi fields
-        +> sepSpace +> sepCloseR
+        compose
+          [
+            sepOpenR;
+            sepSpace;
+            col genNamedField sepSemi fields;
+            sepSpace;
+            sepCloseR;
+          ]
     in
     let long =
-      sepOpenR
-      +> indentAndNln (col genNamedField sepNln recordFields)
-      +> sepNln +> sepCloseR
+      compose
+        [
+          sepOpenR;
+          indentAndNln (col genNamedField sepNln recordFields);
+          sepNln;
+          sepCloseR;
+        ]
     in
     expressionFitsOnRestOfLine short long
 
@@ -239,16 +261,19 @@ module CodePrinter = struct
   and genNamedField (field : namedField) : appendEvents =
     let genValue =
       match field.value with
-      | Tuple _ -> sepOpenT +> genOak field.value +> sepCloseT
+      | Tuple _ -> compose [sepOpenT; genOak field.value; sepCloseT]
       | _ -> genOak field.value
     in
-    let short = write (field.name) +> sepEq +> genValue in
+    let short = compose [write field.name; sepEq; genValue] in
     let long =
-      write (field.name) +> sepEq
-      +>
-      match field.value with
-      | List _ | Record _ -> genOak field.value
-      | _ -> indentAndNln genValue
+      compose
+        [
+          write field.name;
+          sepEq;
+          (match field.value with
+          | List _ | Record _ -> genOak field.value
+          | _ -> indentAndNln genValue);
+        ]
     in
     expressionFitsOnRestOfLine short long
 
@@ -259,13 +284,14 @@ module CodePrinter = struct
     in
     let short =
       match items with
-      | [] -> sepOpenL +> sepCloseL
+      | [] -> compose [sepOpenL; sepCloseL]
       | _ ->
-        sepOpenL +> sepSpace +> col genItem sepSemi items +> sepSpace
-        +> sepCloseL
+        compose
+          [sepOpenL; sepSpace; col genItem sepSemi items; sepSpace; sepCloseL]
     in
     let long =
-      sepOpenL +> indentAndNln (col genItem sepNln items) +> sepNln +> sepCloseL
+      compose
+        [sepOpenL; indentAndNln (col genItem sepNln items); sepNln; sepCloseL]
     in
     expressionFitsOnRestOfLine short long
 end
