@@ -20,7 +20,7 @@
   "engines": {
     "node": "*"
   },
-  "homepage": "https://github.com/rescript-lang/rescript-vscode/server/README.md",
+  "homepage": "https://github.com/rescript-lang/rescript-vscode/blob/master/server/README.md",
   "repository": {
     "type": "git",
     "url": "https://github.com/rescript-lang/rescript-vscode",
