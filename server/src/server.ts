@@ -217,15 +217,19 @@ let compilerLogsWatcher = chokidar
     },
   })
   .on("all", (_e, changedPath) => {
+    console.log("changes in path: ", changedPath);
     if (changedPath.includes("build.ninja")) {
       if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
+        console.log("Changed path includes build ninja");
         let projectRoot = utils.findProjectRootOfFile(changedPath);
         if (projectRoot != null) {
+          console.log("Sync project config cache");
           syncProjectConfigCache(projectRoot);
         }
       }
     } else {
       try {
+        console.log("Send updated diagnostics");
         sendUpdatedDiagnostics();
         sendCompilationFinishedMessage();
         if (config.extensionConfiguration.inlayHints?.enable === true) {
@@ -234,12 +238,13 @@ let compilerLogsWatcher = chokidar
         if (config.extensionConfiguration.codeLens === true) {
           sendCodeLensRefresh();
         }
-      } catch {
-        console.log("Error while sending updated diagnostics");
+      } catch (error) {
+        console.log("Error while sending updated diagnostics", error);
       }
     }
   });
 let stopWatchingCompilerLog = () => {
+  console.log("Stop watching compiler log");
   // TODO: cleanup of compilerLogs?
   compilerLogsWatcher.close();
 };
