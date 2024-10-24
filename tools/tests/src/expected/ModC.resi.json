@@ -33,7 +33,7 @@
       "detail": 
       {
         "kind": "signature",
-        "items": {
+        "details": {
         "returnType": {
           "path": "string"
         }

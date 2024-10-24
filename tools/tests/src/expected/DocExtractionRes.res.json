@@ -49,7 +49,7 @@
     "detail": 
     {
       "kind": "signature",
-      "items": {
+      "details": {
       "parameters": [{
           "path": "string"
         }],
@@ -73,7 +73,7 @@
     "detail": 
     {
       "kind": "signature",
-      "items": {
+      "details": {
       "parameters": [{
           "path": "t"
         }],
@@ -97,7 +97,7 @@
     "detail": 
     {
       "kind": "signature",
-      "items": {
+      "details": {
       "returnType": {
         "path": "int"
       }
@@ -221,7 +221,7 @@
       "detail": 
       {
         "kind": "signature",
-        "items": {
+        "details": {
         "parameters": [{
             "path": "SomeInnerModule.status"
           }],
@@ -317,7 +317,7 @@
       "detail": 
       {
         "kind": "signature",
-        "items": {
+        "details": {
         "parameters": [{
             "path": "unit"
           }],
@@ -365,7 +365,7 @@
       "detail": 
       {
         "kind": "signature",
-        "items": {
+        "details": {
         "parameters": [{
             "path": "t"
           }],
@@ -414,7 +414,7 @@
       "detail": 
       {
         "kind": "signature",
-        "items": {
+        "details": {
         "parameters": [{
             "path": "int"
           }],
@@ -450,7 +450,7 @@
       "detail": 
       {
         "kind": "signature",
-        "items": {
+        "details": {
         "returnType": {
           "path": "int"
         }
@@ -484,7 +484,7 @@
       "detail": 
       {
         "kind": "signature",
-        "items": {
+        "details": {
         "returnType": {
           "path": "int"
         }
@@ -529,7 +529,7 @@
         "detail": 
         {
           "kind": "signature",
-          "items": {
+          "details": {
           "returnType": {
             "path": "int"
           }
