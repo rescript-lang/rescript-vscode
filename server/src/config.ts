@@ -17,7 +17,7 @@ export interface extensionConfiguration {
     forConstructorPayloads?: boolean;
   };
   incrementalTypechecking?: {
-    enabled?: boolean;
+    enable?: boolean;
     acrossFiles?: boolean;
     debugLogging?: boolean;
   };
@@ -46,7 +46,7 @@ let config: { extensionConfiguration: extensionConfiguration } = {
       forConstructorPayloads: true,
     },
     incrementalTypechecking: {
-      enabled: false,
+      enable: true,
       acrossFiles: false,
       debugLogging: false,
     },
