@@ -174,7 +174,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
     });
 
     projectsFiles.delete(projectRootPath);
-    if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
+    if (config.extensionConfiguration.incrementalTypechecking?.enable) {
       ic.removeIncrementalFileFolder(projectRootPath);
     }
   }
@@ -218,9 +218,7 @@ let compilerLogsWatcher = chokidar
   })
   .on("all", (_e, changedPath) => {
     if (changedPath.includes("build.ninja")) {
-      if (
-        config.extensionConfiguration.cache?.projectConfig?.enabled === true
-      ) {
+      if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
         let projectRoot = utils.findProjectRootOfFile(changedPath);
         if (projectRoot != null) {
           syncProjectConfigCache(projectRoot);
@@ -259,7 +257,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
   if (projectRootPath != null) {
     let projectRootState = projectsFiles.get(projectRootPath);
     if (projectRootState == null) {
-      if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
+      if (config.extensionConfiguration.incrementalTypechecking?.enable) {
         ic.recreateIncrementalFileFolder(projectRootPath);
       }
       const namespaceName =
@@ -284,9 +282,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
       compilerLogsWatcher.add(
         path.join(projectRootPath, c.compilerLogPartialPath)
       );
-      if (
-        config.extensionConfiguration.cache?.projectConfig?.enabled === true
-      ) {
+      if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
         compilerLogsWatcher.add(
           path.join(projectRootPath, c.buildNinjaPartialPath)
         );
@@ -354,7 +350,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
 let closedFile = (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
 
-  if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
+  if (config.extensionConfiguration.incrementalTypechecking?.enable) {
     ic.handleClosedFile(filePath);
   }
 
@@ -388,7 +384,7 @@ let updateOpenedFile = (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
   assert(stupidFileContentCache.has(filePath));
   stupidFileContentCache.set(filePath, fileContent);
-  if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
+  if (config.extensionConfiguration.incrementalTypechecking?.enable) {
     ic.handleUpdateOpenedFile(filePath, fileContent, send, () => {
       if (config.extensionConfiguration.codeLens) {
         sendCodeLensRefresh();
@@ -862,7 +858,7 @@ function format(msg: p.RequestMessage): Array<p.Message> {
 }
 
 let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
-  if (config.extensionConfiguration.incrementalTypechecking?.enabled) {
+  if (config.extensionConfiguration.incrementalTypechecking?.enable) {
     // The incremental typechecking already sends syntax diagnostics.
     return;
   }

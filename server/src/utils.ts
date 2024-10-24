@@ -224,11 +224,11 @@ export let runAnalysisAfterSanityCheck = (
       ...process.env,
       RESCRIPT_VERSION: rescriptVersion,
       RESCRIPT_INCREMENTAL_TYPECHECKING:
-        config.extensionConfiguration.incrementalTypechecking?.enabled === true
+        config.extensionConfiguration.incrementalTypechecking?.enable === true
           ? "true"
           : undefined,
       RESCRIPT_PROJECT_CONFIG_CACHE:
-        config.extensionConfiguration.cache?.projectConfig?.enabled === true
+        config.extensionConfiguration.cache?.projectConfig?.enable === true
           ? "true"
           : undefined,
     },

@@ -177,10 +177,10 @@
           "default": true,
           "description": "Enable signature help for variant constructor payloads."
         },
-        "rescript.settings.incrementalTypechecking.enabled": {
+        "rescript.settings.incrementalTypechecking.enable": {
           "type": "boolean",
-          "default": false,
-          "description": "(beta/experimental) Enable incremental type checking."
+          "default": true,
+          "description": "Enable incremental type checking."
         },
         "rescript.settings.incrementalTypechecking.acrossFiles": {
           "type": "boolean",
@@ -192,10 +192,10 @@
           "default": false,
           "description": "(debug) Enable debug logging (ends up in the extension output)."
         },
-        "rescript.settings.cache.projectConfig.enabled": {
+        "rescript.settings.cache.projectConfig.enable": {
           "type": "boolean",
-          "default": false,
-          "description": "(beta/experimental) Enable project config caching. Can speed up latency dramatically."
+          "default": true,
+          "description": "Enable project config caching. Can speed up latency dramatically."
         },
         "rescript.settings.binaryPath": {
           "type": [
