@@ -177,7 +177,7 @@
           "default": true,
           "description": "Enable signature help for variant constructor payloads."
         },
-        "rescript.settings.incrementalTypechecking.enabled": {
+        "rescript.settings.incrementalTypechecking.enable": {
           "type": "boolean",
           "default": false,
           "description": "(beta/experimental) Enable incremental type checking."
