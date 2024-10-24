@@ -23,7 +23,7 @@ export interface extensionConfiguration {
   };
   cache?: {
     projectConfig?: {
-      enabled?: boolean;
+      enable?: boolean;
     };
   };
 }
@@ -52,7 +52,7 @@ let config: { extensionConfiguration: extensionConfiguration } = {
     },
     cache: {
       projectConfig: {
-        enabled: false,
+        enable: true,
       },
     },
   },

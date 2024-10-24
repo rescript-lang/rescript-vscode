@@ -218,9 +218,7 @@ let compilerLogsWatcher = chokidar
   })
   .on("all", (_e, changedPath) => {
     if (changedPath.includes("build.ninja")) {
-      if (
-        config.extensionConfiguration.cache?.projectConfig?.enabled === true
-      ) {
+      if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
         let projectRoot = utils.findProjectRootOfFile(changedPath);
         if (projectRoot != null) {
           syncProjectConfigCache(projectRoot);
@@ -284,9 +282,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
       compilerLogsWatcher.add(
         path.join(projectRootPath, c.compilerLogPartialPath)
       );
-      if (
-        config.extensionConfiguration.cache?.projectConfig?.enabled === true
-      ) {
+      if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
         compilerLogsWatcher.add(
           path.join(projectRootPath, c.buildNinjaPartialPath)
         );

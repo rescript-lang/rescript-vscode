@@ -228,7 +228,7 @@ export let runAnalysisAfterSanityCheck = (
           ? "true"
           : undefined,
       RESCRIPT_PROJECT_CONFIG_CACHE:
-        config.extensionConfiguration.cache?.projectConfig?.enabled === true
+        config.extensionConfiguration.cache?.projectConfig?.enable === true
           ? "true"
           : undefined,
     },
