@@ -216,8 +216,8 @@ let compilerLogsWatcher = chokidar
       stabilityThreshold: 1,
     },
   })
-  .on("all", (_e, changedPath) => {
-    console.log("changes in path: ", changedPath);
+  .on("all", (eventName, changedPath, stats) => {
+    console.log(eventName, changedPath, stats);
     if (changedPath.includes("build.ninja")) {
       if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
         console.log("Changed path includes build ninja");
@@ -227,10 +227,32 @@ let compilerLogsWatcher = chokidar
           syncProjectConfigCache(projectRoot);
         }
       }
+    } else if (
+      eventName === "unlink" &&
+      changedPath.includes(".compiler.log")
+    ) {
+      console.log(compilerLogsWatcher.getWatched());
+      console.log(".compiler.log has been deleted");
+
+      let projectRoot = utils.findProjectRootOfFile(changedPath);
+      if (projectRoot != null) {
+        compilerLogsWatcher.add(
+          path.join(projectRoot, c.compilerLogPartialPath)
+        );
+        if (
+          config.extensionConfiguration.cache?.projectConfig?.enable === true
+        ) {
+          compilerLogsWatcher.add(
+            path.join(projectRoot, c.buildNinjaPartialPath)
+          );
+          syncProjectConfigCache(projectRoot);
+        }
+      }
     } else {
       try {
         console.log("Send updated diagnostics");
         sendUpdatedDiagnostics();
+        console.log("Send compilation finished message");
         sendCompilationFinishedMessage();
         if (config.extensionConfiguration.inlayHints?.enable === true) {
           sendInlayHintsRefresh();
