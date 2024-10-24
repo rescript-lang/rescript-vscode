@@ -34,7 +34,7 @@
     "detail": 
     {
       "kind": "signature",
-      "items": {
+      "details": {
       "parameters": [{
           "path": "unit"
         }],
@@ -81,7 +81,7 @@
       "detail": 
       {
         "kind": "signature",
-        "items": {
+        "details": {
         "parameters": [{
             "path": "unit"
           }],

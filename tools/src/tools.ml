@@ -176,7 +176,7 @@ let stringifyDetail ?(indentation = 0) (detail : docItemDetail) =
     stringifyObject ~startOnNewline:true ~indentation
       [
         ("kind", Some (wrapInQuotes "signature"));
-        ( "items",
+        ( "details",
           Some
             (stringifyObject ~startOnNewline:false ~indentation
                [

@@ -12,6 +12,18 @@
 
 ## master
 
+## 0.6.6
+
+### :bug: Bug Fix
+
+- Correct ReScript bindings for signature details. https://github.com/rescript-lang/rescript-vscode/pull/1046
+
+## 0.6.5
+
+#### :rocket: New Feature
+
+- Add additional signature information to doc json. https://github.com/rescript-lang/rescript-vscode/pull/1043
+
 ## 0.6.4
 
 #### :rocket: New Feature
