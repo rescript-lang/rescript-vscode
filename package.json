@@ -179,8 +179,8 @@
         },
         "rescript.settings.incrementalTypechecking.enable": {
           "type": "boolean",
-          "default": false,
-          "description": "(beta/experimental) Enable incremental type checking."
+          "default": true,
+          "description": "Enable incremental type checking."
         },
         "rescript.settings.incrementalTypechecking.acrossFiles": {
           "type": "boolean",
