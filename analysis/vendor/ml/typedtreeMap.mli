@@ -28,7 +28,7 @@ module type MapArgument = sig
   val enter_signature : signature -> signature
   val enter_signature_item : signature_item -> signature_item
   val enter_module_type_declaration :
-      module_type_declaration -> module_type_declaration
+    module_type_declaration -> module_type_declaration
   val enter_module_type : module_type -> module_type
   val enter_module_expr : module_expr -> module_expr
   val enter_with_constraint : with_constraint -> with_constraint
@@ -53,7 +53,7 @@ module type MapArgument = sig
   val leave_signature : signature -> signature
   val leave_signature_item : signature_item -> signature_item
   val leave_module_type_declaration :
-      module_type_declaration -> module_type_declaration
+    module_type_declaration -> module_type_declaration
   val leave_module_type : module_type -> module_type
   val leave_module_expr : module_expr -> module_expr
   val leave_with_constraint : with_constraint -> with_constraint
@@ -65,13 +65,9 @@ module type MapArgument = sig
   val leave_class_type_field : class_type_field -> class_type_field
   val leave_core_type : core_type -> core_type
   val leave_structure_item : structure_item -> structure_item
-
 end
 
-module MakeMap :
-  functor
-    (Iter : MapArgument) ->
-sig
+module MakeMap : functor (Iter : MapArgument) -> sig
   val map_structure : structure -> structure
   val map_pattern : pattern -> pattern
   val map_structure_item : structure_item -> structure_item

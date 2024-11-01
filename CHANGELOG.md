@@ -16,6 +16,10 @@
 
 - Enable incremental typechecking and project config cache by default. https://github.com/rescript-lang/rescript-vscode/pull/1047
 
+#### :house: Internal
+
+- Auto-format vendored OCaml sources like in compiler repo. https://github.com/rescript-lang/rescript-vscode/pull/1053
+
 ## 1.58.0
 
 #### :bug: Bug fix
