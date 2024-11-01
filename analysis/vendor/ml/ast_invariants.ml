@@ -55,13 +55,11 @@ let iterator =
     | _ -> ()
   in
   let pat self pat =
-    begin match pat.ppat_desc with
+    (match pat.ppat_desc with
     | Ppat_construct (_, Some ({ppat_desc = Ppat_tuple _} as p))
       when Builtin_attributes.explicit_arity pat.ppat_attributes ->
-        super.pat self p (* allow unary tuple, see GPR#523. *)
-    | _ ->
-        super.pat self pat
-    end;
+      super.pat self p (* allow unary tuple, see GPR#523. *)
+    | _ -> super.pat self pat);
     let loc = pat.ppat_loc in
     match pat.ppat_desc with
     | Ppat_tuple ([] | [_]) -> invalid_tuple loc
@@ -72,13 +70,11 @@ let iterator =
     | _ -> ()
   in
   let expr self exp =
-    begin match exp.pexp_desc with
+    (match exp.pexp_desc with
     | Pexp_construct (_, Some ({pexp_desc = Pexp_tuple _} as e))
       when Builtin_attributes.explicit_arity exp.pexp_attributes ->
-        super.expr self e (* allow unary tuple, see GPR#523. *)
-    | _ ->
-        super.expr self exp
-    end;
+      super.expr self e (* allow unary tuple, see GPR#523. *)
+    | _ -> super.expr self exp);
     let loc = exp.pexp_loc in
     match exp.pexp_desc with
     | Pexp_tuple ([] | [_]) -> invalid_tuple loc
@@ -90,7 +86,8 @@ let iterator =
     | Pexp_field (_, id)
     | Pexp_setfield (_, id, _)
     | Pexp_new id
-    | Pexp_open (_, id, _) -> simple_longident id
+    | Pexp_open (_, id, _) ->
+      simple_longident id
     | Pexp_record (fields, _) ->
       List.iter (fun (id, _) -> simple_longident id) fields
     | _ -> ()
@@ -122,8 +119,7 @@ let iterator =
   let with_constraint self wc =
     super.with_constraint self wc;
     match wc with
-    | Pwith_type (id, _)
-    | Pwith_module (id, _) -> simple_longident id
+    | Pwith_type (id, _) | Pwith_module (id, _) -> simple_longident id
     | _ -> ()
   in
   let module_expr self me =
@@ -147,19 +143,20 @@ let iterator =
     | Psig_type (_, []) -> empty_type loc
     | _ -> ()
   in
-  { super with
-    type_declaration
-  ; typ
-  ; pat
-  ; expr
-  ; extension_constructor
-  ; class_expr
-  ; module_expr
-  ; module_type
-  ; open_description
-  ; with_constraint
-  ; structure_item
-  ; signature_item
+  {
+    super with
+    type_declaration;
+    typ;
+    pat;
+    expr;
+    extension_constructor;
+    class_expr;
+    module_expr;
+    module_type;
+    open_description;
+    with_constraint;
+    structure_item;
+    signature_item;
   }
 
 let structure st = iterator.structure iterator st

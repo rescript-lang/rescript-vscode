@@ -10,7 +10,7 @@ type token =
   | BARBAR
   | BARRBRACKET
   | BEGIN
-  | CHAR of (char)
+  | CHAR of char
   | CLASS
   | COLON
   | COLONCOLON
@@ -41,16 +41,16 @@ type token =
   | IF
   | IN
   | INCLUDE
-  | INFIXOP0 of (string)
-  | INFIXOP1 of (string)
-  | INFIXOP2 of (string)
-  | INFIXOP3 of (string)
-  | INFIXOP4 of (string)
-  | DOTOP of (string)
+  | INFIXOP0 of string
+  | INFIXOP1 of string
+  | INFIXOP2 of string
+  | INFIXOP3 of string
+  | INFIXOP4 of string
+  | DOTOP of string
   | INHERIT
   | INITIALIZER
   | INT of (string * char option)
-  | LABEL of (string)
+  | LABEL of string
   | LAZY
   | LBRACE
   | LBRACELESS
@@ -63,7 +63,7 @@ type token =
   | LESS
   | LESSMINUS
   | LET
-  | LIDENT of (string)
+  | LIDENT of string
   | LPAREN
   | LBRACKETAT
   | LBRACKETATAT
@@ -80,13 +80,13 @@ type token =
   | OBJECT
   | OF
   | OPEN
-  | OPTLABEL of (string)
+  | OPTLABEL of string
   | OR
   | PERCENT
   | PLUS
   | PLUSDOT
   | PLUSEQ
-  | PREFIXOP of (string)
+  | PREFIXOP of string
   | PRIVATE
   | QUESTION
   | QUOTE
@@ -97,7 +97,7 @@ type token =
   | SEMI
   | SEMISEMI
   | HASH
-  | HASHOP of (string)
+  | HASHOP of string
   | SIG
   | STAR
   | STRING of (string * string option)
@@ -108,7 +108,7 @@ type token =
   | TRUE
   | TRY
   | TYPE
-  | UIDENT of (string)
+  | UIDENT of string
   | UNDERSCORE
   | VAL
   | VIRTUAL
@@ -116,16 +116,15 @@ type token =
   | WHILE
   | WITH
   | COMMENT of (string * Location.t)
-  | DOCSTRING of (Docstrings.docstring)
+  | DOCSTRING of Docstrings.docstring
   | EOL
 
 val implementation :
-  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Parsetree.structure
-val interface :
-  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Parsetree.signature
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.structure
+val interface : (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.signature
 val parse_core_type :
-  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Parsetree.core_type
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.core_type
 val parse_expression :
-  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Parsetree.expression
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.expression
 val parse_pattern :
-  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Parsetree.pattern
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.pattern

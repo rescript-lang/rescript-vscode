@@ -1,2 +1,15 @@
-analysis/vendor/compiler-libs-406/*
-analysis/vendor/res_outcome_printer/*
+analysis/vendor/js_parser/**
+analysis/vendor/ml/cmt_format.ml
+analysis/vendor/ml/parser.ml
+analysis/vendor/ml/pprintast.ml
+analysis/vendor/ext/bs_hash_stubs.ml
+analysis/vendor/ext/js_reserved_map.ml
+analysis/vendor/ext/ext_string.ml
+analysis/vendor/ext/ext_string.mli
+analysis/vendor/ext/ext_sys.ml
+analysis/vendor/ext/hash.cppo.ml
+analysis/vendor/ext/hash_set.cppo.ml
+analysis/vendor/ext/map.cppo.ml
+analysis/vendor/ext/ordered_hash_map.cppo.ml
+analysis/vendor/ext/set.cppo.ml
+analysis/vendor/ext/vec.cppo.ml

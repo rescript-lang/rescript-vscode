@@ -19,14 +19,14 @@ open Types
 open Ctype
 open Format
 
-val class_types:
-        Env.t -> class_type -> class_type -> class_match_failure list
-val class_type_declarations:
+val class_types : Env.t -> class_type -> class_type -> class_match_failure list
+val class_type_declarations :
   loc:Location.t ->
-  Env.t -> class_type_declaration -> class_type_declaration ->
+  Env.t ->
+  class_type_declaration ->
+  class_type_declaration ->
   class_match_failure list
-val class_declarations:
-  Env.t -> class_declaration -> class_declaration ->
-  class_match_failure list
+val class_declarations :
+  Env.t -> class_declaration -> class_declaration -> class_match_failure list
 
-val report_error: formatter -> class_match_failure list -> unit
+val report_error : formatter -> class_match_failure list -> unit
