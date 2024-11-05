@@ -213,7 +213,7 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
                in
                {field with typ = fieldTyp})
       in
-      Some (env, fields, typ)
+      Some (env, fields, typ, path)
     | Some
         ( env,
           {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}
@@ -390,7 +390,13 @@ let rec extractType ?(printOpeningDebug = true)
         maybeSetTypeArgCtx ~typeParams:decl.type_params ~typeArgs env
       in
       Some
-        ( Trecord {env = envFromDeclaration; fields; definition = `TypeExpr t},
+        ( Trecord
+            {
+              env = envFromDeclaration;
+              path = Some path;
+              fields;
+              definition = `TypeExpr t;
+            },
           typeArgContext )
     | Some (envFromDeclaration, {item = {name = "t"; decl = {type_params}}}) ->
       let typeArgContext =
@@ -571,7 +577,7 @@ let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
   match typ.kind with
   | Tuple items -> Some (Tuple (env, items, Ctype.newty (Ttuple items)))
   | Record fields ->
-    Some (Trecord {env; fields; definition = `NameOnly typ.name})
+    Some (Trecord {env; fields; path = None; definition = `NameOnly typ.name})
   | Variant constructors ->
     Some
       (Tvariant

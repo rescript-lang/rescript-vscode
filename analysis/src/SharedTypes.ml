@@ -354,6 +354,7 @@ and completionType =
   | Trecord of {
       env: QueryEnv.t;
       fields: field list;
+      path: Path.t option;
       definition:
         [ `NameOnly of string
           (** When we only have the name, like when pulling the record from a declared type. *)

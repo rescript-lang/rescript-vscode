@@ -124,6 +124,8 @@ ContextPath Value[x1].content.""
 ContextPath Value[x1].content
 ContextPath Value[x1]
 Path x1
+Path content
+Path 
 [{
     "label": "age",
     "kind": 5,
@@ -142,6 +144,8 @@ ContextPath Value[x2].content.""
 ContextPath Value[x2].content
 ContextPath Value[x2]
 Path x2
+Path content
+Path 
 [{
     "label": "age",
     "kind": 5,
@@ -160,6 +164,8 @@ ContextPath Value[y1].content.""
 ContextPath Value[y1].content
 ContextPath Value[y1]
 Path y1
+Path content
+Path 
 [{
     "label": "age",
     "kind": 5,
@@ -178,6 +184,8 @@ ContextPath Value[y2].content.""
 ContextPath Value[y2].content
 ContextPath Value[y2]
 Path y2
+Path content
+Path 
 [{
     "label": "age",
     "kind": 5,
@@ -221,6 +229,7 @@ Resolved opens 1 pervasives
 ContextPath Value[x].someField
 ContextPath Value[x]
 Path x
+Path someField
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 {"contents": {"kind": "markdown", "value": " Mighty fine field here. \n\n```rescript\nbool\n```"}}
