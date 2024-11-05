@@ -7,6 +7,7 @@ ContextPath Value[t].n->m
 ContextPath Value[t].n
 ContextPath Value[t]
 Path t
+Path n
 CPPipe env:RecordCompletion
 Path Js.Array2.m
 [{
@@ -33,6 +34,8 @@ ContextPath Value[t2].n2.n
 ContextPath Value[t2].n2
 ContextPath Value[t2]
 Path t2
+Path n2
+Path n
 CPPipe env:RecordCompletion
 Path Js.Array2.m
 [{

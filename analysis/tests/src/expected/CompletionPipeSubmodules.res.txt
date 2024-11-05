@@ -33,6 +33,7 @@ ContextPath Value[A, x].v->
 ContextPath Value[A, x].v
 ContextPath Value[A, x]
 Path A.x
+Path v
 CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.A
 CPPipe type path:B1.b1
 CPPipe pathFromEnv:A.B1 found:true
@@ -61,6 +62,8 @@ ContextPath Value[E, e].v.v
 ContextPath Value[E, e].v
 ContextPath Value[E, e]
 Path E.e
+Path v
+Path D.v
 CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.D
 CPPipe type path:C.t
 CPPipe pathFromEnv:C found:false
@@ -83,6 +86,8 @@ ContextPath Value[E, e].v.v2
 ContextPath Value[E, e].v
 ContextPath Value[E, e]
 Path E.e
+Path v
+Path D.v2
 CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.D
 CPPipe type path:C2.t2
 CPPipe pathFromEnv:D.C2 found:true

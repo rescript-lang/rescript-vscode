@@ -970,30 +970,103 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       with
       | Some (TypeExpr typ, env) -> (
         match typ |> TypeUtils.extractRecordType ~env ~package with
-        | Some (env, fields, typDecl) ->
+        | Some (env, fields, typDecl, path) ->
           Some
             ( env,
               fields,
-              typDecl.item.decl |> Shared.declToString typDecl.name.txt )
+              typDecl.item.decl |> Shared.declToString typDecl.name.txt,
+              Some path )
         | None -> None)
       | Some (ExtractedType typ, env) -> (
         match typ with
-        | Trecord {fields} ->
-          Some (env, fields, typ |> TypeUtils.extractedTypeToString)
+        | Trecord {fields; path} ->
+          Some (env, fields, typ |> TypeUtils.extractedTypeToString, path)
         | _ -> None)
       | None -> None
     in
     match extracted with
     | None -> []
-    | Some (env, fields, recordAsString) ->
-      fields
-      |> Utils.filterMap (fun field ->
-             if Utils.checkName field.fname.txt ~prefix:fieldName ~exact then
-               Some
-                 (Completion.create field.fname.txt ~env
-                    ?deprecated:field.deprecated ~docstring:field.docstring
-                    ~kind:(Completion.Field (field, recordAsString)))
-             else None))
+    | Some (env, fields, recordAsString, path) ->
+      let pipeCompletionsForModule =
+        match path with
+        | Some path ->
+          let completionPath =
+            (* Remove the last part of the path since we're only after the parent module *)
+            match
+              path |> SharedTypes.pathIdentToString |> String.split_on_char '.'
+              |> List.rev
+            with
+            | _ :: rest -> rest
+            | [] -> []
+          in
+          (* Most of this is copied from the pipe completion code. Should probably be unified. *)
+          let completions =
+            completionPath @ [fieldName]
+            |> getCompletionsForPath ~debug ~completionContext:Value
+                 ~exact:false ~opens ~full ~pos ~env ~scope
+          in
+          let completionPathMinusOpens =
+            TypeUtils.removeOpensFromCompletionPath ~rawOpens ~package
+              completionPath
+            |> String.concat "."
+          in
+          let completionName name =
+            if completionPathMinusOpens = "" then name
+            else completionPathMinusOpens ^ "." ^ name
+          in
+          (* Find all functions in the module that takes type t *)
+          let rec fnTakesTypeT t =
+            match t.Types.desc with
+            | Tlink t1
+            | Tsubst t1
+            | Tpoly (t1, [])
+            | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
+              fnTakesTypeT t1
+            | Tarrow _ -> (
+              match
+                TypeUtils.extractFunctionType ~env ~package:full.package t
+              with
+              | ( (Nolabel, {desc = Tconstr (Path.Pident {name = "t"}, _, _)})
+                  :: _,
+                  _ ) ->
+                true
+              | _ -> false)
+            | _ -> false
+          in
+          completions
+          |> List.filter_map (fun (completion : Completion.t) ->
+                 match completion.kind with
+                 | Value t when fnTakesTypeT t ->
+                   let name = completionName completion.name in
+                   let nameWithPipe = "->" ^ name in
+                   (* TODO: We need to add support for setting the text insertion location explicitly,
+                      so we can account for the dot that triggered the completion, but that we want
+                      removed when inserting the pipe. This means we also need to track the loc of
+                      the dot + the identifier that we're filtering with (fieldName here).
+                      That should be easy to do by extending CPField. *)
+                   Some
+                     {
+                       completion with
+                       name = nameWithPipe;
+                       sortText =
+                         Some
+                           (name |> String.split_on_char '.' |> List.rev
+                          |> List.hd);
+                       insertText = Some nameWithPipe;
+                       env;
+                     }
+                 | _ -> None)
+        | None -> []
+      in
+      pipeCompletionsForModule
+      @ (fields
+        |> Utils.filterMap (fun field ->
+               if Utils.checkName field.fname.txt ~prefix:fieldName ~exact then
+                 Some
+                   (Completion.create field.fname.txt ~env
+                      ?deprecated:field.deprecated ~docstring:field.docstring
+                      ~kind:(Completion.Field (field, recordAsString)))
+               else None)))
   | CPObj (cp, label) -> (
     (* TODO: Also needs to support ExtractedType *)
     if Debug.verbose () then print_endline "[ctx_path]--> CPObj";
@@ -1936,6 +2009,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         {
           env;
           definition = `NameOnly "jsxConfig";
+          path = None;
           fields =
             [
               mkField ~name:"version" ~primitive:"int";
@@ -1965,6 +2039,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       Trecord
         {
           env;
+          path = None;
           definition = `NameOnly "importAttributesConfig";
           fields = [mkField ~name:"type_" ~primitive:"string"];
         }
@@ -1973,6 +2048,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       Trecord
         {
           env;
+          path = None;
           definition = `NameOnly "moduleConfig";
           fields =
             [

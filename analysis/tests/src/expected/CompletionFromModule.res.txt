@@ -1,0 +1,31 @@
+
+Complete src/CompletionFromModule.res 11:5
+posCursor:[11:5] posNoWhite:[11:4] Found expr:[11:3->11:5]
+Pexp_field [11:3->11:4] _:[15:0->11:5]
+[set_result] set new result to Cpath Value[n].""
+Completable: Cpath Value[n].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[n].""
+[ctx_path]--> CPField
+ContextPath Value[n]
+[ctx_path]--> CPId
+Path n
+Path SomeModule.
+[{
+    "label": "->SomeModule.getName",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => string",
+    "documentation": null,
+    "sortText": "getName",
+    "insertText": "->SomeModule.getName"
+  }, {
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype t = {name: string}\n```"}
+  }]
+
+

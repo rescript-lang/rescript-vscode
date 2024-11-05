@@ -452,6 +452,8 @@ ContextPath Value[props].support.root
 ContextPath Value[props].support
 ContextPath Value[props]
 Path props
+Path Internal.CompletionSupport2.support
+Path Nested.CompletionSupport.root
 CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionSupport.Nested
 CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
