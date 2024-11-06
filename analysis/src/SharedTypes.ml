@@ -355,6 +355,7 @@ and completionType =
       env: QueryEnv.t;
       fields: field list;
       path: Path.t option;
+      attributes: Parsetree.attributes;
       definition:
         [ `NameOnly of string
           (** When we only have the name, like when pulling the record from a declared type. *)

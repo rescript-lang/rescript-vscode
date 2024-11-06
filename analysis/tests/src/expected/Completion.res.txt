@@ -728,7 +728,6 @@ Resolved opens 1 pervasives
 ContextPath Value[r].""
 ContextPath Value[r]
 Path r
-Path 
 [{
     "label": "x",
     "kind": 5,
@@ -752,7 +751,6 @@ Resolved opens 1 pervasives
 ContextPath Value[Objects, Rec, recordVal].""
 ContextPath Value[Objects, Rec, recordVal]
 Path Objects.Rec.recordVal
-Path 
 [{
     "label": "xx",
     "kind": 5,
@@ -835,8 +833,6 @@ ContextPath Value[q].aa.""
 ContextPath Value[q].aa
 ContextPath Value[q]
 Path q
-Path aa
-Path 
 [{
     "label": "x",
     "kind": 5,
@@ -861,8 +857,6 @@ ContextPath Value[q].aa.n
 ContextPath Value[q].aa
 ContextPath Value[q]
 Path q
-Path aa
-Path n
 [{
     "label": "name",
     "kind": 5,
@@ -1087,7 +1081,6 @@ ContextPath Value[FAO, forAutoObject]["forAutoLabel"].""
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
-Path FAR.
 [{
     "label": "forAuto",
     "kind": 5,
@@ -1113,7 +1106,6 @@ ContextPath Value[FAO, forAutoObject]["forAutoLabel"].forAuto
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
-Path FAR.forAuto
 CPPipe env:Completion envFromCompletionItem:Completion.FAR
 CPPipe type path:ForAuto.t
 CPPipe pathFromEnv:ForAuto found:false
@@ -1197,7 +1189,6 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[_z].""
 ContextPath Value[_z]
 Path _z
-Path 
 [{
     "label": "x",
     "kind": 5,
@@ -1356,7 +1347,6 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[funRecord].someFun
 ContextPath Value[funRecord]
 Path funRecord
-Path someFun
 Found type for function (~name: string) => unit
 [{
     "label": "name",
@@ -1377,7 +1367,6 @@ ContextPath Value[retAA](Nolabel).""
 ContextPath Value[retAA](Nolabel)
 ContextPath Value[retAA]
 Path retAA
-Path 
 [{
     "label": "x",
     "kind": 5,
@@ -1908,7 +1897,6 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[funRecord].""
 ContextPath Value[funRecord]
 Path funRecord
-Path 
 [{
     "label": "someFun",
     "kind": 5,
@@ -2165,7 +2153,6 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[rWithDepr].so
 ContextPath Value[rWithDepr]
 Path rWithDepr
-Path so
 [{
     "label": "someInt",
     "kind": 5,

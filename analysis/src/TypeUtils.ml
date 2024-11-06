@@ -203,7 +203,7 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractRecordType ~env ~package t1
   | Tconstr (path, typeArgs, _) -> (
     match References.digConstructor ~env ~package path with
-    | Some (env, ({item = {kind = Record fields}} as typ)) ->
+    | Some (env, ({item = {kind = Record fields; attributes}} as typ)) ->
       let typeParams = typ.item.decl.type_params in
       let fields =
         fields
@@ -213,7 +213,7 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
                in
                {field with typ = fieldTyp})
       in
-      Some (env, fields, typ, path)
+      Some (env, fields, typ, path, attributes)
     | Some
         ( env,
           {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}
@@ -383,7 +383,9 @@ let rec extractType ?(printOpeningDebug = true)
               variantDecl = decl;
             },
           typeArgContext )
-    | Some (envFromDeclaration, {item = {kind = Record fields; decl}}) ->
+    | Some
+        (envFromDeclaration, {item = {kind = Record fields; decl; attributes}})
+      ->
       if Debug.verbose () then print_endline "[extract_type]--> found record";
       (* Need to create a new type arg context here because we're sending along a type expr that might have type vars. *)
       let typeArgContext =
@@ -396,6 +398,7 @@ let rec extractType ?(printOpeningDebug = true)
               path = Some path;
               fields;
               definition = `TypeExpr t;
+              attributes;
             },
           typeArgContext )
     | Some (envFromDeclaration, {item = {name = "t"; decl = {type_params}}}) ->
@@ -577,7 +580,15 @@ let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
   match typ.kind with
   | Tuple items -> Some (Tuple (env, items, Ctype.newty (Ttuple items)))
   | Record fields ->
-    Some (Trecord {env; fields; path = None; definition = `NameOnly typ.name})
+    Some
+      (Trecord
+         {
+           env;
+           fields;
+           path = None;
+           definition = `NameOnly typ.name;
+           attributes = typ.attributes;
+         })
   | Variant constructors ->
     Some
       (Tvariant
