@@ -12,3 +12,25 @@ let n = {SomeModule.name: "hello"}
 // n.
 //   ^com
 // ^dv-
+
+@mainTypeForModule(SomeOtherModule)
+type typeOutsideModule = {nname: string}
+
+module SomeOtherModule = {
+  type t = typeOutsideModule
+
+  type irrelevantType = string
+
+  @get external getNName: t => string = "nname"
+  @get external getNName2: typeOutsideModule => string = "nname"
+  @get external getNName3: irrelevantType => string = "nname"
+
+  let thisShouldNotBeCompletedFor = () => "hi"
+}
+
+let nn: SomeOtherModule.t = {nname: "hello"}
+
+// ^dv+
+// nn.
+//    ^com
+// ^dv-

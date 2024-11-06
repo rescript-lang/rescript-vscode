@@ -946,7 +946,6 @@ Resolved opens 1 pervasives
 ContextPath Value[fff].someOpt
 ContextPath Value[fff]
 Path fff
-Path someOpt
 [{
     "label": "someOptField",
     "kind": 5,
@@ -1416,7 +1415,6 @@ Resolved opens 2 pervasives CompletionSupport.res
 ContextPath Value[someTyp].""
 ContextPath Value[someTyp]
 Path someTyp
-Path 
 [{
     "label": "test",
     "kind": 5,
@@ -1472,7 +1470,6 @@ Resolved opens 2 pervasives CompletionSupport.res
 ContextPath Value[someTyp].""
 ContextPath Value[someTyp]
 Path someTyp
-Path 
 [{
     "label": "test",
     "kind": 5,

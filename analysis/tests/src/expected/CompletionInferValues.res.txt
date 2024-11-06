@@ -37,7 +37,6 @@ Path x
 ContextPath Value[getSomeRecord](Nolabel)
 ContextPath Value[getSomeRecord]
 Path getSomeRecord
-Path 
 [{
     "label": "name",
     "kind": 5,
@@ -66,7 +65,6 @@ Path x
 ContextPath Value[getSomeRecord](Nolabel)
 ContextPath Value[getSomeRecord]
 Path getSomeRecord
-Path 
 [{
     "label": "name",
     "kind": 5,
@@ -100,7 +98,6 @@ ContextPath CArgument CArgument Value[someFnWithCallback]($0)(~someRecord)
 ContextPath CArgument Value[someFnWithCallback]($0)
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
-Path 
 [{
     "label": "name",
     "kind": 5,
@@ -136,7 +133,6 @@ ContextPath Value[aliasedFn]
 Path aliasedFn
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
-Path 
 [{
     "label": "name",
     "kind": 5,
@@ -381,7 +377,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
-Path 
 [{
     "label": "name",
     "kind": 5,
@@ -410,7 +405,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
-Path 
 [{
     "label": "someRecord",
     "kind": 5,
@@ -433,7 +427,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
-Path 
 [{
     "label": "name",
     "kind": 5,
@@ -852,7 +845,6 @@ ContextPath CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath Value[CompletionSupport2, makeRenderer]
 Path CompletionSupport2.makeRenderer
-Path Nested.CompletionSupport.
 [{
     "label": "root",
     "kind": 5,

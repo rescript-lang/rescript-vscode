@@ -34,7 +34,6 @@ ContextPath Value[t2].n2.n
 ContextPath Value[t2].n2
 ContextPath Value[t2]
 Path t2
-Path n2
 Path n
 CPPipe env:RecordCompletion
 Path Js.Array2.m

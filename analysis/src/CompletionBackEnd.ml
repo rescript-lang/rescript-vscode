@@ -990,35 +990,44 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       with
       | Some (TypeExpr typ, env) -> (
         match typ |> TypeUtils.extractRecordType ~env ~package with
-        | Some (env, fields, typDecl, path) ->
+        | Some (env, fields, typDecl, path, attributes) ->
           Some
             ( env,
               fields,
               typDecl.item.decl |> Shared.declToString typDecl.name.txt,
-              Some path )
+              Some path,
+              attributes )
         | None -> None)
       | Some (ExtractedType typ, env) -> (
         match typ with
-        | Trecord {fields; path} ->
-          Some (env, fields, typ |> TypeUtils.extractedTypeToString, path)
+        | Trecord {fields; path; attributes} ->
+          Some
+            ( env,
+              fields,
+              typ |> TypeUtils.extractedTypeToString,
+              path,
+              attributes )
         | _ -> None)
       | None -> None
     in
     match extracted with
     | None -> []
-    | Some (env, fields, recordAsString, path) ->
-      let pipeCompletionsForModule =
-        match path with
-        | Some path ->
-          let completionPath =
-            (* Remove the last part of the path since we're only after the parent module *)
-            match
+    | Some (env, fields, recordAsString, path, attributes) ->
+      let pipeCompletion =
+        match
+          (path, ProcessAttributes.findMainTypeForModuleAttribute attributes)
+        with
+        | Some path, _ when Path.last path = "t" ->
+          Some
+            ( path,
               path |> SharedTypes.pathIdentToString |> String.split_on_char '.'
-              |> List.rev
-            with
-            | _ :: rest -> rest
-            | [] -> []
-          in
+              |> List.rev |> List.tl )
+        | Some path, Some modulePath -> Some (path, modulePath)
+        | _ -> None
+      in
+      let pipeCompletionsForModule =
+        match pipeCompletion with
+        | Some (path, completionPath) ->
           (* Most of this is copied from the pipe completion code. Should probably be unified. *)
           let completions =
             completionPath @ [fieldName]
@@ -1046,10 +1055,8 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
               match
                 TypeUtils.extractFunctionType ~env ~package:full.package t
               with
-              | ( (Nolabel, {desc = Tconstr (Path.Pident {name = "t"}, _, _)})
-                  :: _,
-                  _ ) ->
-                true
+              | (Nolabel, {desc = Tconstr (p, _, _)}) :: _, _ ->
+                Path.same p path || Path.name p = "t"
               | _ -> false)
             | _ -> false
           in
@@ -2031,6 +2038,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
           env;
           definition = `NameOnly "jsxConfig";
           path = None;
+          attributes = [];
           fields =
             [
               mkField ~name:"version" ~primitive:"int";
@@ -2061,6 +2069,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         {
           env;
           path = None;
+          attributes = [];
           definition = `NameOnly "importAttributesConfig";
           fields = [mkField ~name:"type_" ~primitive:"string"];
         }
@@ -2070,6 +2079,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         {
           env;
           path = None;
+          attributes = [];
           definition = `NameOnly "moduleConfig";
           fields =
             [
