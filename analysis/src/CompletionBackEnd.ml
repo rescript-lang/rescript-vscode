@@ -653,7 +653,8 @@ let rec digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos ~env
   | {kind = Type {kind = Record fields}} :: _ -> Some fields
   | _ -> None
 
-let mkItem ?data name ~kind ~detail ~deprecated ~docstring =
+let mkItem ?data ?(range : Location.t option) name ~kind ~detail ~deprecated
+    ~docstring =
   let docContent =
     (match deprecated with
     | None -> ""
@@ -682,6 +683,23 @@ let mkItem ?data name ~kind ~detail ~deprecated ~docstring =
       insertTextFormat = None;
       filterText = None;
       data;
+      range =
+        (match range with
+        | None -> None
+        | Some range ->
+          Some
+            {
+              start =
+                {
+                  line = range.loc_start.pos_lnum - 1;
+                  character = range.loc_start.pos_cnum - range.loc_start.pos_bol;
+                };
+              end_ =
+                {
+                  line = range.loc_end.pos_lnum - 1;
+                  character = range.loc_end.pos_cnum - range.loc_end.pos_bol;
+                };
+            });
     }
 
 let completionToItem
@@ -696,9 +714,10 @@ let completionToItem
       filterText;
       detail;
       env;
+      range;
     } ~full =
   let item =
-    mkItem name
+    mkItem name ?range
       ?data:(kindToData (full.file.uri |> Uri.toPath) kind)
       ~kind:(Completion.kindToInt kind)
       ~deprecated
@@ -950,13 +969,14 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         [Completion.create "dummy" ~env ~kind:(Completion.Value retType)]
       | _ -> [])
     | _ -> [])
-  | CPField (CPId {path; completionContext = Module}, fieldName) ->
+  | CPField {contextPath = CPId {path; completionContext = Module}; fieldName}
+    ->
     if Debug.verbose () then print_endline "[ctx_path]--> CPField: M.field";
     (* M.field *)
     path @ [fieldName]
     |> getCompletionsForPath ~debug ~opens ~full ~pos ~exact
          ~completionContext:Field ~env ~scope
-  | CPField (cp, fieldName) -> (
+  | CPField {contextPath = cp; fieldName; fieldNameLoc} -> (
     if Debug.verbose () then print_endline "[ctx_path]--> CPField";
     let completionsForCtxPath =
       cp
@@ -1054,6 +1074,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
                           |> List.hd);
                        insertText = Some nameWithPipe;
                        env;
+                       range = Some fieldNameLoc;
                      }
                  | _ -> None)
         | None -> []

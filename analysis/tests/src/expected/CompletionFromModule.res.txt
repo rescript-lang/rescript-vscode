@@ -19,7 +19,10 @@ Path SomeModule.
     "detail": "t => string",
     "documentation": null,
     "sortText": "getName",
-    "insertText": "->SomeModule.getName"
+    "textEdit": {
+    "range": {"start": {"line": 11, "character": 4}, "end": {"line": 11, "character": 4}},
+    "newText": "->SomeModule.getName"
+  }
   }, {
     "label": "name",
     "kind": 5,

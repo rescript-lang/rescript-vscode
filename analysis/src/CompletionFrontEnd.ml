@@ -222,21 +222,26 @@ let rec exprToContextPathInner (e : Parsetree.expression) =
   | Pexp_ident {txt; loc} ->
     Some
       (CPId {path = Utils.flattenLongIdent txt; completionContext = Value; loc})
-  | Pexp_field (e1, {txt = Lident name}) -> (
+  | Pexp_field (e1, {txt = Lident name; loc}) -> (
     match exprToContextPath e1 with
-    | Some contextPath -> Some (CPField (contextPath, name))
+    | Some contextPath ->
+      Some (CPField {contextPath; fieldName = name; fieldNameLoc = loc})
     | _ -> None)
   | Pexp_field (_, {loc; txt = Ldot (lid, name)}) ->
     (* Case x.M.field ignore the x part *)
     Some
       (CPField
-         ( CPId
-             {
-               path = Utils.flattenLongIdent lid;
-               completionContext = Module;
-               loc;
-             },
-           name ))
+         {
+           contextPath =
+             CPId
+               {
+                 path = Utils.flattenLongIdent lid;
+                 completionContext = Module;
+                 loc;
+               };
+           fieldName = name;
+           fieldNameLoc = loc;
+         })
   | Pexp_send (e1, {txt}) -> (
     match exprToContextPath e1 with
     | None -> None
@@ -1130,29 +1135,54 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
             | Lident name -> (
               match exprToContextPath e with
               | Some contextPath ->
-                let contextPath = Completable.CPField (contextPath, name) in
+                let contextPath =
+                  Completable.CPField
+                    {
+                      contextPath;
+                      fieldName = name;
+                      fieldNameLoc = fieldName.loc;
+                    }
+                in
                 setResult (Cpath contextPath)
               | None -> ())
             | Ldot (id, name) ->
               (* Case x.M.field ignore the x part *)
               let contextPath =
                 Completable.CPField
-                  ( CPId
-                      {
-                        loc = fieldName.loc;
-                        path = Utils.flattenLongIdent id;
-                        completionContext = Module;
-                      },
-                    if blankAfterCursor = Some '.' then
-                      (* x.M. field  --->  M. *) ""
-                    else if name = "_" then ""
-                    else name )
+                  {
+                    contextPath =
+                      CPId
+                        {
+                          loc = fieldName.loc;
+                          path = Utils.flattenLongIdent id;
+                          completionContext = Module;
+                        };
+                    fieldName =
+                      (if blankAfterCursor = Some '.' then
+                         (* x.M. field  --->  M. *) ""
+                       else if name = "_" then ""
+                       else name);
+                    fieldNameLoc = fieldName.loc;
+                  }
               in
               setResult (Cpath contextPath)
             | Lapply _ -> ()
           else if Loc.end_ e.pexp_loc = posBeforeCursor then
             match exprToContextPath e with
-            | Some contextPath -> setResult (Cpath (CPField (contextPath, "")))
+            | Some contextPath ->
+              setResult
+                (Cpath
+                   (CPField
+                      {
+                        contextPath;
+                        fieldName = "";
+                        fieldNameLoc =
+                          {
+                            loc_start = e.pexp_loc.loc_end;
+                            loc_end = e.pexp_loc.loc_end;
+                            loc_ghost = false;
+                          };
+                      }))
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)
           when Res_parsetree_viewer.is_jsx_expression expr ->
