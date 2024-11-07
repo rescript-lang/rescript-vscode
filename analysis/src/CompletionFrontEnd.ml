@@ -946,6 +946,32 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
            setResult
              (Completable.CdecoratorPayload
                 (JsxConfig {nested = List.rev nested; prefix})))
+       | _ -> ()
+     else if id.txt = "mainTypeForModule" then
+       match payload with
+       | PStr
+           [
+             {
+               pstr_desc =
+                 Pstr_eval
+                   ( {
+                       pexp_loc;
+                       pexp_desc = Pexp_construct ({txt = path; loc}, None);
+                     },
+                     _ );
+             };
+           ]
+         when locHasCursor pexp_loc ->
+         if Debug.verbose () then
+           print_endline "[decoratorCompletion] Found @mainTypeForModule";
+         setResult
+           (Completable.Cpath
+              (CPId
+                 {
+                   path = Utils.flattenLongIdent path;
+                   completionContext = Module;
+                   loc;
+                 }))
        | _ -> ());
     Ast_iterator.default_iterator.attribute iterator (id, payload)
   in

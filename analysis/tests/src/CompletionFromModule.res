@@ -34,3 +34,6 @@ let nn: SomeOtherModule.t = {nname: "hello"}
 // nn.
 //    ^com
 // ^dv-
+
+// @mainTypeForModule(SomeOthe) type typeOutsideModule = {nname: string}
+//                            ^com

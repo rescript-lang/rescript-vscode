@@ -35,7 +35,7 @@ Path SomeModule.
 
 Complete src/CompletionFromModule.res 33:6
 posCursor:[33:6] posNoWhite:[33:5] Found expr:[33:3->33:6]
-Pexp_field [33:3->33:5] _:[37:0->33:6]
+Pexp_field [33:3->33:5] _:[40:0->33:6]
 [set_result] set new result to Cpath Value[nn].""
 Completable: Cpath Value[nn].""
 Package opens Pervasives.JsxModules.place holder
@@ -76,4 +76,19 @@ Path SomeOtherModule.
     "documentation": {"kind": "markdown", "value": "```rescript\nnname: string\n```\n\n```rescript\ntype typeOutsideModule = {nname: string}\n```"}
   }]
 
+
+Complete src/CompletionFromModule.res 37:30
+XXX Not found!
+Completable: Cpath Module[SomeOthe]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Module[SomeOthe]
+Path SomeOthe
+[{
+    "label": "SomeOtherModule",
+    "kind": 9,
+    "tags": [],
+    "detail": "module SomeOtherModule",
+    "documentation": null
+  }]
 
