@@ -211,7 +211,14 @@ export const runCodeAnalysisWithReanalyze = (
   let projectRootPath: string | null = findProjectRootOfFileInDir(
     currentDocument.uri.fsPath
   );
-  let binaryPath = getBinaryPath("rescript-tools.exe", projectRootPath);
+
+  // This little weird lookup is because in the legacy setup reanalyze needs to be
+  // run from the analysis binary, whereas in the new setup it's run from the tools
+  // binary.
+  let binaryPath =
+    getBinaryPath("rescript-tools.exe", projectRootPath) ??
+    getBinaryPath("rescript-editor-analysis.exe");
+
   if (binaryPath === null) {
     window.showErrorMessage("Binary executable not found.");
     return;

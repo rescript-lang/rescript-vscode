@@ -29,17 +29,17 @@ export const getLegacyBinaryProdPath = (b: binaryName) =>
 
 export const getBinaryPath = (
   binaryName: "rescript-editor-analysis.exe" | "rescript-tools.exe",
-  projectRootPath: string
+  projectRootPath: string | null = null
 ): string | null => {
   const binaryFromCompilerPackage = path.join(
-    projectRootPath,
+    projectRootPath ?? "",
     "node_modules",
     "rescript",
     platformDir,
     binaryName
   );
 
-  if (fs.existsSync(binaryFromCompilerPackage)) {
+  if (projectRootPath != null && fs.existsSync(binaryFromCompilerPackage)) {
     return binaryFromCompilerPackage;
   } else if (fs.existsSync(getLegacyBinaryDevPath(binaryName))) {
     return getLegacyBinaryDevPath(binaryName);
