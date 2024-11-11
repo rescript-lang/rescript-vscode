@@ -14,7 +14,7 @@ import {
   OutputChannel,
   StatusBarItem,
 } from "vscode";
-import { analysisProdPath, getAnalysisBinaryPath } from "../utils";
+import { findProjectRootOfFileInDir, getBinaryPath } from "../utils";
 
 export let statusBarItem = {
   setToStopText: (codeAnalysisRunningStatusBarItem: StatusBarItem) => {
@@ -208,9 +208,12 @@ export const runCodeAnalysisWithReanalyze = (
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
-  let binaryPath = getAnalysisBinaryPath();
+  let projectRootPath: string | null = findProjectRootOfFileInDir(
+    currentDocument.uri.fsPath
+  );
+  let binaryPath = getBinaryPath("rescript-tools.exe", projectRootPath);
   if (binaryPath === null) {
-    window.showErrorMessage("Binary executable not found.", analysisProdPath);
+    window.showErrorMessage("Binary executable not found.");
     return;
   }
 
