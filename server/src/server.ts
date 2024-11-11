@@ -272,6 +272,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
         rescriptVersion: utils.findReScriptVersion(projectRootPath),
         bsbWatcherByEditor: null,
         bscBinaryLocation: utils.findBscExeBinary(projectRootPath),
+        editorAnalysisLocation: utils.findEditorAnalysisBinary(projectRootPath),
         hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
           projectRootPath
         )
