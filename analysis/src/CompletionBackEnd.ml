@@ -1015,7 +1015,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     | Some (env, fields, recordAsString, path, attributes) ->
       let pipeCompletion =
         match
-          (path, ProcessAttributes.findMainTypeForModuleAttribute attributes)
+          (path, ProcessAttributes.findEditorCompleteFromAttribute attributes)
         with
         | Some path, _ when Path.last path = "t" ->
           Some

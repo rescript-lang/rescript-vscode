@@ -947,7 +947,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
              (Completable.CdecoratorPayload
                 (JsxConfig {nested = List.rev nested; prefix})))
        | _ -> ()
-     else if id.txt = "mainTypeForModule" then
+     else if id.txt = "editor.completeFrom" then
        match payload with
        | PStr
            [
@@ -963,7 +963,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
            ]
          when locHasCursor pexp_loc ->
          if Debug.verbose () then
-           print_endline "[decoratorCompletion] Found @mainTypeForModule";
+           print_endline "[decoratorCompletion] Found @editor.completeFrom";
          setResult
            (Completable.Cpath
               (CPId
