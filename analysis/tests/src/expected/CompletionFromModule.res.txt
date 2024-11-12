@@ -77,7 +77,7 @@ Path SomeOtherModule.
   }]
 
 
-Complete src/CompletionFromModule.res 37:30
+Complete src/CompletionFromModule.res 37:32
 XXX Not found!
 Completable: Cpath Module[SomeOthe]
 Package opens Pervasives.JsxModules.place holder

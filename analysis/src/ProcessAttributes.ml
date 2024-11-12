@@ -49,11 +49,11 @@ let newDeclared ~item ~extent ~name ~stamp ~modulePath isExported attributes =
     item;
   }
 
-let rec findMainTypeForModuleAttribute attributes =
+let rec findEditorCompleteFromAttribute attributes =
   let open Parsetree in
   match attributes with
   | [] -> None
-  | ( {Asttypes.txt = "mainTypeForModule"},
+  | ( {Asttypes.txt = "editor.completeFrom"},
       PStr
         [
           {
@@ -63,4 +63,4 @@ let rec findMainTypeForModuleAttribute attributes =
         ] )
     :: _ ->
     Some (Utils.flattenLongIdent path)
-  | _ :: rest -> findMainTypeForModuleAttribute rest
+  | _ :: rest -> findEditorCompleteFromAttribute rest
