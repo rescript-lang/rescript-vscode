@@ -1140,3 +1140,59 @@ let pathToElementProps package =
   match package.genericJsxModule with
   | None -> ["ReactDOM"; "domProps"]
   | Some g -> (g |> String.split_on_char '.') @ ["Elements"; "props"]
+
+(** Extracts module to draw extra completions from for the type, if it has been annotated with @editor.completeFrom. *)
+let getExtraModuleToCompleteFromForType ~env ~full (t : Types.type_expr) =
+  match t |> Shared.digConstructor with
+  | Some path -> (
+    match References.digConstructor ~env ~package:full.package path with
+    | None -> None
+    (*| Some (env, {item = {decl = {type_manifest = Some t}}}) ->
+      getExtraModuleToCompleteFromForType ~env ~full t
+
+      This could be commented back in to traverse type aliases.
+      Not clear as of now if that makes sense to do or not.
+    *)
+    | Some (_, {item = {attributes}}) ->
+      ProcessAttributes.findEditorCompleteFromAttribute attributes)
+  | None -> None
+
+(** Checks whether the provided type represents a function that takes the provided path 
+  as the first argument (meaning it's pipeable). *)
+let rec fnTakesType ~env ~full ~path t =
+  match t.Types.desc with
+  | Tlink t1
+  | Tsubst t1
+  | Tpoly (t1, [])
+  | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
+    fnTakesType ~env ~full ~path t1
+  | Tarrow _ -> (
+    match extractFunctionType ~env ~package:full.package t with
+    | (Nolabel, {desc = Tconstr (p, _, _)}) :: _, _ ->
+      Path.same p path || Path.name p = "t"
+    | _ -> false)
+  | _ -> false
+
+(** Turns a completion into a pipe completion. *)
+let transformCompletionToPipeCompletion ~env ~replaceRange
+    (completion : Completion.t) =
+  let name = completion.name in
+  let nameWithPipe = "->" ^ name in
+  Some
+    {
+      completion with
+      name = nameWithPipe;
+      sortText = Some (name |> String.split_on_char '.' |> List.rev |> List.hd);
+      insertText = Some nameWithPipe;
+      env;
+      range = Some replaceRange;
+    }
+
+(** Filters out completions that are not pipeable from a list of completions. *)
+let filterPipeableFunctions ~env ~full ~path ~replaceRange completions =
+  completions
+  |> List.filter_map (fun (completion : Completion.t) ->
+         match completion.kind with
+         | Value t when fnTakesType ~env ~full ~path t ->
+           transformCompletionToPipeCompletion ~env ~replaceRange completion
+         | _ -> None)
