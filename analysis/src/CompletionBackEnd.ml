@@ -635,6 +635,30 @@ let getCompletionsForPath ~debug ~opens ~full ~pos ~exact ~scope
       findAllCompletions ~env ~prefix ~exact ~namesUsed ~completionContext
     | None -> [])
 
+(** Completions intended for piping, from a completion path. *)
+let completionsForPipeFromCompletionPath ~opens ~pos ~scope ~debug ~prefix ~env
+    ~rawOpens ~full completionPath =
+  let completionPathMinusOpens =
+    TypeUtils.removeOpensFromCompletionPath ~rawOpens ~package:full.package
+      completionPath
+    |> String.concat "."
+  in
+  let completionName name =
+    if completionPathMinusOpens = "" then name
+    else completionPathMinusOpens ^ "." ^ name
+  in
+  let completions =
+    completionPath @ [prefix]
+    |> getCompletionsForPath ~debug ~completionContext:Value ~exact:false ~opens
+         ~full ~pos ~env ~scope
+  in
+  let completions =
+    completions
+    |> List.map (fun (completion : Completion.t) ->
+           {completion with name = completionName completion.name; env})
+  in
+  completions
+
 let rec digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos ~env
     ~scope path =
   match
@@ -1028,62 +1052,10 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       let pipeCompletionsForModule =
         match pipeCompletion with
         | Some (path, completionPath) ->
-          (* Most of this is copied from the pipe completion code. Should probably be unified. *)
-          let completions =
-            completionPath @ [fieldName]
-            |> getCompletionsForPath ~debug ~completionContext:Value
-                 ~exact:false ~opens ~full ~pos ~env ~scope
-          in
-          let completionPathMinusOpens =
-            TypeUtils.removeOpensFromCompletionPath ~rawOpens ~package
-              completionPath
-            |> String.concat "."
-          in
-          let completionName name =
-            if completionPathMinusOpens = "" then name
-            else completionPathMinusOpens ^ "." ^ name
-          in
-          (* Find all functions in the module that takes type t *)
-          let rec fnTakesTypeT t =
-            match t.Types.desc with
-            | Tlink t1
-            | Tsubst t1
-            | Tpoly (t1, [])
-            | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
-              fnTakesTypeT t1
-            | Tarrow _ -> (
-              match
-                TypeUtils.extractFunctionType ~env ~package:full.package t
-              with
-              | (Nolabel, {desc = Tconstr (p, _, _)}) :: _, _ ->
-                Path.same p path || Path.name p = "t"
-              | _ -> false)
-            | _ -> false
-          in
-          completions
-          |> List.filter_map (fun (completion : Completion.t) ->
-                 match completion.kind with
-                 | Value t when fnTakesTypeT t ->
-                   let name = completionName completion.name in
-                   let nameWithPipe = "->" ^ name in
-                   (* TODO: We need to add support for setting the text insertion location explicitly,
-                      so we can account for the dot that triggered the completion, but that we want
-                      removed when inserting the pipe. This means we also need to track the loc of
-                      the dot + the identifier that we're filtering with (fieldName here).
-                      That should be easy to do by extending CPField. *)
-                   Some
-                     {
-                       completion with
-                       name = nameWithPipe;
-                       sortText =
-                         Some
-                           (name |> String.split_on_char '.' |> List.rev
-                          |> List.hd);
-                       insertText = Some nameWithPipe;
-                       env;
-                       range = Some fieldNameLoc;
-                     }
-                 | _ -> None)
+          completionsForPipeFromCompletionPath ~opens ~pos ~scope ~debug
+            ~prefix:fieldName ~env ~rawOpens ~full completionPath
+          |> TypeUtils.filterPipeableFunctions ~env ~full ~path
+               ~replaceRange:fieldNameLoc
         | None -> []
       in
       pipeCompletionsForModule
@@ -1134,6 +1106,10 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     with
     | None -> []
     | Some (typ, envFromCompletionItem) -> (
+      (* Extract any module to draw extra completions from for the identified type. *)
+      let extraModuleToCompleteFrom =
+        TypeUtils.getExtraModuleToCompleteFromForType typ ~env ~full
+      in
       let env, typ =
         typ
         |> TypeUtils.resolveTypeForPipeCompletion ~env ~package ~full ~lhsLoc
@@ -1184,32 +1160,20 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
               ~envFromItem:envFromCompletionItem (Utils.expandPath path)
           | _ -> None)
       in
+      let completionsFromExtraModule =
+        match extraModuleToCompleteFrom with
+        | None -> []
+        | Some completionPath ->
+          completionsForPipeFromCompletionPath ~opens ~pos ~scope ~debug
+            ~prefix:funNamePrefix ~env ~rawOpens ~full completionPath
+      in
       match completionPath with
       | Some completionPath -> (
-        let completionPathMinusOpens =
-          TypeUtils.removeOpensFromCompletionPath ~rawOpens ~package
-            completionPath
-          |> String.concat "."
+        let completionsFromMainFn =
+          completionsForPipeFromCompletionPath ~opens ~pos ~scope ~debug
+            ~prefix:funNamePrefix ~env ~rawOpens ~full completionPath
         in
-        let completionName name =
-          if completionPathMinusOpens = "" then name
-          else completionPathMinusOpens ^ "." ^ name
-        in
-        let completions =
-          completionPath @ [funNamePrefix]
-          |> getCompletionsForPath ~debug ~completionContext:Value ~exact:false
-               ~opens ~full ~pos ~env ~scope
-        in
-        let completions =
-          completions
-          |> List.map (fun (completion : Completion.t) ->
-                 {
-                   completion with
-                   name = completionName completion.name;
-                   env
-                   (* Restore original env for the completion after x->foo()... *);
-                 })
-        in
+        let completions = completionsFromMainFn @ completionsFromExtraModule in
         (* We add React element functions to the completion if we're in a JSX context *)
         let forJsxCompletion =
           if inJsx then
@@ -1246,7 +1210,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
           ]
           @ completions
         | _ -> completions)
-      | None -> []))
+      | None -> completionsFromExtraModule))
   | CTuple ctxPaths ->
     if Debug.verbose () then print_endline "[ctx_path]--> CTuple";
     (* Turn a list of context paths into a list of type expressions. *)

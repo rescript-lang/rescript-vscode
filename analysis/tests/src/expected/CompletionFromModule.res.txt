@@ -1,15 +1,11 @@
-
-Complete src/CompletionFromModule.res 11:5
-posCursor:[11:5] posNoWhite:[11:4] Found expr:[11:3->11:5]
-Pexp_field [11:3->11:4] _:[15:0->11:5]
-[set_result] set new result to Cpath Value[n].""
+Complete src/CompletionFromModule.res 10:5
+posCursor:[10:5] posNoWhite:[10:4] Found expr:[10:3->10:5]
+Pexp_field [10:3->10:4] _:[13:0->10:5]
 Completable: Cpath Value[n].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[n].""
-[ctx_path]--> CPField
 ContextPath Value[n]
-[ctx_path]--> CPId
 Path n
 Path SomeModule.
 [{
@@ -20,7 +16,7 @@ Path SomeModule.
     "documentation": null,
     "sortText": "getName",
     "textEdit": {
-    "range": {"start": {"line": 11, "character": 4}, "end": {"line": 11, "character": 4}},
+    "range": {"start": {"line": 10, "character": 4}, "end": {"line": 10, "character": 4}},
     "newText": "->SomeModule.getName"
   }
   }, {
@@ -31,19 +27,14 @@ Path SomeModule.
     "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype t = {name: string}\n```"}
   }]
 
-
-
-Complete src/CompletionFromModule.res 33:6
-posCursor:[33:6] posNoWhite:[33:5] Found expr:[33:3->33:6]
-Pexp_field [33:3->33:5] _:[40:0->33:6]
-[set_result] set new result to Cpath Value[nn].""
+Complete src/CompletionFromModule.res 30:6
+posCursor:[30:6] posNoWhite:[30:5] Found expr:[30:3->30:6]
+Pexp_field [30:3->30:5] _:[36:0->30:6]
 Completable: Cpath Value[nn].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[nn].""
-[ctx_path]--> CPField
 ContextPath Value[nn]
-[ctx_path]--> CPId
 Path nn
 Path SomeOtherModule.
 [{
@@ -54,7 +45,7 @@ Path SomeOtherModule.
     "documentation": null,
     "sortText": "getNName",
     "textEdit": {
-    "range": {"start": {"line": 33, "character": 5}, "end": {"line": 33, "character": 5}},
+    "range": {"start": {"line": 30, "character": 5}, "end": {"line": 30, "character": 5}},
     "newText": "->SomeOtherModule.getNName"
   }
   }, {
@@ -65,7 +56,7 @@ Path SomeOtherModule.
     "documentation": null,
     "sortText": "getNName2",
     "textEdit": {
-    "range": {"start": {"line": 33, "character": 5}, "end": {"line": 33, "character": 5}},
+    "range": {"start": {"line": 30, "character": 5}, "end": {"line": 30, "character": 5}},
     "newText": "->SomeOtherModule.getNName2"
   }
   }, {
@@ -76,8 +67,7 @@ Path SomeOtherModule.
     "documentation": {"kind": "markdown", "value": "```rescript\nnname: string\n```\n\n```rescript\ntype typeOutsideModule = {nname: string}\n```"}
   }]
 
-
-Complete src/CompletionFromModule.res 37:32
+Complete src/CompletionFromModule.res 33:32
 XXX Not found!
 Completable: Cpath Module[SomeOthe]
 Package opens Pervasives.JsxModules.place holder
@@ -89,6 +79,44 @@ Path SomeOthe
     "kind": 9,
     "tags": [],
     "detail": "module SomeOtherModule",
+    "documentation": null
+  }]
+
+Complete src/CompletionFromModule.res 38:8
+posCursor:[38:8] posNoWhite:[38:7] Found expr:[38:3->0:-1]
+Completable: Cpath Value[nnn]->
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[nnn]->
+ContextPath Value[nnn]
+Path nnn
+CPPipe env:CompletionFromModule
+CPPipe type path:typeOutsideModule
+CPPipe pathFromEnv: found:true
+Path SomeOtherModule.
+[{
+    "label": "SomeOtherModule.getNName",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => string",
+    "documentation": null
+  }, {
+    "label": "SomeOtherModule.getNName3",
+    "kind": 12,
+    "tags": [],
+    "detail": "irrelevantType => string",
+    "documentation": null
+  }, {
+    "label": "SomeOtherModule.thisShouldNotBeCompletedFor",
+    "kind": 12,
+    "tags": [],
+    "detail": "unit => string",
+    "documentation": null
+  }, {
+    "label": "SomeOtherModule.getNName2",
+    "kind": 12,
+    "tags": [],
+    "detail": "typeOutsideModule => string",
     "documentation": null
   }]
 

@@ -8,10 +8,8 @@ module SomeModule = {
 
 let n = {SomeModule.name: "hello"}
 
-// ^dv+
 // n.
 //   ^com
-// ^dv-
 
 @editor.completeFrom(SomeOtherModule)
 type typeOutsideModule = {nname: string}
@@ -30,10 +28,13 @@ module SomeOtherModule = {
 
 let nn: SomeOtherModule.t = {nname: "hello"}
 
-// ^dv+
 // nn.
 //    ^com
-// ^dv-
 
 // @editor.completeFrom(SomeOthe) type typeOutsideModule = {nname: string}
 //                              ^com
+
+let nnn: typeOutsideModule = {nname: "hello"}
+
+// nnn->
+//      ^com
