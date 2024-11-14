@@ -1,5 +1,5 @@
-Complete src/CompletionPipeSubmodules.res 12:20
-posCursor:[12:20] posNoWhite:[12:19] Found expr:[12:11->20:8]
+Complete src/CompletionPipeSubmodules.res 14:20
+posCursor:[14:20] posNoWhite:[14:19] Found expr:[14:11->22:8]
 Completable: Cpath Value[A, B1, xx]->
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -11,21 +11,15 @@ CPPipe type path:b1
 CPPipe pathFromEnv:A.B1 found:true
 Path A.B1.
 [{
-    "label": "A.B1.xx",
+    "label": "A.B1.d",
     "kind": 12,
     "tags": [],
-    "detail": "b1",
-    "documentation": {"kind": "markdown", "value": "```rescript\ntype b1 = B1\n```"}
-  }, {
-    "label": "A.B1.B1",
-    "kind": 4,
-    "tags": [],
-    "detail": "B1",
-    "documentation": {"kind": "markdown", "value": "```rescript\nB1\n```\n\n```rescript\ntype b1 = B1\n```"}
+    "detail": "t => string",
+    "documentation": null
   }]
 
-Complete src/CompletionPipeSubmodules.res 16:18
-posCursor:[16:18] posNoWhite:[16:17] Found expr:[16:11->20:8]
+Complete src/CompletionPipeSubmodules.res 18:18
+posCursor:[18:18] posNoWhite:[18:17] Found expr:[18:11->22:8]
 Completable: Cpath Value[A, x].v->
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -35,25 +29,19 @@ ContextPath Value[A, x]
 Path A.x
 Path v
 CPPipe env:CompletionPipeSubmodules envFromCompletionItem:CompletionPipeSubmodules.A
-CPPipe type path:B1.b1
+CPPipe type path:B1.t
 CPPipe pathFromEnv:A.B1 found:true
 Path A.B1.
 [{
-    "label": "A.B1.xx",
+    "label": "A.B1.d",
     "kind": 12,
     "tags": [],
-    "detail": "b1",
-    "documentation": {"kind": "markdown", "value": "```rescript\ntype b1 = B1\n```"}
-  }, {
-    "label": "A.B1.B1",
-    "kind": 4,
-    "tags": [],
-    "detail": "B1",
-    "documentation": {"kind": "markdown", "value": "```rescript\nB1\n```\n\n```rescript\ntype b1 = B1\n```"}
+    "detail": "t => string",
+    "documentation": null
   }]
 
-Complete src/CompletionPipeSubmodules.res 38:20
-posCursor:[38:20] posNoWhite:[38:19] Found expr:[38:11->0:-1]
+Complete src/CompletionPipeSubmodules.res 43:20
+posCursor:[43:20] posNoWhite:[43:19] Found expr:[43:11->0:-1]
 Completable: Cpath Value[E, e].v.v->
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -67,15 +55,15 @@ CPPipe type path:C.t
 CPPipe pathFromEnv:C found:false
 Path C.
 [{
-    "label": "C.C",
-    "kind": 4,
+    "label": "C.do",
+    "kind": 12,
     "tags": [],
-    "detail": "C",
-    "documentation": {"kind": "markdown", "value": "```rescript\nC\n```\n\n```rescript\ntype t = C\n```"}
+    "detail": "t => string",
+    "documentation": null
   }]
 
-Complete src/CompletionPipeSubmodules.res 42:21
-posCursor:[42:21] posNoWhite:[42:20] Found expr:[42:11->0:-1]
+Complete src/CompletionPipeSubmodules.res 47:21
+posCursor:[47:21] posNoWhite:[47:20] Found expr:[47:11->0:-1]
 Completable: Cpath Value[E, e].v.v2->
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
@@ -89,10 +77,10 @@ CPPipe type path:C2.t2
 CPPipe pathFromEnv:D.C2 found:true
 Path D.C2.
 [{
-    "label": "D.C2.C2",
-    "kind": 4,
+    "label": "D.C2.do",
+    "kind": 12,
     "tags": [],
-    "detail": "C2",
-    "documentation": {"kind": "markdown", "value": "```rescript\nC2\n```\n\n```rescript\ntype t2 = C2\n```"}
+    "detail": "t => string",
+    "documentation": null
   }]
 

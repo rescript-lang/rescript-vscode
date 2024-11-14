@@ -1159,17 +1159,20 @@ let getExtraModuleToCompleteFromForType ~env ~full (t : Types.type_expr) =
 
 (** Checks whether the provided type represents a function that takes the provided path 
   as the first argument (meaning it's pipeable). *)
-let rec fnTakesType ~env ~full ~path t =
+let rec fnTakesTypeAsFirstArg ~env ~full ~path t =
   match t.Types.desc with
   | Tlink t1
   | Tsubst t1
   | Tpoly (t1, [])
   | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
-    fnTakesType ~env ~full ~path t1
+    fnTakesTypeAsFirstArg ~env ~full ~path t1
   | Tarrow _ -> (
     match extractFunctionType ~env ~package:full.package t with
-    | (Nolabel, {desc = Tconstr (p, _, _)}) :: _, _ ->
-      Path.same p path || Path.name p = "t"
+    | (Nolabel, t) :: _, _ -> (
+      let p = pathFromTypeExpr t in
+      match p with
+      | None -> false
+      | Some p -> Path.same p path || Path.name p = "t")
     | _ -> false)
   | _ -> false
 
@@ -1189,13 +1192,20 @@ let transformCompletionToPipeCompletion ~env ~replaceRange
     }
 
 (** Filters out completions that are not pipeable from a list of completions. *)
-let filterPipeableFunctions ~env ~full ~path ~replaceRange completions =
-  completions
-  |> List.filter_map (fun (completion : Completion.t) ->
-         match completion.kind with
-         | Value t when fnTakesType ~env ~full ~path t ->
-           transformCompletionToPipeCompletion ~env ~replaceRange completion
-         | _ -> None)
+let filterPipeableFunctions ~env ~full ?path ?replaceRange completions =
+  match path with
+  | None -> completions
+  | Some path ->
+    completions
+    |> List.filter_map (fun (completion : Completion.t) ->
+           match completion.kind with
+           | Value t when fnTakesTypeAsFirstArg ~env ~full ~path t -> (
+             match replaceRange with
+             | None -> Some completion
+             | Some replaceRange ->
+               transformCompletionToPipeCompletion ~env ~replaceRange completion
+             )
+           | _ -> None)
 
 let removeCurrentModuleIfNeeded ~envCompletionIsMadeFrom completionPath =
   if

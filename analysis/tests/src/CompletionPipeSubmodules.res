@@ -1,12 +1,14 @@
 module A = {
   module B1 = {
     type b1 = B1
+    type t = b1 // TODO(pipe-filter) Should be allowed without needing type t
     let xx = B1
+    let d = (_: t) => ""
   }
   module B2 = {
     let yy = 20
   }
-  type t = {v: B1.b1}
+  type t = {v: B1.t} // TODO(pipe-filter) Should be allowed without needing type t
   let x = {v: B1.B1}
 }
 
@@ -20,11 +22,14 @@ module A = {
 
 module C = {
   type t = C
+  let do = (_: t) => ""
 }
 
 module D = {
   module C2 = {
     type t2 = C2
+    type t = t2 // TODO(pipe-filter) Should be allowed without needing type t
+    let do = (_: t) => ""
   }
 
   type d = {v: C.t, v2: C2.t2}

@@ -828,41 +828,31 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     if Debug.verbose () then print_endline "[ctx_path]--> CPString";
     [
       Completion.create "dummy" ~env
-        ~kind:
-          (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "string")) []));
+        ~kind:(Completion.Value (Ctype.newconstr Predef.path_string []));
     ]
   | CPBool ->
     if Debug.verbose () then print_endline "[ctx_path]--> CPBool";
     [
       Completion.create "dummy" ~env
-        ~kind:
-          (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "bool")) []));
+        ~kind:(Completion.Value (Ctype.newconstr Predef.path_bool []));
     ]
   | CPInt ->
     if Debug.verbose () then print_endline "[ctx_path]--> CPInt";
     [
       Completion.create "dummy" ~env
-        ~kind:
-          (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "int")) []));
+        ~kind:(Completion.Value (Ctype.newconstr Predef.path_int []));
     ]
   | CPFloat ->
     if Debug.verbose () then print_endline "[ctx_path]--> CPFloat";
     [
       Completion.create "dummy" ~env
-        ~kind:
-          (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "float")) []));
+        ~kind:(Completion.Value (Ctype.newconstr Predef.path_float []));
     ]
   | CPArray None ->
     if Debug.verbose () then print_endline "[ctx_path]--> CPArray (no payload)";
     [
       Completion.create "array" ~env
-        ~kind:
-          (Completion.Value
-             (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
+        ~kind:(Completion.Value (Ctype.newconstr Predef.path_array []));
     ]
   | CPArray (Some cp) -> (
     if Debug.verbose () then
@@ -887,9 +877,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
          what inner type it has. *)
       [
         Completion.create "dummy" ~env
-          ~kind:
-            (Completion.Value
-               (Ctype.newconstr (Path.Pident (Ident.create "array")) []));
+          ~kind:(Completion.Value (Ctype.newconstr Predef.path_array []));
       ])
   | CPOption cp -> (
     if Debug.verbose () then print_endline "[ctx_path]--> CPOption";
@@ -1135,6 +1123,10 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
             (QueryEnv.toString env)
             (QueryEnv.toString envFromCompletionItem)
         else Printf.printf "CPPipe env:%s\n" (QueryEnv.toString env);
+      let tPath =
+        match typ with
+        | Builtin (_, t) | TypExpr t -> TypeUtils.pathFromTypeExpr t
+      in
       let completionPath =
         match typ with
         | Builtin (builtin, _) ->
@@ -1186,6 +1178,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
           completionsForPipeFromCompletionPath ~envCompletionIsMadeFrom ~opens
             ~pos ~scope ~debug ~prefix:funNamePrefix ~env ~rawOpens ~full
             completionPath
+          |> TypeUtils.filterPipeableFunctions ~env ~full ?path:tPath
       in
       match completionPath with
       | Some completionPath -> (
@@ -1193,6 +1186,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
           completionsForPipeFromCompletionPath ~envCompletionIsMadeFrom ~opens
             ~pos ~scope ~debug ~prefix:funNamePrefix ~env ~rawOpens ~full
             completionPath
+          |> TypeUtils.filterPipeableFunctions ~env ~full ?path:tPath
         in
         let completions = completionsFromMainFn @ completionsFromExtraModule in
         (* We add React element functions to the completion if we're in a JSX context *)
@@ -1822,8 +1816,7 @@ let rec completeTypedValue ?(typeArgContext : typeArgContext option) ~rawOpens
     if prefix = "" then
       [
         create "\"\"" ~includesSnippets:true ~insertText:"\"$0\"" ~sortText:"A"
-          ~kind:
-            (Value (Ctype.newconstr (Path.Pident (Ident.create "string")) []))
+          ~kind:(Value (Ctype.newconstr Predef.path_string []))
           ~env;
       ]
     else []
@@ -2012,7 +2005,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         stamp = -1;
         fname = {loc = Location.none; txt = name};
         optional = true;
-        typ = Ctype.newconstr (Path.Pident (Ident.create primitive)) [];
+        typ = Ctype.newconstr primitive [];
         docstring = [];
         deprecated = None;
       }
@@ -2026,9 +2019,9 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
           attributes = [];
           fields =
             [
-              mkField ~name:"version" ~primitive:"int";
-              mkField ~name:"module_" ~primitive:"string";
-              mkField ~name:"mode" ~primitive:"string";
+              mkField ~name:"version" ~primitive:Predef.path_int;
+              mkField ~name:"module_" ~primitive:Predef.path_string;
+              mkField ~name:"mode" ~primitive:Predef.path_string;
             ];
         }
     in
@@ -2044,7 +2037,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         stamp = -1;
         fname = {loc = Location.none; txt = name};
         optional = true;
-        typ = Ctype.newconstr (Path.Pident (Ident.create primitive)) [];
+        typ = Ctype.newconstr primitive [];
         docstring = [];
         deprecated = None;
       }
@@ -2056,7 +2049,7 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
           path = None;
           attributes = [];
           definition = `NameOnly "importAttributesConfig";
-          fields = [mkField ~name:"type_" ~primitive:"string"];
+          fields = [mkField ~name:"type_" ~primitive:Predef.path_string];
         }
     in
     let rootConfig : completionType =
@@ -2068,8 +2061,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
           definition = `NameOnly "moduleConfig";
           fields =
             [
-              mkField ~name:"from" ~primitive:"string";
-              mkField ~name:"with" ~primitive:"string";
+              mkField ~name:"from" ~primitive:Predef.path_string;
+              mkField ~name:"with" ~primitive:Predef.path_string;
             ];
         }
     in

@@ -75,18 +75,6 @@ Path CompletionFromModule.SomeOtherModule.
     "detail": "t => string",
     "documentation": null
   }, {
-    "label": "CompletionFromModule.SomeOtherModule.getNName3",
-    "kind": 12,
-    "tags": [],
-    "detail": "irrelevantType => string",
-    "documentation": null
-  }, {
-    "label": "CompletionFromModule.SomeOtherModule.thisShouldNotBeCompletedFor",
-    "kind": 12,
-    "tags": [],
-    "detail": "unit => string",
-    "documentation": null
-  }, {
     "label": "CompletionFromModule.SomeOtherModule.getNName2",
     "kind": 12,
     "tags": [],
@@ -112,18 +100,6 @@ Path CompletionFromModule.SomeOtherModule.
     "kind": 12,
     "tags": [],
     "detail": "t => string",
-    "documentation": null
-  }, {
-    "label": "getNName3",
-    "kind": 12,
-    "tags": [],
-    "detail": "irrelevantType => string",
-    "documentation": null
-  }, {
-    "label": "thisShouldNotBeCompletedFor",
-    "kind": 12,
-    "tags": [],
-    "detail": "unit => string",
     "documentation": null
   }, {
     "label": "getNName2",
