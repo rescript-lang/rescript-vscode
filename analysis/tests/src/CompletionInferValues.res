@@ -13,7 +13,7 @@ let reactEventFn = (cb: ReactEvent.Mouse.t => unit) => {
 
 @val external getSomeRecord: unit => someRecord = "getSomeRecord"
 
-// let x = 123; let aliased = x; aliased->f
+// let x = 123; let aliased = x; aliased->t
 //                                         ^com
 
 // let x = getSomeRecord(); x.

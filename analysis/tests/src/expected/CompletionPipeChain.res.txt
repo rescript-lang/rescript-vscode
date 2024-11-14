@@ -28,12 +28,6 @@ Path Integer.
     "tags": [],
     "detail": "(t, int => int) => t",
     "documentation": null
-  }, {
-    "label": "Integer.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
-    "documentation": null
   }]
 
 Complete src/CompletionPipeChain.res 30:23
@@ -50,12 +44,6 @@ CPPipe type path:SuperFloat.t
 CPPipe pathFromEnv:SuperFloat found:true
 Path SuperFloat.
 [{
-    "label": "SuperFloat.fromInteger",
-    "kind": 12,
-    "tags": [],
-    "detail": "Integer.t => t",
-    "documentation": null
-  }, {
     "label": "SuperFloat.toInteger",
     "kind": 12,
     "tags": [],
@@ -94,12 +82,6 @@ Path Integer.
     "tags": [],
     "detail": "(t, int => int) => t",
     "documentation": null
-  }, {
-    "label": "Integer.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
-    "documentation": null
   }]
 
 Complete src/CompletionPipeChain.res 36:38
@@ -132,12 +114,6 @@ Path Integer.
     "kind": 12,
     "tags": [],
     "detail": "(t, int => int) => t",
-    "documentation": null
-  }, {
-    "label": "Integer.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
     "documentation": null
   }]
 
@@ -172,12 +148,6 @@ Path Integer.
     "tags": [],
     "detail": "(t, int => int) => t",
     "documentation": null
-  }, {
-    "label": "Integer.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
-    "documentation": null
   }]
 
 Complete src/CompletionPipeChain.res 42:69
@@ -211,12 +181,6 @@ Path Integer.
     "tags": [],
     "detail": "(t, int => int) => t",
     "documentation": null
-  }, {
-    "label": "Integer.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
-    "documentation": null
   }]
 
 Complete src/CompletionPipeChain.res 45:62
@@ -233,12 +197,6 @@ CPPipe type path:t
 CPPipe pathFromEnv:SuperFloat found:true
 Path SuperFloat.
 [{
-    "label": "SuperFloat.fromInteger",
-    "kind": 12,
-    "tags": [],
-    "detail": "Integer.t => t",
-    "documentation": null
-  }, {
     "label": "SuperFloat.toInteger",
     "kind": 12,
     "tags": [],
@@ -292,12 +250,6 @@ Path CompletionSupport.Test.
     "tags": [],
     "detail": "t => t",
     "documentation": null
-  }, {
-    "label": "CompletionSupport.Test.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
-    "documentation": null
   }]
 
 Complete src/CompletionPipeChain.res 54:78
@@ -324,12 +276,6 @@ Path CompletionSupport.Test.
     "kind": 12,
     "tags": [],
     "detail": "t => t",
-    "documentation": null
-  }, {
-    "label": "CompletionSupport.Test.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
     "documentation": null
   }]
 
@@ -396,12 +342,6 @@ Path CompletionSupport.Test.
     "tags": [],
     "detail": "t => t",
     "documentation": null
-  }, {
-    "label": "CompletionSupport.Test.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
-    "documentation": null
   }]
 
 Complete src/CompletionPipeChain.res 73:15
@@ -427,12 +367,6 @@ Path CompletionSupport.Test.
     "kind": 12,
     "tags": [],
     "detail": "t => t",
-    "documentation": null
-  }, {
-    "label": "CompletionSupport.Test.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
     "documentation": null
   }]
 
@@ -524,12 +458,6 @@ Path Integer.
     "kind": 12,
     "tags": [],
     "detail": "(t, int => int) => t",
-    "documentation": null
-  }, {
-    "label": "Integer.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
     "documentation": null
   }]
 
