@@ -11,7 +11,7 @@ let n = {SomeModule.name: "hello"}
 // n.
 //   ^com
 
-@editor.completeFrom(SomeOtherModule)
+@editor.completeFrom(CompletionFromModule.SomeOtherModule)
 type typeOutsideModule = {nname: string}
 
 module SomeOtherModule = {
@@ -36,5 +36,9 @@ let nn: SomeOtherModule.t = {nname: "hello"}
 
 let nnn: typeOutsideModule = {nname: "hello"}
 
+// nnn->
+//      ^com
+
+open SomeOtherModule
 // nnn->
 //      ^com

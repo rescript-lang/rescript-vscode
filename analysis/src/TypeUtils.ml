@@ -1196,3 +1196,10 @@ let filterPipeableFunctions ~env ~full ~path ~replaceRange completions =
          | Value t when fnTakesType ~env ~full ~path t ->
            transformCompletionToPipeCompletion ~env ~replaceRange completion
          | _ -> None)
+
+let removeCurrentModuleIfNeeded ~envCompletionIsMadeFrom completionPath =
+  if
+    List.length completionPath > 0
+    && List.hd completionPath = envCompletionIsMadeFrom.QueryEnv.file.moduleName
+  then List.tl completionPath
+  else completionPath

@@ -636,8 +636,12 @@ let getCompletionsForPath ~debug ~opens ~full ~pos ~exact ~scope
     | None -> [])
 
 (** Completions intended for piping, from a completion path. *)
-let completionsForPipeFromCompletionPath ~opens ~pos ~scope ~debug ~prefix ~env
-    ~rawOpens ~full completionPath =
+let completionsForPipeFromCompletionPath ~envCompletionIsMadeFrom ~opens ~pos
+    ~scope ~debug ~prefix ~env ~rawOpens ~full completionPath =
+  let completionPath =
+    TypeUtils.removeCurrentModuleIfNeeded ~envCompletionIsMadeFrom
+      completionPath
+  in
   let completionPathMinusOpens =
     TypeUtils.removeOpensFromCompletionPath ~rawOpens ~package:full.package
       completionPath
@@ -814,6 +818,7 @@ and completionsGetTypeEnv2 ~debug (completions : Completion.t list) ~full ~opens
 
 and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     ~scope ?(mode = Regular) contextPath =
+  let envCompletionIsMadeFrom = env in
   if debug then
     Printf.printf "ContextPath %s\n"
       (Completable.contextPathToString contextPath);
@@ -1036,25 +1041,34 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     in
     match extracted with
     | None -> []
-    | Some (env, fields, recordAsString, path, attributes) ->
+    | Some (envFromExtracted, fields, recordAsString, path, attributes) ->
       let pipeCompletion =
         match
           (path, ProcessAttributes.findEditorCompleteFromAttribute attributes)
         with
         | Some path, _ when Path.last path = "t" ->
+          if Debug.verbose () then Printf.printf "CPField--> type is type t\n";
           Some
             ( path,
               path |> SharedTypes.pathIdentToString |> String.split_on_char '.'
               |> List.rev |> List.tl )
-        | Some path, Some modulePath -> Some (path, modulePath)
+        | Some path, Some modulePath ->
+          if Debug.verbose () then
+            Printf.printf
+              "CPField--> type has completeFrom config for module %s, hd: %s, \
+               env moduleName: %s\n"
+              (modulePath |> SharedTypes.pathToString)
+              (List.hd modulePath) env.file.moduleName;
+          Some (path, modulePath)
         | _ -> None
       in
       let pipeCompletionsForModule =
         match pipeCompletion with
         | Some (path, completionPath) ->
           completionsForPipeFromCompletionPath ~opens ~pos ~scope ~debug
-            ~prefix:fieldName ~env ~rawOpens ~full completionPath
-          |> TypeUtils.filterPipeableFunctions ~env ~full ~path
+            ~prefix:fieldName ~envCompletionIsMadeFrom:env ~env:envFromExtracted
+            ~rawOpens ~full completionPath
+          |> TypeUtils.filterPipeableFunctions ~env:envFromExtracted ~full ~path
                ~replaceRange:fieldNameLoc
         | None -> []
       in
@@ -1063,7 +1077,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         |> Utils.filterMap (fun field ->
                if Utils.checkName field.fname.txt ~prefix:fieldName ~exact then
                  Some
-                   (Completion.create field.fname.txt ~env
+                   (Completion.create field.fname.txt ~env:envFromExtracted
                       ?deprecated:field.deprecated ~docstring:field.docstring
                       ~kind:(Completion.Field (field, recordAsString)))
                else None)))
@@ -1108,7 +1122,8 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     | Some (typ, envFromCompletionItem) -> (
       (* Extract any module to draw extra completions from for the identified type. *)
       let extraModuleToCompleteFrom =
-        TypeUtils.getExtraModuleToCompleteFromForType typ ~env ~full
+        TypeUtils.getExtraModuleToCompleteFromForType typ
+          ~env:envFromCompletionItem ~full
       in
       let env, typ =
         typ
@@ -1164,14 +1179,20 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         match extraModuleToCompleteFrom with
         | None -> []
         | Some completionPath ->
-          completionsForPipeFromCompletionPath ~opens ~pos ~scope ~debug
-            ~prefix:funNamePrefix ~env ~rawOpens ~full completionPath
+          if Debug.verbose () then
+            Printf.printf
+              "[ctx_path]--> CPPipe --> Found extra module to complete from: %s\n"
+              (completionPath |> SharedTypes.pathToString);
+          completionsForPipeFromCompletionPath ~envCompletionIsMadeFrom ~opens
+            ~pos ~scope ~debug ~prefix:funNamePrefix ~env ~rawOpens ~full
+            completionPath
       in
       match completionPath with
       | Some completionPath -> (
         let completionsFromMainFn =
-          completionsForPipeFromCompletionPath ~opens ~pos ~scope ~debug
-            ~prefix:funNamePrefix ~env ~rawOpens ~full completionPath
+          completionsForPipeFromCompletionPath ~envCompletionIsMadeFrom ~opens
+            ~pos ~scope ~debug ~prefix:funNamePrefix ~env ~rawOpens ~full
+            completionPath
         in
         let completions = completionsFromMainFn @ completionsFromExtraModule in
         (* We add React element functions to the completion if we're in a JSX context *)
