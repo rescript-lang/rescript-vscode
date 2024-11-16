@@ -1172,7 +1172,16 @@ let rec fnTakesTypeAsFirstArg ~env ~full ~path t =
       let p = pathFromTypeExpr t in
       match p with
       | None -> false
-      | Some p -> Path.same p path || Path.name p = "t")
+      | Some p ->
+        (*
+           Rules:
+           - The path p of the current type in the module we're looking at is relative to the current module.
+           - The path we're comparing against, `path`, is assumed to belong to this current module, because we're completing from it.
+
+           Therefore, we can safely pluck out just the last part of the `path`, but need to use the entire name of the current type
+           we're comparing with.
+        *)
+        Path.name p = Path.last path || Path.name p = "t")
     | _ -> false)
   | _ -> false
 

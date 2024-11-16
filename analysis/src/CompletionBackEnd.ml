@@ -1113,6 +1113,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         TypeUtils.getExtraModuleToCompleteFromForType typ
           ~env:envFromCompletionItem ~full
       in
+      let tPath = TypeUtils.pathFromTypeExpr typ in
       let env, typ =
         typ
         |> TypeUtils.resolveTypeForPipeCompletion ~env ~package ~full ~lhsLoc
@@ -1123,10 +1124,6 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
             (QueryEnv.toString env)
             (QueryEnv.toString envFromCompletionItem)
         else Printf.printf "CPPipe env:%s\n" (QueryEnv.toString env);
-      let tPath =
-        match typ with
-        | Builtin (_, t) | TypExpr t -> TypeUtils.pathFromTypeExpr t
-      in
       let completionPath =
         match typ with
         | Builtin (builtin, _) ->

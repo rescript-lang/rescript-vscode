@@ -501,3 +501,23 @@ Path Js.Re.la
     "documentation": {"kind": "markdown", "value": "\nReturns the index where the next match will start its search. This property\nwill be modified when the RegExp object is used, if the global (\"g\") flag is\nset.\n\n## Examples\n\n```rescript\nlet re = %re(\"/ab*TODO/g\")\nlet str = \"abbcdefabh\"\n\nlet break = ref(false)\nwhile !break.contents {\n  switch Js.Re.exec_(re, str) {\n  | Some(result) => Js.Nullable.iter(Js.Re.captures(result)[0], (. match_) => {\n      let next = Belt.Int.toString(Js.Re.lastIndex(re))\n      Js.log(\"Found \" ++ (match_ ++ (\". Next match starts at \" ++ next)))\n    })\n  | None => break := true\n  }\n}\n```\n\nSee\n[`RegExp: lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex)\non MDN.\n"}
   }]
 
+Complete src/CompletionPipeChain.res 112:7
+posCursor:[112:7] posNoWhite:[112:6] Found expr:[112:3->0:-1]
+Completable: Cpath Value[xx]->
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[xx]->
+ContextPath Value[xx]
+Path xx
+CPPipe env:CompletionPipeChain
+CPPipe type path:Xyz.xx
+CPPipe pathFromEnv:Xyz found:true
+Path Xyz.
+[{
+    "label": "Xyz.do",
+    "kind": 12,
+    "tags": [],
+    "detail": "xx => string",
+    "documentation": null
+  }]
+
