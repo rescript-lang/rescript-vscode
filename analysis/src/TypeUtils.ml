@@ -1159,13 +1159,13 @@ let getExtraModuleToCompleteFromForType ~env ~full (t : Types.type_expr) =
 
 (** Checks whether the provided type represents a function that takes the provided path 
   as the first argument (meaning it's pipeable). *)
-let rec fnTakesTypeAsFirstArg ~env ~full ~path t =
+let rec fnTakesTypeAsFirstArg ~env ~full ~lastPath t =
   match t.Types.desc with
   | Tlink t1
   | Tsubst t1
   | Tpoly (t1, [])
   | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
-    fnTakesTypeAsFirstArg ~env ~full ~path t1
+    fnTakesTypeAsFirstArg ~env ~full ~lastPath t1
   | Tarrow _ -> (
     match extractFunctionType ~env ~package:full.package t with
     | (Nolabel, t) :: _, _ -> (
@@ -1181,7 +1181,7 @@ let rec fnTakesTypeAsFirstArg ~env ~full ~path t =
            Therefore, we can safely pluck out just the last part of the `path`, but need to use the entire name of the current type
            we're comparing with.
         *)
-        Path.name p = Path.last path || Path.name p = "t")
+        Path.name p = lastPath || Path.name p = "t")
     | _ -> false)
   | _ -> false
 
@@ -1201,14 +1201,14 @@ let transformCompletionToPipeCompletion ~env ~replaceRange
     }
 
 (** Filters out completions that are not pipeable from a list of completions. *)
-let filterPipeableFunctions ~env ~full ?path ?replaceRange completions =
-  match path with
+let filterPipeableFunctions ~env ~full ?lastPath ?replaceRange completions =
+  match lastPath with
   | None -> completions
-  | Some path ->
+  | Some lastPath ->
     completions
     |> List.filter_map (fun (completion : Completion.t) ->
            match completion.kind with
-           | Value t when fnTakesTypeAsFirstArg ~env ~full ~path t -> (
+           | Value t when fnTakesTypeAsFirstArg ~env ~full ~lastPath t -> (
              match replaceRange with
              | None -> Some completion
              | Some replaceRange ->
@@ -1222,3 +1222,12 @@ let removeCurrentModuleIfNeeded ~envCompletionIsMadeFrom completionPath =
     && List.hd completionPath = envCompletionIsMadeFrom.QueryEnv.file.moduleName
   then List.tl completionPath
   else completionPath
+
+let rec getObjFields (texp : Types.type_expr) =
+  match texp.desc with
+  | Tfield (name, _, t1, t2) ->
+    let fields = t2 |> getObjFields in
+    (name, t1) :: fields
+  | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getObjFields
+  | Tvar None -> []
+  | _ -> []
