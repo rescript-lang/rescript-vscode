@@ -1,0 +1,246 @@
+
+Complete src/DotCompletionEverywhere.res 5:11
+posCursor:[5:11] posNoWhite:[5:10] Found expr:[5:3->5:11]
+Pexp_field [5:3->5:10] _:[11:0->5:11]
+[set_result] set new result to Cpath Value[someObj].""
+Completable: Cpath Value[someObj].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someObj].""
+[ctx_path]--> dot completion!
+ContextPath Value[someObj]
+[ctx_path]--> CPId
+Path someObj
+[dot_completion]--> Obj type found:
+[{
+    "label": "[\"age\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 10}},
+    "newText": "[\"age\"]"
+  }
+  }, {
+    "label": "[\"name\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 10}},
+    "newText": "[\"name\"]"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 8:13
+posCursor:[8:13] posNoWhite:[8:12] Found expr:[8:3->8:13]
+Pexp_field [8:3->8:10] na:[8:11->8:13]
+[set_result] set new result to Cpath Value[someObj].na
+Completable: Cpath Value[someObj].na
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someObj].na
+[ctx_path]--> dot completion!
+ContextPath Value[someObj]
+[ctx_path]--> CPId
+Path someObj
+[dot_completion]--> Obj type found:
+[{
+    "label": "[\"name\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 8, "character": 11}, "end": {"line": 8, "character": 13}},
+    "newText": "[\"name\"]"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 14:8
+posCursor:[14:8] posNoWhite:[14:7] Found expr:[14:3->14:8]
+Pexp_field [14:3->14:6] n:[14:7->14:8]
+[set_result] set new result to Cpath Value[rrr].n
+Completable: Cpath Value[rrr].n
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[rrr].n
+[ctx_path]--> dot completion!
+ContextPath Value[rrr]
+[ctx_path]--> CPId
+Path rrr
+[dot_completion]--> Record type found
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype rrr = {name: string}\n```"}
+  }]
+
+Complete src/DotCompletionEverywhere.res 29:5
+posCursor:[29:5] posNoWhite:[29:4] Found expr:[29:3->29:5]
+Pexp_field [29:3->29:4] _:[35:0->29:5]
+[set_result] set new result to Cpath Value[x].""
+Completable: Cpath Value[x].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[x].""
+[ctx_path]--> dot completion!
+ContextPath Value[x]
+[ctx_path]--> CPId
+Path x
+Path SomeMod.SomeOtherMod.
+[{
+    "label": "->SomeMod.SomeOtherMod.do",
+    "kind": 12,
+    "tags": [],
+    "detail": "x => unit",
+    "documentation": null,
+    "sortText": "do",
+    "textEdit": {
+    "range": {"start": {"line": 29, "character": 4}, "end": {"line": 29, "character": 4}},
+    "newText": "->SomeMod.SomeOtherMod.do"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 32:27
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[32:3->32:27]
+Pexp_field [32:3->32:26] _:[35:0->32:27]
+[set_result] set new result to Cpath Value[SomeMod, SomeOtherMod, xx].""
+Completable: Cpath Value[SomeMod, SomeOtherMod, xx].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[SomeMod, SomeOtherMod, xx].""
+[ctx_path]--> dot completion!
+ContextPath Value[SomeMod, SomeOtherMod, xx]
+[ctx_path]--> CPId
+Path SomeMod.SomeOtherMod.xx
+Path SomeMod.SomeOtherMod.
+[{
+    "label": "->SomeMod.SomeOtherMod.do",
+    "kind": 12,
+    "tags": [],
+    "detail": "x => unit",
+    "documentation": null,
+    "sortText": "do",
+    "textEdit": {
+    "range": {"start": {"line": 32, "character": 26}, "end": {"line": 32, "character": 26}},
+    "newText": "->SomeMod.SomeOtherMod.do"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 41:11
+posCursor:[41:11] posNoWhite:[41:10] Found expr:[41:3->41:11]
+Pexp_field [41:3->41:10] _:[44:0->41:11]
+[set_result] set new result to Cpath Value[Sss, rrr].""
+Completable: Cpath Value[Sss, rrr].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Sss, rrr].""
+[ctx_path]--> dot completion!
+ContextPath Value[Sss, rrr]
+[ctx_path]--> CPId
+Path Sss.rrr
+[dot_completion]--> Record type found
+Path Sss.
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype rrr = {name: string}\n```"}
+  }, {
+    "label": "->Sss.do",
+    "kind": 12,
+    "tags": [],
+    "detail": "rrr => string",
+    "documentation": null,
+    "sortText": "do",
+    "textEdit": {
+    "range": {"start": {"line": 41, "character": 10}, "end": {"line": 41, "character": 10}},
+    "newText": "->Sss.do"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 52:8
+posCursor:[52:8] posNoWhite:[52:7] Found expr:[52:3->52:8]
+Pexp_field [52:3->52:7] _:[55:0->52:8]
+[set_result] set new result to Cpath Value[x2x2].""
+Completable: Cpath Value[x2x2].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[x2x2].""
+[ctx_path]--> dot completion!
+ContextPath Value[x2x2]
+[ctx_path]--> CPId
+Path x2x2
+[dot_completion]--> Record type found
+Path X2.
+[{
+    "label": "namee",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnamee: string\n```\n\n```rescript\ntype x2x2 = {namee: string}\n```"}
+  }, {
+    "label": "->X2.stuff",
+    "kind": 12,
+    "tags": [],
+    "detail": "x2x2 => string",
+    "documentation": null,
+    "sortText": "stuff",
+    "textEdit": {
+    "range": {"start": {"line": 52, "character": 7}, "end": {"line": 52, "character": 7}},
+    "newText": "->X2.stuff"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 61:7
+posCursor:[61:7] posNoWhite:[61:6] Found expr:[61:3->61:7]
+Pexp_field [61:3->61:6] _:[66:0->61:7]
+[set_result] set new result to Cpath Value[obj].""
+Completable: Cpath Value[obj].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[obj].""
+[ctx_path]--> dot completion!
+ContextPath Value[obj]
+[ctx_path]--> CPId
+Path obj
+[dot_completion]--> Obj type found:
+[{
+    "label": "[\"name\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
+    "newText": "[\"name\"]"
+  }
+  }, {
+    "label": "[\"nothing\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
+    "newText": "[\"nothing\"]"
+  }
+  }, {
+    "label": "[\"number\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
+    "newText": "[\"number\"]"
+  }
+  }]
+
+
