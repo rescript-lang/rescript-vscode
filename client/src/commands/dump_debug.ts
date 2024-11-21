@@ -7,7 +7,11 @@ import {
   ViewColumn,
   window,
 } from "vscode";
-import { createFileInTempDir, getAnalysisBinaryPath } from "../utils";
+import {
+  createFileInTempDir,
+  findProjectRootOfFileInDir,
+  getBinaryPath,
+} from "../utils";
 import * as path from "path";
 
 // Maps to Cli.ml
@@ -132,7 +136,11 @@ export const dumpDebug = async (
   const { line: endLine, character: endChar } = editor.selection.end;
   const filePath = editor.document.uri.fsPath;
 
-  const binaryPath = getAnalysisBinaryPath();
+  let projectRootPath: string | null = findProjectRootOfFileInDir(filePath);
+  const binaryPath = getBinaryPath(
+    "rescript-editor-analysis.exe",
+    projectRootPath
+  );
   if (binaryPath === null) {
     window.showErrorMessage("Binary executable not found.");
     return;

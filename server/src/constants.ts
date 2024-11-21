@@ -10,21 +10,22 @@ export let jsonrpcVersion = "2.0";
 export let platformPath = path.join("rescript", platformDir);
 export let nodeModulesPlatformPath = path.join("node_modules", platformPath);
 export let bscExeName = "bsc.exe";
+export let editorAnalysisName = "rescript-editor-analysis.exe";
 export let bscNativeReScriptPartialPath = path.join(
   nodeModulesPlatformPath,
   bscExeName
 );
 
-export let analysisDevPath = path.join(
+export let builtinAnalysisDevPath = path.join(
   path.dirname(__dirname),
   "..",
-  "rescript-editor-analysis.exe"
+  editorAnalysisName
 );
-export let analysisProdPath = path.join(
+export let builtinAnalysisProdPath = path.join(
   path.dirname(__dirname),
   "analysis_binaries",
   platformDir,
-  "rescript-editor-analysis.exe"
+  editorAnalysisName
 );
 
 export let rescriptBinName = "rescript";

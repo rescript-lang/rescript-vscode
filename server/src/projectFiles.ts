@@ -11,6 +11,7 @@ interface projectFiles {
   filesDiagnostics: filesDiagnostics;
   rescriptVersion: string | undefined;
   bscBinaryLocation: string | null;
+  editorAnalysisLocation: string | null;
   namespaceName: string | null;
 
   bsbWatcherByEditor: null | cp.ChildProcess;
