@@ -8,6 +8,8 @@ let fullForCmt ~moduleName ~package ~uri cmt =
     let extra = ProcessExtra.getExtra ~file ~infos in
     Some {file; extra; package}
 
+let ( /+ ) = Filename.concat
+
 let fullFromUri ~uri =
   let path = Uri.toPath uri in
   match Packages.getPackage ~uri with
@@ -19,7 +21,7 @@ let fullFromUri ~uri =
     let incremental =
       if !Cfg.inIncrementalTypecheckingMode then
         let incrementalCmtPath =
-          package.rootPath ^ "/lib/bs/___incremental" ^ "/" ^ moduleName
+          (package.rootPath /+ "lib" /+ "bs" /+ "___incremental" /+ moduleName)
           ^
           match Files.classifySourceFile path with
           | Resi -> ".cmti"
