@@ -19,7 +19,10 @@ function debug() {
 }
 
 const INCREMENTAL_FOLDER_NAME = "___incremental";
-const INCREMENTAL_FILE_FOLDER_LOCATION = `lib/bs/${INCREMENTAL_FOLDER_NAME}`;
+const INCREMENTAL_FILE_FOLDER_LOCATION = path.join(
+  c.compilerDirPartialPath,
+  INCREMENTAL_FOLDER_NAME
+);
 
 type RewatchCompilerArgs = {
   compiler_args: Array<string>;
@@ -190,11 +193,11 @@ function getBscArgs(
 ): Promise<Array<string> | RewatchCompilerArgs | null> {
   const buildNinjaPath = path.resolve(
     entry.project.rootPath,
-    "lib/bs/build.ninja"
+    c.buildNinjaPartialPath
   );
   const rewatchLockfile = path.resolve(
     entry.project.workspaceRootPath,
-    "lib/rewatch.lock"
+    c.rewatchLockPartialPath
   );
   let buildSystem: "bsb" | "rewatch" | null = null;
 
@@ -246,7 +249,13 @@ function getBscArgs(
     }
 
     if (buildSystem === "bsb") {
-      const fileStream = fs.createReadStream(buildNinjaPath);
+      const fileStream = fs.createReadStream(buildNinjaPath, {
+        encoding: "utf8",
+      });
+      fileStream.on("error", (err) => {
+        console.error("File stream error:", err);
+        resolveResult([]);
+      });
       const rl = readline.createInterface({
         input: fileStream,
         crlfDelay: Infinity,
@@ -256,6 +265,7 @@ function getBscArgs(
       let stopped = false;
       const captured: Array<string> = [];
       rl.on("line", (line) => {
+        line = line.trim(); // Normalize line endings
         if (stopped) {
           return;
         }
@@ -264,7 +274,8 @@ function getBscArgs(
           captureNextLine = false;
         }
         if (done) {
-          fileStream.destroy();
+          // Not sure if fileStream.destroy is necessary, rl.close() will handle it gracefully.
+          // fileStream.destroy();
           rl.close();
           resolveResult(captured);
           stopped = true;
@@ -277,6 +288,10 @@ function getBscArgs(
           captureNextLine = true;
           done = true;
         }
+      });
+      rl.on("error", (err) => {
+        console.error("Readline error:", err);
+        resolveResult([]);
       });
       rl.on("close", () => {
         resolveResult(captured);
@@ -399,7 +414,7 @@ function triggerIncrementalCompilationOfFile(
 
     let originalTypeFileLocation = path.resolve(
       projectRootPath,
-      "lib/bs",
+      c.compilerDirPartialPath,
       path.relative(projectRootPath, filePath)
     );
 
@@ -512,13 +527,13 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
       if (isBsb) {
         callArgs.push(
           "-I",
-          path.resolve(entry.project.rootPath, "lib/bs", value)
+          path.resolve(entry.project.rootPath, c.compilerDirPartialPath, value)
         );
       } else {
         if (value === ".") {
           callArgs.push(
             "-I",
-            path.resolve(entry.project.rootPath, "lib/ocaml")
+            path.resolve(entry.project.rootPath, c.compilerOcamlDirPartialPath)
           );
         } else {
           callArgs.push("-I", value);
