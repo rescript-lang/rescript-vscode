@@ -1,18 +1,12 @@
-
 Complete src/DotCompletionEverywhere.res 5:11
 posCursor:[5:11] posNoWhite:[5:10] Found expr:[5:3->5:11]
 Pexp_field [5:3->5:10] _:[11:0->5:11]
-[set_result] set new result to Cpath Value[someObj].""
 Completable: Cpath Value[someObj].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[someObj].""
-[ctx_path]--> dot completion!
 ContextPath Value[someObj]
-[ctx_path]--> CPId
 Path someObj
-[dot_completion]--> Obj type found:
-[dot_completion]--> Found Type expr when doing pipe completions
 [{
     "label": "[\"age\"]",
     "kind": 4,
@@ -38,17 +32,12 @@ Path someObj
 Complete src/DotCompletionEverywhere.res 8:13
 posCursor:[8:13] posNoWhite:[8:12] Found expr:[8:3->8:13]
 Pexp_field [8:3->8:10] na:[8:11->8:13]
-[set_result] set new result to Cpath Value[someObj].na
 Completable: Cpath Value[someObj].na
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[someObj].na
-[ctx_path]--> dot completion!
 ContextPath Value[someObj]
-[ctx_path]--> CPId
 Path someObj
-[dot_completion]--> Obj type found:
-[dot_completion]--> Found Type expr when doing pipe completions
 [{
     "label": "[\"name\"]",
     "kind": 4,
@@ -64,17 +53,12 @@ Path someObj
 Complete src/DotCompletionEverywhere.res 14:8
 posCursor:[14:8] posNoWhite:[14:7] Found expr:[14:3->14:8]
 Pexp_field [14:3->14:6] n:[14:7->14:8]
-[set_result] set new result to Cpath Value[rrr].n
 Completable: Cpath Value[rrr].n
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[rrr].n
-[ctx_path]--> dot completion!
 ContextPath Value[rrr]
-[ctx_path]--> CPId
 Path rrr
-[dot_completion]--> Found type expr for main completions
-[dot_completion]--> Found Type expr when doing pipe completions
 CPPipe pathFromEnv: found:true
 [{
     "label": "name",
@@ -87,19 +71,13 @@ CPPipe pathFromEnv: found:true
 Complete src/DotCompletionEverywhere.res 29:5
 posCursor:[29:5] posNoWhite:[29:4] Found expr:[29:3->29:5]
 Pexp_field [29:3->29:4] _:[35:0->29:5]
-[set_result] set new result to Cpath Value[x].""
 Completable: Cpath Value[x].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x].""
-[ctx_path]--> dot completion!
 ContextPath Value[x]
-[ctx_path]--> CPId
 Path x
-[dot_completion]--> Found type expr for main completions
-[dot_completion]--> Found Type expr when doing pipe completions
 CPPipe pathFromEnv:SomeMod.SomeOtherMod found:true
-[dot_completion]--> Got completion path SomeMod.SomeOtherMod
 Path SomeMod.SomeOtherMod.
 [{
     "label": "->SomeMod.SomeOtherMod.do",
@@ -117,19 +95,13 @@ Path SomeMod.SomeOtherMod.
 Complete src/DotCompletionEverywhere.res 32:27
 posCursor:[32:27] posNoWhite:[32:26] Found expr:[32:3->32:27]
 Pexp_field [32:3->32:26] _:[35:0->32:27]
-[set_result] set new result to Cpath Value[SomeMod, SomeOtherMod, xx].""
 Completable: Cpath Value[SomeMod, SomeOtherMod, xx].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[SomeMod, SomeOtherMod, xx].""
-[ctx_path]--> dot completion!
 ContextPath Value[SomeMod, SomeOtherMod, xx]
-[ctx_path]--> CPId
 Path SomeMod.SomeOtherMod.xx
-[dot_completion]--> Found type expr for main completions
-[dot_completion]--> Found Type expr when doing pipe completions
 CPPipe pathFromEnv:SomeMod.SomeOtherMod found:true
-[dot_completion]--> Got completion path SomeMod.SomeOtherMod
 Path SomeMod.SomeOtherMod.
 [{
     "label": "->SomeMod.SomeOtherMod.do",
@@ -147,19 +119,13 @@ Path SomeMod.SomeOtherMod.
 Complete src/DotCompletionEverywhere.res 41:11
 posCursor:[41:11] posNoWhite:[41:10] Found expr:[41:3->41:11]
 Pexp_field [41:3->41:10] _:[44:0->41:11]
-[set_result] set new result to Cpath Value[Sss, rrr].""
 Completable: Cpath Value[Sss, rrr].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Sss, rrr].""
-[ctx_path]--> dot completion!
 ContextPath Value[Sss, rrr]
-[ctx_path]--> CPId
 Path Sss.rrr
-[dot_completion]--> Found type expr for main completions
-[dot_completion]--> Found Type expr when doing pipe completions
 CPPipe pathFromEnv:Sss found:true
-[dot_completion]--> Got completion path Sss
 Path Sss.
 [{
     "label": "->Sss.do",
@@ -183,17 +149,12 @@ Path Sss.
 Complete src/DotCompletionEverywhere.res 52:8
 posCursor:[52:8] posNoWhite:[52:7] Found expr:[52:3->52:8]
 Pexp_field [52:3->52:7] _:[55:0->52:8]
-[set_result] set new result to Cpath Value[x2x2].""
 Completable: Cpath Value[x2x2].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x2x2].""
-[ctx_path]--> dot completion!
 ContextPath Value[x2x2]
-[ctx_path]--> CPId
 Path x2x2
-[dot_completion]--> Found type expr for main completions
-[dot_completion]--> Found Type expr when doing pipe completions
 CPPipe pathFromEnv: found:true
 Path X2.
 [{
@@ -217,18 +178,13 @@ Path X2.
 
 Complete src/DotCompletionEverywhere.res 61:7
 posCursor:[61:7] posNoWhite:[61:6] Found expr:[61:3->61:7]
-Pexp_field [61:3->61:6] _:[66:0->61:7]
-[set_result] set new result to Cpath Value[obj].""
+Pexp_field [61:3->61:6] _:[64:0->61:7]
 Completable: Cpath Value[obj].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[obj].""
-[ctx_path]--> dot completion!
 ContextPath Value[obj]
-[ctx_path]--> CPId
 Path obj
-[dot_completion]--> Obj type found:
-[dot_completion]--> Found Type expr when doing pipe completions
 [{
     "label": "[\"name\"]",
     "kind": 4,
@@ -260,5 +216,4 @@ Path obj
     "newText": "[\"number\"]"
   }
   }]
-
 

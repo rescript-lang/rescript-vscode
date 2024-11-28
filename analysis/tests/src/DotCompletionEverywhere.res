@@ -2,7 +2,7 @@ let someObj = {
   "name": "hello",
   "age": 123,
 }
-// ^dv+
+
 // someObj.
 //         ^com
 
@@ -61,5 +61,3 @@ let obj = {
 
 // obj.
 //     ^com
-
-// ^dv-
