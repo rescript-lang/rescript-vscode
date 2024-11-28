@@ -2086,8 +2086,6 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
         {
           env;
           definition = `NameOnly "jsxConfig";
-          path = None;
-          attributes = [];
           fields =
             [
               mkField ~name:"version" ~primitive:Predef.path_int;
@@ -2117,8 +2115,6 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       Trecord
         {
           env;
-          path = None;
-          attributes = [];
           definition = `NameOnly "importAttributesConfig";
           fields = [mkField ~name:"type_" ~primitive:Predef.path_string];
         }
@@ -2127,8 +2123,6 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
       Trecord
         {
           env;
-          path = None;
-          attributes = [];
           definition = `NameOnly "moduleConfig";
           fields =
             [
