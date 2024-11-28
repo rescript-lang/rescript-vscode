@@ -12,6 +12,7 @@ ContextPath Value[someObj]
 [ctx_path]--> CPId
 Path someObj
 [dot_completion]--> Obj type found:
+[dot_completion]--> Found Type expr when doing pipe completions
 [{
     "label": "[\"age\"]",
     "kind": 4,
@@ -47,6 +48,7 @@ ContextPath Value[someObj]
 [ctx_path]--> CPId
 Path someObj
 [dot_completion]--> Obj type found:
+[dot_completion]--> Found Type expr when doing pipe completions
 [{
     "label": "[\"name\"]",
     "kind": 4,
@@ -71,7 +73,9 @@ ContextPath Value[rrr].n
 ContextPath Value[rrr]
 [ctx_path]--> CPId
 Path rrr
-[dot_completion]--> Record type found
+[dot_completion]--> Found type expr for main completions
+[dot_completion]--> Found Type expr when doing pipe completions
+CPPipe pathFromEnv: found:true
 [{
     "label": "name",
     "kind": 5,
@@ -92,6 +96,10 @@ ContextPath Value[x].""
 ContextPath Value[x]
 [ctx_path]--> CPId
 Path x
+[dot_completion]--> Found type expr for main completions
+[dot_completion]--> Found Type expr when doing pipe completions
+CPPipe pathFromEnv:SomeMod.SomeOtherMod found:true
+[dot_completion]--> Got completion path SomeMod.SomeOtherMod
 Path SomeMod.SomeOtherMod.
 [{
     "label": "->SomeMod.SomeOtherMod.do",
@@ -118,6 +126,10 @@ ContextPath Value[SomeMod, SomeOtherMod, xx].""
 ContextPath Value[SomeMod, SomeOtherMod, xx]
 [ctx_path]--> CPId
 Path SomeMod.SomeOtherMod.xx
+[dot_completion]--> Found type expr for main completions
+[dot_completion]--> Found Type expr when doing pipe completions
+CPPipe pathFromEnv:SomeMod.SomeOtherMod found:true
+[dot_completion]--> Got completion path SomeMod.SomeOtherMod
 Path SomeMod.SomeOtherMod.
 [{
     "label": "->SomeMod.SomeOtherMod.do",
@@ -144,15 +156,12 @@ ContextPath Value[Sss, rrr].""
 ContextPath Value[Sss, rrr]
 [ctx_path]--> CPId
 Path Sss.rrr
-[dot_completion]--> Record type found
+[dot_completion]--> Found type expr for main completions
+[dot_completion]--> Found Type expr when doing pipe completions
+CPPipe pathFromEnv:Sss found:true
+[dot_completion]--> Got completion path Sss
 Path Sss.
 [{
-    "label": "name",
-    "kind": 5,
-    "tags": [],
-    "detail": "string",
-    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype rrr = {name: string}\n```"}
-  }, {
     "label": "->Sss.do",
     "kind": 12,
     "tags": [],
@@ -163,6 +172,12 @@ Path Sss.
     "range": {"start": {"line": 41, "character": 10}, "end": {"line": 41, "character": 10}},
     "newText": "->Sss.do"
   }
+  }, {
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype rrr = {name: string}\n```"}
   }]
 
 Complete src/DotCompletionEverywhere.res 52:8
@@ -177,15 +192,11 @@ ContextPath Value[x2x2].""
 ContextPath Value[x2x2]
 [ctx_path]--> CPId
 Path x2x2
-[dot_completion]--> Record type found
+[dot_completion]--> Found type expr for main completions
+[dot_completion]--> Found Type expr when doing pipe completions
+CPPipe pathFromEnv: found:true
 Path X2.
 [{
-    "label": "namee",
-    "kind": 5,
-    "tags": [],
-    "detail": "string",
-    "documentation": {"kind": "markdown", "value": "```rescript\nnamee: string\n```\n\n```rescript\ntype x2x2 = {namee: string}\n```"}
-  }, {
     "label": "->X2.stuff",
     "kind": 12,
     "tags": [],
@@ -196,6 +207,12 @@ Path X2.
     "range": {"start": {"line": 52, "character": 7}, "end": {"line": 52, "character": 7}},
     "newText": "->X2.stuff"
   }
+  }, {
+    "label": "namee",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnamee: string\n```\n\n```rescript\ntype x2x2 = {namee: string}\n```"}
   }]
 
 Complete src/DotCompletionEverywhere.res 61:7
@@ -211,6 +228,7 @@ ContextPath Value[obj]
 [ctx_path]--> CPId
 Path obj
 [dot_completion]--> Obj type found:
+[dot_completion]--> Found Type expr when doing pipe completions
 [{
     "label": "[\"name\"]",
     "kind": 4,

@@ -1186,7 +1186,7 @@ let rec fnTakesTypeAsFirstArg ~env ~full ~lastPath t =
   | _ -> false
 
 (** Turns a completion into a pipe completion. *)
-let transformCompletionToPipeCompletion ~env ~replaceRange
+let transformCompletionToPipeCompletion ?(synthetic = false) ~env ~replaceRange
     (completion : Completion.t) =
   let name = completion.name in
   let nameWithPipe = "->" ^ name in
@@ -1198,10 +1198,12 @@ let transformCompletionToPipeCompletion ~env ~replaceRange
       insertText = Some nameWithPipe;
       env;
       range = Some replaceRange;
+      synthetic;
     }
 
 (** Filters out completions that are not pipeable from a list of completions. *)
-let filterPipeableFunctions ~env ~full ?lastPath ?replaceRange completions =
+let filterPipeableFunctions ~env ~full ?synthetic ?lastPath ?replaceRange
+    completions =
   match lastPath with
   | None -> completions
   | Some lastPath ->
@@ -1212,8 +1214,8 @@ let filterPipeableFunctions ~env ~full ?lastPath ?replaceRange completions =
              match replaceRange with
              | None -> Some completion
              | Some replaceRange ->
-               transformCompletionToPipeCompletion ~env ~replaceRange completion
-             )
+               transformCompletionToPipeCompletion ?synthetic ~env ~replaceRange
+                 completion)
            | _ -> None)
 
 let removeCurrentModuleIfNeeded ~envCompletionIsMadeFrom completionPath =

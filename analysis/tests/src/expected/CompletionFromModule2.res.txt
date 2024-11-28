@@ -7,8 +7,20 @@ Resolved opens 1 pervasives
 ContextPath Value[CompletionFromModule, n].""
 ContextPath Value[CompletionFromModule, n]
 Path CompletionFromModule.n
-Path SomeModule.
+CPPipe pathFromEnv:SomeModule found:true
+Path CompletionFromModule.SomeModule.
 [{
+    "label": "->CompletionFromModule.SomeModule.getName",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => string",
+    "documentation": null,
+    "sortText": "getName",
+    "textEdit": {
+    "range": {"start": {"line": 2, "character": 25}, "end": {"line": 2, "character": 25}},
+    "newText": "->CompletionFromModule.SomeModule.getName"
+  }
+  }, {
     "label": "name",
     "kind": 5,
     "tags": [],
@@ -25,6 +37,7 @@ Resolved opens 1 pervasives
 ContextPath Value[CompletionFromModule, nn].""
 ContextPath Value[CompletionFromModule, nn]
 Path CompletionFromModule.nn
+CPPipe pathFromEnv:SomeOtherModule found:true
 Path CompletionFromModule.SomeOtherModule.
 [{
     "label": "->CompletionFromModule.SomeOtherModule.getNName",
@@ -36,17 +49,6 @@ Path CompletionFromModule.SomeOtherModule.
     "textEdit": {
     "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 26}},
     "newText": "->CompletionFromModule.SomeOtherModule.getNName"
-  }
-  }, {
-    "label": "->CompletionFromModule.SomeOtherModule.getNName2",
-    "kind": 12,
-    "tags": [],
-    "detail": "typeOutsideModule => string",
-    "documentation": null,
-    "sortText": "getNName2",
-    "textEdit": {
-    "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 26}},
-    "newText": "->CompletionFromModule.SomeOtherModule.getNName2"
   }
   }, {
     "label": "nname",

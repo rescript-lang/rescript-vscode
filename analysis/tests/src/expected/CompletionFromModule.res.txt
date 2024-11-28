@@ -7,6 +7,7 @@ Resolved opens 1 pervasives
 ContextPath Value[n].""
 ContextPath Value[n]
 Path n
+CPPipe pathFromEnv:SomeModule found:true
 Path SomeModule.
 [{
     "label": "->SomeModule.getName",
@@ -36,6 +37,7 @@ Resolved opens 1 pervasives
 ContextPath Value[nn].""
 ContextPath Value[nn]
 Path nn
+CPPipe pathFromEnv:SomeOtherModule found:true
 Path SomeOtherModule.
 [{
     "label": "->SomeOtherModule.getNName",
@@ -47,17 +49,6 @@ Path SomeOtherModule.
     "textEdit": {
     "range": {"start": {"line": 30, "character": 5}, "end": {"line": 30, "character": 5}},
     "newText": "->SomeOtherModule.getNName"
-  }
-  }, {
-    "label": "->SomeOtherModule.getNName2",
-    "kind": 12,
-    "tags": [],
-    "detail": "typeOutsideModule => string",
-    "documentation": null,
-    "sortText": "getNName2",
-    "textEdit": {
-    "range": {"start": {"line": 30, "character": 5}, "end": {"line": 30, "character": 5}},
-    "newText": "->SomeOtherModule.getNName2"
   }
   }, {
     "label": "nname",
