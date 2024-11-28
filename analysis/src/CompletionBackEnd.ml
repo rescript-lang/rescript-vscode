@@ -1092,9 +1092,51 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
             | None -> None
             | Some completionPath -> Some (completionPath, tPath))
         in
-        match tPath with
-        | None -> []
-        | Some (completionPath, tPath) ->
+        let env, typ =
+          typ
+          |> TypeUtils.resolveTypeForPipeCompletion ~env ~package ~full
+               ~lhsLoc:Location.none
+        in
+        match (typ, tPath) with
+        | Builtin (builtin, _), _ ->
+          (* TODO: Unify with existing code *)
+          let {
+            arrayModulePath;
+            optionModulePath;
+            stringModulePath;
+            intModulePath;
+            floatModulePath;
+            promiseModulePath;
+            listModulePath;
+            resultModulePath;
+            regexpModulePath;
+          } =
+            package.builtInCompletionModules
+          in
+          let completionPath =
+            match builtin with
+            | Array -> arrayModulePath
+            | Option -> optionModulePath
+            | String -> stringModulePath
+            | Int -> intModulePath
+            | Float -> floatModulePath
+            | Promise -> promiseModulePath
+            | List -> listModulePath
+            | Result -> resultModulePath
+            | RegExp -> regexpModulePath
+            | Lazy -> ["Lazy"]
+            | Char -> ["Char"]
+          in
+          if Debug.verbose () then
+            Printf.printf "[dot_completion] Completing from builtin\n";
+          completionsForPipeFromCompletionPath ~envCompletionIsMadeFrom ~opens
+            ~pos ~scope ~debug ~prefix:fieldName ~env ~rawOpens ~full
+            completionPath
+          |> List.filter_map (fun completion ->
+                 TypeUtils.transformCompletionToPipeCompletion ~synthetic:true
+                   ~env ~replaceRange:fieldNameLoc completion)
+        | _, None -> []
+        | _, Some (completionPath, tPath) ->
           if Debug.verbose () then
             Printf.printf "[dot_completion]--> Got completion path %s\n"
               (completionPath |> String.concat ".");

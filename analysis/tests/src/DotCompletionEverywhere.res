@@ -61,3 +61,8 @@ let obj = {
 
 // obj.
 //     ^com
+
+let arr = [1, 2, 3]
+
+// arr.m
+//      ^com
