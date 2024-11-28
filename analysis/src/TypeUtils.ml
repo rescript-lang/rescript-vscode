@@ -383,23 +383,14 @@ let rec extractType ?(printOpeningDebug = true)
               variantDecl = decl;
             },
           typeArgContext )
-    | Some
-        (envFromDeclaration, {item = {kind = Record fields; decl; attributes}})
-      ->
+    | Some (envFromDeclaration, {item = {kind = Record fields; decl}}) ->
       if Debug.verbose () then print_endline "[extract_type]--> found record";
       (* Need to create a new type arg context here because we're sending along a type expr that might have type vars. *)
       let typeArgContext =
         maybeSetTypeArgCtx ~typeParams:decl.type_params ~typeArgs env
       in
       Some
-        ( Trecord
-            {
-              env = envFromDeclaration;
-              path = Some path;
-              fields;
-              definition = `TypeExpr t;
-              attributes;
-            },
+        ( Trecord {env = envFromDeclaration; fields; definition = `TypeExpr t},
           typeArgContext )
     | Some (envFromDeclaration, {item = {name = "t"; decl = {type_params}}}) ->
       let typeArgContext =
@@ -580,15 +571,7 @@ let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
   match typ.kind with
   | Tuple items -> Some (Tuple (env, items, Ctype.newty (Ttuple items)))
   | Record fields ->
-    Some
-      (Trecord
-         {
-           env;
-           fields;
-           path = None;
-           definition = `NameOnly typ.name;
-           attributes = typ.attributes;
-         })
+    Some (Trecord {env; fields; definition = `NameOnly typ.name})
   | Variant constructors ->
     Some
       (Tvariant
