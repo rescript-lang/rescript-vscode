@@ -594,7 +594,8 @@ let getComplementaryCompletionsForTypedValue ~opens ~allFiles ~scope ~env prefix
                   (Utils.fileNameHasUnallowedChars name)
            then
              Some
-               (Completion.create name ~env ~kind:(Completion.FileModule name))
+               (Completion.create name ~synthetic:true ~env
+                  ~kind:(Completion.FileModule name))
            else None)
   in
   localCompletionsWithOpens @ fileModules
@@ -863,7 +864,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
   | CPArray None ->
     if Debug.verbose () then print_endline "[ctx_path]--> CPArray (no payload)";
     [
-      Completion.create "array" ~env
+      Completion.create "dummy" ~env
         ~kind:(Completion.Value (Ctype.newconstr Predef.path_array []));
     ]
   | CPArray (Some cp) -> (
@@ -2229,8 +2230,8 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
   | Cdecorator prefix ->
     let mkDecorator (name, docstring, maybeInsertText) =
       {
-        (Completion.create name ~includesSnippets:true ~kind:(Label "") ~env
-           ?insertText:maybeInsertText)
+        (Completion.create name ~synthetic:true ~includesSnippets:true
+           ~kind:(Label "") ~env ?insertText:maybeInsertText)
         with
         docstring;
       }
@@ -2494,8 +2495,9 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
            if Utils.startsWith elementName prefix then
              let name = "<" ^ elementName ^ ">" in
              Some
-               (Completion.create name ~kind:(Label name) ~detail:description
-                  ~env ~docstring:[description] ~insertText:elementName
+               (Completion.create name ~synthetic:true ~kind:(Label name)
+                  ~detail:description ~env ~docstring:[description]
+                  ~insertText:elementName
                   ?deprecated:
                     (match deprecated with
                     | true -> Some "true"
@@ -2508,10 +2510,10 @@ let rec processCompletable ~debug ~full ~scope ~env ~pos ~forHover completable =
          implemented."
       in
       [
-        Completion.create "todo" ~kind:(Label "todo") ~detail ~env
-          ~insertText:"todo";
-        Completion.create "todo (with payload)" ~includesSnippets:true
-          ~kind:(Label "todo")
+        Completion.create "todo" ~synthetic:true ~kind:(Label "todo") ~detail
+          ~env ~insertText:"todo";
+        Completion.create "todo (with payload)" ~synthetic:true
+          ~includesSnippets:true ~kind:(Label "todo")
           ~detail:(detail ^ " With a payload.")
           ~env ~insertText:"todo(\"${0:TODO}\")";
       ]
