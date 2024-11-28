@@ -1,5 +1,5 @@
 // Used to check completions across files
-// WRONG! Missing pipe functions (because of type t)
+
 // CompletionFromModule.n.
 //                        ^com
 

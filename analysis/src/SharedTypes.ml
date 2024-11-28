@@ -815,11 +815,13 @@ module Completion = struct
     typeArgContext: typeArgContext option;
     data: (string * string) list option;
     range: Location.t option;
+    synthetic: bool;
+        (** Whether this item is an made up, synthetic item or not. *)
   }
 
-  let create ?range ?data ?typeArgContext ?(includesSnippets = false)
-      ?insertText ~kind ~env ?sortText ?deprecated ?filterText ?detail
-      ?(docstring = []) name =
+  let create ?(synthetic = false) ?range ?data ?typeArgContext
+      ?(includesSnippets = false) ?insertText ~kind ~env ?sortText ?deprecated
+      ?filterText ?detail ?(docstring = []) name =
     {
       name;
       env;
@@ -835,6 +837,7 @@ module Completion = struct
       typeArgContext;
       data;
       range;
+      synthetic;
     }
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
