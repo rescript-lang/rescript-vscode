@@ -217,3 +217,38 @@ Path obj
   }
   }]
 
+Complete src/DotCompletionEverywhere.res 66:8
+posCursor:[66:8] posNoWhite:[66:7] Found expr:[66:3->66:8]
+Pexp_field [66:3->66:6] m:[66:7->66:8]
+Completable: Cpath Value[arr].m
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[arr].m
+ContextPath Value[arr]
+Path arr
+CPPipe pathFromEnv: found:true
+Path Js.Array2.m
+[{
+    "label": "->Js.Array2.mapi",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"},
+    "sortText": "mapi",
+    "textEdit": {
+    "range": {"start": {"line": 66, "character": 7}, "end": {"line": 66, "character": 8}},
+    "newText": "->Js.Array2.mapi"
+  }
+  }, {
+    "label": "->Js.Array2.map",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"},
+    "sortText": "map",
+    "textEdit": {
+    "range": {"start": {"line": 66, "character": 7}, "end": {"line": 66, "character": 8}},
+    "newText": "->Js.Array2.map"
+  }
+  }]
+
