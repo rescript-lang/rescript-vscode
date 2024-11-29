@@ -1,28 +1,28 @@
 Complete src/CompletionInferValues.res 15:43
 posCursor:[15:43] posNoWhite:[15:42] Found expr:[15:33->15:43]
-Completable: Cpath Value[aliased]->f
+Completable: Cpath Value[aliased]->t
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
-ContextPath Value[aliased]->f
+ContextPath Value[aliased]->t
 ContextPath Value[aliased]
 Path aliased
 ContextPath Value[x]
 Path x
 ContextPath int
 CPPipe env:CompletionInferValues
-Path Belt.Int.f
+Path Belt.Int.t
 [{
-    "label": "Belt.Int.fromString",
+    "label": "Belt.Int.toString",
     "kind": 12,
     "tags": [],
-    "detail": "string => option<int>",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n```\n"}
+    "detail": "int => string",
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `string`. Uses the JavaScript `String` constructor under the hood.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toString(1) === \"1\") /* true */\n```\n"}
   }, {
-    "label": "Belt.Int.fromFloat",
+    "label": "Belt.Int.toFloat",
     "kind": 12,
     "tags": [],
-    "detail": "float => int",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to an `int`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n```\n"}
+    "detail": "int => float",
+    "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `float`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toFloat(1) === 1.0) /* true */\n```\n"}
   }]
 
 Complete src/CompletionInferValues.res 18:30
@@ -37,6 +37,7 @@ Path x
 ContextPath Value[getSomeRecord](Nolabel)
 ContextPath Value[getSomeRecord]
 Path getSomeRecord
+CPPipe pathFromEnv: found:true
 [{
     "label": "name",
     "kind": 5,
@@ -65,6 +66,7 @@ Path x
 ContextPath Value[getSomeRecord](Nolabel)
 ContextPath Value[getSomeRecord]
 Path getSomeRecord
+CPPipe pathFromEnv: found:true
 [{
     "label": "name",
     "kind": 5,
@@ -98,6 +100,7 @@ ContextPath CArgument CArgument Value[someFnWithCallback]($0)(~someRecord)
 ContextPath CArgument Value[someFnWithCallback]($0)
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
+CPPipe pathFromEnv: found:true
 [{
     "label": "name",
     "kind": 5,
@@ -133,6 +136,7 @@ ContextPath Value[aliasedFn]
 Path aliasedFn
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
+CPPipe pathFromEnv: found:true
 [{
     "label": "name",
     "kind": 5,
@@ -377,6 +381,7 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+CPPipe pathFromEnv: found:true
 [{
     "label": "name",
     "kind": 5,
@@ -405,6 +410,7 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+CPPipe pathFromEnv: found:true
 [{
     "label": "someRecord",
     "kind": 5,
@@ -427,6 +433,7 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+CPPipe pathFromEnv: found:true
 [{
     "label": "name",
     "kind": 5,
@@ -781,12 +788,6 @@ Path CompletionSupport.Test.
     "tags": [],
     "detail": "t => t",
     "documentation": null
-  }, {
-    "label": "CompletionSupport.Test.make",
-    "kind": 12,
-    "tags": [],
-    "detail": "int => t",
-    "documentation": null
   }]
 
 Complete src/CompletionInferValues.res 150:47
@@ -845,6 +846,8 @@ ContextPath CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath Value[CompletionSupport2, makeRenderer]
 Path CompletionSupport2.makeRenderer
+CPPipe pathFromEnv:CompletionSupport.Nested found:false
+Path CompletionSupport.Nested.
 [{
     "label": "root",
     "kind": 5,

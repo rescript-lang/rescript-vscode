@@ -232,12 +232,6 @@ Path Belt.Int.
     "sortText": "A",
     "insertTextFormat": 2
   }, {
-    "label": "Belt.Int.fromString",
-    "kind": 12,
-    "tags": [],
-    "detail": "string => option<int>",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n```\n"}
-  }, {
     "label": "Belt.Int.*",
     "kind": 12,
     "tags": [],
@@ -261,12 +255,6 @@ Path Belt.Int.
     "tags": [],
     "detail": "int => float",
     "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `float`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toFloat(1) === 1.0) /* true */\n```\n"}
-  }, {
-    "label": "Belt.Int.fromFloat",
-    "kind": 12,
-    "tags": [],
-    "detail": "float => int",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to an `int`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n```\n"}
   }, {
     "label": "Belt.Int.-",
     "kind": 12,
@@ -313,12 +301,6 @@ Path Belt.Int.
     "sortText": "A",
     "insertTextFormat": 2
   }, {
-    "label": "Belt.Int.fromString",
-    "kind": 12,
-    "tags": [],
-    "detail": "string => option<int>",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n```\n"}
-  }, {
     "label": "Belt.Int.*",
     "kind": 12,
     "tags": [],
@@ -342,12 +324,6 @@ Path Belt.Int.
     "tags": [],
     "detail": "int => float",
     "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `float`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toFloat(1) === 1.0) /* true */\n```\n"}
-  }, {
-    "label": "Belt.Int.fromFloat",
-    "kind": 12,
-    "tags": [],
-    "detail": "float => int",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to an `int`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n```\n"}
   }, {
     "label": "Belt.Int.-",
     "kind": 12,

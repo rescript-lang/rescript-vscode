@@ -1,0 +1,274 @@
+Complete src/DotCompletionEverywhere.res 5:11
+posCursor:[5:11] posNoWhite:[5:10] Found expr:[5:3->5:11]
+Pexp_field [5:3->5:10] _:[11:0->5:11]
+Completable: Cpath Value[someObj].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someObj].""
+ContextPath Value[someObj]
+Path someObj
+[{
+    "label": "[\"age\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 10}},
+    "newText": "[\"age\"]"
+  }
+  }, {
+    "label": "[\"name\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 10}},
+    "newText": "[\"name\"]"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 8:13
+posCursor:[8:13] posNoWhite:[8:12] Found expr:[8:3->8:13]
+Pexp_field [8:3->8:10] na:[8:11->8:13]
+Completable: Cpath Value[someObj].na
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someObj].na
+ContextPath Value[someObj]
+Path someObj
+[{
+    "label": "[\"name\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 8, "character": 11}, "end": {"line": 8, "character": 13}},
+    "newText": "[\"name\"]"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 14:8
+posCursor:[14:8] posNoWhite:[14:7] Found expr:[14:3->14:8]
+Pexp_field [14:3->14:6] n:[14:7->14:8]
+Completable: Cpath Value[rrr].n
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[rrr].n
+ContextPath Value[rrr]
+Path rrr
+CPPipe pathFromEnv: found:true
+[{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype rrr = {name: string}\n```"}
+  }]
+
+Complete src/DotCompletionEverywhere.res 29:5
+posCursor:[29:5] posNoWhite:[29:4] Found expr:[29:3->29:5]
+Pexp_field [29:3->29:4] _:[35:0->29:5]
+Completable: Cpath Value[x].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[x].""
+ContextPath Value[x]
+Path x
+CPPipe pathFromEnv:SomeMod.SomeOtherMod found:true
+Path SomeMod.SomeOtherMod.
+[{
+    "label": "->SomeMod.SomeOtherMod.do",
+    "kind": 12,
+    "tags": [],
+    "detail": "x => unit",
+    "documentation": null,
+    "sortText": "do",
+    "textEdit": {
+    "range": {"start": {"line": 29, "character": 4}, "end": {"line": 29, "character": 4}},
+    "newText": "->SomeMod.SomeOtherMod.do"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 32:27
+posCursor:[32:27] posNoWhite:[32:26] Found expr:[32:3->32:27]
+Pexp_field [32:3->32:26] _:[35:0->32:27]
+Completable: Cpath Value[SomeMod, SomeOtherMod, xx].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[SomeMod, SomeOtherMod, xx].""
+ContextPath Value[SomeMod, SomeOtherMod, xx]
+Path SomeMod.SomeOtherMod.xx
+CPPipe pathFromEnv:SomeMod.SomeOtherMod found:true
+Path SomeMod.SomeOtherMod.
+[{
+    "label": "->SomeMod.SomeOtherMod.do",
+    "kind": 12,
+    "tags": [],
+    "detail": "x => unit",
+    "documentation": null,
+    "sortText": "do",
+    "textEdit": {
+    "range": {"start": {"line": 32, "character": 26}, "end": {"line": 32, "character": 26}},
+    "newText": "->SomeMod.SomeOtherMod.do"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 41:11
+posCursor:[41:11] posNoWhite:[41:10] Found expr:[41:3->41:11]
+Pexp_field [41:3->41:10] _:[44:0->41:11]
+Completable: Cpath Value[Sss, rrr].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Sss, rrr].""
+ContextPath Value[Sss, rrr]
+Path Sss.rrr
+CPPipe pathFromEnv:Sss found:true
+Path Sss.
+[{
+    "label": "->Sss.do",
+    "kind": 12,
+    "tags": [],
+    "detail": "rrr => string",
+    "documentation": null,
+    "sortText": "do",
+    "textEdit": {
+    "range": {"start": {"line": 41, "character": 10}, "end": {"line": 41, "character": 10}},
+    "newText": "->Sss.do"
+  }
+  }, {
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype rrr = {name: string}\n```"}
+  }]
+
+Complete src/DotCompletionEverywhere.res 52:8
+posCursor:[52:8] posNoWhite:[52:7] Found expr:[52:3->52:8]
+Pexp_field [52:3->52:7] _:[55:0->52:8]
+Completable: Cpath Value[x2x2].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[x2x2].""
+ContextPath Value[x2x2]
+Path x2x2
+CPPipe pathFromEnv: found:true
+Path X2.
+[{
+    "label": "->X2.stuff",
+    "kind": 12,
+    "tags": [],
+    "detail": "x2x2 => string",
+    "documentation": null,
+    "sortText": "stuff",
+    "textEdit": {
+    "range": {"start": {"line": 52, "character": 7}, "end": {"line": 52, "character": 7}},
+    "newText": "->X2.stuff"
+  }
+  }, {
+    "label": "namee",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnamee: string\n```\n\n```rescript\ntype x2x2 = {namee: string}\n```"}
+  }]
+
+Complete src/DotCompletionEverywhere.res 61:7
+posCursor:[61:7] posNoWhite:[61:6] Found expr:[61:3->61:7]
+Pexp_field [61:3->61:6] _:[64:0->61:7]
+Completable: Cpath Value[obj].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[obj].""
+ContextPath Value[obj]
+Path obj
+[{
+    "label": "[\"name\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "string",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
+    "newText": "[\"name\"]"
+  }
+  }, {
+    "label": "[\"nothing\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "bool",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
+    "newText": "[\"nothing\"]"
+  }
+  }, {
+    "label": "[\"number\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "int",
+    "documentation": null,
+    "textEdit": {
+    "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
+    "newText": "[\"number\"]"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 66:8
+posCursor:[66:8] posNoWhite:[66:7] Found expr:[66:3->66:8]
+Pexp_field [66:3->66:6] m:[66:7->66:8]
+Completable: Cpath Value[arr].m
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[arr].m
+ContextPath Value[arr]
+Path arr
+CPPipe pathFromEnv: found:true
+Path Js.Array2.m
+[{
+    "label": "->Js.Array2.mapi",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"},
+    "sortText": "mapi",
+    "textEdit": {
+    "range": {"start": {"line": 66, "character": 7}, "end": {"line": 66, "character": 8}},
+    "newText": "->Js.Array2.mapi"
+  }
+  }, {
+    "label": "->Js.Array2.map",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, 'a => 'b) => t<'b>",
+    "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"},
+    "sortText": "map",
+    "textEdit": {
+    "range": {"start": {"line": 66, "character": 7}, "end": {"line": 66, "character": 8}},
+    "newText": "->Js.Array2.map"
+  }
+  }]
+
+Complete src/DotCompletionEverywhere.res 85:10
+posCursor:[85:10] posNoWhite:[85:9] Found expr:[85:3->85:10]
+Pexp_field [85:3->85:9] _:[88:0->85:10]
+Completable: Cpath Value[button].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[button].""
+ContextPath Value[button]
+Path button
+CPPipe pathFromEnv:DOMAPI found:true
+Path DOMAPI.
+Path HTMLButtonElement.
+[{
+    "label": "disabled",
+    "kind": 5,
+    "tags": [],
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\ndisabled: bool\n```\n\n```rescript\ntype htmlButtonElement = {mutable disabled: bool}\n```"}
+  }]
+

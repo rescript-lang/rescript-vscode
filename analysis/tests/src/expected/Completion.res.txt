@@ -728,6 +728,7 @@ Resolved opens 1 pervasives
 ContextPath Value[r].""
 ContextPath Value[r]
 Path r
+CPPipe pathFromEnv: found:true
 [{
     "label": "x",
     "kind": 5,
@@ -751,6 +752,8 @@ Resolved opens 1 pervasives
 ContextPath Value[Objects, Rec, recordVal].""
 ContextPath Value[Objects, Rec, recordVal]
 Path Objects.Rec.recordVal
+CPPipe pathFromEnv:Rec found:true
+Path Objects.Rec.
 [{
     "label": "xx",
     "kind": 5,
@@ -833,6 +836,8 @@ ContextPath Value[q].aa.""
 ContextPath Value[q].aa
 ContextPath Value[q]
 Path q
+CPPipe pathFromEnv: found:true
+CPPipe pathFromEnv: found:true
 [{
     "label": "x",
     "kind": 5,
@@ -857,6 +862,8 @@ ContextPath Value[q].aa.n
 ContextPath Value[q].aa
 ContextPath Value[q]
 Path q
+CPPipe pathFromEnv: found:true
+CPPipe pathFromEnv: found:true
 [{
     "label": "name",
     "kind": 5,
@@ -1189,6 +1196,7 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[_z].""
 ContextPath Value[_z]
 Path _z
+CPPipe pathFromEnv: found:true
 [{
     "label": "x",
     "kind": 5,
@@ -1347,6 +1355,7 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[funRecord].someFun
 ContextPath Value[funRecord]
 Path funRecord
+CPPipe pathFromEnv: found:true
 Found type for function (~name: string) => unit
 [{
     "label": "name",
@@ -1367,6 +1376,7 @@ ContextPath Value[retAA](Nolabel).""
 ContextPath Value[retAA](Nolabel)
 ContextPath Value[retAA]
 Path retAA
+CPPipe pathFromEnv: found:true
 [{
     "label": "x",
     "kind": 5,
@@ -1897,6 +1907,7 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[funRecord].""
 ContextPath Value[funRecord]
 Path funRecord
+CPPipe pathFromEnv: found:true
 [{
     "label": "someFun",
     "kind": 5,
@@ -2153,6 +2164,7 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[rWithDepr].so
 ContextPath Value[rWithDepr]
 Path rWithDepr
+CPPipe pathFromEnv: found:true
 [{
     "label": "someInt",
     "kind": 5,

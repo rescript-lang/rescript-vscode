@@ -51,6 +51,7 @@ type completionItem = {
   insertText: string option;
   documentation: markupContent option;
   data: (string * string) list option;
+  range: range option;
 }
 
 type location = {uri: string; range: range}
@@ -142,7 +143,10 @@ let stringifyCompletionItem c =
           | Some doc -> stringifyMarkupContent doc) );
       ("sortText", optWrapInQuotes c.sortText);
       ("filterText", optWrapInQuotes c.filterText);
-      ("insertText", optWrapInQuotes c.insertText);
+      ( "insertText",
+        match c.range with
+        | Some _ -> None
+        | None -> optWrapInQuotes c.insertText );
       ( "insertTextFormat",
         match c.insertTextFormat with
         | None -> None
@@ -156,6 +160,20 @@ let stringifyCompletionItem c =
             (fields
             |> List.map (fun (key, value) -> (key, Some (wrapInQuotes value)))
             |> stringifyObject ~indentation:2) );
+      ( "textEdit",
+        match c.range with
+        | Some range ->
+          Some
+            (stringifyObject
+               [
+                 ("range", Some (stringifyRange range));
+                 ( "newText",
+                   optWrapInQuotes
+                     (match c.insertText with
+                     | None -> Some c.label
+                     | v -> v) );
+               ])
+        | None -> None );
     ]
 
 let stringifyHover value =
@@ -282,7 +300,7 @@ let stringifyCodeAction ca =
     (wrapInQuotes (codeActionKindToString ca.codeActionKind))
     (ca.edit |> stringifyCodeActionEdit)
 
-let stringifyHint hint =
+let stringifyHint (hint : inlayHint) =
   Printf.sprintf
     {|{
     "position": %s,
