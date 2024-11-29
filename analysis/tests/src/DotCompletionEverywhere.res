@@ -66,3 +66,22 @@ let arr = [1, 2, 3]
 
 // arr.m
 //      ^com
+
+module DOMAPI = {
+  type htmlElement = {prefix: string }
+
+  @editor.completeFrom(HTMLButtonElement)
+  type rec htmlButtonElement = {mutable disabled: bool}
+}
+
+module HTMLButtonElement = {
+  open DOMAPI
+
+  @send
+  external checkValidity: htmlButtonElement  => bool = "checkValidity"
+}
+
+let button: DOMAPI.htmlButtonElement = %todo
+
+// button.
+//        ^com
