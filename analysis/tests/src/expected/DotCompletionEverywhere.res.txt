@@ -252,3 +252,23 @@ Path Js.Array2.m
   }
   }]
 
+Complete src/DotCompletionEverywhere.res 85:10
+posCursor:[85:10] posNoWhite:[85:9] Found expr:[85:3->85:10]
+Pexp_field [85:3->85:9] _:[88:0->85:10]
+Completable: Cpath Value[button].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[button].""
+ContextPath Value[button]
+Path button
+CPPipe pathFromEnv:DOMAPI found:true
+Path DOMAPI.
+Path HTMLButtonElement.
+[{
+    "label": "disabled",
+    "kind": 5,
+    "tags": [],
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\ndisabled: bool\n```\n\n```rescript\ntype htmlButtonElement = {mutable disabled: bool}\n```"}
+  }]
+
