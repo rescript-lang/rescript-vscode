@@ -7,6 +7,7 @@ import * as c from "./constants";
 
 const getCompiledFolderName = (moduleFormat: ModuleFormat): string => {
   switch (moduleFormat) {
+    case "esmodule":
     case "es6":
       return "es6";
     case "es6-global":
