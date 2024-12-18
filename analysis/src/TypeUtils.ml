@@ -203,7 +203,7 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractRecordType ~env ~package t1
   | Tconstr (path, typeArgs, _) -> (
     match References.digConstructor ~env ~package path with
-    | Some (env, ({item = {kind = Record fields}} as typ)) ->
+    | Some (env, ({item = {kind = Record fields; attributes}} as typ)) ->
       let typeParams = typ.item.decl.type_params in
       let fields =
         fields
@@ -213,7 +213,7 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
                in
                {field with typ = fieldTyp})
       in
-      Some (env, fields, typ)
+      Some (env, fields, typ, path, attributes)
     | Some
         ( env,
           {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}
@@ -1123,3 +1123,96 @@ let pathToElementProps package =
   match package.genericJsxModule with
   | None -> ["ReactDOM"; "domProps"]
   | Some g -> (g |> String.split_on_char '.') @ ["Elements"; "props"]
+
+(** Extracts module to draw extra completions from for the type, if it has been annotated with @editor.completeFrom. *)
+let getExtraModuleToCompleteFromForType ~env ~full (t : Types.type_expr) =
+  match t |> Shared.digConstructor with
+  | Some path -> (
+    match References.digConstructor ~env ~package:full.package path with
+    | None -> None
+    (*| Some (env, {item = {decl = {type_manifest = Some t}}}) ->
+      getExtraModuleToCompleteFromForType ~env ~full t
+
+      This could be commented back in to traverse type aliases.
+      Not clear as of now if that makes sense to do or not.
+    *)
+    | Some (_, {item = {attributes}}) ->
+      ProcessAttributes.findEditorCompleteFromAttribute attributes)
+  | None -> None
+
+(** Checks whether the provided type represents a function that takes the provided path 
+  as the first argument (meaning it's pipeable). *)
+let rec fnTakesTypeAsFirstArg ~env ~full ~lastPath t =
+  match t.Types.desc with
+  | Tlink t1
+  | Tsubst t1
+  | Tpoly (t1, [])
+  | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
+    fnTakesTypeAsFirstArg ~env ~full ~lastPath t1
+  | Tarrow _ -> (
+    match extractFunctionType ~env ~package:full.package t with
+    | (Nolabel, t) :: _, _ -> (
+      let p = pathFromTypeExpr t in
+      match p with
+      | None -> false
+      | Some p ->
+        (*
+           Rules:
+           - The path p of the current type in the module we're looking at is relative to the current module.
+           - The path we're comparing against, `path`, is assumed to belong to this current module, because we're completing from it.
+
+           Therefore, we can safely pluck out just the last part of the `path`, but need to use the entire name of the current type
+           we're comparing with.
+        *)
+        Path.name p = lastPath || Path.name p = "t")
+    | _ -> false)
+  | _ -> false
+
+(** Turns a completion into a pipe completion. *)
+let transformCompletionToPipeCompletion ?(synthetic = false) ~env ~replaceRange
+    (completion : Completion.t) =
+  let name = completion.name in
+  let nameWithPipe = "->" ^ name in
+  Some
+    {
+      completion with
+      name = nameWithPipe;
+      sortText = Some (name |> String.split_on_char '.' |> List.rev |> List.hd);
+      insertText = Some nameWithPipe;
+      env;
+      range = Some replaceRange;
+      synthetic;
+    }
+
+(** Filters out completions that are not pipeable from a list of completions. *)
+let filterPipeableFunctions ~env ~full ?synthetic ?lastPath ?replaceRange
+    completions =
+  match lastPath with
+  | None -> completions
+  | Some lastPath ->
+    completions
+    |> List.filter_map (fun (completion : Completion.t) ->
+           match completion.kind with
+           | Value t when fnTakesTypeAsFirstArg ~env ~full ~lastPath t -> (
+             match replaceRange with
+             | None -> Some completion
+             | Some replaceRange ->
+               transformCompletionToPipeCompletion ?synthetic ~env ~replaceRange
+                 completion)
+           | _ -> None)
+
+let removeCurrentModuleIfNeeded ~envCompletionIsMadeFrom completionPath =
+  if
+    List.length completionPath > 0
+    && List.hd completionPath = envCompletionIsMadeFrom.QueryEnv.file.moduleName
+  then List.tl completionPath
+  else completionPath
+
+let rec getObjFields (texp : Types.type_expr) =
+  match texp.desc with
+  | Tfield (name, _, t1, t2) ->
+    let fields = t2 |> getObjFields in
+    (name, t1) :: fields
+  | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getObjFields
+  | Tvar None -> []
+  | _ -> []
