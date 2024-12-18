@@ -192,12 +192,12 @@ export let findReScriptVersion = (
   }
 };
 
-let binaryPath: string | null = null;
-if (fs.existsSync(c.analysisDevPath)) {
-  binaryPath = c.analysisDevPath;
-} else if (fs.existsSync(c.analysisProdPath)) {
-  binaryPath = c.analysisProdPath;
-} else {
+// This is the path for the _builtin_ legacy analysis, that works for versions 11 and below.
+let builtinBinaryPath: string | null = null;
+if (fs.existsSync(c.builtinAnalysisDevPath)) {
+  builtinBinaryPath = c.builtinAnalysisDevPath;
+} else if (fs.existsSync(c.builtinAnalysisProdPath)) {
+  builtinBinaryPath = c.builtinAnalysisProdPath;
 }
 
 export let runAnalysisAfterSanityCheck = (
@@ -205,10 +205,6 @@ export let runAnalysisAfterSanityCheck = (
   args: Array<any>,
   projectRequired = false
 ) => {
-  if (binaryPath == null) {
-    return null;
-  }
-
   let projectRootPath = findProjectRootOfFile(filePath);
   if (projectRootPath == null && projectRequired) {
     return null;
@@ -216,6 +212,35 @@ export let runAnalysisAfterSanityCheck = (
   let rescriptVersion =
     projectsFiles.get(projectRootPath ?? "")?.rescriptVersion ??
     findReScriptVersion(filePath);
+
+  let binaryPath = builtinBinaryPath;
+
+  let project = projectRootPath ? projectsFiles.get(projectRootPath) : null;
+
+  /**
+   * All versions including 12.0.0-alpha.5 and above should use the analysis binary
+   * that now ships with the compiler. Previous versions use the legacy one we ship
+   * with the extension itself.
+   */
+  let shouldUseBuiltinAnalysis =
+    rescriptVersion?.startsWith("9.") ||
+    rescriptVersion?.startsWith("10.") ||
+    rescriptVersion?.startsWith("11.") ||
+    [
+      "12.0.0-alpha.1",
+      "12.0.0-alpha.2",
+      "12.0.0-alpha.3",
+      "12.0.0-alpha.4",
+    ].includes(rescriptVersion ?? "");
+
+  if (!shouldUseBuiltinAnalysis && project != null) {
+    binaryPath = project.editorAnalysisLocation;
+  } else if (!shouldUseBuiltinAnalysis && project == null) {
+    // TODO: Warn user about broken state?
+    return null;
+  } else {
+    binaryPath = builtinBinaryPath;
+  }
 
   let options: childProcess.ExecFileSyncOptions = {
     cwd: projectRootPath || undefined,
@@ -233,6 +258,11 @@ export let runAnalysisAfterSanityCheck = (
           : undefined,
     },
   };
+
+  if (binaryPath == null) {
+    return null;
+  }
+
   let stdout = "";
   try {
     stdout = childProcess.execFileSync(binaryPath, args, options).toString();
@@ -737,3 +767,6 @@ let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
 
 export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
   findBinary(findPlatformPath(projectRootPath), c.bscExeName);
+
+export let findEditorAnalysisBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinary(findPlatformPath(projectRootPath), c.editorAnalysisName);

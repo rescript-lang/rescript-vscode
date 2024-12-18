@@ -19,6 +19,7 @@
 #### :house: Internal
 
 - Auto-format vendored OCaml sources like in compiler repo. https://github.com/rescript-lang/rescript-vscode/pull/1053
+- All OCaml sources in this repo is now considered "legacy", as the OCaml parts of the editor integration are now shipped with the compiler instead.
 
 ## 1.58.0
 
