@@ -15,6 +15,7 @@ export enum ModuleFormat {
   Commonjs = "commonjs",
   Es6 = "es6",
   Es6Global = "es6-global",
+  Esmodule = "esmodule",
 }
 
 export interface ModuleFormatObject {
