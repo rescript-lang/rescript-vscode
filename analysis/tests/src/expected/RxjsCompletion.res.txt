@@ -1,0 +1,20 @@
+Complete src/RxjsCompletion.res 23:29
+posCursor:[23:29] posNoWhite:[23:28] Found expr:[7:17->28:1]
+posCursor:[23:29] posNoWhite:[23:28] Found expr:[8:2->27:26]
+posCursor:[23:29] posNoWhite:[23:28] Found expr:[9:4->23:29]
+posCursor:[23:29] posNoWhite:[23:28] Found expr:[11:4->23:29]
+posCursor:[23:29] posNoWhite:[23:28] Found expr:[17:4->23:29]
+posCursor:[23:29] posNoWhite:[23:28] Found expr:[23:7->23:29]
+Pexp_field [23:7->23:28] _:[25:2->23:29]
+Completable: Cpath Value[merge](Nolabel, Nolabel).""
+Raw opens: 1 Rxjs.place holder
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 2 pervasives Rxjs.res
+ContextPath Value[merge](Nolabel, Nolabel).""
+ContextPath Value[merge](Nolabel, Nolabel)
+ContextPath Value[merge]
+Path merge
+CPPipe pathFromEnv:Observable found:true
+Path Rxjs.Observable.
+[]
+
