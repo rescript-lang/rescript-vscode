@@ -39,6 +39,9 @@ let a = 5
 
 After building the ReScript project (**⚠️ this is a requirement**), you can execute `./rescript-editor-analysis.exe test Sample.res`, and completion will be executed for the cursor position indicated by `^`. The `com` directive requests completion. To see other commands, check out the pattern match in `test` in [Commands.ml](./src/Commands.ml).
 
+> [!WARNING]
+> Ensure there are no spaces in the code comments, as the commands are captured by a regular expression that expects spaces and not tabs!
+
 Here’s how it works: once a command is found in a comment, a copy of the source file is created inside a temporary directory, where the line above `^com` is uncommented. The corresponding analysis functionality is then processed, typically with `~debug:true`. With debug enabled, code paths like
 
 ```ml
