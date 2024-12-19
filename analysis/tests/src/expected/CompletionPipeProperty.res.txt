@@ -16,7 +16,7 @@ Path ObservablePoint.
     "label": "->ObservablePoint.setBoth",
     "kind": 12,
     "tags": [],
-    "detail": "(t, float) => unit",
+    "detail": "(op, float) => unit",
     "documentation": null,
     "sortText": "setBoth",
     "textEdit": {
@@ -27,7 +27,7 @@ Path ObservablePoint.
     "label": "->ObservablePoint.set",
     "kind": 12,
     "tags": [],
-    "detail": "(t, float, float) => unit",
+    "detail": "(op, float, float) => unit",
     "documentation": null,
     "sortText": "set",
     "textEdit": {
@@ -39,12 +39,12 @@ Path ObservablePoint.
     "kind": 5,
     "tags": [],
     "detail": "int",
-    "documentation": {"kind": "markdown", "value": "```rescript\nx: int\n```\n\n```rescript\ntype t = {mutable x: int, mutable y: int}\n```"}
+    "documentation": {"kind": "markdown", "value": "```rescript\nx: int\n```\n\n```rescript\ntype op = {mutable x: int, mutable y: int}\n```"}
   }, {
     "label": "y",
     "kind": 5,
     "tags": [],
     "detail": "int",
-    "documentation": {"kind": "markdown", "value": "```rescript\ny: int\n```\n\n```rescript\ntype t = {mutable x: int, mutable y: int}\n```"}
+    "documentation": {"kind": "markdown", "value": "```rescript\ny: int\n```\n\n```rescript\ntype op = {mutable x: int, mutable y: int}\n```"}
   }]
 

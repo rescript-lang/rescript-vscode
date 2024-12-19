@@ -1,23 +1,23 @@
 module ObservablePoint = {
-  type t = {
+  type op = {
     mutable x: int,
     mutable y: int,
   }
 
   @send
-  external setBoth: (t, float) => unit = "set"
+  external setBoth: (op, float) => unit = "set"
 
   @send
-  external set: (t, float, float) => unit = "set"
+  external set: (op, float, float) => unit = "set"
 }
 
 module Sprite = {
-  type t = {
-    anchor: ObservablePoint.t,
+  type s = {
+    anchor: ObservablePoint.op,
   }
 }
 
-let sprite : Sprite.t = %todo
+let sprite : Sprite.s = %todo
 
 // sprite.anchor.
 //               ^com
