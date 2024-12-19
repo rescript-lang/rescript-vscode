@@ -23,6 +23,8 @@ let main = async () => {
 
     // merge(keydown, keyup).
     //                       ^com
+
+	// Rxjs.Observable.subscribe, Rxjs.pipe and Rxjs.pipe2 should be completed
   }
 
   ignore(keyMapObservable)
