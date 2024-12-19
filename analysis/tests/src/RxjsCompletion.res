@@ -1,3 +1,6 @@
+@@warning("-26")
+@@warning("-110")
+
 type keyPress =
   | Up(string)
   | Down(string)
@@ -24,8 +27,13 @@ let main = async () => {
     // merge(keydown, keyup).
     //                       ^com
 
-	// Rxjs.Observable.subscribe, Rxjs.pipe and Rxjs.pipe2 should be completed
+    // Rxjs.Observable.subscribe, Rxjs.pipe and Rxjs.pipe2 should be completed
   }
 
-  ignore(keyMapObservable)
+  let (a,b) : ( Rxjs.Observable.t<string> , Rxjs.Observable.t<string>) = %todo
+
+  // Rxjs.combineLatest(a, b).
+  //                          ^com
+
+  // Rxjs.Observable.subscribe, Rxjs.pipe and Rxjs.pipe2 should be completed
 }
