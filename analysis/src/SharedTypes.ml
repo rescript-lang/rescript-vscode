@@ -611,7 +611,11 @@ module Completable = struct
         completionContext: completionContext;
         loc: Location.t;
       }
-    | CPField of contextPath * string
+    | CPField of {
+        contextPath: contextPath;
+        fieldName: string;
+        fieldNameLoc: Location.t;
+      }
     | CPObj of contextPath * string
     | CPAwait of contextPath
     | CPPipe of {
@@ -695,7 +699,8 @@ module Completable = struct
     | CPArray None -> "array"
     | CPId {path; completionContext} ->
       completionContextToString completionContext ^ list path
-    | CPField (cp, s) -> contextPathToString cp ^ "." ^ str s
+    | CPField {contextPath = cp; fieldName = s} ->
+      contextPathToString cp ^ "." ^ str s
     | CPObj (cp, s) -> contextPathToString cp ^ "[\"" ^ s ^ "\"]"
     | CPPipe {contextPath; id; inJsx} ->
       contextPathToString contextPath
@@ -807,10 +812,14 @@ module Completion = struct
     detail: string option;
     typeArgContext: typeArgContext option;
     data: (string * string) list option;
+    range: Location.t option;
+    synthetic: bool;
+        (** Whether this item is an made up, synthetic item or not. *)
   }
 
-  let create ?data ?typeArgContext ?(includesSnippets = false) ?insertText ~kind
-      ~env ?sortText ?deprecated ?filterText ?detail ?(docstring = []) name =
+  let create ?(synthetic = false) ?range ?data ?typeArgContext
+      ?(includesSnippets = false) ?insertText ~kind ~env ?sortText ?deprecated
+      ?filterText ?detail ?(docstring = []) name =
     {
       name;
       env;
@@ -825,6 +834,8 @@ module Completion = struct
       detail;
       typeArgContext;
       data;
+      range;
+      synthetic;
     }
 
   (* https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion *)
