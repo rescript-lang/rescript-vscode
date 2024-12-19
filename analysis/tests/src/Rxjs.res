@@ -7,6 +7,8 @@ module Subscriber = {
 }
 
 module Observable = {
+  // Complete items defined inside the parent module.
+  @editor.completeFrom(Rxjs)
   type t<'t>
 
   type dispose = unit => unit
