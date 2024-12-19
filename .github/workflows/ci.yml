@@ -69,6 +69,7 @@ jobs:
         os: [
             macos-13, # x64
             macos-14, # ARM
+            macos-15,
             windows-latest,
           ]
         # syntax explanation:
@@ -78,6 +79,8 @@ jobs:
             artifact-folder: darwin
           - os: macos-14
             artifact-folder: darwinarm64
+          - os: macos-15
+            artifact-folder: sequoia
           - os: windows-latest
             artifact-folder: win32
 
