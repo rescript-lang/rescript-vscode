@@ -702,7 +702,6 @@ let getPipeCompletions ~env ~full ~identifierLoc ~debug ~envCompletionIsMadeFrom
           TypeUtils.completionPathFromMaybeBuiltin t ~package:full.package
         | None -> None
       in
-      (* TODO(in-compiler) No need to have this configurable anymore, just use the new integrated modules from Core..*)
       let completionPath =
         match (completeAsBuiltin, typePath) with
         | Some completionPathForBuiltin, _ -> Some completionPathForBuiltin
@@ -1099,22 +1098,11 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
          ~completionContext:Field ~env ~scope
   | CPField {contextPath = cp; fieldName; fieldNameLoc} -> (
     if Debug.verbose () then print_endline "[dot_completion]--> Triggered";
-    (* This finds completions for the context path of the field completion.
-       From this, we assume that the first found completion represents the type
-       of the field parent. So in `someRecordValue.f`, we find the type of `someRecordValue`.
-
-       This procedure is how finding types works in general in the tooling as of
-       now. *)
     let completionsFromCtxPath =
       cp
       |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env
            ~exact:true ~scope
     in
-    (* This extracts the type expr and env from the first found completion, if it's
-          a type expr. For dot completion, a type expr is the only relevant type we care
-       about here, since that will point to a type, either record or other type, of which
-       we can look up the module and any annotations for.
-    *)
     let mainTypeCompletionEnv =
       completionsFromCtxPath
       |> completionsGetTypeEnv2 ~debug ~full ~opens ~rawOpens ~pos

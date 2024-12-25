@@ -27,7 +27,7 @@ let fieldCompletionsForDotCompletion typ ~env ~package ~prefix ~fieldNameLoc
            else None)
   | None -> (
     match typ |> TypeUtils.extractRecordType ~env ~package with
-    | Some (env, fields, typDecl, _path, _attributes) ->
+    | Some (env, fields, typDecl) ->
       fields
       |> filterRecordFields ~env ~prefix ~exact
            ~recordAsString:

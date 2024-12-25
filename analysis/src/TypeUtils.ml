@@ -209,7 +209,7 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> extractRecordType ~env ~package t1
   | Tconstr (path, typeArgs, _) -> (
     match References.digConstructor ~env ~package path with
-    | Some (env, ({item = {kind = Record fields; attributes}} as typ)) ->
+    | Some (env, ({item = {kind = Record fields}} as typ)) ->
       let typeParams = typ.item.decl.type_params in
       let fields =
         fields
@@ -219,7 +219,7 @@ let rec extractRecordType ~env ~package (t : Types.type_expr) =
                in
                {field with typ = fieldTyp})
       in
-      Some (env, fields, typ, path, attributes)
+      Some (env, fields, typ)
     | Some
         ( env,
           {item = {decl = {type_manifest = Some t1; type_params = typeParams}}}
@@ -1108,7 +1108,7 @@ module StringSet = Set.Make (String)
 let getExtraModulesToCompleteFromForType ~env ~full (t : Types.type_expr) =
   let foundModulePaths = ref StringSet.empty in
   let addToModulePaths attributes =
-    ProcessAttributes.findEditorCompleteFromAttribute2 attributes
+    ProcessAttributes.findEditorCompleteFromAttribute attributes
     |> List.iter (fun e ->
            foundModulePaths :=
              StringSet.add (e |> String.concat ".") !foundModulePaths)
