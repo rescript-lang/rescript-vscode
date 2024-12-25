@@ -1088,6 +1088,8 @@ ContextPath Value[FAO, forAutoObject]["forAutoLabel"].""
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
+CPPipe pathFromEnv:FAR found:true
+Path FAR.
 [{
     "label": "forAuto",
     "kind": 5,
@@ -1113,6 +1115,8 @@ ContextPath Value[FAO, forAutoObject]["forAutoLabel"].forAuto
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
+CPPipe pathFromEnv:FAR found:true
+Path FAR.forAuto
 CPPipe pathFromEnv:ForAuto found:false
 Path ForAuto.
 [{
