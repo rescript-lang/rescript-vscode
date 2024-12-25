@@ -54,9 +54,6 @@ module Div = {
 // let _ = <div onMouseEnter={event => { let btn = event->JsxEvent.Mouse.button->Belt.Int.toString->Js.String2.split("/"); btn->ma }} />
 //                                                                                                                                ^com
 
-// let x: someRecord = {name: "Hello", age: 123}; x.
-//                                                  ^com
-
 type someVariant = One | Two | Three(int, string)
 type somePolyVariant = [#one | #two | #three(int, string)]
 type someNestedRecord = {someRecord: someRecord}
@@ -114,10 +111,6 @@ type otherNestedRecord = {
 // Follow options
 // let x: otherNestedRecord; switch x { | {optRecord:Some({name})} => name->slic }
 //                                                                              ^com
-
-// Follow arrays
-// let x: array<otherNestedRecord>; switch x { | [inner] => inner.s }
-//                                                                 ^com
 
 // Infer top level return
 // let x = 123; switch x { | 123 => () | v => v->toSt }

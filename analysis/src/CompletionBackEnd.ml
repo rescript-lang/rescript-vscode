@@ -1029,30 +1029,11 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
       |> completionsGetTypeEnv2 ~debug ~full ~opens ~rawOpens ~pos
     in
     match mainTypeCompletionEnv with
-    | None -> (
+    | None ->
       if Debug.verbose () then
         Printf.printf
-          "[dot_completion] Could not extract main type completion env. \
-           Checking for extracted type.\n";
-
-      match
-        completionsFromCtxPath
-        |> completionsGetCompletionType2 ~debug ~full ~opens ~rawOpens ~pos
-      with
-      | Some (ExtractedType typ, env) -> (
-        if Debug.verbose () then
-          Printf.printf "[dot_completion] Found extracted type\n";
-
-        match typ with
-        | Trecord {fields; definition} ->
-          fields
-          |> DotCompletionUtils.filterRecordFields ~env ~prefix:fieldName ~exact
-               ~recordAsString:
-                 (match definition with
-                 | `NameOnly name -> "type " ^ name
-                 | `TypeExpr t -> Shared.typeToString t)
-        | _ -> [])
-      | None | Some (TypeExpr _, _) -> [])
+          "[dot_completion] Could not extract main type completion env.\n";
+      []
     | Some (typ, env) ->
       if Debug.verbose () then
         Printf.printf "[dot_completion] env module path: %s, type: %s\n"
