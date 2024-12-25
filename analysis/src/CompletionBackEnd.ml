@@ -670,7 +670,7 @@ let getPipeCompletions ~env ~full ~identifierLoc ~debug ~envCompletionIsMadeFrom
     typ =
   let env, typ =
     typ
-    |> TypeUtils.resolveTypeForPipeCompletion2 ~env ~package:full.package ~full
+    |> TypeUtils.resolveTypeForPipeCompletion ~env ~package:full.package ~full
          ~lhsLoc:identifierLoc
   in
   let mainTypeId = TypeUtils.findRootTypeId ~full ~env typ in
@@ -730,7 +730,7 @@ let getPipeCompletions ~env ~full ~identifierLoc ~debug ~envCompletionIsMadeFrom
     (* Extra completions can be drawn from the @editor.completeFrom attribute. Here we
        find and add those completions as well. *)
     let extraCompletions =
-      TypeUtils.getExtraModuleTosCompleteFromForType ~env ~full typ
+      TypeUtils.getExtraModulesToCompleteFromForType ~env ~full typ
       |> List.map (fun completionPath ->
              completionsForPipeFromCompletionPath ~envCompletionIsMadeFrom
                ~opens ~pos ~scope ~debug ~prefix ~env ~rawOpens ~full

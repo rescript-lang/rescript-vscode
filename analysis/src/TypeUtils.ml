@@ -2,13 +2,6 @@ open SharedTypes
 
 let modulePathFromEnv env = env.QueryEnv.file.moduleName :: List.rev env.pathRev
 
-let completionPathFromEnvAndPath env ~path =
-  modulePathFromEnv env @ List.rev (Utils.expandPath path)
-  |> List.rev |> List.tl |> List.rev
-
-let getFullTypeId ~env (path : Path.t) =
-  modulePathFromEnv env @ List.rev (Utils.expandPath path) |> String.concat "."
-
 let fullTypeIdFromDecl ~env ~name ~modulePath =
   env.QueryEnv.file.moduleName :: ModulePath.toPath modulePath name
   |> String.concat "."
@@ -506,45 +499,6 @@ let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
     | _ -> None)
   | _ -> None
 
-type builtinType =
-  | Array
-  | Option
-  | String
-  | Int
-  | Float
-  | Promise
-  | List
-  | Result
-  | Lazy
-  | Char
-  | RegExp
-
-type pipeCompletionType =
-  | Builtin of builtinType * Types.type_expr
-  | TypExpr of Types.type_expr
-
-let getBuiltinFromTypePath path =
-  match path with
-  | Path.Pident _ -> (
-    match Path.name path with
-    | "array" -> Some Array
-    | "option" -> Some Option
-    | "string" -> Some String
-    | "int" -> Some Int
-    | "float" -> Some Float
-    | "promise" -> Some Promise
-    | "list" -> Some List
-    | "result" -> Some Result
-    | "lazy_t" -> Some Lazy
-    | "char" -> Some Char
-    | _ -> None)
-  | Pdot (Pdot (Pident m, "Re", _), "t", _) when Ident.name m = "Js" ->
-    Some RegExp
-  | Pdot (Pident id, "result", _)
-    when Ident.name id = "Pervasives" || Ident.name id = "PervasivesU" ->
-    Some Result
-  | _ -> None
-
 let rec digToRelevantTemplateNameType ~env ~package ?(suffix = "")
     (t : Types.type_expr) =
   match t.desc with
@@ -563,47 +517,6 @@ let rec digToRelevantTemplateNameType ~env ~package ?(suffix = "")
 
 let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
     (t : Types.type_expr) =
-  let builtin =
-    match t |> pathFromTypeExpr with
-    | Some path -> path |> getBuiltinFromTypePath
-    | None -> None
-  in
-  match builtin with
-  | Some builtin -> (env, Builtin (builtin, t))
-  | None -> (
-    (* If the type we're completing on is a type parameter, we won't be able to
-       do completion unless we know what that type parameter is compiled as.
-       This attempts to look up the compiled type for that type parameter by
-       looking for compiled information at the loc of that expression. *)
-    let typFromLoc =
-      match t with
-      | {Types.desc = Tvar _} -> (
-        match findReturnTypeOfFunctionAtLoc lhsLoc ~env ~full ~debug:false with
-        | None -> None
-        | Some typFromLoc -> Some typFromLoc)
-      | _ -> None
-    in
-    match typFromLoc with
-    | Some typFromLoc ->
-      typFromLoc |> resolveTypeForPipeCompletion ~lhsLoc ~env ~package ~full
-    | None ->
-      let rec digToRelevantType ~env ~package (t : Types.type_expr) =
-        match t.desc with
-        | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
-          digToRelevantType ~env ~package t1
-        (* Don't descend into types named "t". Type t is a convention in the ReScript ecosystem. *)
-        | Tconstr (path, _, _) when path |> Path.last = "t" -> (env, TypExpr t)
-        | Tconstr (path, _, _) -> (
-          match References.digConstructor ~env ~package path with
-          | Some (env, {item = {decl = {type_manifest = Some typ}}}) ->
-            digToRelevantType ~env ~package typ
-          | _ -> (env, TypExpr t))
-        | _ -> (env, TypExpr t)
-      in
-      digToRelevantType ~env ~package t)
-
-let rec resolveTypeForPipeCompletion2 ~env ~package ~lhsLoc ~full
-    (t : Types.type_expr) =
   (* If the type we're completing on is a type parameter, we won't be able to
      do completion unless we know what that type parameter is compiled as.
      This attempts to look up the compiled type for that type parameter by
@@ -616,7 +529,7 @@ let rec resolveTypeForPipeCompletion2 ~env ~package ~lhsLoc ~full
   in
   match typFromLoc with
   | Some typFromLoc ->
-    typFromLoc |> resolveTypeForPipeCompletion2 ~lhsLoc ~env ~package ~full
+    typFromLoc |> resolveTypeForPipeCompletion ~lhsLoc ~env ~package ~full
   | None ->
     let rec digToRelevantType ~env ~package (t : Types.type_expr) =
       match t.desc with
@@ -1190,21 +1103,9 @@ let pathToElementProps package =
   | None -> ["ReactDOM"; "domProps"]
   | Some g -> (g |> String.split_on_char '.') @ ["Elements"; "props"]
 
-(** Extracts module to draw extra completions from for the type, if it has been annotated with @editor.completeFrom. *)
-let rec getExtraModuleToCompleteFromForType ~env ~full (t : Types.type_expr) =
-  match t |> Shared.digConstructor with
-  | Some path -> (
-    match References.digConstructor ~env ~package:full.package path with
-    | None -> None
-    | Some (env, {item = {decl = {type_manifest = Some t}}}) ->
-      getExtraModuleToCompleteFromForType ~env ~full t
-    | Some (_, {item = {attributes}}) ->
-      ProcessAttributes.findEditorCompleteFromAttribute attributes)
-  | None -> None
-
 module StringSet = Set.Make (String)
 
-let rec getExtraModuleTosCompleteFromForType ~env ~full (t : Types.type_expr) =
+let getExtraModulesToCompleteFromForType ~env ~full (t : Types.type_expr) =
   let foundModulePaths = ref StringSet.empty in
   let addToModulePaths attributes =
     ProcessAttributes.findEditorCompleteFromAttribute2 attributes
@@ -1226,39 +1127,6 @@ let rec getExtraModuleTosCompleteFromForType ~env ~full (t : Types.type_expr) =
   inner ~env ~full t;
   !foundModulePaths |> StringSet.elements
   |> List.map (fun l -> String.split_on_char '.' l)
-
-(** Checks whether the provided type represents a function that takes the provided path 
-  as the first argument (meaning it's pipeable). *)
-let rec fnTakesTypeAsFirstArg ~env ~full ~targetTypeId t =
-  (*if Debug.verbose () then
-    Printf.printf "[fnTakesTypeAsFirstArg] start env: %s\n"
-      env.QueryEnv.file.moduleName;*)
-  match t.Types.desc with
-  | Tlink t1
-  | Tsubst t1
-  | Tpoly (t1, [])
-  | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
-    fnTakesTypeAsFirstArg ~env ~full ~targetTypeId t1
-  | Tarrow _ -> (
-    match extractFunctionTypeWithEnv ~env ~package:full.package t with
-    | (Nolabel, t) :: _, _, env -> (
-      (*if Debug.verbose () then
-        Printf.printf "[fnTakesTypeAsFirstArg] extracted env: %s\n"
-          env.QueryEnv.file.moduleName;*)
-      let mainTypeId =
-        match pathFromTypeExpr t with
-        | None -> None
-        | Some tPath -> Some (getFullTypeId ~env tPath)
-      in
-      (*if Debug.verbose () then
-        Printf.printf "[filterPipeableFunctions]--> targetTypeId:%s = %s\n"
-          targetTypeId
-          (Option.value ~default:"None" mainTypeId);*)
-      match mainTypeId with
-      | None -> false
-      | Some mainTypeId -> mainTypeId = targetTypeId)
-    | _ -> false)
-  | _ -> false
 
 let getFirstFnUnlabelledArgType ~env ~full t =
   let labels, _, env =
