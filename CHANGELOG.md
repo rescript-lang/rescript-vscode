@@ -12,6 +12,8 @@
 
 ## master
 
+## 1.60.0
+
 #### :rocket: New Feature
 
 - Enable incremental typechecking and project config cache by default. https://github.com/rescript-lang/rescript-vscode/pull/1047
