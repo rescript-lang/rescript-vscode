@@ -64,3 +64,28 @@ let rec findEditorCompleteFromAttribute attributes =
     :: _ ->
     Some (Utils.flattenLongIdent path)
   | _ :: rest -> findEditorCompleteFromAttribute rest
+
+let rec findEditorCompleteFromAttribute2 ?(modulePaths = []) attributes =
+  let open Parsetree in
+  match attributes with
+  | [] -> modulePaths
+  | ( {Asttypes.txt = "editor.completeFrom"},
+      PStr [{pstr_desc = Pstr_eval (payloadExpr, _)}] )
+    :: rest ->
+    let items =
+      match payloadExpr with
+      | {pexp_desc = Pexp_array items} -> items
+      | p -> [p]
+    in
+    let modulePathsFromArray =
+      items
+      |> List.filter_map (fun item ->
+             match item.Parsetree.pexp_desc with
+             | Pexp_construct ({txt = path}, None) ->
+               Some (Utils.flattenLongIdent path)
+             | _ -> None)
+    in
+    findEditorCompleteFromAttribute2
+      ~modulePaths:(modulePathsFromArray @ modulePaths)
+      rest
+  | _ :: rest -> findEditorCompleteFromAttribute2 ~modulePaths rest

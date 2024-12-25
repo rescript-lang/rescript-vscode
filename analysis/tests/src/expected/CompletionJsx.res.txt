@@ -6,7 +6,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someString]->st
 ContextPath Value[someString]
 Path someString
-CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "Js.String2.startsWith",
@@ -37,7 +36,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someString]->st <<jsx>>
 ContextPath Value[someString]
 Path someString
-CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -83,7 +81,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someString]->st <<jsx>>
 ContextPath Value[someString]
 Path someString
-CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -128,7 +125,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath string->st <<jsx>>
 ContextPath string
-CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -175,7 +171,6 @@ ContextPath Value[Js, String2, trim](Nolabel)->st <<jsx>>
 ContextPath Value[Js, String2, trim](Nolabel)
 ContextPath Value[Js, String2, trim]
 Path Js.String2.trim
-CPPipe env:CompletionJsx envFromCompletionItem:Js_string2
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -221,7 +216,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someInt]-> <<jsx>>
 ContextPath Value[someInt]
 Path someInt
-CPPipe env:CompletionJsx
 Path Belt.Int.
 [{
     "label": "React.int",
@@ -290,7 +284,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath int-> <<jsx>>
 ContextPath int
-CPPipe env:CompletionJsx
 Path Belt.Int.
 [{
     "label": "React.int",
@@ -360,7 +353,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someArr]->a <<jsx>>
 ContextPath Value[someArr]
 Path someArr
-CPPipe env:CompletionJsx
 Path Js.Array2.a
 [{
     "label": "React.array",

@@ -6,8 +6,6 @@ Resolved opens 1 pervasives
 ContextPath Value[int]->
 ContextPath Value[int]
 Path int
-CPPipe env:CompletionPipeChain
-CPPipe type path:Integer.t
 CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
@@ -39,8 +37,6 @@ ContextPath Value[toFlt](Nolabel)->
 ContextPath Value[toFlt](Nolabel)
 ContextPath Value[toFlt]
 Path toFlt
-CPPipe env:CompletionPipeChain
-CPPipe type path:SuperFloat.t
 CPPipe pathFromEnv:SuperFloat found:true
 Path SuperFloat.
 [{
@@ -60,8 +56,6 @@ ContextPath Value[Integer, increment](Nolabel, Nolabel)->
 ContextPath Value[Integer, increment](Nolabel, Nolabel)
 ContextPath Value[Integer, increment]
 Path Integer.increment
-CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.Integer
-CPPipe type path:t
 CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
@@ -93,8 +87,6 @@ ContextPath Value[Integer, increment](Nolabel, Nolabel)->
 ContextPath Value[Integer, increment](Nolabel, Nolabel)
 ContextPath Value[Integer, increment]
 Path Integer.increment
-CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.Integer
-CPPipe type path:t
 CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
@@ -126,8 +118,6 @@ ContextPath Value[Integer, decrement](Nolabel, Nolabel)->
 ContextPath Value[Integer, decrement](Nolabel, Nolabel)
 ContextPath Value[Integer, decrement]
 Path Integer.decrement
-CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.Integer
-CPPipe type path:t
 CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
@@ -159,8 +149,6 @@ ContextPath Value[Integer, decrement](Nolabel, Nolabel)->
 ContextPath Value[Integer, decrement](Nolabel, Nolabel)
 ContextPath Value[Integer, decrement]
 Path Integer.decrement
-CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.Integer
-CPPipe type path:t
 CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
@@ -192,8 +180,6 @@ ContextPath Value[SuperFloat, fromInteger](Nolabel)->
 ContextPath Value[SuperFloat, fromInteger](Nolabel)
 ContextPath Value[SuperFloat, fromInteger]
 Path SuperFloat.fromInteger
-CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.SuperFloat
-CPPipe type path:t
 CPPipe pathFromEnv:SuperFloat found:true
 Path SuperFloat.
 [{
@@ -213,8 +199,6 @@ ContextPath Value[SuperFloat, fromInteger](Nolabel)->t
 ContextPath Value[SuperFloat, fromInteger](Nolabel)
 ContextPath Value[SuperFloat, fromInteger]
 Path SuperFloat.fromInteger
-CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionPipeChain.SuperFloat
-CPPipe type path:t
 CPPipe pathFromEnv:SuperFloat found:true
 Path SuperFloat.t
 [{
@@ -234,8 +218,6 @@ ContextPath Value[CompletionSupport, Test, make](Nolabel)->
 ContextPath Value[CompletionSupport, Test, make](Nolabel)
 ContextPath Value[CompletionSupport, Test, make]
 Path CompletionSupport.Test.make
-CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionSupport.Test
-CPPipe type path:t
 CPPipe pathFromEnv:Test found:true
 Path CompletionSupport.Test.
 [{
@@ -261,8 +243,6 @@ ContextPath Value[CompletionSupport, Test, addSelf](Nolabel, Nolabel)->
 ContextPath Value[CompletionSupport, Test, addSelf](Nolabel, Nolabel)
 ContextPath Value[CompletionSupport, Test, addSelf]
 Path CompletionSupport.Test.addSelf
-CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionSupport.Test
-CPPipe type path:t
 CPPipe pathFromEnv:Test found:true
 Path CompletionSupport.Test.
 [{
@@ -288,9 +268,8 @@ ContextPath Value[Js, Array2, forEach](Nolabel, Nolabel)->
 ContextPath Value[Js, Array2, forEach](Nolabel, Nolabel)
 ContextPath Value[Js, Array2, forEach]
 Path Js.Array2.forEach
-CPPipe env:CompletionPipeChain envFromCompletionItem:Js_array2
-CPPipe type path:unit
 CPPipe pathFromEnv: found:true
+Path Js_array2.
 []
 
 Complete src/CompletionPipeChain.res 62:6
@@ -302,7 +281,6 @@ ContextPath Value[Belt, Array, reduce](Nolabel, Nolabel, Nolabel)->t
 ContextPath Value[Belt, Array, reduce](Nolabel, Nolabel, Nolabel)
 ContextPath Value[Belt, Array, reduce]
 Path Belt.Array.reduce
-CPPipe env:CompletionPipeChain envFromCompletionItem:Belt_Array
 Path Belt.Int.t
 [{
     "label": "Belt.Int.toString",
@@ -326,8 +304,6 @@ Resolved opens 1 pervasives
 ContextPath Value[aliased]->
 ContextPath Value[aliased]
 Path aliased
-CPPipe env:CompletionPipeChain
-CPPipe type path:CompletionSupport.Test.t
 CPPipe pathFromEnv:CompletionSupport.Test found:false
 Path CompletionSupport.Test.
 [{
@@ -352,8 +328,6 @@ Resolved opens 1 pervasives
 ContextPath Value[notAliased]->
 ContextPath Value[notAliased]
 Path notAliased
-CPPipe env:CompletionPipeChain
-CPPipe type path:CompletionSupport.Test.t
 CPPipe pathFromEnv:CompletionSupport.Test found:false
 Path CompletionSupport.Test.
 [{
@@ -390,8 +364,6 @@ CPPipe pathFromEnv:CompletionSupport2.Internal found:false
 Path CompletionSupport2.Internal.support
 CPPipe pathFromEnv:CompletionSupport.Nested found:false
 Path CompletionSupport.Nested.root
-CPPipe env:CompletionPipeChain envFromCompletionItem:CompletionSupport.Nested
-CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path ReactDOM.Client.Root.ren
 [{
@@ -418,8 +390,6 @@ Resolved opens 1 pervasives
 ContextPath Value[root]->ren
 ContextPath Value[root]
 Path root
-CPPipe env:CompletionPipeChain
-CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path ReactDOM.Client.Root.ren
 [{
@@ -441,8 +411,6 @@ Resolved opens 1 pervasives
 ContextPath Value[int]->
 ContextPath Value[int]
 Path int
-CPPipe env:CompletionPipeChain
-CPPipe type path:Integer.t
 CPPipe pathFromEnv:Integer found:true
 Path Integer.
 [{
@@ -475,8 +443,6 @@ Resolved opens 1 pervasives
 ContextPath Value[int]->t
 ContextPath Value[int]
 Path int
-CPPipe env:CompletionPipeChain
-CPPipe type path:Integer.t
 CPPipe pathFromEnv:Integer found:true
 Path Integer.t
 [{
@@ -495,7 +461,7 @@ Resolved opens 1 pervasives
 ContextPath Value[r]->la
 ContextPath Value[r]
 Path r
-CPPipe env:CompletionPipeChain
+CPPipe pathFromEnv:Js.Re found:false
 Path Js.Re.la
 [{
     "label": "Js.Re.lastIndex",
@@ -513,8 +479,6 @@ Resolved opens 1 pervasives
 ContextPath Value[xx]->
 ContextPath Value[xx]
 Path xx
-CPPipe env:CompletionPipeChain
-CPPipe type path:Xyz.xx
 CPPipe pathFromEnv:Xyz found:true
 Path Xyz.
 [{

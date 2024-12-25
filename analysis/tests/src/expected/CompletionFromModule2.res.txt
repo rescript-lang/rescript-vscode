@@ -10,6 +10,12 @@ Path CompletionFromModule.n
 CPPipe pathFromEnv:SomeModule found:true
 Path CompletionFromModule.SomeModule.
 [{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype t = {name: string}\n```"}
+  }, {
     "label": "->CompletionFromModule.SomeModule.getName",
     "kind": 12,
     "tags": [],
@@ -20,12 +26,6 @@ Path CompletionFromModule.SomeModule.
     "range": {"start": {"line": 2, "character": 25}, "end": {"line": 2, "character": 25}},
     "newText": "->CompletionFromModule.SomeModule.getName"
   }
-  }, {
-    "label": "name",
-    "kind": 5,
-    "tags": [],
-    "detail": "string",
-    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype t = {name: string}\n```"}
   }]
 
 Complete src/CompletionFromModule2.res 5:27
@@ -39,7 +39,14 @@ ContextPath Value[CompletionFromModule, nn]
 Path CompletionFromModule.nn
 CPPipe pathFromEnv:SomeOtherModule found:true
 Path CompletionFromModule.SomeOtherModule.
+Path CompletionFromModule.SomeOtherModule.
 [{
+    "label": "nname",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnname: string\n```\n\n```rescript\ntype typeOutsideModule = {nname: string}\n```"}
+  }, {
     "label": "->CompletionFromModule.SomeOtherModule.getNName",
     "kind": 12,
     "tags": [],
@@ -51,11 +58,38 @@ Path CompletionFromModule.SomeOtherModule.
     "newText": "->CompletionFromModule.SomeOtherModule.getNName"
   }
   }, {
-    "label": "nname",
-    "kind": 5,
+    "label": "->CompletionFromModule.SomeOtherModule.getNName2",
+    "kind": 12,
     "tags": [],
-    "detail": "string",
-    "documentation": {"kind": "markdown", "value": "```rescript\nnname: string\n```\n\n```rescript\ntype typeOutsideModule = {nname: string}\n```"}
+    "detail": "typeOutsideModule => string",
+    "documentation": null,
+    "sortText": "getNName2",
+    "textEdit": {
+    "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 26}},
+    "newText": "->CompletionFromModule.SomeOtherModule.getNName2"
+  }
+  }, {
+    "label": "->CompletionFromModule.SomeOtherModule.getNName",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => string",
+    "documentation": null,
+    "sortText": "getNName",
+    "textEdit": {
+    "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 26}},
+    "newText": "->CompletionFromModule.SomeOtherModule.getNName"
+  }
+  }, {
+    "label": "->CompletionFromModule.SomeOtherModule.getNName2",
+    "kind": 12,
+    "tags": [],
+    "detail": "typeOutsideModule => string",
+    "documentation": null,
+    "sortText": "getNName2",
+    "textEdit": {
+    "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 26}},
+    "newText": "->CompletionFromModule.SomeOtherModule.getNName2"
+  }
   }]
 
 Complete src/CompletionFromModule2.res 8:29
@@ -66,9 +100,8 @@ Resolved opens 1 pervasives
 ContextPath Value[CompletionFromModule, nnn]->
 ContextPath Value[CompletionFromModule, nnn]
 Path CompletionFromModule.nnn
-CPPipe env:CompletionFromModule2 envFromCompletionItem:CompletionFromModule
-CPPipe type path:typeOutsideModule
 CPPipe pathFromEnv: found:true
+Path CompletionFromModule.
 Path CompletionFromModule.SomeOtherModule.
 [{
     "label": "CompletionFromModule.SomeOtherModule.getNName",
@@ -93,9 +126,8 @@ Resolved opens 2 pervasives CompletionFromModule.res
 ContextPath Value[CompletionFromModule, nnn]->
 ContextPath Value[CompletionFromModule, nnn]
 Path CompletionFromModule.nnn
-CPPipe env:CompletionFromModule2 envFromCompletionItem:CompletionFromModule
-CPPipe type path:typeOutsideModule
 CPPipe pathFromEnv: found:true
+Path CompletionFromModule.
 Path CompletionFromModule.SomeOtherModule.
 [{
     "label": "getNName",

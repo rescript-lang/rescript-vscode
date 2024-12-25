@@ -28,6 +28,50 @@ Path Rxjs.
     "range": {"start": {"line": 26, "character": 28}, "end": {"line": 26, "character": 28}},
     "newText": "->Observable.subscribe"
   }
+  }, {
+    "label": "->pipe",
+    "kind": 12,
+    "tags": [],
+    "detail": "(Observable.t<'t>, operation<'t, 'u>) => Observable.t<'u>",
+    "documentation": null,
+    "sortText": "pipe",
+    "textEdit": {
+    "range": {"start": {"line": 26, "character": 28}, "end": {"line": 26, "character": 28}},
+    "newText": "->pipe"
+  }
+  }, {
+    "label": "->combineLatest",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  Observable.t<'a>,\n  Observable.t<'b>,\n) => Observable.t<('a, 'b)>",
+    "documentation": null,
+    "sortText": "combineLatest",
+    "textEdit": {
+    "range": {"start": {"line": 26, "character": 28}, "end": {"line": 26, "character": 28}},
+    "newText": "->combineLatest"
+  }
+  }, {
+    "label": "->merge",
+    "kind": 12,
+    "tags": [],
+    "detail": "(Observable.t<'t>, Observable.t<'t>) => Observable.t<'t>",
+    "documentation": null,
+    "sortText": "merge",
+    "textEdit": {
+    "range": {"start": {"line": 26, "character": 28}, "end": {"line": 26, "character": 28}},
+    "newText": "->merge"
+  }
+  }, {
+    "label": "->pipe2",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  Observable.t<'t>,\n  operation<'t, 'u>,\n  operation<'u, 'i>,\n) => Observable.t<'i>",
+    "documentation": null,
+    "sortText": "pipe2",
+    "textEdit": {
+    "range": {"start": {"line": 26, "character": 28}, "end": {"line": 26, "character": 28}},
+    "newText": "->pipe2"
+  }
   }]
 
 Complete src/RxjsCompletion.res 34:30
@@ -57,6 +101,50 @@ Path Rxjs.
     "textEdit": {
     "range": {"start": {"line": 34, "character": 29}, "end": {"line": 34, "character": 29}},
     "newText": "->Rxjs.Observable.subscribe"
+  }
+  }, {
+    "label": "->Rxjs.pipe",
+    "kind": 12,
+    "tags": [],
+    "detail": "(Observable.t<'t>, operation<'t, 'u>) => Observable.t<'u>",
+    "documentation": null,
+    "sortText": "pipe",
+    "textEdit": {
+    "range": {"start": {"line": 34, "character": 29}, "end": {"line": 34, "character": 29}},
+    "newText": "->Rxjs.pipe"
+  }
+  }, {
+    "label": "->Rxjs.combineLatest",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  Observable.t<'a>,\n  Observable.t<'b>,\n) => Observable.t<('a, 'b)>",
+    "documentation": null,
+    "sortText": "combineLatest",
+    "textEdit": {
+    "range": {"start": {"line": 34, "character": 29}, "end": {"line": 34, "character": 29}},
+    "newText": "->Rxjs.combineLatest"
+  }
+  }, {
+    "label": "->Rxjs.merge",
+    "kind": 12,
+    "tags": [],
+    "detail": "(Observable.t<'t>, Observable.t<'t>) => Observable.t<'t>",
+    "documentation": null,
+    "sortText": "merge",
+    "textEdit": {
+    "range": {"start": {"line": 34, "character": 29}, "end": {"line": 34, "character": 29}},
+    "newText": "->Rxjs.merge"
+  }
+  }, {
+    "label": "->Rxjs.pipe2",
+    "kind": 12,
+    "tags": [],
+    "detail": "(\n  Observable.t<'t>,\n  operation<'t, 'u>,\n  operation<'u, 'i>,\n) => Observable.t<'i>",
+    "documentation": null,
+    "sortText": "pipe2",
+    "textEdit": {
+    "range": {"start": {"line": 34, "character": 29}, "end": {"line": 34, "character": 29}},
+    "newText": "->Rxjs.pipe2"
   }
   }]
 

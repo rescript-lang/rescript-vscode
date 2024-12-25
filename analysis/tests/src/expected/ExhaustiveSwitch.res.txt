@@ -103,9 +103,10 @@ Resolved opens 1 pervasives
 ContextPath Value[x]->
 ContextPath Value[x]
 Path x
-CPPipe env:ExhaustiveSwitch
-CPPipe type path:rcrd
 CPPipe pathFromEnv: found:true
+Path ExhaustiveSwitch.
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
 
 Xform src/ExhaustiveSwitch.res start: 33:3, end: 33:10
 found selection: [33:3->33:10] -> [33:6->33:10]

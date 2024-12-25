@@ -10,5 +10,28 @@ Path a
 CPPipe pathFromEnv:A found:true
 Path A.
 Path B.
-[]
+Path C.
+[{
+    "label": "->B.b",
+    "kind": 12,
+    "tags": [],
+    "detail": "A.a => int",
+    "documentation": null,
+    "sortText": "b",
+    "textEdit": {
+    "range": {"start": {"line": 19, "character": 4}, "end": {"line": 19, "character": 4}},
+    "newText": "->B.b"
+  }
+  }, {
+    "label": "->C.c",
+    "kind": 12,
+    "tags": [],
+    "detail": "A.a => char",
+    "documentation": null,
+    "sortText": "c",
+    "textEdit": {
+    "range": {"start": {"line": 19, "character": 4}, "end": {"line": 19, "character": 4}},
+    "newText": "->C.c"
+  }
+  }]
 

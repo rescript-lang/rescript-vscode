@@ -400,8 +400,6 @@ Resolved opens 1 pervasives
 ContextPath Value[thisGetsBrokenLoc]->a <<jsx>>
 ContextPath Value[thisGetsBrokenLoc]
 Path thisGetsBrokenLoc
-CPPipe env:CompletionFunctionArguments
-CPPipe type path:ReactEvent.Mouse.t
 CPPipe pathFromEnv:ReactEvent.Mouse found:false
 Path ReactEvent.Mouse.a
 [{
@@ -426,8 +424,6 @@ Resolved opens 1 pervasives
 ContextPath Value[reassignedWorks]->a <<jsx>>
 ContextPath Value[reassignedWorks]
 Path reassignedWorks
-CPPipe env:CompletionFunctionArguments
-CPPipe type path:ReactEvent.Mouse.t
 CPPipe pathFromEnv:ReactEvent.Mouse found:false
 Path ReactEvent.Mouse.a
 [{
@@ -449,8 +445,6 @@ Resolved opens 1 pervasives
 ContextPath Value[fineModuleVal]->
 ContextPath Value[fineModuleVal]
 Path fineModuleVal
-CPPipe env:CompletionFunctionArguments
-CPPipe type path:FineModule.t
 CPPipe pathFromEnv:FineModule found:true
 Path FineModule.
 [{

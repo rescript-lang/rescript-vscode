@@ -1,5 +1,18 @@
 open SharedTypes
 
+let modulePathFromEnv env = env.QueryEnv.file.moduleName :: List.rev env.pathRev
+
+let completionPathFromEnvAndPath env ~path =
+  modulePathFromEnv env @ List.rev (Utils.expandPath path)
+  |> List.rev |> List.tl |> List.rev
+
+let getFullTypeId ~env (path : Path.t) =
+  modulePathFromEnv env @ List.rev (Utils.expandPath path) |> String.concat "."
+
+let fullTypeIdFromDecl ~env ~name ~modulePath =
+  env.QueryEnv.file.moduleName :: ModulePath.toPath modulePath name
+  |> String.concat "."
+
 let debugLogTypeArgContext {env; typeArgs; typeParams} =
   Printf.sprintf "Type arg context. env: %s, typeArgs: %s, typeParams: %s\n"
     (Debug.debugPrintEnv env)
@@ -256,6 +269,28 @@ let rec extractFunctionType ~env ~package typ =
         loop ~env acc t1
       | _ -> (List.rev acc, t))
     | _ -> (List.rev acc, t)
+  in
+  loop ~env [] typ
+
+let rec extractFunctionTypeWithEnv ~env ~package typ =
+  let rec loop ~env acc (t : Types.type_expr) =
+    match t.desc with
+    | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> loop ~env acc t1
+    | Tarrow (label, tArg, tRet, _) -> loop ~env ((label, tArg) :: acc) tRet
+    | Tconstr (Pident {name = "function$"}, [t; _], _) ->
+      extractFunctionTypeWithEnv ~env ~package t
+    | Tconstr (path, typeArgs, _) -> (
+      match References.digConstructor ~env ~package path with
+      | Some
+          ( env,
+            {
+              item = {decl = {type_manifest = Some t1; type_params = typeParams}};
+            } ) ->
+        let t1 = t1 |> instantiateType ~typeParams ~typeArgs in
+        loop ~env acc t1
+      | Some _ -> (List.rev acc, t, env)
+      | _ -> (List.rev acc, t, env))
+    | _ -> (List.rev acc, t, env)
   in
   loop ~env [] typ
 
@@ -566,6 +601,37 @@ let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
         | _ -> (env, TypExpr t)
       in
       digToRelevantType ~env ~package t)
+
+let rec resolveTypeForPipeCompletion2 ~env ~package ~lhsLoc ~full
+    (t : Types.type_expr) =
+  (* If the type we're completing on is a type parameter, we won't be able to
+     do completion unless we know what that type parameter is compiled as.
+     This attempts to look up the compiled type for that type parameter by
+     looking for compiled information at the loc of that expression. *)
+  let typFromLoc =
+    match t with
+    | {Types.desc = Tvar _} ->
+      findReturnTypeOfFunctionAtLoc lhsLoc ~env ~full ~debug:false
+    | _ -> None
+  in
+  match typFromLoc with
+  | Some typFromLoc ->
+    typFromLoc |> resolveTypeForPipeCompletion2 ~lhsLoc ~env ~package ~full
+  | None ->
+    let rec digToRelevantType ~env ~package (t : Types.type_expr) =
+      match t.desc with
+      | Tlink t1 | Tsubst t1 | Tpoly (t1, []) ->
+        digToRelevantType ~env ~package t1
+      (* Don't descend into types named "t". Type t is a convention in the ReScript ecosystem. *)
+      | Tconstr (path, _, _) when path |> Path.last = "t" -> (env, t)
+      | Tconstr (path, _, _) -> (
+        match References.digConstructor ~env ~package path with
+        | Some (env, {item = {decl = {type_manifest = Some typ}}}) ->
+          digToRelevantType ~env ~package typ
+        | _ -> (env, t))
+      | _ -> (env, t)
+    in
+    digToRelevantType ~env ~package t
 
 let extractTypeFromResolvedType (typ : Type.t) ~env ~full =
   match typ.kind with
@@ -1074,7 +1140,7 @@ module Codegen = struct
                Ast_helper.Exp.case pat (mkFailWithExp ())))
 end
 
-let getPathRelativeToEnv ~debug ~(env : QueryEnv.t) ~envFromItem path =
+let getModulePathRelativeToEnv ~debug ~(env : QueryEnv.t) ~envFromItem path =
   match path with
   | _ :: pathRev ->
     (* type path is relative to the completion environment
@@ -1125,48 +1191,88 @@ let pathToElementProps package =
   | Some g -> (g |> String.split_on_char '.') @ ["Elements"; "props"]
 
 (** Extracts module to draw extra completions from for the type, if it has been annotated with @editor.completeFrom. *)
-let getExtraModuleToCompleteFromForType ~env ~full (t : Types.type_expr) =
+let rec getExtraModuleToCompleteFromForType ~env ~full (t : Types.type_expr) =
   match t |> Shared.digConstructor with
   | Some path -> (
     match References.digConstructor ~env ~package:full.package path with
     | None -> None
-    (*| Some (env, {item = {decl = {type_manifest = Some t}}}) ->
+    | Some (env, {item = {decl = {type_manifest = Some t}}}) ->
       getExtraModuleToCompleteFromForType ~env ~full t
-
-      This could be commented back in to traverse type aliases.
-      Not clear as of now if that makes sense to do or not.
-    *)
     | Some (_, {item = {attributes}}) ->
       ProcessAttributes.findEditorCompleteFromAttribute attributes)
   | None -> None
 
+module StringSet = Set.Make (String)
+
+let rec getExtraModuleTosCompleteFromForType ~env ~full (t : Types.type_expr) =
+  let foundModulePaths = ref StringSet.empty in
+  let addToModulePaths attributes =
+    ProcessAttributes.findEditorCompleteFromAttribute2 attributes
+    |> List.iter (fun e ->
+           foundModulePaths :=
+             StringSet.add (e |> String.concat ".") !foundModulePaths)
+  in
+  let rec inner ~env ~full (t : Types.type_expr) =
+    match t |> Shared.digConstructor with
+    | Some path -> (
+      match References.digConstructor ~env ~package:full.package path with
+      | None -> ()
+      | Some (env, {item = {decl = {type_manifest = Some t}; attributes}}) ->
+        addToModulePaths attributes;
+        inner ~env ~full t
+      | Some (_, {item = {attributes}}) -> addToModulePaths attributes)
+    | None -> ()
+  in
+  inner ~env ~full t;
+  !foundModulePaths |> StringSet.elements
+  |> List.map (fun l -> String.split_on_char '.' l)
+
 (** Checks whether the provided type represents a function that takes the provided path 
   as the first argument (meaning it's pipeable). *)
-let rec fnTakesTypeAsFirstArg ~env ~full ~lastPath t =
+let rec fnTakesTypeAsFirstArg ~env ~full ~targetTypeId t =
+  (*if Debug.verbose () then
+    Printf.printf "[fnTakesTypeAsFirstArg] start env: %s\n"
+      env.QueryEnv.file.moduleName;*)
   match t.Types.desc with
   | Tlink t1
   | Tsubst t1
   | Tpoly (t1, [])
   | Tconstr (Pident {name = "function$"}, [t1; _], _) ->
-    fnTakesTypeAsFirstArg ~env ~full ~lastPath t1
+    fnTakesTypeAsFirstArg ~env ~full ~targetTypeId t1
   | Tarrow _ -> (
-    match extractFunctionType ~env ~package:full.package t with
-    | (Nolabel, t) :: _, _ -> (
-      let p = pathFromTypeExpr t in
-      match p with
+    match extractFunctionTypeWithEnv ~env ~package:full.package t with
+    | (Nolabel, t) :: _, _, env -> (
+      (*if Debug.verbose () then
+        Printf.printf "[fnTakesTypeAsFirstArg] extracted env: %s\n"
+          env.QueryEnv.file.moduleName;*)
+      let mainTypeId =
+        match pathFromTypeExpr t with
+        | None -> None
+        | Some tPath -> Some (getFullTypeId ~env tPath)
+      in
+      (*if Debug.verbose () then
+        Printf.printf "[filterPipeableFunctions]--> targetTypeId:%s = %s\n"
+          targetTypeId
+          (Option.value ~default:"None" mainTypeId);*)
+      match mainTypeId with
       | None -> false
-      | Some p ->
-        (*
-           Rules:
-           - The path p of the current type in the module we're looking at is relative to the current module.
-           - The path we're comparing against, `path`, is assumed to belong to this current module, because we're completing from it.
-
-           Therefore, we can safely pluck out just the last part of the `path`, but need to use the entire name of the current type
-           we're comparing with.
-        *)
-        Path.name p = lastPath || Path.name p = "t")
+      | Some mainTypeId -> mainTypeId = targetTypeId)
     | _ -> false)
   | _ -> false
+
+let getFirstFnUnlabelledArgType ~env ~full t =
+  let labels, _, env =
+    extractFunctionTypeWithEnv ~env ~package:full.package t
+  in
+  let rec findFirstUnlabelledArgType labels =
+    match labels with
+    | (Asttypes.Nolabel, t) :: _ -> Some t
+    | _ :: rest -> findFirstUnlabelledArgType rest
+    | [] -> None
+  in
+  match findFirstUnlabelledArgType labels with
+  | Some t -> Some (t, env)
+  | _ -> None
 
 (** Turns a completion into a pipe completion. *)
 let transformCompletionToPipeCompletion ?(synthetic = false) ~env ~replaceRange
@@ -1184,16 +1290,70 @@ let transformCompletionToPipeCompletion ?(synthetic = false) ~env ~replaceRange
       synthetic;
     }
 
+(** This takes a type expr and the env that type expr was found in, and produces a globally unique 
+    id for that specific type. The globally unique id is the full path to the type as seen from the root
+    of the project. Example: type x in module SomeModule in file SomeFile would get the globally 
+    unique id `SomeFile.SomeModule.x`.*)
+let rec findRootTypeId ~full ~env (t : Types.type_expr) =
+  let debug = Debug.verbose () in
+  (* let debug = false in *)
+  match t.desc with
+  | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> findRootTypeId ~full ~env t1
+  | Tconstr (Pident {name = "function$"}, [t; _], _) ->
+    findRootTypeId ~full ~env t
+  | Tconstr (path, _, _) -> (
+    (* We have a path. Try to dig to its declaration *)
+    if debug then
+      Printf.printf "[findRootTypeId] path %s, dig\n" (Path.name path);
+    match References.digConstructor ~env ~package:full.package path with
+    | Some (env, {item = {decl = {type_manifest = Some t1}}}) ->
+      if debug then
+        Printf.printf "[findRootTypeId] dug up type alias at module path %s \n"
+          (modulePathFromEnv env |> String.concat ".");
+      findRootTypeId ~full ~env t1
+    | Some (env, {item = {name}; modulePath}) ->
+      (* if it's a named type, then we know its name will be its module path from the env + its name.*)
+      if debug then
+        Printf.printf
+          "[findRootTypeId] dug up named type at module path %s, from item: %s \n"
+          (modulePathFromEnv env |> String.concat ".")
+          (ModulePath.toPath modulePath name |> String.concat ".");
+      Some (fullTypeIdFromDecl ~env ~name ~modulePath)
+    | None ->
+      (* If we didn't find anything, then it might be a builtin type. Check it.*)
+      if debug then Printf.printf "[findRootTypeId] dug up non-type alias\n";
+      if
+        Predef.builtin_idents
+        |> List.find_opt (fun (_, i) -> Ident.same i (Path.head path))
+        |> Option.is_some
+      then
+        Some
+          (if debug then Printf.printf "[findRootTypeId] returning builtin\n";
+           Path.name path)
+      else None)
+  | _ -> None
+
 (** Filters out completions that are not pipeable from a list of completions. *)
-let filterPipeableFunctions ~env ~full ?synthetic ?lastPath ?replaceRange
+let filterPipeableFunctions ~env ~full ?synthetic ?targetTypeId ?replaceRange
     completions =
-  match lastPath with
+  match targetTypeId with
   | None -> completions
-  | Some lastPath ->
+  | Some targetTypeId ->
     completions
     |> List.filter_map (fun (completion : Completion.t) ->
-           match completion.kind with
-           | Value t when fnTakesTypeAsFirstArg ~env ~full ~lastPath t -> (
+           let thisCompletionItemTypeId =
+             match completion.kind with
+             | Value t -> (
+               match
+                 getFirstFnUnlabelledArgType ~full ~env:completion.env t
+               with
+               | None -> None
+               | Some (t, envFromLabelledArg) ->
+                 findRootTypeId ~full ~env:envFromLabelledArg t)
+             | _ -> None
+           in
+           match thisCompletionItemTypeId with
+           | Some mainTypeId when mainTypeId = targetTypeId -> (
              match replaceRange with
              | None -> Some completion
              | Some replaceRange ->
@@ -1216,3 +1376,22 @@ let rec getObjFields (texp : Types.type_expr) =
   | Tlink te | Tsubst te | Tpoly (te, []) -> te |> getObjFields
   | Tvar None -> []
   | _ -> []
+
+let pathToBuiltin path =
+  Predef.builtin_idents
+  |> List.find_opt (fun (_, i) -> Ident.same i (Path.head path))
+
+let completionPathFromMaybeBuiltin path ~package =
+  match pathToBuiltin path with
+  | Some ("array", _) -> Some package.builtInCompletionModules.arrayModulePath
+  | Some ("option", _) -> Some package.builtInCompletionModules.optionModulePath
+  | Some ("string", _) -> Some package.builtInCompletionModules.stringModulePath
+  | Some ("int", _) -> Some package.builtInCompletionModules.intModulePath
+  | Some ("float", _) -> Some package.builtInCompletionModules.floatModulePath
+  | Some ("promise", _) ->
+    Some package.builtInCompletionModules.promiseModulePath
+  | Some ("list", _) -> Some package.builtInCompletionModules.listModulePath
+  | Some ("result", _) -> Some package.builtInCompletionModules.resultModulePath
+  | Some ("dict", _) -> Some ["Dict"]
+  | Some ("char", _) -> Some ["Char"]
+  | _ -> None

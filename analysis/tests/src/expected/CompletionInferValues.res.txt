@@ -9,7 +9,6 @@ Path aliased
 ContextPath Value[x]
 Path x
 ContextPath int
-CPPipe env:CompletionInferValues
 Path Belt.Int.t
 [{
     "label": "Belt.Int.toString",
@@ -38,6 +37,7 @@ ContextPath Value[getSomeRecord](Nolabel)
 ContextPath Value[getSomeRecord]
 Path getSomeRecord
 CPPipe pathFromEnv: found:true
+Path CompletionInferValues.
 [{
     "label": "name",
     "kind": 5,
@@ -67,6 +67,7 @@ ContextPath Value[getSomeRecord](Nolabel)
 ContextPath Value[getSomeRecord]
 Path getSomeRecord
 CPPipe pathFromEnv: found:true
+Path CompletionInferValues.
 [{
     "label": "name",
     "kind": 5,
@@ -101,6 +102,7 @@ ContextPath CArgument Value[someFnWithCallback]($0)
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
 CPPipe pathFromEnv: found:true
+Path CompletionInferValues.
 [{
     "label": "name",
     "kind": 5,
@@ -137,6 +139,7 @@ Path aliasedFn
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
 CPPipe pathFromEnv: found:true
+Path CompletionInferValues.
 [{
     "label": "name",
     "kind": 5,
@@ -167,8 +170,6 @@ ContextPath CArgument CArgument Value[reactEventFn]($0)($0)
 ContextPath CArgument Value[reactEventFn]($0)
 ContextPath Value[reactEventFn]
 Path reactEventFn
-CPPipe env:CompletionInferValues
-CPPipe type path:ReactEvent.Mouse.t
 CPPipe pathFromEnv:ReactEvent.Mouse found:false
 Path ReactEvent.Mouse.pr
 [{
@@ -195,8 +196,6 @@ ContextPath CArgument CJsxPropValue [div] onMouseEnter($0)
 ContextPath CJsxPropValue [div] onMouseEnter
 Path ReactDOM.domProps
 Path PervasivesU.JsxDOM.domProps
-CPPipe env:CompletionInferValues
-CPPipe type path:JsxEventU.Mouse.t
 CPPipe pathFromEnv:JsxEventU.Mouse found:false
 Path JsxEventU.Mouse.pr
 [{
@@ -222,8 +221,6 @@ Path event
 ContextPath CArgument CJsxPropValue [Div] onMouseEnter($0)
 ContextPath CJsxPropValue [Div] onMouseEnter
 Path Div.make
-CPPipe env:CompletionInferValues envFromCompletionItem:CompletionInferValues.Div
-CPPipe type path:PervasivesU.JsxEvent.Mouse.t
 CPPipe pathFromEnv:PervasivesU.JsxEvent.Mouse found:false
 Path PervasivesU.JsxEvent.Mouse.pr
 [{
@@ -250,7 +247,6 @@ Path btn
 ContextPath Value[JsxEvent, Mouse, button](Nolabel)
 ContextPath Value[JsxEvent, Mouse, button]
 Path JsxEvent.Mouse.button
-CPPipe env:CompletionInferValues envFromCompletionItem:JsxEventU.Mouse
 Path Belt.Int.t
 [{
     "label": "Belt.Int.toString",
@@ -282,7 +278,6 @@ Path btn
 ContextPath Value[Belt, Int, toString](Nolabel)
 ContextPath Value[Belt, Int, toString]
 Path Belt.Int.toString
-CPPipe env:CompletionInferValues envFromCompletionItem:Belt_Int
 Path Js.String2.spl
 [{
     "label": "Js.String2.splitAtMost",
@@ -326,7 +321,6 @@ Path btn
 ContextPath Value[Js, String2, split](Nolabel, Nolabel)
 ContextPath Value[Js, String2, split]
 Path Js.String2.split
-CPPipe env:CompletionInferValues envFromCompletionItem:Js_string2
 Path Js.Array2.ma
 [{
     "label": "Js.Array2.mapi",
@@ -353,18 +347,20 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecord]
 Path someRecord
+ContextPath Type[someRecord]
+Path someRecord
 [{
     "label": "name",
     "kind": 5,
     "tags": [],
     "detail": "string",
-    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype someRecord\n```"}
   }, {
     "label": "age",
     "kind": 5,
     "tags": [],
     "detail": "int",
-    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord = {name: string, age: int}\n```"}
+    "documentation": {"kind": "markdown", "value": "```rescript\nage: int\n```\n\n```rescript\ntype someRecord\n```"}
   }]
 
 Complete src/CompletionInferValues.res 78:78
@@ -382,6 +378,7 @@ Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
 CPPipe pathFromEnv: found:true
+Path CompletionInferValues.
 [{
     "label": "name",
     "kind": 5,
@@ -411,6 +408,7 @@ Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
 CPPipe pathFromEnv: found:true
+Path CompletionInferValues.
 [{
     "label": "someRecord",
     "kind": 5,
@@ -434,6 +432,7 @@ Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
 CPPipe pathFromEnv: found:true
+Path CompletionInferValues.
 [{
     "label": "name",
     "kind": 5,
@@ -461,7 +460,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
-CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -490,7 +488,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
-CPPipe env:CompletionInferValues
 Path Belt.Int.toS
 [{
     "label": "Belt.Int.toString",
@@ -516,7 +513,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
-CPPipe env:CompletionInferValues
 Path Belt.Int.toS
 [{
     "label": "Belt.Int.toString",
@@ -543,7 +539,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
-CPPipe env:CompletionInferValues
 Path Belt.Int.toS
 [{
     "label": "Belt.Int.toString",
@@ -566,7 +561,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
-CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -595,7 +589,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
-CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -624,7 +617,6 @@ ContextPath Value[x]
 Path x
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
-CPPipe env:CompletionInferValues
 Path Js.String2.slic
 [{
     "label": "Js.String2.sliceToEnd",
@@ -655,18 +647,24 @@ Path x
 ContextPath array<Type[otherNestedRecord]>
 ContextPath Type[otherNestedRecord]
 Path otherNestedRecord
+ContextPath CPatternPath(Value[x])->array
+ContextPath Value[x]
+Path x
+ContextPath array<Type[otherNestedRecord]>
+ContextPath Type[otherNestedRecord]
+Path otherNestedRecord
 [{
     "label": "someRecord",
     "kind": 5,
     "tags": [],
     "detail": "someRecord",
-    "documentation": {"kind": "markdown", "value": "```rescript\nsomeRecord: someRecord\n```\n\n```rescript\ntype otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant), optRecord: option<someRecord>}\n```"}
+    "documentation": {"kind": "markdown", "value": "```rescript\nsomeRecord: someRecord\n```\n\n```rescript\ntype otherNestedRecord\n```"}
   }, {
     "label": "someTuple",
     "kind": 5,
     "tags": [],
     "detail": "(someVariant, int, somePolyVariant)",
-    "documentation": {"kind": "markdown", "value": "```rescript\nsomeTuple: (someVariant, int, somePolyVariant)\n```\n\n```rescript\ntype otherNestedRecord = {someRecord: someRecord, someTuple: (someVariant, int, somePolyVariant), optRecord: option<someRecord>}\n```"}
+    "documentation": {"kind": "markdown", "value": "```rescript\nsomeTuple: (someVariant, int, somePolyVariant)\n```\n\n```rescript\ntype otherNestedRecord\n```"}
   }]
 
 Complete src/CompletionInferValues.res 122:53
@@ -680,7 +678,6 @@ Path v
 ContextPath Value[x]
 Path x
 ContextPath int
-CPPipe env:CompletionInferValues
 Path Belt.Int.toSt
 [{
     "label": "Belt.Int.toString",
@@ -736,8 +733,6 @@ ContextPath CArgument CArgument Value[fn2](~cb)($0)
 ContextPath CArgument Value[fn2](~cb)
 ContextPath Value[fn2]
 Path fn2
-CPPipe env:CompletionInferValues
-CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path ReactDOM.Client.Root.
 [{
@@ -772,8 +767,6 @@ ContextPath CArgument CArgument Value[fn3](~cb)($0)
 ContextPath CArgument Value[fn3](~cb)
 ContextPath Value[fn3]
 Path fn3
-CPPipe env:CompletionInferValues
-CPPipe type path:CompletionSupport.Test.t
 CPPipe pathFromEnv:CompletionSupport.Test found:false
 Path CompletionSupport.Test.
 [{
@@ -874,8 +867,6 @@ ContextPath CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath CArgument Value[CompletionSupport2, makeRenderer](~render)
 ContextPath Value[CompletionSupport2, makeRenderer]
 Path CompletionSupport2.makeRenderer
-CPPipe env:CompletionInferValues envFromCompletionItem:CompletionSupport2.Internal
-CPPipe type path:ReactDOM.Client.Root.t
 CPPipe pathFromEnv:ReactDOM.Client.Root found:false
 Path ReactDOM.Client.Root.
 [{

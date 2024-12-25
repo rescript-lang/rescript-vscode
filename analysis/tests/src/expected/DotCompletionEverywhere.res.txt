@@ -11,7 +11,7 @@ Path someObj
     "label": "[\"age\"]",
     "kind": 4,
     "tags": [],
-    "detail": "int",
+    "detail": "{\"age\": int, \"name\": string}",
     "documentation": null,
     "textEdit": {
     "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 10}},
@@ -21,7 +21,7 @@ Path someObj
     "label": "[\"name\"]",
     "kind": 4,
     "tags": [],
-    "detail": "string",
+    "detail": "{\"age\": int, \"name\": string}",
     "documentation": null,
     "textEdit": {
     "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 10}},
@@ -42,7 +42,7 @@ Path someObj
     "label": "[\"name\"]",
     "kind": 4,
     "tags": [],
-    "detail": "string",
+    "detail": "{\"age\": int, \"name\": string}",
     "documentation": null,
     "textEdit": {
     "range": {"start": {"line": 8, "character": 11}, "end": {"line": 8, "character": 13}},
@@ -60,6 +60,7 @@ ContextPath Value[rrr].n
 ContextPath Value[rrr]
 Path rrr
 CPPipe pathFromEnv: found:true
+Path DotCompletionEverywhere.n
 [{
     "label": "name",
     "kind": 5,
@@ -128,6 +129,12 @@ Path Sss.rrr
 CPPipe pathFromEnv:Sss found:true
 Path Sss.
 [{
+    "label": "name",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype rrr = {name: string}\n```"}
+  }, {
     "label": "->Sss.do",
     "kind": 12,
     "tags": [],
@@ -138,12 +145,6 @@ Path Sss.
     "range": {"start": {"line": 41, "character": 10}, "end": {"line": 41, "character": 10}},
     "newText": "->Sss.do"
   }
-  }, {
-    "label": "name",
-    "kind": 5,
-    "tags": [],
-    "detail": "string",
-    "documentation": {"kind": "markdown", "value": "```rescript\nname: string\n```\n\n```rescript\ntype rrr = {name: string}\n```"}
   }]
 
 Complete src/DotCompletionEverywhere.res 52:8
@@ -156,8 +157,15 @@ ContextPath Value[x2x2].""
 ContextPath Value[x2x2]
 Path x2x2
 CPPipe pathFromEnv: found:true
-Path X2.
+Path DotCompletionEverywhere.
+Path DotCompletionEverywhere.X2.
 [{
+    "label": "namee",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnamee: string\n```\n\n```rescript\ntype x2x2 = {namee: string}\n```"}
+  }, {
     "label": "->X2.stuff",
     "kind": 12,
     "tags": [],
@@ -168,12 +176,6 @@ Path X2.
     "range": {"start": {"line": 52, "character": 7}, "end": {"line": 52, "character": 7}},
     "newText": "->X2.stuff"
   }
-  }, {
-    "label": "namee",
-    "kind": 5,
-    "tags": [],
-    "detail": "string",
-    "documentation": {"kind": "markdown", "value": "```rescript\nnamee: string\n```\n\n```rescript\ntype x2x2 = {namee: string}\n```"}
   }]
 
 Complete src/DotCompletionEverywhere.res 61:7
@@ -189,7 +191,7 @@ Path obj
     "label": "[\"name\"]",
     "kind": 4,
     "tags": [],
-    "detail": "string",
+    "detail": "{\"name\": string, \"nothing\": bool, \"number\": int}",
     "documentation": null,
     "textEdit": {
     "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
@@ -199,7 +201,7 @@ Path obj
     "label": "[\"nothing\"]",
     "kind": 4,
     "tags": [],
-    "detail": "bool",
+    "detail": "{\"name\": string, \"nothing\": bool, \"number\": int}",
     "documentation": null,
     "textEdit": {
     "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
@@ -209,7 +211,7 @@ Path obj
     "label": "[\"number\"]",
     "kind": 4,
     "tags": [],
-    "detail": "int",
+    "detail": "{\"name\": string, \"nothing\": bool, \"number\": int}",
     "documentation": null,
     "textEdit": {
     "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
@@ -226,7 +228,6 @@ Resolved opens 1 pervasives
 ContextPath Value[arr].m
 ContextPath Value[arr]
 Path arr
-CPPipe pathFromEnv: found:true
 Path Js.Array2.m
 [{
     "label": "->Js.Array2.mapi",
@@ -263,12 +264,23 @@ ContextPath Value[button]
 Path button
 CPPipe pathFromEnv:DOMAPI found:true
 Path DOMAPI.
-Path HTMLButtonElement.
+Path DotCompletionEverywhere.HTMLButtonElement.
 [{
     "label": "disabled",
     "kind": 5,
     "tags": [],
     "detail": "bool",
     "documentation": {"kind": "markdown", "value": "```rescript\ndisabled: bool\n```\n\n```rescript\ntype htmlButtonElement = {mutable disabled: bool}\n```"}
+  }, {
+    "label": "->HTMLButtonElement.checkValidity",
+    "kind": 12,
+    "tags": [],
+    "detail": "DOMAPI.htmlButtonElement => bool",
+    "documentation": null,
+    "sortText": "checkValidity",
+    "textEdit": {
+    "range": {"start": {"line": 85, "character": 9}, "end": {"line": 85, "character": 9}},
+    "newText": "->HTMLButtonElement.checkValidity"
+  }
   }]
 
