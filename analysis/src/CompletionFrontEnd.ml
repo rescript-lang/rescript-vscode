@@ -225,7 +225,9 @@ let rec exprToContextPathInner (e : Parsetree.expression) =
   | Pexp_field (e1, {txt = Lident name; loc}) -> (
     match exprToContextPath e1 with
     | Some contextPath ->
-      Some (CPField {contextPath; fieldName = name; fieldNameLoc = loc})
+      Some
+        (CPField
+           {contextPath; fieldName = name; fieldNameLoc = loc; posOfDot = None})
     | _ -> None)
   | Pexp_field (_, {loc; txt = Ldot (lid, name)}) ->
     (* Case x.M.field ignore the x part *)
@@ -241,6 +243,7 @@ let rec exprToContextPathInner (e : Parsetree.expression) =
                };
            fieldName = name;
            fieldNameLoc = loc;
+           posOfDot = None;
          })
   | Pexp_send (e1, {txt}) -> (
     match exprToContextPath e1 with
@@ -332,6 +335,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
       Some text.[offsetNoWhite]
     else None
   in
+  let posOfDot = Pos.posOfDot text ~pos:posCursor ~offset in
   let charAtCursor =
     if offset < String.length text then text.[offset] else '\n'
   in
@@ -1167,6 +1171,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                       contextPath;
                       fieldName = name;
                       fieldNameLoc = fieldName.loc;
+                      posOfDot;
                     }
                 in
                 setResult (Cpath contextPath)
@@ -1189,6 +1194,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                        else if name = "_" then ""
                        else name);
                     fieldNameLoc = fieldName.loc;
+                    posOfDot;
                   }
               in
               setResult (Cpath contextPath)
@@ -1208,6 +1214,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                             loc_end = e.pexp_loc.loc_end;
                             loc_ghost = false;
                           };
+                        posOfDot;
                       }))
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)

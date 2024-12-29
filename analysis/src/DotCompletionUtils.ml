@@ -8,8 +8,8 @@ let filterRecordFields ~env ~recordAsString ~prefix ~exact fields =
                 ~kind:(SharedTypes.Completion.Field (field, recordAsString)))
          else None)
 
-let fieldCompletionsForDotCompletion typ ~env ~package ~prefix ~fieldNameLoc
-    ~exact =
+let fieldCompletionsForDotCompletion ?posOfDot typ ~env ~package ~prefix ~exact
+    =
   let asObject = typ |> TypeUtils.extractObjectType ~env ~package in
   match asObject with
   | Some (objEnv, obj) ->
@@ -22,8 +22,15 @@ let fieldCompletionsForDotCompletion typ ~env ~package ~prefix ~fieldNameLoc
              let fullObjFieldName = Printf.sprintf "[\"%s\"]" field in
              Some
                (SharedTypes.Completion.create fullObjFieldName ~synthetic:true
-                  ~range:fieldNameLoc ~insertText:fullObjFieldName ~env:objEnv
-                  ~kind:(SharedTypes.Completion.ObjLabel typ))
+                  ~insertText:fullObjFieldName ~env:objEnv
+                  ~kind:(SharedTypes.Completion.ObjLabel typ)
+                  ?additionalTextEdits:
+                    (match posOfDot with
+                    | None -> None
+                    | Some posOfDot ->
+                      Some
+                        (TypeUtils.makeAdditionalTextEditsForRemovingDot
+                           posOfDot)))
            else None)
   | None -> (
     match typ |> TypeUtils.extractRecordType ~env ~package with

@@ -1142,8 +1142,20 @@ let getFirstFnUnlabelledArgType ~env ~full t =
   | Some t -> Some (t, env)
   | _ -> None
 
+let makeAdditionalTextEditsForRemovingDot posOfDot =
+  [
+    {
+      Protocol.range =
+        {
+          start = {line = fst posOfDot; character = snd posOfDot - 1};
+          end_ = {line = fst posOfDot; character = snd posOfDot};
+        };
+      newText = "";
+    };
+  ]
+
 (** Turns a completion into a pipe completion. *)
-let transformCompletionToPipeCompletion ?(synthetic = false) ~env ~replaceRange
+let transformCompletionToPipeCompletion ?(synthetic = false) ~env ?posOfDot
     (completion : Completion.t) =
   let name = completion.name in
   let nameWithPipe = "->" ^ name in
@@ -1154,8 +1166,11 @@ let transformCompletionToPipeCompletion ?(synthetic = false) ~env ~replaceRange
       sortText = Some (name |> String.split_on_char '.' |> List.rev |> List.hd);
       insertText = Some nameWithPipe;
       env;
-      range = Some replaceRange;
       synthetic;
+      additionalTextEdits =
+        (match posOfDot with
+        | None -> None
+        | Some posOfDot -> Some (makeAdditionalTextEditsForRemovingDot posOfDot));
     }
 
 (** This takes a type expr and the env that type expr was found in, and produces a globally unique 
@@ -1202,7 +1217,7 @@ let rec findRootTypeId ~full ~env (t : Types.type_expr) =
   | _ -> None
 
 (** Filters out completions that are not pipeable from a list of completions. *)
-let filterPipeableFunctions ~env ~full ?synthetic ?targetTypeId ?replaceRange
+let filterPipeableFunctions ~env ~full ?synthetic ?targetTypeId ?posOfDot
     completions =
   match targetTypeId with
   | None -> completions
@@ -1222,10 +1237,10 @@ let filterPipeableFunctions ~env ~full ?synthetic ?targetTypeId ?replaceRange
            in
            match thisCompletionItemTypeId with
            | Some mainTypeId when mainTypeId = targetTypeId -> (
-             match replaceRange with
+             match posOfDot with
              | None -> Some completion
-             | Some replaceRange ->
-               transformCompletionToPipeCompletion ?synthetic ~env ~replaceRange
+             | Some posOfDot ->
+               transformCompletionToPipeCompletion ?synthetic ~env ~posOfDot
                  completion)
            | _ -> None)
 

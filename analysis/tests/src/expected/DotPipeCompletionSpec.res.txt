@@ -22,10 +22,11 @@ Path SomeModule.
     "detail": "(~name: string=?, t) => unit",
     "documentation": null,
     "sortText": "withUnlabelledArgumentNotFirst",
-    "textEdit": {
-    "range": {"start": {"line": 15, "character": 4}, "end": {"line": 15, "character": 4}},
-    "newText": "->SomeModule.withUnlabelledArgumentNotFirst"
-  }
+    "insertText": "->SomeModule.withUnlabelledArgumentNotFirst",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 15, "character": 4}, "end": {"line": 15, "character": 5}},
+      "newText": ""
+      }]
   }, {
     "label": "->SomeModule.getName",
     "kind": 12,
@@ -33,10 +34,11 @@ Path SomeModule.
     "detail": "t => string",
     "documentation": null,
     "sortText": "getName",
-    "textEdit": {
-    "range": {"start": {"line": 15, "character": 4}, "end": {"line": 15, "character": 4}},
-    "newText": "->SomeModule.getName"
-  }
+    "insertText": "->SomeModule.getName",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 15, "character": 4}, "end": {"line": 15, "character": 5}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotPipeCompletionSpec.res 44:6
@@ -65,10 +67,11 @@ Path DotPipeCompletionSpec.SomeOtherModule.
     "detail": "t => string",
     "documentation": null,
     "sortText": "getNName",
-    "textEdit": {
-    "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 5}},
-    "newText": "->SomeOtherModule.getNName"
-  }
+    "insertText": "->SomeOtherModule.getNName",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 6}},
+      "newText": ""
+      }]
   }, {
     "label": "->SomeOtherModule.getNName2",
     "kind": 12,
@@ -76,10 +79,11 @@ Path DotPipeCompletionSpec.SomeOtherModule.
     "detail": "typeOutsideModule => string",
     "documentation": null,
     "sortText": "getNName2",
-    "textEdit": {
-    "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 5}},
-    "newText": "->SomeOtherModule.getNName2"
-  }
+    "insertText": "->SomeOtherModule.getNName2",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 6}},
+      "newText": ""
+      }]
   }, {
     "label": "->CompleteFromThisToo.a",
     "kind": 12,
@@ -87,10 +91,11 @@ Path DotPipeCompletionSpec.SomeOtherModule.
     "detail": "typeOutsideModule => string",
     "documentation": null,
     "sortText": "a",
-    "textEdit": {
-    "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 5}},
-    "newText": "->CompleteFromThisToo.a"
-  }
+    "insertText": "->CompleteFromThisToo.a",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 6}},
+      "newText": ""
+      }]
   }, {
     "label": "->SomeOtherModule.getNName",
     "kind": 12,
@@ -98,10 +103,11 @@ Path DotPipeCompletionSpec.SomeOtherModule.
     "detail": "t => string",
     "documentation": null,
     "sortText": "getNName",
-    "textEdit": {
-    "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 5}},
-    "newText": "->SomeOtherModule.getNName"
-  }
+    "insertText": "->SomeOtherModule.getNName",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 6}},
+      "newText": ""
+      }]
   }, {
     "label": "->SomeOtherModule.getNName2",
     "kind": 12,
@@ -109,10 +115,11 @@ Path DotPipeCompletionSpec.SomeOtherModule.
     "detail": "typeOutsideModule => string",
     "documentation": null,
     "sortText": "getNName2",
-    "textEdit": {
-    "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 5}},
-    "newText": "->SomeOtherModule.getNName2"
-  }
+    "insertText": "->SomeOtherModule.getNName2",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 44, "character": 5}, "end": {"line": 44, "character": 6}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotPipeCompletionSpec.res 62:5
@@ -134,10 +141,11 @@ Path B.
     "detail": "a => unit",
     "documentation": null,
     "sortText": "withA",
-    "textEdit": {
-    "range": {"start": {"line": 62, "character": 4}, "end": {"line": 62, "character": 4}},
-    "newText": "->A.withA"
-  }
+    "insertText": "->A.withA",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 62, "character": 4}, "end": {"line": 62, "character": 5}},
+      "newText": ""
+      }]
   }, {
     "label": "->B.b",
     "kind": 12,
@@ -145,10 +153,11 @@ Path B.
     "detail": "A.a => int",
     "documentation": null,
     "sortText": "b",
-    "textEdit": {
-    "range": {"start": {"line": 62, "character": 4}, "end": {"line": 62, "character": 4}},
-    "newText": "->B.b"
-  }
+    "insertText": "->B.b",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 62, "character": 4}, "end": {"line": 62, "character": 5}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotPipeCompletionSpec.res 67:6
@@ -175,10 +184,11 @@ Path CompletionFromModule.SomeModule.
     "detail": "t => string",
     "documentation": null,
     "sortText": "getName",
-    "textEdit": {
-    "range": {"start": {"line": 67, "character": 5}, "end": {"line": 67, "character": 5}},
-    "newText": "->CompletionFromModule.SomeModule.getName"
-  }
+    "insertText": "->CompletionFromModule.SomeModule.getName",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 67, "character": 5}, "end": {"line": 67, "character": 6}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotPipeCompletionSpec.res 75:9
@@ -198,10 +208,11 @@ Path Js.Array2.u
     "detail": "(t<'a>, array<'a>) => int",
     "documentation": {"kind": "markdown", "value": "\nAdds the elements in the second array argument at the beginning of the first\narray argument, returning the new number of elements in the array. *This\nfunction modifies the original array.* See\n[`Array.unshift`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift)\non MDN.\n\n## Examples\n\n```rescript\nlet arr = [\"d\", \"e\"]\nJs.Array2.unshiftMany(arr, [\"a\", \"b\", \"c\"]) == 5\narr == [\"a\", \"b\", \"c\", \"d\", \"e\"]\n```\n"},
     "sortText": "unshiftMany",
-    "textEdit": {
-    "range": {"start": {"line": 75, "character": 8}, "end": {"line": 75, "character": 9}},
-    "newText": "->Js.Array2.unshiftMany"
-  }
+    "insertText": "->Js.Array2.unshiftMany",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 75, "character": 7}, "end": {"line": 75, "character": 8}},
+      "newText": ""
+      }]
   }, {
     "label": "->Js.Array2.unshift",
     "kind": 12,
@@ -209,10 +220,11 @@ Path Js.Array2.u
     "detail": "(t<'a>, 'a) => int",
     "documentation": {"kind": "markdown", "value": "\nAdds the given element to the array, returning the new number of elements in\nthe array. *This function modifies the original array.* See\n[`Array.unshift`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift)\non MDN.\n\n## Examples\n\n```rescript\nlet arr = [\"b\", \"c\", \"d\"]\nJs.Array2.unshift(arr, \"a\") == 4\narr == [\"a\", \"b\", \"c\", \"d\"]\n```\n"},
     "sortText": "unshift",
-    "textEdit": {
-    "range": {"start": {"line": 75, "character": 8}, "end": {"line": 75, "character": 9}},
-    "newText": "->Js.Array2.unshift"
-  }
+    "insertText": "->Js.Array2.unshift",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 75, "character": 7}, "end": {"line": 75, "character": 8}},
+      "newText": ""
+      }]
   }, {
     "label": "->Js.Array2.unsafe_get",
     "kind": 12,
@@ -220,10 +232,11 @@ Path Js.Array2.u
     "detail": "(array<'a>, int) => 'a",
     "documentation": {"kind": "markdown", "value": "\nReturns the value at the given position in the array if the position is in\nbounds; returns the JavaScript value `undefined` otherwise.\n\n## Examples\n\n```rescript\nlet arr = [100, 101, 102, 103]\nJs.Array2.unsafe_get(arr, 3) == 103\nJs.Array2.unsafe_get(arr, 4) // returns undefined\n```\n"},
     "sortText": "unsafe_get",
-    "textEdit": {
-    "range": {"start": {"line": 75, "character": 8}, "end": {"line": 75, "character": 9}},
-    "newText": "->Js.Array2.unsafe_get"
-  }
+    "insertText": "->Js.Array2.unsafe_get",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 75, "character": 7}, "end": {"line": 75, "character": 8}},
+      "newText": ""
+      }]
   }, {
     "label": "->Js.Array2.unsafe_set",
     "kind": 12,
@@ -231,10 +244,11 @@ Path Js.Array2.u
     "detail": "(array<'a>, int, 'a) => unit",
     "documentation": {"kind": "markdown", "value": "\nSets the value at the given position in the array if the position is in bounds.\nIf the index is out of bounds, well, “here there be dragons.“\n\n*This function modifies the original array.*\n\n## Examples\n\n```rescript\nlet arr = [100, 101, 102, 103]\nJs.Array2.unsafe_set(arr, 3, 99)\n// result is [100, 101, 102, 99];\n\nJs.Array2.unsafe_set(arr, 4, 88)\n// result is [100, 101, 102, 99, 88]\n\nJs.Array2.unsafe_set(arr, 6, 77)\n// result is [100, 101, 102, 99, 88, <1 empty item>, 77]\n\nJs.Array2.unsafe_set(arr, -1, 66)\n// you don't want to know.\n```\n"},
     "sortText": "unsafe_set",
-    "textEdit": {
-    "range": {"start": {"line": 75, "character": 8}, "end": {"line": 75, "character": 9}},
-    "newText": "->Js.Array2.unsafe_set"
-  }
+    "insertText": "->Js.Array2.unsafe_set",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 75, "character": 7}, "end": {"line": 75, "character": 8}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotPipeCompletionSpec.res 80:7
@@ -262,10 +276,11 @@ Path DotPipeCompletionSpec.SomeOtherModule.
     "detail": "typeOutsideModule => string",
     "documentation": null,
     "sortText": "doWithTypeOutsideModule",
-    "textEdit": {
-    "range": {"start": {"line": 80, "character": 6}, "end": {"line": 80, "character": 6}},
-    "newText": "->doWithTypeOutsideModule"
-  }
+    "insertText": "->doWithTypeOutsideModule",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 80, "character": 6}, "end": {"line": 80, "character": 7}},
+      "newText": ""
+      }]
   }, {
     "label": "->SomeOtherModule.getNName",
     "kind": 12,
@@ -273,10 +288,11 @@ Path DotPipeCompletionSpec.SomeOtherModule.
     "detail": "t => string",
     "documentation": null,
     "sortText": "getNName",
-    "textEdit": {
-    "range": {"start": {"line": 80, "character": 6}, "end": {"line": 80, "character": 6}},
-    "newText": "->SomeOtherModule.getNName"
-  }
+    "insertText": "->SomeOtherModule.getNName",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 80, "character": 6}, "end": {"line": 80, "character": 7}},
+      "newText": ""
+      }]
   }, {
     "label": "->SomeOtherModule.getNName2",
     "kind": 12,
@@ -284,9 +300,10 @@ Path DotPipeCompletionSpec.SomeOtherModule.
     "detail": "typeOutsideModule => string",
     "documentation": null,
     "sortText": "getNName2",
-    "textEdit": {
-    "range": {"start": {"line": 80, "character": 6}, "end": {"line": 80, "character": 6}},
-    "newText": "->SomeOtherModule.getNName2"
-  }
+    "insertText": "->SomeOtherModule.getNName2",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 80, "character": 6}, "end": {"line": 80, "character": 7}},
+      "newText": ""
+      }]
   }]
 

@@ -614,6 +614,7 @@ module Completable = struct
     | CPField of {
         contextPath: contextPath;
         fieldName: string;
+        posOfDot: (int * int) option;
         fieldNameLoc: Location.t;
       }
     | CPObj of contextPath * string
@@ -812,12 +813,12 @@ module Completion = struct
     detail: string option;
     typeArgContext: typeArgContext option;
     data: (string * string) list option;
-    range: Location.t option;
+    additionalTextEdits: Protocol.textEdit list option;
     synthetic: bool;
         (** Whether this item is an made up, synthetic item or not. *)
   }
 
-  let create ?(synthetic = false) ?range ?data ?typeArgContext
+  let create ?(synthetic = false) ?additionalTextEdits ?data ?typeArgContext
       ?(includesSnippets = false) ?insertText ~kind ~env ?sortText ?deprecated
       ?filterText ?detail ?(docstring = []) name =
     {
@@ -834,7 +835,7 @@ module Completion = struct
       detail;
       typeArgContext;
       data;
-      range;
+      additionalTextEdits;
       synthetic;
     }
 

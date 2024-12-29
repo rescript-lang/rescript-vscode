@@ -13,20 +13,22 @@ Path someObj
     "tags": [],
     "detail": "{\"age\": int, \"name\": string}",
     "documentation": null,
-    "textEdit": {
-    "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 10}},
-    "newText": "[\"age\"]"
-  }
+    "insertText": "[\"age\"]",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 11}},
+      "newText": ""
+      }]
   }, {
     "label": "[\"name\"]",
     "kind": 4,
     "tags": [],
     "detail": "{\"age\": int, \"name\": string}",
     "documentation": null,
-    "textEdit": {
-    "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 10}},
-    "newText": "[\"name\"]"
-  }
+    "insertText": "[\"name\"]",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 11}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotCompletionEverywhere.res 8:13
@@ -44,10 +46,11 @@ Path someObj
     "tags": [],
     "detail": "{\"age\": int, \"name\": string}",
     "documentation": null,
-    "textEdit": {
-    "range": {"start": {"line": 8, "character": 11}, "end": {"line": 8, "character": 13}},
-    "newText": "[\"name\"]"
-  }
+    "insertText": "[\"name\"]",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 8, "character": 10}, "end": {"line": 8, "character": 11}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotCompletionEverywhere.res 14:8
@@ -87,10 +90,11 @@ Path SomeMod.SomeOtherMod.
     "detail": "x => unit",
     "documentation": null,
     "sortText": "do",
-    "textEdit": {
-    "range": {"start": {"line": 29, "character": 4}, "end": {"line": 29, "character": 4}},
-    "newText": "->SomeMod.SomeOtherMod.do"
-  }
+    "insertText": "->SomeMod.SomeOtherMod.do",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 29, "character": 4}, "end": {"line": 29, "character": 5}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotCompletionEverywhere.res 32:27
@@ -111,10 +115,11 @@ Path SomeMod.SomeOtherMod.
     "detail": "x => unit",
     "documentation": null,
     "sortText": "do",
-    "textEdit": {
-    "range": {"start": {"line": 32, "character": 26}, "end": {"line": 32, "character": 26}},
-    "newText": "->SomeMod.SomeOtherMod.do"
-  }
+    "insertText": "->SomeMod.SomeOtherMod.do",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 32, "character": 26}, "end": {"line": 32, "character": 27}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotCompletionEverywhere.res 41:11
@@ -141,10 +146,11 @@ Path Sss.
     "detail": "rrr => string",
     "documentation": null,
     "sortText": "do",
-    "textEdit": {
-    "range": {"start": {"line": 41, "character": 10}, "end": {"line": 41, "character": 10}},
-    "newText": "->Sss.do"
-  }
+    "insertText": "->Sss.do",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 41, "character": 10}, "end": {"line": 41, "character": 11}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotCompletionEverywhere.res 52:8
@@ -172,10 +178,11 @@ Path DotCompletionEverywhere.X2.
     "detail": "x2x2 => string",
     "documentation": null,
     "sortText": "stuff",
-    "textEdit": {
-    "range": {"start": {"line": 52, "character": 7}, "end": {"line": 52, "character": 7}},
-    "newText": "->X2.stuff"
-  }
+    "insertText": "->X2.stuff",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 52, "character": 7}, "end": {"line": 52, "character": 8}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotCompletionEverywhere.res 61:7
@@ -193,30 +200,33 @@ Path obj
     "tags": [],
     "detail": "{\"name\": string, \"nothing\": bool, \"number\": int}",
     "documentation": null,
-    "textEdit": {
-    "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
-    "newText": "[\"name\"]"
-  }
+    "insertText": "[\"name\"]",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 7}},
+      "newText": ""
+      }]
   }, {
     "label": "[\"nothing\"]",
     "kind": 4,
     "tags": [],
     "detail": "{\"name\": string, \"nothing\": bool, \"number\": int}",
     "documentation": null,
-    "textEdit": {
-    "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
-    "newText": "[\"nothing\"]"
-  }
+    "insertText": "[\"nothing\"]",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 7}},
+      "newText": ""
+      }]
   }, {
     "label": "[\"number\"]",
     "kind": 4,
     "tags": [],
     "detail": "{\"name\": string, \"nothing\": bool, \"number\": int}",
     "documentation": null,
-    "textEdit": {
-    "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 6}},
-    "newText": "[\"number\"]"
-  }
+    "insertText": "[\"number\"]",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 61, "character": 6}, "end": {"line": 61, "character": 7}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotCompletionEverywhere.res 66:8
@@ -236,10 +246,11 @@ Path Js.Array2.m
     "detail": "(t<'a>, ('a, int) => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The function acceps two arguments: an item from the array and its\nindex number. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\n// multiply each item in array by its position\nlet product = (item, index) => item * index\nJs.Array2.mapi([10, 11, 12], product) == [0, 11, 24]\n```\n"},
     "sortText": "mapi",
-    "textEdit": {
-    "range": {"start": {"line": 66, "character": 7}, "end": {"line": 66, "character": 8}},
-    "newText": "->Js.Array2.mapi"
-  }
+    "insertText": "->Js.Array2.mapi",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 66, "character": 6}, "end": {"line": 66, "character": 7}},
+      "newText": ""
+      }]
   }, {
     "label": "->Js.Array2.map",
     "kind": 12,
@@ -247,10 +258,11 @@ Path Js.Array2.m
     "detail": "(t<'a>, 'a => 'b) => t<'b>",
     "documentation": {"kind": "markdown", "value": "\nApplies the function (the second argument) to each item in the array, returning\na new array. The result array does not have to have elements of the same type\nas the input array. See\n[`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)\non MDN.\n\n## Examples\n\n```rescript\nJs.Array2.map([12, 4, 8], x => x * x) == [144, 16, 64]\nJs.Array2.map([\"animal\", \"vegetable\", \"mineral\"], Js.String.length) == [6, 9, 7]\n```\n"},
     "sortText": "map",
-    "textEdit": {
-    "range": {"start": {"line": 66, "character": 7}, "end": {"line": 66, "character": 8}},
-    "newText": "->Js.Array2.map"
-  }
+    "insertText": "->Js.Array2.map",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 66, "character": 6}, "end": {"line": 66, "character": 7}},
+      "newText": ""
+      }]
   }]
 
 Complete src/DotCompletionEverywhere.res 85:10
@@ -278,9 +290,10 @@ Path DotCompletionEverywhere.HTMLButtonElement.
     "detail": "DOMAPI.htmlButtonElement => bool",
     "documentation": null,
     "sortText": "checkValidity",
-    "textEdit": {
-    "range": {"start": {"line": 85, "character": 9}, "end": {"line": 85, "character": 9}},
-    "newText": "->HTMLButtonElement.checkValidity"
-  }
+    "insertText": "->HTMLButtonElement.checkValidity",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 85, "character": 9}, "end": {"line": 85, "character": 10}},
+      "newText": ""
+      }]
   }]
 

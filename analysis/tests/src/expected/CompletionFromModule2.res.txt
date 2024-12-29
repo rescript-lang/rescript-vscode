@@ -22,10 +22,11 @@ Path CompletionFromModule.SomeModule.
     "detail": "t => string",
     "documentation": null,
     "sortText": "getName",
-    "textEdit": {
-    "range": {"start": {"line": 2, "character": 25}, "end": {"line": 2, "character": 25}},
-    "newText": "->CompletionFromModule.SomeModule.getName"
-  }
+    "insertText": "->CompletionFromModule.SomeModule.getName",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 2, "character": 25}, "end": {"line": 2, "character": 26}},
+      "newText": ""
+      }]
   }]
 
 Complete src/CompletionFromModule2.res 5:27
@@ -53,10 +54,11 @@ Path CompletionFromModule.SomeOtherModule.
     "detail": "t => string",
     "documentation": null,
     "sortText": "getNName",
-    "textEdit": {
-    "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 26}},
-    "newText": "->CompletionFromModule.SomeOtherModule.getNName"
-  }
+    "insertText": "->CompletionFromModule.SomeOtherModule.getNName",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 27}},
+      "newText": ""
+      }]
   }, {
     "label": "->CompletionFromModule.SomeOtherModule.getNName2",
     "kind": 12,
@@ -64,10 +66,11 @@ Path CompletionFromModule.SomeOtherModule.
     "detail": "typeOutsideModule => string",
     "documentation": null,
     "sortText": "getNName2",
-    "textEdit": {
-    "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 26}},
-    "newText": "->CompletionFromModule.SomeOtherModule.getNName2"
-  }
+    "insertText": "->CompletionFromModule.SomeOtherModule.getNName2",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 27}},
+      "newText": ""
+      }]
   }, {
     "label": "->CompletionFromModule.SomeOtherModule.getNName",
     "kind": 12,
@@ -75,10 +78,11 @@ Path CompletionFromModule.SomeOtherModule.
     "detail": "t => string",
     "documentation": null,
     "sortText": "getNName",
-    "textEdit": {
-    "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 26}},
-    "newText": "->CompletionFromModule.SomeOtherModule.getNName"
-  }
+    "insertText": "->CompletionFromModule.SomeOtherModule.getNName",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 27}},
+      "newText": ""
+      }]
   }, {
     "label": "->CompletionFromModule.SomeOtherModule.getNName2",
     "kind": 12,
@@ -86,10 +90,11 @@ Path CompletionFromModule.SomeOtherModule.
     "detail": "typeOutsideModule => string",
     "documentation": null,
     "sortText": "getNName2",
-    "textEdit": {
-    "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 26}},
-    "newText": "->CompletionFromModule.SomeOtherModule.getNName2"
-  }
+    "insertText": "->CompletionFromModule.SomeOtherModule.getNName2",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 5, "character": 26}, "end": {"line": 5, "character": 27}},
+      "newText": ""
+      }]
   }]
 
 Complete src/CompletionFromModule2.res 8:29

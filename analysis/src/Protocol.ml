@@ -40,6 +40,8 @@ let insertTextFormatToInt f =
   match f with
   | Snippet -> 2
 
+type textEdit = {range: range; newText: string}
+
 type completionItem = {
   label: string;
   kind: int;
@@ -51,7 +53,7 @@ type completionItem = {
   insertText: string option;
   documentation: markupContent option;
   data: (string * string) list option;
-  range: range option;
+  additionalTextEdits: textEdit list option;
 }
 
 type location = {uri: string; range: range}
@@ -62,8 +64,6 @@ type documentSymbolItem = {
   children: documentSymbolItem list;
 }
 type renameFile = {oldUri: string; newUri: string}
-type textEdit = {range: range; newText: string}
-
 type diagnostic = {range: range; message: string; severity: int}
 
 type optionalVersionedTextDocumentIdentifier = {
@@ -105,6 +105,14 @@ let stringifyRange r =
     (stringifyPosition r.start)
     (stringifyPosition r.end_)
 
+let stringifyTextEdit (te : textEdit) =
+  Printf.sprintf
+    {|{
+      "range": %s,
+      "newText": %s
+      }|}
+    (stringifyRange te.range) (wrapInQuotes te.newText)
+
 let stringifyMarkupContent (m : markupContent) =
   Printf.sprintf {|{"kind": %s, "value": %s}|} (wrapInQuotes m.kind)
     (wrapInQuotes m.value)
@@ -143,10 +151,7 @@ let stringifyCompletionItem c =
           | Some doc -> stringifyMarkupContent doc) );
       ("sortText", optWrapInQuotes c.sortText);
       ("filterText", optWrapInQuotes c.filterText);
-      ( "insertText",
-        match c.range with
-        | Some _ -> None
-        | None -> optWrapInQuotes c.insertText );
+      ("insertText", optWrapInQuotes c.insertText);
       ( "insertTextFormat",
         match c.insertTextFormat with
         | None -> None
@@ -160,19 +165,10 @@ let stringifyCompletionItem c =
             (fields
             |> List.map (fun (key, value) -> (key, Some (wrapInQuotes value)))
             |> stringifyObject ~indentation:2) );
-      ( "textEdit",
-        match c.range with
-        | Some range ->
-          Some
-            (stringifyObject
-               [
-                 ("range", Some (stringifyRange range));
-                 ( "newText",
-                   optWrapInQuotes
-                     (match c.insertText with
-                     | None -> Some c.label
-                     | v -> v) );
-               ])
+      ( "additionalTextEdits",
+        match c.additionalTextEdits with
+        | Some additionalTextEdits ->
+          Some (additionalTextEdits |> List.map stringifyTextEdit |> array)
         | None -> None );
     ]
 
@@ -232,13 +228,6 @@ let stringifyRenameFile {oldUri; newUri} =
   "newUri": %s
 }|}
     (wrapInQuotes oldUri) (wrapInQuotes newUri)
-
-let stringifyTextEdit (te : textEdit) =
-  Printf.sprintf {|{
-  "range": %s,
-  "newText": %s
-  }|}
-    (stringifyRange te.range) (wrapInQuotes te.newText)
 
 let stringifyoptionalVersionedTextDocumentIdentifier td =
   Printf.sprintf {|{

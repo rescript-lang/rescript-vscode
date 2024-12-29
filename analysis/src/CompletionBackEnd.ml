@@ -664,8 +664,8 @@ let completionsForPipeFromCompletionPath ~envCompletionIsMadeFrom ~opens ~pos
   in
   completions
 
-let getPipeCompletions ~env ~full ~identifierLoc ~debug ~envCompletionIsMadeFrom
-    ~opens ~pos ~scope ~prefix ~rawOpens ~inJsx
+let getPipeCompletions ~env ~full ~identifierLoc ?posOfDot ~debug
+    ~envCompletionIsMadeFrom ~opens ~pos ~scope ~prefix ~rawOpens ~inJsx
     ?(mainCompletionsAreSynthetic = false) ?(formatCompletionsWithPipes = false)
     typ =
   let env, typ =
@@ -750,8 +750,8 @@ let getPipeCompletions ~env ~full ~identifierLoc ~debug ~envCompletionIsMadeFrom
       allCompletions
       |> List.filter_map (fun (c : Completion.t) ->
              c
-             |> TypeUtils.transformCompletionToPipeCompletion ~env
-                  ~replaceRange:identifierLoc ~synthetic:c.synthetic)
+             |> TypeUtils.transformCompletionToPipeCompletion ~env ?posOfDot
+                  ~synthetic:c.synthetic)
     else allCompletions
 
 let rec digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos ~env
@@ -772,8 +772,8 @@ let rec digToRecordFieldsForCompletion ~debug ~package ~opens ~full ~pos ~env
   | {kind = Type {kind = Record fields}} :: _ -> Some fields
   | _ -> None
 
-let mkItem ?data ?(range : Location.t option) name ~kind ~detail ~deprecated
-    ~docstring =
+let mkItem ?data ?additionalTextEdits name ~kind ~detail ~deprecated ~docstring
+    =
   let docContent =
     (match deprecated with
     | None -> ""
@@ -802,23 +802,7 @@ let mkItem ?data ?(range : Location.t option) name ~kind ~detail ~deprecated
       insertTextFormat = None;
       filterText = None;
       data;
-      range =
-        (match range with
-        | None -> None
-        | Some range ->
-          Some
-            {
-              start =
-                {
-                  line = range.loc_start.pos_lnum - 1;
-                  character = range.loc_start.pos_cnum - range.loc_start.pos_bol;
-                };
-              end_ =
-                {
-                  line = range.loc_end.pos_lnum - 1;
-                  character = range.loc_end.pos_cnum - range.loc_end.pos_bol;
-                };
-            });
+      additionalTextEdits;
     }
 
 let completionToItem
@@ -833,10 +817,10 @@ let completionToItem
       filterText;
       detail;
       env;
-      range;
+      additionalTextEdits;
     } ~full =
   let item =
-    mkItem name ?range
+    mkItem name ?additionalTextEdits
       ?data:(kindToData (full.file.uri |> Uri.toPath) kind)
       ~kind:(Completion.kindToInt kind)
       ~deprecated
@@ -1096,7 +1080,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     path @ [fieldName]
     |> getCompletionsForPath ~debug ~opens ~full ~pos ~exact
          ~completionContext:Field ~env ~scope
-  | CPField {contextPath = cp; fieldName; fieldNameLoc} -> (
+  | CPField {contextPath = cp; fieldName; fieldNameLoc; posOfDot} -> (
     if Debug.verbose () then print_endline "[dot_completion]--> Triggered";
     let completionsFromCtxPath =
       cp
@@ -1116,10 +1100,10 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     | Some (typ, env) ->
       let fieldCompletions =
         DotCompletionUtils.fieldCompletionsForDotCompletion typ ~env ~package
-          ~prefix:fieldName ~fieldNameLoc ~exact
+          ~prefix:fieldName ?posOfDot ~exact
       in
       let pipeCompletions =
-        getPipeCompletions ~env ~full ~identifierLoc:fieldNameLoc
+        getPipeCompletions ~env ~full ~identifierLoc:fieldNameLoc ?posOfDot
           ~envCompletionIsMadeFrom ~debug ~opens ~rawOpens ~scope ~pos
           ~inJsx:false ~prefix:fieldName ~formatCompletionsWithPipes:true typ
       in
