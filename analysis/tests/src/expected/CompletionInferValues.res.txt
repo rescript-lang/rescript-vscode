@@ -36,6 +36,12 @@ Path x
 ContextPath Value[getSomeRecord](Nolabel)
 ContextPath Value[getSomeRecord]
 Path getSomeRecord
+ContextPath Value[x]->
+ContextPath Value[x]
+Path x
+ContextPath Value[getSomeRecord](Nolabel)
+ContextPath Value[getSomeRecord]
+Path getSomeRecord
 CPPipe pathFromEnv: found:true
 Path CompletionInferValues.
 [{
@@ -59,6 +65,14 @@ Completable: Cpath Value[aliased].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[aliased].""
+ContextPath Value[aliased]
+Path aliased
+ContextPath Value[x]
+Path x
+ContextPath Value[getSomeRecord](Nolabel)
+ContextPath Value[getSomeRecord]
+Path getSomeRecord
+ContextPath Value[aliased]->
 ContextPath Value[aliased]
 Path aliased
 ContextPath Value[x]
@@ -101,6 +115,13 @@ ContextPath CArgument CArgument Value[someFnWithCallback]($0)(~someRecord)
 ContextPath CArgument Value[someFnWithCallback]($0)
 ContextPath Value[someFnWithCallback]
 Path someFnWithCallback
+ContextPath Value[someRecord]->
+ContextPath Value[someRecord]
+Path someRecord
+ContextPath CArgument CArgument Value[someFnWithCallback]($0)(~someRecord)
+ContextPath CArgument Value[someFnWithCallback]($0)
+ContextPath Value[someFnWithCallback]
+Path someFnWithCallback
 CPPipe pathFromEnv: found:true
 Path CompletionInferValues.
 [{
@@ -130,6 +151,15 @@ Completable: Cpath Value[someRecord].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[someRecord].""
+ContextPath Value[someRecord]
+Path someRecord
+ContextPath CArgument CArgument Value[aliasedFn]($0)(~someRecord)
+ContextPath CArgument Value[aliasedFn]($0)
+ContextPath Value[aliasedFn]
+Path aliasedFn
+ContextPath Value[someFnWithCallback]
+Path someFnWithCallback
+ContextPath Value[someRecord]->
 ContextPath Value[someRecord]
 Path someRecord
 ContextPath CArgument CArgument Value[aliasedFn]($0)(~someRecord)
@@ -350,6 +380,14 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+ContextPath Value[srecord]->
+ContextPath Value[srecord]
+Path srecord
+ContextPath CPatternPath(Value[x])->recordField(srecord)
+ContextPath Value[x]
+Path x
+ContextPath Type[someRecordWithNestedStuff]
+Path someRecordWithNestedStuff
 CPPipe pathFromEnv: found:true
 Path CompletionInferValues.
 [{
@@ -380,6 +418,14 @@ ContextPath Value[x]
 Path x
 ContextPath Type[someRecordWithNestedStuff]
 Path someRecordWithNestedStuff
+ContextPath Value[aliased]->
+ContextPath Value[aliased]
+Path aliased
+ContextPath CPatternPath(Value[x])->recordField(nested)
+ContextPath Value[x]
+Path x
+ContextPath Type[someRecordWithNestedStuff]
+Path someRecordWithNestedStuff
 CPPipe pathFromEnv: found:true
 Path CompletionInferValues.
 [{
@@ -397,6 +443,14 @@ Completable: Cpath Value[someRecord].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[someRecord].""
+ContextPath Value[someRecord]
+Path someRecord
+ContextPath CPatternPath(Value[x])->recordField(nested)->recordField(someRecord)
+ContextPath Value[x]
+Path x
+ContextPath Type[someRecordWithNestedStuff]
+Path someRecordWithNestedStuff
+ContextPath Value[someRecord]->
 ContextPath Value[someRecord]
 Path someRecord
 ContextPath CPatternPath(Value[x])->recordField(nested)->recordField(someRecord)
@@ -770,6 +824,14 @@ Completable: Cpath Value[support].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[support].""
+ContextPath Value[support]
+Path support
+ContextPath CPatternPath(CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)($0))->recordField(support)
+ContextPath CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)($0)
+ContextPath CArgument Value[CompletionSupport2, makeRenderer](~render)
+ContextPath Value[CompletionSupport2, makeRenderer]
+Path CompletionSupport2.makeRenderer
+ContextPath Value[support]->
 ContextPath Value[support]
 Path support
 ContextPath CPatternPath(CArgument CArgument Value[CompletionSupport2, makeRenderer](~render)($0))->recordField(support)

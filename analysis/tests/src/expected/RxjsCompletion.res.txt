@@ -14,6 +14,10 @@ ContextPath Value[merge](Nolabel, Nolabel).""
 ContextPath Value[merge](Nolabel, Nolabel)
 ContextPath Value[merge]
 Path merge
+ContextPath Value[merge](Nolabel, Nolabel, Nolabel)->
+ContextPath Value[merge](Nolabel, Nolabel, Nolabel)
+ContextPath Value[merge]
+Path merge
 CPPipe pathFromEnv:Observable found:true
 Path Rxjs.Observable.
 Path Rxjs.
@@ -91,6 +95,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Rxjs, combineLatest](Nolabel, Nolabel).""
 ContextPath Value[Rxjs, combineLatest](Nolabel, Nolabel)
+ContextPath Value[Rxjs, combineLatest]
+Path Rxjs.combineLatest
+ContextPath Value[Rxjs, combineLatest](Nolabel, Nolabel, Nolabel)->
+ContextPath Value[Rxjs, combineLatest](Nolabel, Nolabel, Nolabel)
 ContextPath Value[Rxjs, combineLatest]
 Path Rxjs.combineLatest
 CPPipe pathFromEnv:Observable found:true

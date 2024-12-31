@@ -360,6 +360,18 @@ ContextPath Value[props].support.root
 ContextPath Value[props].support
 ContextPath Value[props]
 Path props
+ContextPath Value[props]->support
+ContextPath Value[props]
+Path props
+CPPipe pathFromEnv:CompletionSupport2.Internal found:false
+Path CompletionSupport2.Internal.support
+ContextPath Value[props].support->root
+ContextPath Value[props].support
+ContextPath Value[props]
+Path props
+ContextPath Value[props]->support
+ContextPath Value[props]
+Path props
 CPPipe pathFromEnv:CompletionSupport2.Internal found:false
 Path CompletionSupport2.Internal.support
 CPPipe pathFromEnv:CompletionSupport.Nested found:false

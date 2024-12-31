@@ -25,6 +25,9 @@ ContextPath Value[A, x].v->
 ContextPath Value[A, x].v
 ContextPath Value[A, x]
 Path A.x
+ContextPath Value[A, x]->v
+ContextPath Value[A, x]
+Path A.x
 CPPipe pathFromEnv:A found:true
 Path A.v
 CPPipe pathFromEnv:A.B1 found:true
@@ -45,6 +48,18 @@ Resolved opens 1 pervasives
 ContextPath Value[E, e].v.v->
 ContextPath Value[E, e].v.v
 ContextPath Value[E, e].v
+ContextPath Value[E, e]
+Path E.e
+ContextPath Value[E, e]->v
+ContextPath Value[E, e]
+Path E.e
+CPPipe pathFromEnv:E found:true
+Path E.v
+ContextPath Value[E, e].v->v
+ContextPath Value[E, e].v
+ContextPath Value[E, e]
+Path E.e
+ContextPath Value[E, e]->v
 ContextPath Value[E, e]
 Path E.e
 CPPipe pathFromEnv:E found:true
@@ -69,6 +84,18 @@ Resolved opens 1 pervasives
 ContextPath Value[E, e].v.v2->
 ContextPath Value[E, e].v.v2
 ContextPath Value[E, e].v
+ContextPath Value[E, e]
+Path E.e
+ContextPath Value[E, e]->v
+ContextPath Value[E, e]
+Path E.e
+CPPipe pathFromEnv:E found:true
+Path E.v
+ContextPath Value[E, e].v->v2
+ContextPath Value[E, e].v
+ContextPath Value[E, e]
+Path E.e
+ContextPath Value[E, e]->v
 ContextPath Value[E, e]
 Path E.e
 CPPipe pathFromEnv:E found:true

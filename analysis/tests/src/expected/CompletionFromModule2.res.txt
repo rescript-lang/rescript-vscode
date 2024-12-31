@@ -7,6 +7,9 @@ Resolved opens 1 pervasives
 ContextPath Value[CompletionFromModule, n].""
 ContextPath Value[CompletionFromModule, n]
 Path CompletionFromModule.n
+ContextPath Value[CompletionFromModule, n]->
+ContextPath Value[CompletionFromModule, n]
+Path CompletionFromModule.n
 CPPipe pathFromEnv:SomeModule found:true
 Path CompletionFromModule.SomeModule.
 [{
@@ -36,6 +39,9 @@ Completable: Cpath Value[CompletionFromModule, nn].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[CompletionFromModule, nn].""
+ContextPath Value[CompletionFromModule, nn]
+Path CompletionFromModule.nn
+ContextPath Value[CompletionFromModule, nn]->
 ContextPath Value[CompletionFromModule, nn]
 Path CompletionFromModule.nn
 CPPipe pathFromEnv:SomeOtherModule found:true

@@ -80,3 +80,12 @@ let ffff: builtinType = []
 let nnn: typeOutsideModule = {nname: "hello"}
 // nnn.
 //     ^com
+
+// Continuous completion
+let xxxx = [1, 2]
+
+// xxxx->Js.Array2.filter(v => v > 10).filt
+//                                         ^com
+
+// xxxx->Js.Array2.filter(v => v > 10)->Js.Array2.joinWith(",").includ
+//                                                                    ^com

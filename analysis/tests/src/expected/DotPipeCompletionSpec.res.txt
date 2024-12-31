@@ -7,6 +7,9 @@ Resolved opens 1 pervasives
 ContextPath Value[n].""
 ContextPath Value[n]
 Path n
+ContextPath Value[n]->
+ContextPath Value[n]
+Path n
 CPPipe pathFromEnv:SomeModule found:true
 Path SomeModule.
 [{
@@ -48,6 +51,9 @@ Completable: Cpath Value[nn].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[nn].""
+ContextPath Value[nn]
+Path nn
+ContextPath Value[nn]->
 ContextPath Value[nn]
 Path nn
 CPPipe pathFromEnv:SomeOtherModule found:true
@@ -131,6 +137,9 @@ Resolved opens 1 pervasives
 ContextPath Value[a].""
 ContextPath Value[a]
 Path a
+ContextPath Value[a]->
+ContextPath Value[a]
+Path a
 CPPipe pathFromEnv:A found:true
 Path A.
 Path B.
@@ -169,6 +178,9 @@ Resolved opens 1 pervasives
 ContextPath Value[xx].""
 ContextPath Value[xx]
 Path xx
+ContextPath Value[xx]->
+ContextPath Value[xx]
+Path xx
 CPPipe pathFromEnv:CompletionFromModule.SomeModule found:false
 Path CompletionFromModule.SomeModule.
 [{
@@ -198,6 +210,9 @@ Completable: Cpath Value[ffff].u
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[ffff].u
+ContextPath Value[ffff]
+Path ffff
+ContextPath Value[ffff]->u
 ContextPath Value[ffff]
 Path ffff
 Path Js.Array2.u
@@ -253,11 +268,14 @@ Path Js.Array2.u
 
 Complete src/DotPipeCompletionSpec.res 80:7
 posCursor:[80:7] posNoWhite:[80:6] Found expr:[80:3->80:7]
-Pexp_field [80:3->80:6] _:[83:0->80:7]
+Pexp_field [80:3->80:6] _:[84:0->80:7]
 Completable: Cpath Value[nnn].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[nnn].""
+ContextPath Value[nnn]
+Path nnn
+ContextPath Value[nnn]->
 ContextPath Value[nnn]
 Path nnn
 CPPipe pathFromEnv: found:true
@@ -303,6 +321,90 @@ Path DotPipeCompletionSpec.SomeOtherModule.
     "insertText": "->SomeOtherModule.getNName2",
     "additionalTextEdits": [{
       "range": {"start": {"line": 80, "character": 6}, "end": {"line": 80, "character": 7}},
+      "newText": ""
+      }]
+  }]
+
+Complete src/DotPipeCompletionSpec.res 86:43
+posCursor:[86:43] posNoWhite:[86:42] Found expr:[86:3->86:43]
+posCursor:[86:43] posNoWhite:[86:42] Found expr:[86:9->86:43]
+Pexp_field [86:9->86:38] filt:[86:39->86:43]
+Completable: Cpath Value[Js, Array2, filter](Nolabel).filt
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Js, Array2, filter](Nolabel).filt
+ContextPath Value[Js, Array2, filter](Nolabel)
+ContextPath Value[Js, Array2, filter]
+Path Js.Array2.filter
+ContextPath Value[Js, Array2, filter](Nolabel, Nolabel)->filt
+ContextPath Value[Js, Array2, filter](Nolabel, Nolabel)
+ContextPath Value[Js, Array2, filter]
+Path Js.Array2.filter
+Path Js.Array2.filt
+[{
+    "label": "->Js.Array2.filter",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, 'a => bool) => t<'a>",
+    "documentation": {"kind": "markdown", "value": "\nApplies the given predicate function (the second argument) to each element in\nthe array; the result is an array of those elements for which the predicate\nfunction returned `true`. See\n[`Array.filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)\non MDN.\n\n## Examples\n\n```rescript\nlet nonEmpty = s => s != \"\"\nJs.Array2.filter([\"abc\", \"\", \"\", \"def\", \"ghi\"], nonEmpty) == [\"abc\", \"def\", \"ghi\"]\n```\n"},
+    "sortText": "filter",
+    "insertText": "->Js.Array2.filter",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 86, "character": 38}, "end": {"line": 86, "character": 39}},
+      "newText": ""
+      }]
+  }, {
+    "label": "->Js.Array2.filteri",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t<'a>, ('a, int) => bool) => t<'a>",
+    "documentation": {"kind": "markdown", "value": "\nEach element of the given array are passed to the predicate function. The\nreturn value is an array of all those elements for which the predicate function\nreturned `true`.\n\nSee\n[`Array.filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)\non MDN.\n\n## Examples\n\n```rescript\n// keep only positive elements at odd indices\nlet positiveOddElement = (item, index) => mod(index, 2) == 1 && item > 0\n\nJs.Array2.filteri([6, 3, 5, 8, 7, -4, 1], positiveOddElement) == [3, 8]\n```\n"},
+    "sortText": "filteri",
+    "insertText": "->Js.Array2.filteri",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 86, "character": 38}, "end": {"line": 86, "character": 39}},
+      "newText": ""
+      }]
+  }]
+
+Complete src/DotPipeCompletionSpec.res 89:70
+posCursor:[89:70] posNoWhite:[89:69] Found expr:[89:3->89:70]
+posCursor:[89:70] posNoWhite:[89:69] Found expr:[89:40->89:70]
+Pexp_field [89:40->89:63] includ:[89:64->89:70]
+Completable: Cpath Value[Js, Array2, joinWith](Nolabel).includ
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Js, Array2, joinWith](Nolabel).includ
+ContextPath Value[Js, Array2, joinWith](Nolabel)
+ContextPath Value[Js, Array2, joinWith]
+Path Js.Array2.joinWith
+ContextPath Value[Js, Array2, joinWith](Nolabel, Nolabel)->includ
+ContextPath Value[Js, Array2, joinWith](Nolabel, Nolabel)
+ContextPath Value[Js, Array2, joinWith]
+Path Js.Array2.joinWith
+Path Js.String2.includ
+[{
+    "label": "->Js.String2.includesFrom",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t, int) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `includes(str, searchValue start)` returns `true` if `searchValue` is\nfound anywhere within `str` starting at character number `start` (where 0 is\nthe first character), `false` otherwise.\n\nSee [`String.includes`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes)\non MDN.\n\n## Examples\n\n```rescript\nJs.String2.includesFrom(\"programmer\", \"gram\", 1) == true\nJs.String2.includesFrom(\"programmer\", \"gram\", 4) == false\nJs.String2.includesFrom(`대한민국`, `한`, 1) == true\n```\n"},
+    "sortText": "includesFrom",
+    "insertText": "->Js.String2.includesFrom",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 89, "character": 63}, "end": {"line": 89, "character": 64}},
+      "newText": ""
+      }]
+  }, {
+    "label": "->Js.String2.includes",
+    "kind": 12,
+    "tags": [],
+    "detail": "(t, t) => bool",
+    "documentation": {"kind": "markdown", "value": "\nES2015: `includes(str, searchValue)` returns `true` if `searchValue` is found\nanywhere within `str`, false otherwise.\n\nSee [`String.includes`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes)\non MDN.\n\n## Examples\n\n```rescript\nJs.String2.includes(\"programmer\", \"gram\") == true\nJs.String2.includes(\"programmer\", \"er\") == true\nJs.String2.includes(\"programmer\", \"pro\") == true\nJs.String2.includes(\"programmer.dat\", \"xyz\") == false\n```\n"},
+    "sortText": "includes",
+    "insertText": "->Js.String2.includes",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 89, "character": 63}, "end": {"line": 89, "character": 64}},
       "newText": ""
       }]
   }]

@@ -7,6 +7,9 @@ Resolved opens 1 pervasives
 ContextPath Value[n].""
 ContextPath Value[n]
 Path n
+ContextPath Value[n]->
+ContextPath Value[n]
+Path n
 CPPipe pathFromEnv:SomeModule found:true
 Path SomeModule.
 [{
@@ -36,6 +39,9 @@ Completable: Cpath Value[nn].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[nn].""
+ContextPath Value[nn]
+Path nn
+ContextPath Value[nn]->
 ContextPath Value[nn]
 Path nn
 CPPipe pathFromEnv:SomeOtherModule found:true

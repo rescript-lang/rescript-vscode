@@ -1080,7 +1080,7 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
     path @ [fieldName]
     |> getCompletionsForPath ~debug ~opens ~full ~pos ~exact
          ~completionContext:Field ~env ~scope
-  | CPField {contextPath = cp; fieldName; fieldNameLoc; posOfDot} -> (
+  | CPField {contextPath = cp; fieldName; posOfDot; exprLoc} -> (
     if Debug.verbose () then print_endline "[dot_completion]--> Triggered";
     let completionsFromCtxPath =
       cp
@@ -1102,10 +1102,28 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         DotCompletionUtils.fieldCompletionsForDotCompletion typ ~env ~package
           ~prefix:fieldName ?posOfDot ~exact
       in
+      let cpAsPipeCompletion =
+        Completable.CPPipe
+          {
+            contextPath =
+              (match cp with
+              | CPApply (c, args) -> CPApply (c, args @ [Asttypes.Nolabel])
+              | c -> c);
+            id = fieldName;
+            inJsx = false;
+            lhsLoc = exprLoc;
+          }
+      in
+      let completionsFromPipeCtxPath =
+        cpAsPipeCompletion
+        |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
+             ~env:envCompletionIsMadeFrom ~exact ~scope
+      in
       let pipeCompletions =
-        getPipeCompletions ~env ~full ~identifierLoc:fieldNameLoc ?posOfDot
-          ~envCompletionIsMadeFrom ~debug ~opens ~rawOpens ~scope ~pos
-          ~inJsx:false ~prefix:fieldName ~formatCompletionsWithPipes:true typ
+        completionsFromPipeCtxPath
+        |> List.filter_map (fun c ->
+               TypeUtils.transformCompletionToPipeCompletion ~synthetic:true
+                 ~env ?posOfDot c)
       in
       fieldCompletions @ pipeCompletions)
   | CPObj (cp, label) -> (

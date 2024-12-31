@@ -222,14 +222,19 @@ let rec exprToContextPathInner (e : Parsetree.expression) =
   | Pexp_ident {txt; loc} ->
     Some
       (CPId {path = Utils.flattenLongIdent txt; completionContext = Value; loc})
-  | Pexp_field (e1, {txt = Lident name; loc}) -> (
+  | Pexp_field (e1, {txt = Lident name}) -> (
     match exprToContextPath e1 with
     | Some contextPath ->
       Some
         (CPField
-           {contextPath; fieldName = name; fieldNameLoc = loc; posOfDot = None})
+           {
+             contextPath;
+             fieldName = name;
+             posOfDot = None;
+             exprLoc = e1.pexp_loc;
+           })
     | _ -> None)
-  | Pexp_field (_, {loc; txt = Ldot (lid, name)}) ->
+  | Pexp_field (e1, {loc; txt = Ldot (lid, name)}) ->
     (* Case x.M.field ignore the x part *)
     Some
       (CPField
@@ -242,8 +247,8 @@ let rec exprToContextPathInner (e : Parsetree.expression) =
                  loc;
                };
            fieldName = name;
-           fieldNameLoc = loc;
            posOfDot = None;
+           exprLoc = e1.pexp_loc;
          })
   | Pexp_send (e1, {txt}) -> (
     match exprToContextPath e1 with
@@ -1170,8 +1175,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                     {
                       contextPath;
                       fieldName = name;
-                      fieldNameLoc = fieldName.loc;
                       posOfDot;
+                      exprLoc = e.pexp_loc;
                     }
                 in
                 setResult (Cpath contextPath)
@@ -1193,8 +1198,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                          (* x.M. field  --->  M. *) ""
                        else if name = "_" then ""
                        else name);
-                    fieldNameLoc = fieldName.loc;
                     posOfDot;
+                    exprLoc = e.pexp_loc;
                   }
               in
               setResult (Cpath contextPath)
@@ -1208,13 +1213,8 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
                       {
                         contextPath;
                         fieldName = "";
-                        fieldNameLoc =
-                          {
-                            loc_start = e.pexp_loc.loc_end;
-                            loc_end = e.pexp_loc.loc_end;
-                            loc_ghost = false;
-                          };
                         posOfDot;
+                        exprLoc = e.pexp_loc;
                       }))
             | None -> ())
         | Pexp_apply ({pexp_desc = Pexp_ident compName}, args)

@@ -7,6 +7,9 @@ Resolved opens 1 pervasives
 ContextPath Value[someObj].""
 ContextPath Value[someObj]
 Path someObj
+ContextPath Value[someObj]->
+ContextPath Value[someObj]
+Path someObj
 [{
     "label": "[\"age\"]",
     "kind": 4,
@@ -40,6 +43,9 @@ Resolved opens 1 pervasives
 ContextPath Value[someObj].na
 ContextPath Value[someObj]
 Path someObj
+ContextPath Value[someObj]->na
+ContextPath Value[someObj]
+Path someObj
 [{
     "label": "[\"name\"]",
     "kind": 4,
@@ -62,6 +68,9 @@ Resolved opens 1 pervasives
 ContextPath Value[rrr].n
 ContextPath Value[rrr]
 Path rrr
+ContextPath Value[rrr]->n
+ContextPath Value[rrr]
+Path rrr
 CPPipe pathFromEnv: found:true
 Path DotCompletionEverywhere.n
 [{
@@ -79,6 +88,9 @@ Completable: Cpath Value[x].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[x].""
+ContextPath Value[x]
+Path x
+ContextPath Value[x]->
 ContextPath Value[x]
 Path x
 CPPipe pathFromEnv:SomeMod.SomeOtherMod found:true
@@ -106,6 +118,9 @@ Resolved opens 1 pervasives
 ContextPath Value[SomeMod, SomeOtherMod, xx].""
 ContextPath Value[SomeMod, SomeOtherMod, xx]
 Path SomeMod.SomeOtherMod.xx
+ContextPath Value[SomeMod, SomeOtherMod, xx]->
+ContextPath Value[SomeMod, SomeOtherMod, xx]
+Path SomeMod.SomeOtherMod.xx
 CPPipe pathFromEnv:SomeMod.SomeOtherMod found:true
 Path SomeMod.SomeOtherMod.
 [{
@@ -129,6 +144,9 @@ Completable: Cpath Value[Sss, rrr].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Sss, rrr].""
+ContextPath Value[Sss, rrr]
+Path Sss.rrr
+ContextPath Value[Sss, rrr]->
 ContextPath Value[Sss, rrr]
 Path Sss.rrr
 CPPipe pathFromEnv:Sss found:true
@@ -162,6 +180,9 @@ Resolved opens 1 pervasives
 ContextPath Value[x2x2].""
 ContextPath Value[x2x2]
 Path x2x2
+ContextPath Value[x2x2]->
+ContextPath Value[x2x2]
+Path x2x2
 CPPipe pathFromEnv: found:true
 Path DotCompletionEverywhere.
 Path DotCompletionEverywhere.X2.
@@ -192,6 +213,9 @@ Completable: Cpath Value[obj].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[obj].""
+ContextPath Value[obj]
+Path obj
+ContextPath Value[obj]->
 ContextPath Value[obj]
 Path obj
 [{
@@ -238,6 +262,9 @@ Resolved opens 1 pervasives
 ContextPath Value[arr].m
 ContextPath Value[arr]
 Path arr
+ContextPath Value[arr]->m
+ContextPath Value[arr]
+Path arr
 Path Js.Array2.m
 [{
     "label": "->Js.Array2.mapi",
@@ -272,6 +299,9 @@ Completable: Cpath Value[button].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[button].""
+ContextPath Value[button]
+Path button
+ContextPath Value[button]->
 ContextPath Value[button]
 Path button
 CPPipe pathFromEnv:DOMAPI found:true

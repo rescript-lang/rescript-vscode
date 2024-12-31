@@ -8,6 +8,18 @@ ContextPath Value[sprite].anchor.""
 ContextPath Value[sprite].anchor
 ContextPath Value[sprite]
 Path sprite
+ContextPath Value[sprite]->anchor
+ContextPath Value[sprite]
+Path sprite
+CPPipe pathFromEnv:Sprite found:true
+Path Sprite.anchor
+ContextPath Value[sprite].anchor->
+ContextPath Value[sprite].anchor
+ContextPath Value[sprite]
+Path sprite
+ContextPath Value[sprite]->anchor
+ContextPath Value[sprite]
+Path sprite
 CPPipe pathFromEnv:Sprite found:true
 Path Sprite.anchor
 CPPipe pathFromEnv:ObservablePoint found:true

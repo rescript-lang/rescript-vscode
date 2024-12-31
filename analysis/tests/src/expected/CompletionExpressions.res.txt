@@ -946,6 +946,9 @@ Resolved opens 1 pervasives
 ContextPath Value[fff].someOpt
 ContextPath Value[fff]
 Path fff
+ContextPath Value[fff]->someOpt
+ContextPath Value[fff]
+Path fff
 CPPipe pathFromEnv: found:true
 Path CompletionExpressions.someOpt
 [{
@@ -1417,6 +1420,9 @@ Resolved opens 2 pervasives CompletionSupport.res
 ContextPath Value[someTyp].""
 ContextPath Value[someTyp]
 Path someTyp
+ContextPath Value[someTyp]->
+ContextPath Value[someTyp]
+Path someTyp
 CPPipe pathFromEnv: found:true
 Path CompletionExpressions.
 [{
@@ -1472,6 +1478,9 @@ Raw opens: 1 CompletionSupport.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 2 pervasives CompletionSupport.res
 ContextPath Value[someTyp].""
+ContextPath Value[someTyp]
+Path someTyp
+ContextPath Value[someTyp]->
 ContextPath Value[someTyp]
 Path someTyp
 CPPipe pathFromEnv: found:true

@@ -723,6 +723,9 @@ Resolved opens 1 pervasives
 ContextPath Value[r].""
 ContextPath Value[r]
 Path r
+ContextPath Value[r]->
+ContextPath Value[r]
+Path r
 CPPipe pathFromEnv: found:true
 Path Completion.
 [{
@@ -746,6 +749,9 @@ Completable: Cpath Value[Objects, Rec, recordVal].""
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[Objects, Rec, recordVal].""
+ContextPath Value[Objects, Rec, recordVal]
+Path Objects.Rec.recordVal
+ContextPath Value[Objects, Rec, recordVal]->
 ContextPath Value[Objects, Rec, recordVal]
 Path Objects.Rec.recordVal
 CPPipe pathFromEnv:Rec found:true
@@ -832,6 +838,18 @@ ContextPath Value[q].aa.""
 ContextPath Value[q].aa
 ContextPath Value[q]
 Path q
+ContextPath Value[q]->aa
+ContextPath Value[q]
+Path q
+CPPipe pathFromEnv: found:true
+Path Completion.aa
+ContextPath Value[q].aa->
+ContextPath Value[q].aa
+ContextPath Value[q]
+Path q
+ContextPath Value[q]->aa
+ContextPath Value[q]
+Path q
 CPPipe pathFromEnv: found:true
 Path Completion.aa
 CPPipe pathFromEnv: found:true
@@ -858,6 +876,18 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath Value[q].aa.n
 ContextPath Value[q].aa
+ContextPath Value[q]
+Path q
+ContextPath Value[q]->aa
+ContextPath Value[q]
+Path q
+CPPipe pathFromEnv: found:true
+Path Completion.aa
+ContextPath Value[q].aa->n
+ContextPath Value[q].aa
+ContextPath Value[q]
+Path q
+ContextPath Value[q]->aa
 ContextPath Value[q]
 Path q
 CPPipe pathFromEnv: found:true
@@ -1088,6 +1118,10 @@ ContextPath Value[FAO, forAutoObject]["forAutoLabel"].""
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
+ContextPath Value[FAO, forAutoObject]["forAutoLabel"]->
+ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
+ContextPath Value[FAO, forAutoObject]
+Path FAO.forAutoObject
 CPPipe pathFromEnv:FAR found:true
 Path FAR.
 [{
@@ -1112,6 +1146,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"].forAuto->
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"].forAuto
+ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
+ContextPath Value[FAO, forAutoObject]
+Path FAO.forAutoObject
+ContextPath Value[FAO, forAutoObject]["forAutoLabel"]->forAuto
 ContextPath Value[FAO, forAutoObject]["forAutoLabel"]
 ContextPath Value[FAO, forAutoObject]
 Path FAO.forAutoObject
@@ -1196,6 +1234,9 @@ Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[_z].""
+ContextPath Value[_z]
+Path _z
+ContextPath Value[_z]->
 ContextPath Value[_z]
 Path _z
 CPPipe pathFromEnv: found:true
@@ -1358,6 +1399,9 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[funRecord].someFun
 ContextPath Value[funRecord]
 Path funRecord
+ContextPath Value[funRecord]->someFun
+ContextPath Value[funRecord]
+Path funRecord
 CPPipe pathFromEnv: found:true
 Path Completion.someFun
 Found type for function (~name: string) => unit
@@ -1378,6 +1422,10 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[retAA](Nolabel).""
 ContextPath Value[retAA](Nolabel)
+ContextPath Value[retAA]
+Path retAA
+ContextPath Value[retAA](Nolabel, Nolabel)->
+ContextPath Value[retAA](Nolabel, Nolabel)
 ContextPath Value[retAA]
 Path retAA
 CPPipe pathFromEnv: found:true
@@ -1912,6 +1960,9 @@ Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[funRecord].""
 ContextPath Value[funRecord]
 Path funRecord
+ContextPath Value[funRecord]->
+ContextPath Value[funRecord]
+Path funRecord
 CPPipe pathFromEnv: found:true
 Path Completion.
 [{
@@ -2164,6 +2215,9 @@ Raw opens: 2 Shadow.B.place holder ... Shadow.A.place holder
 Package opens Pervasives.JsxModules.place holder
 Resolved opens 3 pervasives Completion.res Completion.res
 ContextPath Value[rWithDepr].so
+ContextPath Value[rWithDepr]
+Path rWithDepr
+ContextPath Value[rWithDepr]->so
 ContextPath Value[rWithDepr]
 Path rWithDepr
 CPPipe pathFromEnv: found:true

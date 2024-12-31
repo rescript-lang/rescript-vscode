@@ -615,7 +615,7 @@ module Completable = struct
         contextPath: contextPath;
         fieldName: string;
         posOfDot: (int * int) option;
-        fieldNameLoc: Location.t;
+        exprLoc: Location.t;
       }
     | CPObj of contextPath * string
     | CPAwait of contextPath
