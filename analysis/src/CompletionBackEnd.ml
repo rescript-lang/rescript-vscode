@@ -1102,13 +1102,16 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
         DotCompletionUtils.fieldCompletionsForDotCompletion typ ~env ~package
           ~prefix:fieldName ?posOfDot ~exact
       in
+      (* Get additional completions acting as if this field completion was actually a pipe completion. *)
       let cpAsPipeCompletion =
         Completable.CPPipe
           {
             contextPath =
               (match cp with
               | CPApply (c, args) -> CPApply (c, args @ [Asttypes.Nolabel])
-              | c -> c);
+              | CPId _ when TypeUtils.isFunctionType ~env ~package typ ->
+                CPApply (cp, [Asttypes.Nolabel])
+              | _ -> cp);
             id = fieldName;
             inJsx = false;
             lhsLoc = exprLoc;

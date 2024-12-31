@@ -491,6 +491,11 @@ let rec extractType ?(printOpeningDebug = true)
     if Debug.verbose () then print_endline "[extract_type]--> miss";
     None
 
+let isFunctionType ~env ~package t =
+  match extractType ~env ~package t with
+  | Some (Tfunction _, _) -> true
+  | _ -> false
+
 let findReturnTypeOfFunctionAtLoc loc ~(env : QueryEnv.t) ~full ~debug =
   match References.getLocItem ~full ~pos:(loc |> Loc.end_) ~debug with
   | Some {locType = Typed (_, typExpr, _)} -> (

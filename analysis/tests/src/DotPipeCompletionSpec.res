@@ -89,3 +89,11 @@ let xxxx = [1, 2]
 
 // xxxx->Js.Array2.filter(v => v > 10)->Js.Array2.joinWith(",").includ
 //                                                                    ^com
+
+let str = "hello"
+
+// str->Js.String2.toLowerCase.toUpperCa
+//                                      ^com
+
+// str->Js.String2.toLowerCase->Js.String2.toUpperCase.toLowerC
+//                                                             ^com

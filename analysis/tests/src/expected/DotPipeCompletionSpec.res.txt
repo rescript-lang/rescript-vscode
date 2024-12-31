@@ -409,3 +409,61 @@ Path Js.String2.includ
       }]
   }]
 
+Complete src/DotPipeCompletionSpec.res 94:40
+posCursor:[94:40] posNoWhite:[94:39] Found expr:[94:3->94:40]
+posCursor:[94:40] posNoWhite:[94:39] Found expr:[94:8->94:40]
+Pexp_field [94:8->94:30] toUpperCa:[94:31->94:40]
+Completable: Cpath Value[Js, String2, toLowerCase].toUpperCa
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Js, String2, toLowerCase].toUpperCa
+ContextPath Value[Js, String2, toLowerCase]
+Path Js.String2.toLowerCase
+ContextPath Value[Js, String2, toLowerCase](Nolabel)->toUpperCa
+ContextPath Value[Js, String2, toLowerCase](Nolabel)
+ContextPath Value[Js, String2, toLowerCase]
+Path Js.String2.toLowerCase
+Path Js.String2.toUpperCa
+[{
+    "label": "->Js.String2.toUpperCase",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
+    "documentation": {"kind": "markdown", "value": "\n`toUpperCase(str)` converts `str` to upper case using the locale-insensitive\ncase mappings in the Unicode Character Database. Notice that the conversion can\nexpand the number of letters in the result; for example the German ß\ncapitalizes to two Ses in a row.\n\nSee [`String.toUpperCase`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase)\non MDN.\n\n## Examples\n\n```rescript\nJs.String2.toUpperCase(\"abc\") == \"ABC\"\nJs.String2.toUpperCase(`Straße`) == `STRASSE`\nJs.String2.toUpperCase(`πς`) == `ΠΣ`\n```\n"},
+    "sortText": "toUpperCase",
+    "insertText": "->Js.String2.toUpperCase",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 94, "character": 30}, "end": {"line": 94, "character": 31}},
+      "newText": ""
+      }]
+  }]
+
+Complete src/DotPipeCompletionSpec.res 97:63
+posCursor:[97:63] posNoWhite:[97:62] Found expr:[97:3->97:63]
+posCursor:[97:63] posNoWhite:[97:62] Found expr:[97:32->97:63]
+Pexp_field [97:32->97:54] toLowerC:[97:55->97:63]
+Completable: Cpath Value[Js, String2, toUpperCase].toLowerC
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Js, String2, toUpperCase].toLowerC
+ContextPath Value[Js, String2, toUpperCase]
+Path Js.String2.toUpperCase
+ContextPath Value[Js, String2, toUpperCase](Nolabel)->toLowerC
+ContextPath Value[Js, String2, toUpperCase](Nolabel)
+ContextPath Value[Js, String2, toUpperCase]
+Path Js.String2.toUpperCase
+Path Js.String2.toLowerC
+[{
+    "label": "->Js.String2.toLowerCase",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => t",
+    "documentation": {"kind": "markdown", "value": "\n`toLowerCase(str)` converts `str` to lower case using the locale-insensitive\ncase mappings in the Unicode Character Database. Notice that the conversion can\ngive different results depending upon context, for example with the Greek\nletter sigma, which has two different lower case forms; one when it is the last\ncharacter in a string and another when it is not.\n\nSee [`String.toLowerCase`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toLowerCase)\non MDN.\n\n## Examples\n\n```rescript\nJs.String2.toLowerCase(\"ABC\") == \"abc\"\nJs.String2.toLowerCase(`ΣΠ`) == `σπ`\nJs.String2.toLowerCase(`ΠΣ`) == `πς`\n```\n"},
+    "sortText": "toLowerCase",
+    "insertText": "->Js.String2.toLowerCase",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 97, "character": 54}, "end": {"line": 97, "character": 55}},
+      "newText": ""
+      }]
+  }]
+
