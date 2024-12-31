@@ -704,7 +704,8 @@ let getPipeCompletions ~env ~full ~identifierLoc ?posOfDot ~debug
       in
       let completionPath =
         match (completeAsBuiltin, typePath) with
-        | Some completionPathForBuiltin, _ -> Some completionPathForBuiltin
+        | Some completionPathForBuiltin, _ ->
+          Some (false, completionPathForBuiltin)
         | _, Some p -> (
           (* If this isn't a builtin, but we have a path, we try to resolve the
              module path relative to the env we're completing from. This ensures that
@@ -714,17 +715,32 @@ let getPipeCompletions ~env ~full ~identifierLoc ?posOfDot ~debug
             TypeUtils.getModulePathRelativeToEnv ~debug
               ~env:envCompletionIsMadeFrom ~envFromItem:env (Utils.expandPath p)
           with
-          | None -> Some [env.file.moduleName]
-          | Some p -> Some p)
+          | None -> Some (true, [env.file.moduleName])
+          | Some p -> Some (false, p))
         | _ -> None
       in
       match completionPath with
       | None -> []
-      | Some completionPath ->
+      | Some (isFromCurrentModule, completionPath) ->
         completionsForPipeFromCompletionPath ~envCompletionIsMadeFrom ~opens
           ~pos ~scope ~debug ~prefix ~env ~rawOpens ~full completionPath
         |> TypeUtils.filterPipeableFunctions ~env ~full
              ~synthetic:mainCompletionsAreSynthetic ~targetTypeId:mainTypeId
+        |> List.filter (fun (c : Completion.t) ->
+               (* If we're completing from the current module then we need to care about scope.
+                  This is automatically taken care of in other cases. *)
+               if isFromCurrentModule then
+                 match c.kind with
+                 | Value _ ->
+                   scope
+                   |> List.find_opt (fun (item : ScopeTypes.item) ->
+                          match item with
+                          | Value (scopeItemName, _, _, _) ->
+                            scopeItemName = c.name
+                          | _ -> false)
+                   |> Option.is_some
+                 | _ -> false
+               else true)
     in
     (* Extra completions can be drawn from the @editor.completeFrom attribute. Here we
        find and add those completions as well. *)

@@ -97,3 +97,11 @@ let str = "hello"
 
 // str->Js.String2.toLowerCase->Js.String2.toUpperCase.toLowerC
 //                                                             ^com
+
+let cc = (t: typeOutsideModule) => {
+  // t.
+  //   ^com
+  t
+}
+
+let outOfScope = (t: typeOutsideModule) => t

@@ -467,3 +467,64 @@ Path Js.String2.toLowerC
       }]
   }]
 
+Complete src/DotPipeCompletionSpec.res 101:7
+posCursor:[101:7] posNoWhite:[101:6] Found expr:[100:9->104:1]
+posCursor:[101:7] posNoWhite:[101:6] Found expr:[100:10->104:1]
+posCursor:[101:7] posNoWhite:[101:6] Found expr:[101:5->103:3]
+Pexp_field [101:5->101:6] t:[103:2->103:3]
+Completable: Cpath Value[t].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[t].""
+ContextPath Value[t]
+Path t
+ContextPath Value[t]->
+ContextPath Value[t]
+Path t
+CPPipe pathFromEnv: found:true
+Path DotPipeCompletionSpec.
+Path DotPipeCompletionSpec.SomeOtherModule.
+[{
+    "label": "nname",
+    "kind": 5,
+    "tags": [],
+    "detail": "string",
+    "documentation": {"kind": "markdown", "value": "```rescript\nnname: string\n```\n\n```rescript\ntype typeOutsideModule = {nname: string}\n```"}
+  }, {
+    "label": "->doWithTypeOutsideModule",
+    "kind": 12,
+    "tags": [],
+    "detail": "typeOutsideModule => string",
+    "documentation": null,
+    "sortText": "doWithTypeOutsideModule",
+    "insertText": "->doWithTypeOutsideModule",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 101, "character": 6}, "end": {"line": 101, "character": 7}},
+      "newText": ""
+      }]
+  }, {
+    "label": "->SomeOtherModule.getNName",
+    "kind": 12,
+    "tags": [],
+    "detail": "t => string",
+    "documentation": null,
+    "sortText": "getNName",
+    "insertText": "->SomeOtherModule.getNName",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 101, "character": 6}, "end": {"line": 101, "character": 7}},
+      "newText": ""
+      }]
+  }, {
+    "label": "->SomeOtherModule.getNName2",
+    "kind": 12,
+    "tags": [],
+    "detail": "typeOutsideModule => string",
+    "documentation": null,
+    "sortText": "getNName2",
+    "insertText": "->SomeOtherModule.getNName2",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 101, "character": 6}, "end": {"line": 101, "character": 7}},
+      "newText": ""
+      }]
+  }]
+
