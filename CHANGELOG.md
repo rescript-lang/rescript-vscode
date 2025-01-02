@@ -12,6 +12,10 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Add support for "dot completion everywhere". In addition to record fields, dots will now complete for object fields, and pipe completions applicable to the type the dot is on. You can also configure where the editor draws extra pipe completions from via the `@editor.completeFrom` attribute. https://github.com/rescript-lang/rescript-vscode/pull/1054
+
 ## 1.60.0
 
 #### :rocket: New Feature
