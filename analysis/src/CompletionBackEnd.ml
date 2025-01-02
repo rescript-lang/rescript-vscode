@@ -1028,13 +1028,10 @@ and getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos ~env ~exact
             lhsLoc = exprLoc;
           }
       in
-      let completionsFromPipeCtxPath =
+      let pipeCompletions =
         cpAsPipeCompletion
         |> getCompletionsForContextPath ~debug ~full ~opens ~rawOpens ~pos
              ~env:envCompletionIsMadeFrom ~exact ~scope
-      in
-      let pipeCompletions =
-        completionsFromPipeCtxPath
         |> List.filter_map (fun c ->
                TypeUtils.transformCompletionToPipeCompletion ~synthetic:true
                  ~env ?posOfDot c)
