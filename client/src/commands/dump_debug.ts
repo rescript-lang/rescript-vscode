@@ -200,13 +200,7 @@ export const dumpDebug = async (
 
     switch (callType.command) {
       case "completion": {
-        opts.push(
-          filePath,
-          line.toString(),
-          character.toString(),
-          currentFile,
-          "true"
-        );
+        opts.push(filePath, line.toString(), character.toString(), currentFile);
         break;
       }
       case "definition": {
@@ -222,13 +216,7 @@ export const dumpDebug = async (
         break;
       }
       case "hover": {
-        opts.push(
-          filePath,
-          line.toString(),
-          character.toString(),
-          currentFile,
-          "true"
-        );
+        opts.push(filePath, line.toString(), character.toString(), currentFile);
         break;
       }
       case "signatureHelp": {

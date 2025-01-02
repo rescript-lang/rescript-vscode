@@ -6,7 +6,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someString]->st
 ContextPath Value[someString]
 Path someString
-CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "Js.String2.startsWith",
@@ -37,7 +36,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someString]->st <<jsx>>
 ContextPath Value[someString]
 Path someString
-CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -83,7 +81,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someString]->st <<jsx>>
 ContextPath Value[someString]
 Path someString
-CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -128,7 +125,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath string->st <<jsx>>
 ContextPath string
-CPPipe env:CompletionJsx
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -175,7 +171,6 @@ ContextPath Value[Js, String2, trim](Nolabel)->st <<jsx>>
 ContextPath Value[Js, String2, trim](Nolabel)
 ContextPath Value[Js, String2, trim]
 Path Js.String2.trim
-CPPipe env:CompletionJsx envFromCompletionItem:Js_string2
 Path Js.String2.st
 [{
     "label": "React.string",
@@ -221,7 +216,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someInt]-> <<jsx>>
 ContextPath Value[someInt]
 Path someInt
-CPPipe env:CompletionJsx
 Path Belt.Int.
 [{
     "label": "React.int",
@@ -231,12 +225,6 @@ Path Belt.Int.
     "documentation": {"kind": "markdown", "value": "Turns `int` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
-  }, {
-    "label": "Belt.Int.fromString",
-    "kind": 12,
-    "tags": [],
-    "detail": "string => option<int>",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n```\n"}
   }, {
     "label": "Belt.Int.*",
     "kind": 12,
@@ -261,12 +249,6 @@ Path Belt.Int.
     "tags": [],
     "detail": "int => float",
     "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `float`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toFloat(1) === 1.0) /* true */\n```\n"}
-  }, {
-    "label": "Belt.Int.fromFloat",
-    "kind": 12,
-    "tags": [],
-    "detail": "float => int",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to an `int`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n```\n"}
   }, {
     "label": "Belt.Int.-",
     "kind": 12,
@@ -302,7 +284,6 @@ Package opens Pervasives.JsxModules.place holder
 Resolved opens 1 pervasives
 ContextPath int-> <<jsx>>
 ContextPath int
-CPPipe env:CompletionJsx
 Path Belt.Int.
 [{
     "label": "React.int",
@@ -312,12 +293,6 @@ Path Belt.Int.
     "documentation": {"kind": "markdown", "value": "Turns `int` into a JSX element so it can be used inside of JSX."},
     "sortText": "A",
     "insertTextFormat": 2
-  }, {
-    "label": "Belt.Int.fromString",
-    "kind": 12,
-    "tags": [],
-    "detail": "string => option<int>",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `string` to an `int`. Returns `Some(int)` when the input is a number, `None` otherwise.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromString(\"1\") === Some(1)) /* true */\n```\n"}
   }, {
     "label": "Belt.Int.*",
     "kind": 12,
@@ -342,12 +317,6 @@ Path Belt.Int.
     "tags": [],
     "detail": "int => float",
     "documentation": {"kind": "markdown", "value": "\nConverts a given `int` to a `float`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.toFloat(1) === 1.0) /* true */\n```\n"}
-  }, {
-    "label": "Belt.Int.fromFloat",
-    "kind": 12,
-    "tags": [],
-    "detail": "float => int",
-    "documentation": {"kind": "markdown", "value": "\nConverts a given `float` to an `int`.\n\n## Examples\n\n```rescript\nJs.log(Belt.Int.fromFloat(1.0) === 1) /* true */\n```\n"}
   }, {
     "label": "Belt.Int.-",
     "kind": 12,
@@ -384,7 +353,6 @@ Resolved opens 1 pervasives
 ContextPath Value[someArr]->a <<jsx>>
 ContextPath Value[someArr]
 Path someArr
-CPPipe env:CompletionJsx
 Path Js.Array2.a
 [{
     "label": "React.array",
