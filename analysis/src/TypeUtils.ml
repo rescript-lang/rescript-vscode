@@ -1183,8 +1183,7 @@ let transformCompletionToPipeCompletion ?(synthetic = false) ~env ?posOfDot
     of the project. Example: type x in module SomeModule in file SomeFile would get the globally 
     unique id `SomeFile.SomeModule.x`.*)
 let rec findRootTypeId ~full ~env (t : Types.type_expr) =
-  let debug = Debug.verbose () in
-  (* let debug = false in *)
+  let debug = false in
   match t.desc with
   | Tlink t1 | Tsubst t1 | Tpoly (t1, []) -> findRootTypeId ~full ~env t1
   | Tconstr (Pident {name = "function$"}, [t; _], _) ->

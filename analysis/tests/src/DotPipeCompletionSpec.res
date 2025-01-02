@@ -114,3 +114,33 @@ let outOfScope = (t: typeOutsideModule) => t
 
 // @editor.completeFrom([CompletionPipe, Dot]) type t
 //                                          ^com
+
+let someObj = {
+  "name": "hello",
+  "age": 123,
+}
+
+// someObj.
+//         ^com
+
+// someObj.na
+//           ^com
+
+module DOMAPI = {
+  type htmlElement = {prefix: string}
+
+  @editor.completeFrom(DotPipeCompletionSpec.HTMLButtonElement)
+  type rec htmlButtonElement = {mutable disabled: bool}
+}
+
+module HTMLButtonElement = {
+  open DOMAPI
+
+  @send
+  external checkValidity: htmlButtonElement => bool = "checkValidity"
+}
+
+external button: DOMAPI.htmlButtonElement = "button"
+
+// button.
+//        ^com

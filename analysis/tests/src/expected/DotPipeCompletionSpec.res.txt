@@ -536,16 +536,6 @@ Resolved opens 1 pervasives
 ContextPath Module[Dot]
 Path Dot
 [{
-    "label": "DotCompletionEverywhere",
-    "kind": 9,
-    "tags": [],
-    "detail": "module DotCompletionEverywhere",
-    "documentation": null,
-    "data": {
-      "modulePath": "DotCompletionEverywhere",
-      "filePath": "src/DotPipeCompletionSpec.res"
-    }
-  }, {
     "label": "DotPipeCompletionSpec",
     "kind": 9,
     "tags": [],
@@ -608,16 +598,6 @@ Resolved opens 1 pervasives
 ContextPath Value[Dot]
 Path Dot
 [{
-    "label": "DotCompletionEverywhere",
-    "kind": 9,
-    "tags": [],
-    "detail": "module DotCompletionEverywhere",
-    "documentation": null,
-    "data": {
-      "modulePath": "DotCompletionEverywhere",
-      "filePath": "src/DotPipeCompletionSpec.res"
-    }
-  }, {
     "label": "DotPipeCompletionSpec",
     "kind": 9,
     "tags": [],
@@ -627,5 +607,101 @@ Path Dot
       "modulePath": "DotPipeCompletionSpec",
       "filePath": "src/DotPipeCompletionSpec.res"
     }
+  }]
+
+Complete src/DotPipeCompletionSpec.res 122:11
+posCursor:[122:11] posNoWhite:[122:10] Found expr:[122:3->122:11]
+Pexp_field [122:3->122:10] _:[128:0->122:11]
+Completable: Cpath Value[someObj].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someObj].""
+ContextPath Value[someObj]
+Path someObj
+ContextPath Value[someObj]->
+ContextPath Value[someObj]
+Path someObj
+[{
+    "label": "[\"age\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "{\"age\": int, \"name\": string}",
+    "documentation": null,
+    "insertText": "[\"age\"]",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 122, "character": 10}, "end": {"line": 122, "character": 11}},
+      "newText": ""
+      }]
+  }, {
+    "label": "[\"name\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "{\"age\": int, \"name\": string}",
+    "documentation": null,
+    "insertText": "[\"name\"]",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 122, "character": 10}, "end": {"line": 122, "character": 11}},
+      "newText": ""
+      }]
+  }]
+
+Complete src/DotPipeCompletionSpec.res 125:13
+posCursor:[125:13] posNoWhite:[125:12] Found expr:[125:3->125:13]
+Pexp_field [125:3->125:10] na:[125:11->125:13]
+Completable: Cpath Value[someObj].na
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[someObj].na
+ContextPath Value[someObj]
+Path someObj
+ContextPath Value[someObj]->na
+ContextPath Value[someObj]
+Path someObj
+[{
+    "label": "[\"name\"]",
+    "kind": 4,
+    "tags": [],
+    "detail": "{\"age\": int, \"name\": string}",
+    "documentation": null,
+    "insertText": "[\"name\"]",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 125, "character": 10}, "end": {"line": 125, "character": 11}},
+      "newText": ""
+      }]
+  }]
+
+Complete src/DotPipeCompletionSpec.res 144:10
+posCursor:[144:10] posNoWhite:[144:9] Found expr:[144:3->144:10]
+Pexp_field [144:3->144:9] _:[147:0->144:10]
+Completable: Cpath Value[button].""
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[button].""
+ContextPath Value[button]
+Path button
+ContextPath Value[button]->
+ContextPath Value[button]
+Path button
+CPPipe pathFromEnv:DOMAPI found:true
+Path DOMAPI.
+Path DotPipeCompletionSpec.HTMLButtonElement.
+[{
+    "label": "disabled",
+    "kind": 5,
+    "tags": [],
+    "detail": "bool",
+    "documentation": {"kind": "markdown", "value": "```rescript\ndisabled: bool\n```\n\n```rescript\ntype htmlButtonElement = {mutable disabled: bool}\n```"}
+  }, {
+    "label": "->HTMLButtonElement.checkValidity",
+    "kind": 12,
+    "tags": [],
+    "detail": "DOMAPI.htmlButtonElement => bool",
+    "documentation": null,
+    "sortText": "checkValidity",
+    "insertText": "->HTMLButtonElement.checkValidity",
+    "additionalTextEdits": [{
+      "range": {"start": {"line": 144, "character": 9}, "end": {"line": 144, "character": 10}},
+      "newText": ""
+      }]
   }]
 
