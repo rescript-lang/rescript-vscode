@@ -620,6 +620,7 @@ module Completable = struct
     | CPObj of contextPath * string
     | CPAwait of contextPath
     | CPPipe of {
+        synthetic: bool;  (** Whether this pipe completion is synthetic. *)
         contextPath: contextPath;
         id: string;
         inJsx: bool;  (** Whether this pipe was found in a JSX context. *)

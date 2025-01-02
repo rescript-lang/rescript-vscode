@@ -1050,6 +1050,7 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
             (Cpath
                (CPPipe
                   {
+                    synthetic = false;
                     contextPath = pipe;
                     id;
                     lhsLoc = lhs.pexp_loc;
@@ -1060,7 +1061,14 @@ let completionWithParser1 ~currentFile ~debug ~offset ~path ~posCursor
       | Some (pipe, lhsLoc) ->
         setResult
           (Cpath
-             (CPPipe {contextPath = pipe; id; lhsLoc; inJsx = !inJsxContext}));
+             (CPPipe
+                {
+                  synthetic = false;
+                  contextPath = pipe;
+                  id;
+                  lhsLoc;
+                  inJsx = !inJsxContext;
+                }));
         true
     in
     typedCompletionExpr expr;
