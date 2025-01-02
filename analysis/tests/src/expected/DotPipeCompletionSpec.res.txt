@@ -528,3 +528,104 @@ Path DotPipeCompletionSpec.SomeOtherModule.
       }]
   }]
 
+Complete src/DotPipeCompletionSpec.res 108:27
+XXX Not found!
+Completable: Cpath Module[Dot]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Module[Dot]
+Path Dot
+[{
+    "label": "DotCompletionEverywhere",
+    "kind": 9,
+    "tags": [],
+    "detail": "module DotCompletionEverywhere",
+    "documentation": null,
+    "data": {
+      "modulePath": "DotCompletionEverywhere",
+      "filePath": "src/DotPipeCompletionSpec.res"
+    }
+  }, {
+    "label": "DotPipeCompletionSpec",
+    "kind": 9,
+    "tags": [],
+    "detail": "module DotPipeCompletionSpec",
+    "documentation": null,
+    "data": {
+      "modulePath": "DotPipeCompletionSpec",
+      "filePath": "src/DotPipeCompletionSpec.res"
+    }
+  }]
+
+Complete src/DotPipeCompletionSpec.res 111:39
+posCursor:[111:39] posNoWhite:[111:38] Found expr:[111:24->111:40]
+posCursor:[111:39] posNoWhite:[111:38] Found expr:[111:25->111:39]
+Pexp_construct CompletionPipe:[111:25->111:39] None
+Completable: Cpath Value[CompletionPipe]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[CompletionPipe]
+Path CompletionPipe
+[{
+    "label": "CompletionPipeChain",
+    "kind": 9,
+    "tags": [],
+    "detail": "module CompletionPipeChain",
+    "documentation": null,
+    "data": {
+      "modulePath": "CompletionPipeChain",
+      "filePath": "src/DotPipeCompletionSpec.res"
+    }
+  }, {
+    "label": "CompletionPipeProperty",
+    "kind": 9,
+    "tags": [],
+    "detail": "module CompletionPipeProperty",
+    "documentation": null,
+    "data": {
+      "modulePath": "CompletionPipeProperty",
+      "filePath": "src/DotPipeCompletionSpec.res"
+    }
+  }, {
+    "label": "CompletionPipeSubmodules",
+    "kind": 9,
+    "tags": [],
+    "detail": "module CompletionPipeSubmodules",
+    "documentation": null,
+    "data": {
+      "modulePath": "CompletionPipeSubmodules",
+      "filePath": "src/DotPipeCompletionSpec.res"
+    }
+  }]
+
+Complete src/DotPipeCompletionSpec.res 114:44
+posCursor:[114:44] posNoWhite:[114:43] Found expr:[114:24->114:45]
+posCursor:[114:44] posNoWhite:[114:43] Found expr:[114:41->114:44]
+Pexp_construct Dot:[114:41->114:44] None
+Completable: Cpath Value[Dot]
+Package opens Pervasives.JsxModules.place holder
+Resolved opens 1 pervasives
+ContextPath Value[Dot]
+Path Dot
+[{
+    "label": "DotCompletionEverywhere",
+    "kind": 9,
+    "tags": [],
+    "detail": "module DotCompletionEverywhere",
+    "documentation": null,
+    "data": {
+      "modulePath": "DotCompletionEverywhere",
+      "filePath": "src/DotPipeCompletionSpec.res"
+    }
+  }, {
+    "label": "DotPipeCompletionSpec",
+    "kind": 9,
+    "tags": [],
+    "detail": "module DotPipeCompletionSpec",
+    "documentation": null,
+    "data": {
+      "modulePath": "DotPipeCompletionSpec",
+      "filePath": "src/DotPipeCompletionSpec.res"
+    }
+  }]
+

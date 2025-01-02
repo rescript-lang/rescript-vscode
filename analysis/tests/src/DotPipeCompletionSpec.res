@@ -105,3 +105,12 @@ let cc = (t: typeOutsideModule) => {
 }
 
 let outOfScope = (t: typeOutsideModule) => t
+
+// @editor.completeFrom(Dot) type t
+//                         ^com
+
+// @editor.completeFrom([CompletionPipe]) type t
+//                                     ^com
+
+// @editor.completeFrom([CompletionPipe, Dot]) type t
+//                                          ^com
