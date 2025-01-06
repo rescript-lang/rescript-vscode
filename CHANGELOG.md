@@ -20,6 +20,7 @@
 
 - Fix bug where type args stopped working in some completions when passed through inline records. https://github.com/rescript-lang/rescript-vscode/pull/1064
 - Fix bug where objects weren't actually iterated on, making completions inside of them not work. https://github.com/rescript-lang/rescript-vscode/pull/1065
+- Fix bug where pipe completions would not trigger with generic type arguments. https://github.com/rescript-lang/rescript-vscode/pull/1067
 
 ## 1.60.0
 

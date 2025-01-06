@@ -275,7 +275,7 @@ let rec extractFunctionTypeWithEnv ~env ~package typ =
     | Tconstr (path, typeArgs, _) -> (
       match References.digConstructor ~env ~package path with
       | Some
-          ( env,
+          ( _env,
             {
               item = {decl = {type_manifest = Some t1; type_params = typeParams}};
             } ) ->
