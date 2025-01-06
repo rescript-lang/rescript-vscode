@@ -1210,7 +1210,11 @@ function onMessage(msg: p.Message) {
       };
       initialized = true;
 
-      sendLogNotification(p.MessageType.Info, `LSP Server started!`)
+      let rescriptVersion = undefined;
+      if (initParams.workspaceFolders && initParams.workspaceFolders.length > 0) {
+        rescriptVersion = utils.findReScriptVersion(initParams.workspaceFolders[0].uri);
+      }
+      sendLogNotification(p.MessageType.Info, `LSP Server started! Rescript Version ${rescriptVersion}`);
 
       // Periodically pull configuration from the client.
       pullConfigurationPeriodically = setInterval(() => {
