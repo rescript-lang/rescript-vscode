@@ -25,6 +25,7 @@ export interface extensionConfiguration {
       enable?: boolean;
     };
   };
+  logLevel: "error" | "warning" | "info" | "log"
 }
 
 // All values here are temporary, and will be overridden as the server is
@@ -53,6 +54,7 @@ let config: { extensionConfiguration: extensionConfiguration } = {
         enable: true,
       },
     },
+    logLevel: "info"
   },
 };
 

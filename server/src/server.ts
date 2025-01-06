@@ -28,6 +28,38 @@ import * as ic from "./incrementalCompilation";
 import config, { extensionConfiguration } from "./config";
 import { projectsFiles } from "./projectFiles";
 
+const notificationLevelMap = new Map([
+  ["error", p.MessageType.Error],
+  ["warning", p.MessageType.Warning],
+  ["info", p.MessageType.Info],
+  ["log", p.MessageType.Log]
+])
+
+/**
+ * Sends an LSP log notification that will appear in the ReScript Language Server Output window in VSCode. 
+ * Other LSP clients will also receive this notification, 
+ * as we utilize LanguageClient in the VSCode extension, providing this functionality at no extra cost.
+ */
+function sendLogNotification(level: p.MessageType, message: string) {
+  const currentLogLevel = notificationLevelMap.get(config.extensionConfiguration.logLevel) || p.MessageType.Info;
+
+  if (currentLogLevel >= level) {
+    const logMessageParams: p.LogMessageParams = {
+      type: level,
+      message
+    }
+    const notificationMessage: p.NotificationMessage = {
+      method: "window/logMessage",
+      jsonrpc: c.jsonrpcVersion,
+      params: logMessageParams
+    }
+
+    if (send) {
+      send(notificationMessage);
+    }
+  }
+}
+
 // This holds client capabilities specific to our extension, and not necessarily
 // related to the LS protocol. It's for enabling/disabling features that might
 // work in one client, like VSCode, but perhaps not in others, like vim.
@@ -54,18 +86,18 @@ let stupidFileContentCache: Map<string, string> = new Map();
 let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 
 // will be properly defined later depending on the mode (stdio/node-rpc)
-let send: (msg: p.Message) => void = (_) => {};
+let send: (msg: p.Message) => void = (_) => { };
 
 let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
   config.extensionConfiguration.binaryPath == null
     ? lookup.findFilePathFromProjectRoot(
-        projectRootPath,
-        path.join(c.nodeModulesBinDir, c.rescriptBinName)
-      )
+      projectRootPath,
+      path.join(c.nodeModulesBinDir, c.rescriptBinName)
+    )
     : utils.findBinary(
-        config.extensionConfiguration.binaryPath,
-        c.rescriptBinName
-      );
+      config.extensionConfiguration.binaryPath,
+      c.rescriptBinName
+    );
 
 let createInterfaceRequest = new v.RequestType<
   p.TextDocumentIdentifier,
@@ -332,9 +364,9 @@ let openedFile = (fileUri: string, fileContent: string) => {
             message:
               config.extensionConfiguration.binaryPath == null
                 ? `Can't find ReScript binary in  ${path.join(
-                    projectRootPath,
-                    c.nodeModulesBinDir
-                  )} or parent directories. Did you install it? It's required to use "rescript" > 9.1`
+                  projectRootPath,
+                  c.nodeModulesBinDir
+                )} or parent directories. Did you install it? It's required to use "rescript" > 9.1`
                 : `Can't find ReScript binary in the directory ${config.extensionConfiguration.binaryPath}`,
           },
         };
@@ -418,6 +450,7 @@ export default function listen(useStdio = false) {
     send = (msg: p.Message) => process.send!(msg);
     process.on("message", onMessage);
   }
+  utils.setSendLogNotification(sendLogNotification);
 }
 
 function hover(msg: p.RequestMessage) {
@@ -1158,15 +1191,15 @@ function onMessage(msg: p.Message) {
           inlayHintProvider: config.extensionConfiguration.inlayHints?.enable,
           codeLensProvider: config.extensionConfiguration.codeLens
             ? {
-                workDoneProgress: false,
-              }
+              workDoneProgress: false,
+            }
             : undefined,
           signatureHelpProvider: config.extensionConfiguration.signatureHelp
             ?.enabled
             ? {
-                triggerCharacters: ["("],
-                retriggerCharacters: ["=", ","],
-              }
+              triggerCharacters: ["("],
+              retriggerCharacters: ["=", ","],
+            }
             : undefined,
         },
       };
@@ -1176,6 +1209,8 @@ function onMessage(msg: p.Message) {
         result: result,
       };
       initialized = true;
+
+      sendLogNotification(p.MessageType.Info, `LSP Server started!`)
 
       // Periodically pull configuration from the client.
       pullConfigurationPeriodically = setInterval(() => {
