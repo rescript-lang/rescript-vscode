@@ -11,57 +11,7 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  # Build statically linked Linux binaries in an Alpine-based Docker container
-  # See https://ocamlpro.com/blog/2021_09_02_generating_static_and_portable_executables_with_ocaml
-  # for more info.
-  # The container already comes with all required tools pre-installed
-  # (see https://github.com/rescript-lang/docker-rescript-ci-build/blob/main/Dockerfile).
-  build-linux:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, buildjet-2vcpu-ubuntu-2204-arm]
-        # syntax explanation:
-        # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
-        include:
-          - os: ubuntu-latest
-            artifact-folder: linux
-          - os: buildjet-2vcpu-ubuntu-2204-arm
-            artifact-folder: linuxarm64
-
-    runs-on: ${{matrix.os}}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Build
-        uses: docker://ghcr.io/rescript-lang/rescript-ci-build:alpine-3.20-ocaml-5.2.0-01
-        with:
-          args: opam exec -- dune build --profile static
-
-      - name: Copy and strip binaries
-        run: |
-          cp -f _build/install/default/bin/rescript-editor-analysis rescript-editor-analysis.exe
-          cp -f _build/install/default/bin/rescript-tools rescript-tools.exe
-          strip rescript-editor-analysis.exe rescript-tools.exe
-
-      # Also avoids artifacts upload permission loss:
-      # https://github.com/actions/upload-artifact/tree/ee69f02b3dfdecd58bb31b4d133da38ba6fe3700#permission-loss
-      - name: Compress files
-        run: |
-          mkdir ${{matrix.artifact-folder}}
-          mv rescript-editor-analysis.exe ${{matrix.artifact-folder}}
-          mv rescript-tools.exe ${{matrix.artifact-folder}}
-          tar -cvf binary.tar ${{matrix.artifact-folder}}
-    
-      - name: "Upload artifacts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{matrix.artifact-folder}}
-          path: binary.tar
-  
+jobs: 
   build:
     strategy:
       fail-fast: false
@@ -69,16 +19,32 @@ jobs:
         os: [
             macos-13, # x64
             macos-14, # ARM
+            ubuntu-24.04, # x64
+            ubuntu-24.04-arm, # ARM
             windows-latest,
           ]
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
           - os: macos-13
+            ocaml-compiler: 5.2.1
+            dune-profile: release
             artifact-folder: darwin
           - os: macos-14
+            ocaml-compiler: 5.2.1
+            dune-profile: release
             artifact-folder: darwinarm64
+          - os: ubuntu-24.04
+            ocaml-compiler: ocaml-variants.5.2.1+options,ocaml-option-static
+            dune-profile: static
+            artifact-folder: linux
+          - os: ubuntu-24.04-arm
+            ocaml-compiler: ocaml-variants.5.2.1+options,ocaml-option-static
+            dune-profile: static
+            artifact-folder: linuxarm64
           - os: windows-latest
+            ocaml-compiler: 5.2.1
+            dune-profile: release
             artifact-folder: win32
 
     runs-on: ${{matrix.os}}
@@ -101,7 +67,7 @@ jobs:
     - name: Use OCaml
       uses: ocaml/setup-ocaml@v3
       with:
-        ocaml-compiler: 5.2.0
+        ocaml-compiler: ${{matrix.ocaml-compiler}}
         opam-pin: false
 
     - name: Use Node.js
@@ -119,6 +85,9 @@ jobs:
     # Don't add deps. But if you ever do, un-comment these and add an .opam file.
     # - run: opam pin add rescript-editor-analysis.dev . --no-action
     # - run: opam install . --deps-only --with-doc --with-test
+
+    - name: Set dune profile according to platform
+      run: echo "DUNE_PROFILE=${{ matrix.dune-profile }}" >> $GITHUB_ENV
 
     - name: Build
       run: opam exec -- make
@@ -147,8 +116,7 @@ jobs:
   package:
     needs:
       - build
-      - build-linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
