@@ -16,6 +16,13 @@ import { reportError } from "./errorReporter";
 import config from "./config";
 import { filesDiagnostics, projectsFiles } from "./projectFiles";
 
+// This is a bit dirty but avoids passing down this function each time.
+export type SendLogNotification = (level: p.MessageType, message: string) => void
+let sendLogNotification: SendLogNotification = () => { };
+export function setSendLogNotification(send: SendLogNotification) {
+  sendLogNotification = send;
+}
+
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
 
@@ -92,19 +99,19 @@ export let findBinary = (
 
 type execResult =
   | {
-      kind: "success";
-      result: string;
-    }
+    kind: "success";
+    result: string;
+  }
   | {
-      kind: "error";
-      error: string;
-    };
+    kind: "error";
+    error: string;
+  };
 
 type formatCodeResult =
   | execResult
   | {
-      kind: "blocked-using-built-in-formatter";
-    };
+    kind: "blocked-using-built-in-formatter";
+  };
 
 export let formatCode = (
   bscPath: p.DocumentUri | null,
@@ -265,6 +272,9 @@ export let runAnalysisAfterSanityCheck = (
 
   let stdout = "";
   try {
+    if(args.includes("completion")){
+      sendLogNotification(p.MessageType.Log, `Running completion: ${binaryPath} ${args.join(" ")}`);
+    }
     stdout = childProcess.execFileSync(binaryPath, args, options).toString();
     return JSON.parse(stdout);
   } catch (e) {
@@ -693,7 +703,7 @@ export let parseCompilerLogOutput = (
       diagnostic,
       diagnosticMessage,
       file,
-      range,
+      range
     });
 
     result[file].push(diagnostic);
