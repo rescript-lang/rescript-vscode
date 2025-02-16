@@ -14,7 +14,7 @@
 
 #### :nail_care: Polish
 
-- Remove the built-in formatter since it has been causing more harm than done good.
+- Remove the built-in formatter since it has been causing more harm than done good. https://github.com/rescript-lang/rescript-vscode/pull/1073
 
 #### :rocket: New Feature
 
