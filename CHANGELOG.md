@@ -12,6 +12,10 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- Remove the built-in formatter since it has been causing more harm than done good.
+
 #### :rocket: New Feature
 
 - Add support for "dot completion everywhere". In addition to record fields, dots will now complete for object fields, and pipe completions applicable to the type the dot is on. You can also configure where the editor draws extra pipe completions from via the `@editor.completeFrom` attribute. https://github.com/rescript-lang/rescript-vscode/pull/1054

@@ -38,7 +38,6 @@ export interface extensionClientCapabilities {
 let extensionClientCapabilities: extensionClientCapabilities = {};
 
 // Below here is some state that's not important exactly how long it lives.
-let hasPromptedAboutBuiltInFormatter = false;
 let pullConfigurationPeriodically: NodeJS.Timeout | null = null;
 
 // https://microsoft.github.io/language-server-protocol/specification#initialize
@@ -806,12 +805,7 @@ function format(msg: p.RequestMessage): Array<p.Message> {
       projectRootPath != null ? projectsFiles.get(projectRootPath) : null;
     let bscExeBinaryPath = project?.bscBinaryLocation ?? null;
 
-    let formattedResult = utils.formatCode(
-      bscExeBinaryPath,
-      filePath,
-      code,
-      Boolean(config.extensionConfiguration.allowBuiltInFormatter)
-    );
+    let formattedResult = utils.formatCode(bscExeBinaryPath, filePath, code);
     if (formattedResult.kind === "success") {
       let max = code.length;
       let result: p.TextEdit[] = [
@@ -829,25 +823,6 @@ function format(msg: p.RequestMessage): Array<p.Message> {
         result: result,
       };
       return [response];
-    } else if (formattedResult.kind === "blocked-using-built-in-formatter") {
-      // Let's only prompt the user once about this, or things might become annoying.
-      if (hasPromptedAboutBuiltInFormatter) {
-        return [fakeSuccessResponse];
-      }
-      hasPromptedAboutBuiltInFormatter = true;
-
-      let params: p.ShowMessageParams = {
-        type: p.MessageType.Warning,
-        message: `Formatting not applied! Could not find the ReScript compiler in the current project, and you haven't configured the extension to allow formatting using the built in formatter. To allow formatting files not strictly part of a ReScript project using the built in formatter, [please configure the extension to allow that.](command:workbench.action.openSettings?${encodeURIComponent(
-          JSON.stringify(["rescript.settings.allowBuiltInFormatter"])
-        )})`,
-      };
-      let response: p.NotificationMessage = {
-        jsonrpc: c.jsonrpcVersion,
-        method: "window/showMessage",
-        params: params,
-      };
-      return [fakeSuccessResponse, response];
     } else {
       // let the diagnostics logic display the updated syntax errors,
       // from the build.

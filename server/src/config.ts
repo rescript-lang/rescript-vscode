@@ -3,7 +3,6 @@ import { Message } from "vscode-languageserver-protocol";
 export type send = (msg: Message) => void;
 
 export interface extensionConfiguration {
-  allowBuiltInFormatter?: boolean;
   askToStartBuild?: boolean;
   inlayHints?: {
     enable?: boolean;
@@ -32,7 +31,6 @@ export interface extensionConfiguration {
 // initialized, and the current config is received from the client.
 let config: { extensionConfiguration: extensionConfiguration } = {
   extensionConfiguration: {
-    allowBuiltInFormatter: false,
     askToStartBuild: true,
     inlayHints: {
       enable: false,
