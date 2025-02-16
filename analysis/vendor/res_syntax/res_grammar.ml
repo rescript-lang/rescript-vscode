@@ -60,7 +60,7 @@ type t =
   | AttributePayload
   | TagNames
 
-let to_string = function
+let toString = function
   | OpenDescription -> "an open description"
   | ModuleLongIdent -> "a module path"
   | Ternary -> "a ternary expression"
@@ -70,7 +70,7 @@ let to_string = function
   | ExprOperand -> "a basic expression"
   | ExprUnary -> "a unary expression"
   | ExprBinaryAfterOp op ->
-    "an expression after the operator \"" ^ Token.to_string op ^ "\""
+    "an expression after the operator \"" ^ Token.toString op ^ "\""
   | ExprIf -> "an if expression"
   | IfCondition -> "the condition of an if expression"
   | IfBranch -> "the true-branch of an if expression"
@@ -121,181 +121,181 @@ let to_string = function
   | AttributePayload -> "an attribute payload"
   | TagNames -> "tag names"
 
-let is_signature_item_start = function
+let isSignatureItemStart = function
   | Token.At | Let | Typ | External | Exception | Open | Include | Module | AtAt
   | PercentPercent ->
     true
   | _ -> false
 
-let is_atomic_pattern_start = function
+let isAtomicPatternStart = function
   | Token.Int _ | String _ | Codepoint _ | Backtick | Lparen | Lbracket | Lbrace
-  | Underscore | Lident _ | Uident _ | List | Exception | Percent ->
+  | Underscore | Lident _ | Uident _ | List | Exception | Lazy | Percent ->
     true
   | _ -> false
 
-let is_atomic_expr_start = function
+let isAtomicExprStart = function
   | Token.True | False | Int _ | String _ | Float _ | Codepoint _ | Backtick
   | Uident _ | Lident _ | Hash | Lparen | List | Lbracket | Lbrace | LessThan
   | Module | Percent ->
     true
   | _ -> false
 
-let is_atomic_typ_expr_start = function
+let isAtomicTypExprStart = function
   | Token.SingleQuote | Underscore | Lparen | Lbrace | Uident _ | Lident _
   | Percent ->
     true
   | _ -> false
 
-let is_expr_start = function
+let isExprStart = function
   | Token.Assert | At | Await | Backtick | Bang | Codepoint _ | False | Float _
-  | For | Hash | If | Int _ | Lbrace | Lbracket | LessThan | Lident _ | List
-  | Lparen | Minus | MinusDot | Module | Percent | Plus | PlusDot | String _
-  | Switch | True | Try | Uident _ | Underscore (* _ => doThings() *)
+  | For | Hash | If | Int _ | Lazy | Lbrace | Lbracket | LessThan | Lident _
+  | List | Lparen | Minus | MinusDot | Module | Percent | Plus | PlusDot
+  | String _ | Switch | True | Try | Uident _ | Underscore (* _ => doThings() *)
   | While ->
     true
   | _ -> false
 
-let is_jsx_attribute_start = function
+let isJsxAttributeStart = function
   | Token.Lident _ | Question | Lbrace -> true
   | _ -> false
 
-let is_structure_item_start = function
+let isStructureItemStart = function
   | Token.Open | Let | Typ | External | Exception | Include | Module | AtAt
   | PercentPercent | At ->
     true
-  | t when is_expr_start t -> true
+  | t when isExprStart t -> true
   | _ -> false
 
-let is_pattern_start = function
+let isPatternStart = function
   | Token.Int _ | Float _ | String _ | Codepoint _ | Backtick | True | False
   | Minus | Plus | Lparen | Lbracket | Lbrace | List | Underscore | Lident _
-  | Uident _ | Hash | Exception | Percent | Module | At ->
+  | Uident _ | Hash | Exception | Lazy | Percent | Module | At ->
     true
   | _ -> false
 
-let is_parameter_start = function
+let isParameterStart = function
   | Token.Typ | Tilde | Dot -> true
-  | token when is_pattern_start token -> true
+  | token when isPatternStart token -> true
   | _ -> false
 
 (* TODO: overparse Uident ? *)
-let is_string_field_decl_start = function
+let isStringFieldDeclStart = function
   | Token.String _ | Lident _ | At | DotDotDot -> true
   | _ -> false
 
 (* TODO: overparse Uident ? *)
-let is_field_decl_start = function
+let isFieldDeclStart = function
   | Token.At | Mutable | Lident _ -> true
   (* recovery, TODO: this is not ideal… *)
   | Uident _ -> true
-  | t when Token.is_keyword t -> true
+  | t when Token.isKeyword t -> true
   | _ -> false
 
-let is_record_decl_start = function
+let isRecordDeclStart = function
   | Token.At | Mutable | Lident _ | DotDotDot | String _ -> true
   | _ -> false
 
-let is_typ_expr_start = function
+let isTypExprStart = function
   | Token.At | SingleQuote | Underscore | Lparen | Lbracket | Uident _
   | Lident _ | Module | Percent | Lbrace ->
     true
   | _ -> false
 
-let is_type_parameter_start = function
+let isTypeParameterStart = function
   | Token.Tilde | Dot -> true
-  | token when is_typ_expr_start token -> true
+  | token when isTypExprStart token -> true
   | _ -> false
 
-let is_type_param_start = function
+let isTypeParamStart = function
   | Token.Plus | Minus | SingleQuote | Underscore -> true
   | _ -> false
 
-let is_functor_arg_start = function
+let isFunctorArgStart = function
   | Token.At | Uident _ | Underscore | Percent | Lbrace | Lparen -> true
   | _ -> false
 
-let is_mod_expr_start = function
+let isModExprStart = function
   | Token.At | Percent | Uident _ | Lbrace | Lparen | Lident "unpack" | Await ->
     true
   | _ -> false
 
-let is_record_row_start = function
+let isRecordRowStart = function
   | Token.DotDotDot -> true
   | Token.Uident _ | Lident _ -> true
   (* TODO *)
-  | t when Token.is_keyword t -> true
+  | t when Token.isKeyword t -> true
   | _ -> false
 
-let is_record_row_string_key_start = function
+let isRecordRowStringKeyStart = function
   | Token.String _ -> true
   | _ -> false
 
-let is_argument_start = function
+let isArgumentStart = function
   | Token.Tilde | Dot | Underscore -> true
-  | t when is_expr_start t -> true
+  | t when isExprStart t -> true
   | _ -> false
 
-let is_pattern_match_start = function
+let isPatternMatchStart = function
   | Token.Bar -> true
-  | t when is_pattern_start t -> true
+  | t when isPatternStart t -> true
   | _ -> false
 
-let is_pattern_ocaml_list_start = function
+let isPatternOcamlListStart = function
   | Token.DotDotDot -> true
-  | t when is_pattern_start t -> true
+  | t when isPatternStart t -> true
   | _ -> false
 
-let is_pattern_record_item_start = function
+let isPatternRecordItemStart = function
   | Token.DotDotDot | Uident _ | Lident _ | Underscore -> true
   | _ -> false
 
-let is_attribute_start = function
+let isAttributeStart = function
   | Token.At -> true
   | _ -> false
 
-let is_jsx_child_start = is_atomic_expr_start
+let isJsxChildStart = isAtomicExprStart
 
-let is_block_expr_start = function
+let isBlockExprStart = function
   | Token.Assert | At | Await | Backtick | Bang | Codepoint _ | Exception
-  | False | Float _ | For | Forwardslash | Hash | If | Int _ | Lbrace | Lbracket
-  | LessThan | Let | Lident _ | List | Lparen | Minus | MinusDot | Module | Open
-  | Percent | Plus | PlusDot | String _ | Switch | True | Try | Uident _
-  | Underscore | While ->
+  | False | Float _ | For | Forwardslash | Hash | If | Int _ | Lazy | Lbrace
+  | Lbracket | LessThan | Let | Lident _ | List | Lparen | Minus | MinusDot
+  | Module | Open | Percent | Plus | PlusDot | String _ | Switch | True | Try
+  | Uident _ | Underscore | While ->
     true
   | _ -> false
 
-let is_list_element grammar token =
+let isListElement grammar token =
   match grammar with
-  | ExprList -> token = Token.DotDotDot || is_expr_start token
-  | ListExpr -> token = DotDotDot || is_expr_start token
-  | PatternList -> token = DotDotDot || is_pattern_start token
-  | ParameterList -> is_parameter_start token
-  | StringFieldDeclarations -> is_string_field_decl_start token
-  | FieldDeclarations -> is_field_decl_start token
-  | RecordDecl -> is_record_decl_start token
-  | TypExprList -> is_typ_expr_start token || token = Token.LessThan
-  | TypeParams -> is_type_param_start token
-  | FunctorArgs -> is_functor_arg_start token
-  | ModExprList -> is_mod_expr_start token
-  | TypeParameters -> is_type_parameter_start token
-  | RecordRows -> is_record_row_start token
-  | RecordRowsStringKey -> is_record_row_string_key_start token
-  | ArgumentList -> is_argument_start token
-  | Signature | Specification -> is_signature_item_start token
-  | Structure | Implementation -> is_structure_item_start token
-  | PatternMatching -> is_pattern_match_start token
-  | PatternOcamlList -> is_pattern_ocaml_list_start token
-  | PatternRecord -> is_pattern_record_item_start token
-  | Attribute -> is_attribute_start token
+  | ExprList -> token = Token.DotDotDot || isExprStart token
+  | ListExpr -> token = DotDotDot || isExprStart token
+  | PatternList -> token = DotDotDot || isPatternStart token
+  | ParameterList -> isParameterStart token
+  | StringFieldDeclarations -> isStringFieldDeclStart token
+  | FieldDeclarations -> isFieldDeclStart token
+  | RecordDecl -> isRecordDeclStart token
+  | TypExprList -> isTypExprStart token || token = Token.LessThan
+  | TypeParams -> isTypeParamStart token
+  | FunctorArgs -> isFunctorArgStart token
+  | ModExprList -> isModExprStart token
+  | TypeParameters -> isTypeParameterStart token
+  | RecordRows -> isRecordRowStart token
+  | RecordRowsStringKey -> isRecordRowStringKeyStart token
+  | ArgumentList -> isArgumentStart token
+  | Signature | Specification -> isSignatureItemStart token
+  | Structure | Implementation -> isStructureItemStart token
+  | PatternMatching -> isPatternMatchStart token
+  | PatternOcamlList -> isPatternOcamlListStart token
+  | PatternRecord -> isPatternRecordItemStart token
+  | Attribute -> isAttributeStart token
   | TypeConstraint -> token = Constraint
   | PackageConstraint -> token = And
   | ConstructorDeclaration -> token = Bar
-  | JsxAttribute -> is_jsx_attribute_start token
+  | JsxAttribute -> isJsxAttributeStart token
   | AttributePayload -> token = Lparen
   | TagNames -> token = Hash
   | _ -> false
 
-let is_list_terminator grammar token =
+let isListTerminator grammar token =
   match (grammar, token) with
   | _, Token.Eof
   | ExprList, (Rparen | Forwardslash | Rbracket)
@@ -322,5 +322,5 @@ let is_list_terminator grammar token =
   | TagNames, Rbracket -> true
   | _ -> false
 
-let is_part_of_list grammar token =
-  is_list_element grammar token || is_list_terminator grammar token
+let isPartOfList grammar token =
+  isListElement grammar token || isListTerminator grammar token

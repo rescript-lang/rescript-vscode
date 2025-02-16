@@ -1,12 +1,12 @@
-let print_engine =
+let printEngine =
   Res_driver.
     {
-      print_implementation =
+      printImplementation =
         (fun ~width:_ ~filename ~comments:_ structure ->
           output_string stdout Config.ast_impl_magic_number;
           output_value stdout filename;
           output_value stdout structure);
-      print_interface =
+      printInterface =
         (fun ~width:_ ~filename ~comments:_ signature ->
           output_string stdout Config.ast_intf_magic_number;
           output_value stdout filename;

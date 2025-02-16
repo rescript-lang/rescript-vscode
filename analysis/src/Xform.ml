@@ -1,6 +1,6 @@
 (** Code transformations using the parser/printer and ast operations *)
 
-let isBracedExpr = Res_parsetree_viewer.is_braced_expr
+let isBracedExpr = Res_parsetree_viewer.isBracedExpr
 
 let extractTypeFromExpr expr ~debug ~path ~currentFile ~full ~pos =
   match
@@ -447,7 +447,7 @@ module ExpandCatchAllForVariants = struct
           let newText =
             missingConstructors
             |> List.map (fun (c : SharedTypes.polyVariantConstructor) ->
-                   Res_printer.polyvar_ident_to_string c.name
+                   Res_printer.polyVarIdentToString c.name
                    ^
                    match c.args with
                    | [] -> ""
@@ -504,7 +504,7 @@ module ExpandCatchAllForVariants = struct
                    (fun (c : SharedTypes.polyVariantConstructor) ->
                      if currentConstructorNames |> List.mem c.name = false then
                        Some
-                         ( Res_printer.polyvar_ident_to_string c.name,
+                         ( Res_printer.polyVarIdentToString c.name,
                            match c.args with
                            | [] -> false
                            | _ -> true )
@@ -841,7 +841,7 @@ end
 
 let parseImplementation ~filename =
   let {Res_driver.parsetree = structure; comments} =
-    Res_driver.parsing_engine.parse_implementation ~for_printer:false ~filename
+    Res_driver.parsingEngine.parseImplementation ~forPrinter:false ~filename
   in
   let filterComments ~loc comments =
     (* Relevant comments in the range of the expression *)
@@ -853,7 +853,7 @@ let parseImplementation ~filename =
   let printExpr ~(range : Protocol.range) (expr : Parsetree.expression) =
     let structure = [Ast_helper.Str.eval ~loc:expr.pexp_loc expr] in
     structure
-    |> Res_printer.print_implementation ~width:!Res_cli.ResClflags.width
+    |> Res_printer.printImplementation ~width:80
          ~comments:(comments |> filterComments ~loc:expr.pexp_loc)
     |> Utils.indent range.start.character
   in
@@ -861,20 +861,20 @@ let parseImplementation ~filename =
       (item : Parsetree.structure_item) =
     let structure = [item] in
     structure
-    |> Res_printer.print_implementation ~width:!Res_cli.ResClflags.width
+    |> Res_printer.printImplementation ~width:80
          ~comments:(comments |> filterComments ~loc:item.pstr_loc)
     |> Utils.indent range.start.character
   in
   let printStandaloneStructure ~(loc : Location.t) structure =
     structure
-    |> Res_printer.print_implementation ~width:!Res_cli.ResClflags.width
+    |> Res_printer.printImplementation ~width:80
          ~comments:(comments |> filterComments ~loc)
   in
   (structure, printExpr, printStructureItem, printStandaloneStructure)
 
 let parseInterface ~filename =
   let {Res_driver.parsetree = structure; comments} =
-    Res_driver.parsing_engine.parse_interface ~for_printer:false ~filename
+    Res_driver.parsingEngine.parseInterface ~forPrinter:false ~filename
   in
   let filterComments ~loc comments =
     (* Relevant comments in the range of the expression *)
@@ -887,7 +887,7 @@ let parseInterface ~filename =
       (item : Parsetree.signature_item) =
     let signature_item = [item] in
     signature_item
-    |> Res_printer.print_interface ~width:!Res_cli.ResClflags.width
+    |> Res_printer.printInterface ~width:80
          ~comments:(comments |> filterComments ~loc:item.psig_loc)
     |> Utils.indent range.start.character
   in

@@ -7,41 +7,41 @@ type mode = Jsx | Diamond
 (* We hide the implementation detail of the scanner reading character. Our char
    will also contain the special -1 value to indicate end-of-file. This isn't
    ideal; we should clean this up *)
-let hacky_eof_char = Char.unsafe_chr (-1)
-type char_encoding = Char.t
+let hackyEOFChar = Char.unsafe_chr (-1)
+type charEncoding = Char.t
 
 type t = {
   filename: string;
   src: string;
   mutable err:
-    start_pos:Lexing.position ->
-    end_pos:Lexing.position ->
+    startPos:Lexing.position ->
+    endPos:Lexing.position ->
     Diagnostics.category ->
     unit;
-  mutable ch: char_encoding; (* current character *)
+  mutable ch: charEncoding; (* current character *)
   mutable offset: int; (* current byte offset *)
   mutable offset16: int;
       (* current number of utf16 code units since line start *)
-  mutable line_offset: int; (* current line offset *)
+  mutable lineOffset: int; (* current line offset *)
   mutable lnum: int; (* current line number *)
   mutable mode: mode list;
 }
 
-let set_diamond_mode scanner = scanner.mode <- Diamond :: scanner.mode
+let setDiamondMode scanner = scanner.mode <- Diamond :: scanner.mode
 
-let set_jsx_mode scanner = scanner.mode <- Jsx :: scanner.mode
+let setJsxMode scanner = scanner.mode <- Jsx :: scanner.mode
 
-let pop_mode scanner mode =
+let popMode scanner mode =
   match scanner.mode with
   | m :: ms when m = mode -> scanner.mode <- ms
   | _ -> ()
 
-let in_diamond_mode scanner =
+let inDiamondMode scanner =
   match scanner.mode with
   | Diamond :: _ -> true
   | _ -> false
 
-let in_jsx_mode scanner =
+let inJsxMode scanner =
   match scanner.mode with
   | Jsx :: _ -> true
   | _ -> false
@@ -55,9 +55,9 @@ let position scanner =
       (* offset of the beginning of the line (number
          of bytes between the beginning of the scanner and the beginning
          of the line) *)
-      pos_bol = scanner.line_offset;
+      pos_bol = scanner.lineOffset;
       (* [pos_cnum - pos_bol]  is the number of utf16 code units since line start *)
-      pos_cnum = scanner.line_offset + scanner.offset16;
+      pos_cnum = scanner.lineOffset + scanner.offset16;
     }
 
 (* Small debugging util
@@ -74,28 +74,28 @@ let position scanner =
                      ^ eof 18-18
    let msg = "hello"
 *)
-let _printDebug ~start_pos ~end_pos scanner token =
+let _printDebug ~startPos ~endPos scanner token =
   let open Lexing in
   print_string scanner.src;
-  print_string ((String.make [@doesNotRaise]) start_pos.pos_cnum ' ');
+  print_string ((String.make [@doesNotRaise]) startPos.pos_cnum ' ');
   print_char '^';
-  (match end_pos.pos_cnum - start_pos.pos_cnum with
+  (match endPos.pos_cnum - startPos.pos_cnum with
   | 0 -> if token = Token.Eof then () else assert false
   | 1 -> ()
   | n ->
     print_string ((String.make [@doesNotRaise]) (n - 2) '-');
     print_char '^');
   print_char ' ';
-  print_string (Res_token.to_string token);
+  print_string (Res_token.toString token);
   print_char ' ';
-  print_int start_pos.pos_cnum;
+  print_int startPos.pos_cnum;
   print_char '-';
-  print_int end_pos.pos_cnum;
+  print_int endPos.pos_cnum;
   print_endline ""
 [@@live]
 
 let next scanner =
-  let next_offset = scanner.offset + 1 in
+  let nextOffset = scanner.offset + 1 in
   let utf16len =
     match Ext_utf8.classify scanner.ch with
     | Single _ | Invalid -> 1
@@ -109,17 +109,17 @@ let next scanner =
        -> we can just bump the line count on \n *)
   in
   if newline then (
-    scanner.line_offset <- next_offset;
+    scanner.lineOffset <- nextOffset;
     scanner.offset16 <- 0;
     scanner.lnum <- scanner.lnum + 1)
   else scanner.offset16 <- scanner.offset16 + utf16len;
-  if next_offset < String.length scanner.src then (
-    scanner.offset <- next_offset;
-    scanner.ch <- String.unsafe_get scanner.src next_offset)
+  if nextOffset < String.length scanner.src then (
+    scanner.offset <- nextOffset;
+    scanner.ch <- String.unsafe_get scanner.src nextOffset)
   else (
     scanner.offset <- String.length scanner.src;
-    scanner.offset16 <- scanner.offset - scanner.line_offset;
-    scanner.ch <- hacky_eof_char)
+    scanner.offset16 <- scanner.offset - scanner.lineOffset;
+    scanner.ch <- hackyEOFChar)
 
 let next2 scanner =
   next scanner;
@@ -133,44 +133,44 @@ let next3 scanner =
 let peek scanner =
   if scanner.offset + 1 < String.length scanner.src then
     String.unsafe_get scanner.src (scanner.offset + 1)
-  else hacky_eof_char
+  else hackyEOFChar
 
 let peek2 scanner =
   if scanner.offset + 2 < String.length scanner.src then
     String.unsafe_get scanner.src (scanner.offset + 2)
-  else hacky_eof_char
+  else hackyEOFChar
 
 let peek3 scanner =
   if scanner.offset + 3 < String.length scanner.src then
     String.unsafe_get scanner.src (scanner.offset + 3)
-  else hacky_eof_char
+  else hackyEOFChar
 
 let make ~filename src =
   {
     filename;
     src;
-    err = (fun ~start_pos:_ ~end_pos:_ _ -> ());
-    ch = (if src = "" then hacky_eof_char else String.unsafe_get src 0);
+    err = (fun ~startPos:_ ~endPos:_ _ -> ());
+    ch = (if src = "" then hackyEOFChar else String.unsafe_get src 0);
     offset = 0;
     offset16 = 0;
-    line_offset = 0;
+    lineOffset = 0;
     lnum = 1;
     mode = [];
   }
 
 (* generic helpers *)
 
-let is_whitespace ch =
+let isWhitespace ch =
   match ch with
   | ' ' | '\t' | '\n' | '\r' -> true
   | _ -> false
 
-let rec skip_whitespace scanner =
-  if is_whitespace scanner.ch then (
+let rec skipWhitespace scanner =
+  if isWhitespace scanner.ch then (
     next scanner;
-    skip_whitespace scanner)
+    skipWhitespace scanner)
 
-let digit_value ch =
+let digitValue ch =
   match ch with
   | '0' .. '9' -> Char.code ch - 48
   | 'a' .. 'f' -> Char.code ch - Char.code 'a' + 10
@@ -179,53 +179,58 @@ let digit_value ch =
 
 (* scanning helpers *)
 
-let scan_identifier scanner =
-  let start_off = scanner.offset in
-  let rec skip_good_chars scanner =
-    match (scanner.ch, in_jsx_mode scanner) with
+let scanIdentifier scanner =
+  let startOff = scanner.offset in
+  let rec skipGoodChars scanner =
+    match (scanner.ch, inJsxMode scanner) with
     | ('A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '_' | '\''), false ->
       next scanner;
-      skip_good_chars scanner
+      skipGoodChars scanner
     | ('A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '_' | '\'' | '-'), true ->
       next scanner;
-      skip_good_chars scanner
+      skipGoodChars scanner
     | _ -> ()
   in
-  skip_good_chars scanner;
+  skipGoodChars scanner;
   let str =
-    (String.sub [@doesNotRaise]) scanner.src start_off
-      (scanner.offset - start_off)
+    (String.sub [@doesNotRaise]) scanner.src startOff (scanner.offset - startOff)
   in
   if '{' == scanner.ch && str = "list" then (
     next scanner;
     (* TODO: this isn't great *)
-    Token.lookup_keyword "list{")
-  else Token.lookup_keyword str
+    Token.lookupKeyword "list{")
+  else Token.lookupKeyword str
 
-let scan_digits scanner ~base =
+let scanDigits scanner ~base =
   if base <= 10 then
-    let rec loop scanner =
+    let rec loop scanner foundDigits =
       match scanner.ch with
-      | '0' .. '9' | '_' ->
+      | '0' .. '9' ->
         next scanner;
-        loop scanner
-      | _ -> ()
+        loop scanner true
+      | '_' ->
+        next scanner;
+        loop scanner false
+      | _ -> foundDigits
     in
-    loop scanner
+    loop scanner false
   else
-    let rec loop scanner =
+    let rec loop scanner foundDigits =
       match scanner.ch with
       (* hex *)
-      | '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' | '_' ->
+      | '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' ->
         next scanner;
-        loop scanner
-      | _ -> ()
+        loop scanner true
+      | '_' ->
+        next scanner;
+        loop scanner false
+      | _ -> foundDigits
     in
-    loop scanner
+    loop scanner false
 
 (* float: (0…9) { 0…9∣ _ } [. { 0…9∣ _ }] [(e∣ E) [+∣ -] (0…9) { 0…9∣ _ }]   *)
-let scan_number scanner =
-  let start_off = scanner.offset in
+let scanNumber scanner =
+  let startOff = scanner.offset in
 
   (* integer part *)
   let base =
@@ -246,31 +251,35 @@ let scan_number scanner =
         8)
     | _ -> 10
   in
-  scan_digits scanner ~base;
+  ignore (scanDigits scanner ~base);
 
   (*  *)
-  let is_float =
+  let isFloat =
     if '.' == scanner.ch then (
       next scanner;
-      scan_digits scanner ~base;
+      ignore (scanDigits scanner ~base);
       true)
     else false
   in
 
   (* exponent part *)
-  let is_float =
+  let isFloat =
+    let startPos = position scanner in
     match scanner.ch with
     | 'e' | 'E' | 'p' | 'P' ->
       (match peek scanner with
       | '+' | '-' -> next2 scanner
       | _ -> next scanner);
-      scan_digits scanner ~base;
+      let endPos = position scanner in
+      let foundDigits = scanDigits scanner ~base in
+      if not foundDigits then
+        scanner.err ~startPos ~endPos
+          (Diagnostics.message "Expected digits after exponential notation.");
       true
-    | _ -> is_float
+    | _ -> isFloat
   in
   let literal =
-    (String.sub [@doesNotRaise]) scanner.src start_off
-      (scanner.offset - start_off)
+    (String.sub [@doesNotRaise]) scanner.src startOff (scanner.offset - startOff)
   in
 
   (* suffix *)
@@ -281,61 +290,50 @@ let scan_number scanner =
       Some ch
     | _ -> None
   in
-  if is_float then Token.Float {f = literal; suffix}
+  if isFloat then Token.Float {f = literal; suffix}
   else Token.Int {i = literal; suffix}
 
-let scan_exotic_identifier scanner =
-  let start_pos = position scanner in
-  let start_off = scanner.offset in
-
-  next2 scanner;
+let scanExoticIdentifier scanner =
+  (* TODO: are we disregarding the current char...? Should be a quote *)
+  next scanner;
+  let buffer = Buffer.create 20 in
+  let startPos = position scanner in
 
   let rec scan () =
     match scanner.ch with
     | '"' -> next scanner
     | '\n' | '\r' ->
       (* line break *)
-      let end_pos = position scanner in
-      scanner.err ~start_pos ~end_pos
+      let endPos = position scanner in
+      scanner.err ~startPos ~endPos
         (Diagnostics.message "A quoted identifier can't contain line breaks.");
       next scanner
-    | ch when ch == hacky_eof_char ->
-      let end_pos = position scanner in
-      scanner.err ~start_pos ~end_pos
+    | ch when ch == hackyEOFChar ->
+      let endPos = position scanner in
+      scanner.err ~startPos ~endPos
         (Diagnostics.message "Did you forget a \" here?")
-    | _ ->
+    | ch ->
+      Buffer.add_char buffer ch;
       next scanner;
       scan ()
   in
   scan ();
+  (* TODO: do we really need to create a new buffer instead of substring once? *)
+  Token.Lident (Buffer.contents buffer)
 
-  let ident =
-    (String.sub [@doesNotRaise]) scanner.src start_off
-      (scanner.offset - start_off)
-  in
-  let name = Ext_ident.unwrap_uppercase_exotic ident in
-  if name = String.empty then (
-    let end_pos = position scanner in
-    scanner.err ~start_pos ~end_pos
-      (Diagnostics.message "A quoted identifier can't be empty string.");
-    Token.Lident ident)
-  else if Ext_ident.is_uident name then Token.Lident ident
-    (* Exotic ident with uppercase letter should be encoded to avoid confusing in OCaml parsetree *)
-  else Token.Lident name
-
-let scan_string_escape_sequence ~start_pos scanner =
+let scanStringEscapeSequence ~startPos scanner =
   let scan ~n ~base ~max =
     let rec loop n x =
       if n == 0 then x
       else
-        let d = digit_value scanner.ch in
+        let d = digitValue scanner.ch in
         if d >= base then (
           let pos = position scanner in
           let msg =
-            if scanner.ch == hacky_eof_char then "unclosed escape sequence"
+            if scanner.ch == hackyEOFChar then "unclosed escape sequence"
             else "unknown escape sequence"
           in
-          scanner.err ~start_pos ~end_pos:pos (Diagnostics.message msg);
+          scanner.err ~startPos ~endPos:pos (Diagnostics.message msg);
           -1)
         else
           let () = next scanner in
@@ -345,7 +343,7 @@ let scan_string_escape_sequence ~start_pos scanner =
     if x > max || (0xD800 <= x && x < 0xE000) then
       let pos = position scanner in
       let msg = "escape sequence is invalid unicode code point" in
-      scanner.err ~start_pos ~end_pos:pos (Diagnostics.message msg)
+      scanner.err ~startPos ~endPos:pos (Diagnostics.message msg)
   in
   match scanner.ch with
   (* \ already consumed *)
@@ -372,7 +370,7 @@ let scan_string_escape_sequence ~start_pos scanner =
         | '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' -> true
         | _ -> false
       do
-        x := (!x * 16) + digit_value scanner.ch;
+        x := (!x * 16) + digitValue scanner.ch;
         next scanner
       done;
       (* consume '}' in '\u{7A}' *)
@@ -393,96 +391,95 @@ let scan_string_escape_sequence ~start_pos scanner =
      *)
     ()
 
-let scan_string scanner =
+let scanString scanner =
   (* assumption: we've just matched a quote *)
-  let start_pos_with_quote = position scanner in
+  let startPosWithQuote = position scanner in
   next scanner;
 
   (* If the text needs changing, a buffer is used *)
   let buf = Buffer.create 0 in
-  let first_char_offset = scanner.offset in
-  let last_offset_in_buf = ref first_char_offset in
+  let firstCharOffset = scanner.offset in
+  let lastOffsetInBuf = ref firstCharOffset in
 
-  let bring_buf_up_to_date ~start_offset =
-    let str_up_to_now =
-      (String.sub scanner.src !last_offset_in_buf
-         (start_offset - !last_offset_in_buf) [@doesNotRaise])
+  let bringBufUpToDate ~startOffset =
+    let strUpToNow =
+      (String.sub scanner.src !lastOffsetInBuf
+         (startOffset - !lastOffsetInBuf) [@doesNotRaise])
     in
-    Buffer.add_string buf str_up_to_now;
-    last_offset_in_buf := start_offset
+    Buffer.add_string buf strUpToNow;
+    lastOffsetInBuf := startOffset
   in
 
-  let result ~first_char_offset ~last_char_offset =
+  let result ~firstCharOffset ~lastCharOffset =
     if Buffer.length buf = 0 then
-      (String.sub [@doesNotRaise]) scanner.src first_char_offset
-        (last_char_offset - first_char_offset)
+      (String.sub [@doesNotRaise]) scanner.src firstCharOffset
+        (lastCharOffset - firstCharOffset)
     else (
-      bring_buf_up_to_date ~start_offset:last_char_offset;
+      bringBufUpToDate ~startOffset:lastCharOffset;
       Buffer.contents buf)
   in
 
   let rec scan () =
     match scanner.ch with
     | '"' ->
-      let last_char_offset = scanner.offset in
+      let lastCharOffset = scanner.offset in
       next scanner;
-      result ~first_char_offset ~last_char_offset
+      result ~firstCharOffset ~lastCharOffset
     | '\\' ->
-      let start_pos = position scanner in
-      let start_offset = scanner.offset + 1 in
+      let startPos = position scanner in
+      let startOffset = scanner.offset + 1 in
       next scanner;
-      scan_string_escape_sequence ~start_pos scanner;
-      let end_offset = scanner.offset in
-      convert_octal_to_hex ~start_offset ~end_offset
-    | ch when ch == hacky_eof_char ->
-      let end_pos = position scanner in
-      scanner.err ~start_pos:start_pos_with_quote ~end_pos
-        Diagnostics.unclosed_string;
-      let last_char_offset = scanner.offset in
-      result ~first_char_offset ~last_char_offset
+      scanStringEscapeSequence ~startPos scanner;
+      let endOffset = scanner.offset in
+      convertOctalToHex ~startOffset ~endOffset
+    | ch when ch == hackyEOFChar ->
+      let endPos = position scanner in
+      scanner.err ~startPos:startPosWithQuote ~endPos Diagnostics.unclosedString;
+      let lastCharOffset = scanner.offset in
+      result ~firstCharOffset ~lastCharOffset
     | _ ->
       next scanner;
       scan ()
-  and convert_octal_to_hex ~start_offset ~end_offset =
-    let len = end_offset - start_offset in
-    let is_digit = function
+  and convertOctalToHex ~startOffset ~endOffset =
+    let len = endOffset - startOffset in
+    let isDigit = function
       | '0' .. '9' -> true
       | _ -> false
     in
     let txt = scanner.src in
-    let is_numeric_escape =
+    let isNumericEscape =
       len = 3
-      && (is_digit txt.[start_offset] [@doesNotRaise])
-      && (is_digit txt.[start_offset + 1] [@doesNotRaise])
-      && (is_digit txt.[start_offset + 2] [@doesNotRaise])
+      && (isDigit txt.[startOffset] [@doesNotRaise])
+      && (isDigit txt.[startOffset + 1] [@doesNotRaise])
+      && (isDigit txt.[startOffset + 2] [@doesNotRaise])
     in
-    if is_numeric_escape then (
-      let str_decimal = (String.sub txt start_offset 3 [@doesNotRaise]) in
-      bring_buf_up_to_date ~start_offset;
-      let str_hex = Res_string.convert_decimal_to_hex ~str_decimal in
-      last_offset_in_buf := start_offset + 3;
-      Buffer.add_string buf str_hex;
+    if isNumericEscape then (
+      let strDecimal = (String.sub txt startOffset 3 [@doesNotRaise]) in
+      bringBufUpToDate ~startOffset;
+      let strHex = Res_string.convertDecimalToHex ~strDecimal in
+      lastOffsetInBuf := startOffset + 3;
+      Buffer.add_string buf strHex;
       scan ())
     else scan ()
   in
   Token.String (scan ())
 
-let scan_escape scanner =
+let scanEscape scanner =
   (* '\' consumed *)
   let offset = scanner.offset - 1 in
-  let convert_number scanner ~n ~base =
+  let convertNumber scanner ~n ~base =
     let x = ref 0 in
     for _ = n downto 1 do
-      let d = digit_value scanner.ch in
+      let d = digitValue scanner.ch in
       x := (!x * base) + d;
       next scanner
     done;
     let c = !x in
-    if Res_utf8.is_valid_code_point c then c else Res_utf8.repl
+    if Res_utf8.isValidCodePoint c then c else Res_utf8.repl
   in
   let codepoint =
     match scanner.ch with
-    | '0' .. '9' -> convert_number scanner ~n:3 ~base:10
+    | '0' .. '9' -> convertNumber scanner ~n:3 ~base:10
     | 'b' ->
       next scanner;
       8
@@ -497,10 +494,10 @@ let scan_escape scanner =
       009
     | 'x' ->
       next scanner;
-      convert_number scanner ~n:2 ~base:16
+      convertNumber scanner ~n:2 ~base:16
     | 'o' ->
       next scanner;
-      convert_number scanner ~n:3 ~base:8
+      convertNumber scanner ~n:3 ~base:8
     | 'u' -> (
       next scanner;
       match scanner.ch with
@@ -513,7 +510,7 @@ let scan_escape scanner =
           | '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' -> true
           | _ -> false
         do
-          x := (!x * 16) + digit_value scanner.ch;
+          x := (!x * 16) + digitValue scanner.ch;
           next scanner
         done;
         (* consume '}' in '\u{7A}' *)
@@ -521,10 +518,10 @@ let scan_escape scanner =
         | '}' -> next scanner
         | _ -> ());
         let c = !x in
-        if Res_utf8.is_valid_code_point c then c else Res_utf8.repl
+        if Res_utf8.isValidCodePoint c then c else Res_utf8.repl
       | _ ->
         (* unicode escape sequence: '\u007A', exactly 4 hex digits *)
-        convert_number scanner ~n:4 ~base:16)
+        convertNumber scanner ~n:4 ~base:16)
     | ch ->
       next scanner;
       Char.code ch
@@ -537,34 +534,33 @@ let scan_escape scanner =
   (* TODO: do we know it's \' ? *)
   Token.Codepoint {c = codepoint; original = contents}
 
-let scan_single_line_comment scanner =
-  let start_off = scanner.offset in
-  let start_pos = position scanner in
+let scanSingleLineComment scanner =
+  let startOff = scanner.offset in
+  let startPos = position scanner in
   let rec skip scanner =
     match scanner.ch with
     | '\n' | '\r' -> ()
-    | ch when ch == hacky_eof_char -> ()
+    | ch when ch == hackyEOFChar -> ()
     | _ ->
       next scanner;
       skip scanner
   in
   skip scanner;
-  let end_pos = position scanner in
+  let endPos = position scanner in
   Token.Comment
-    (Comment.make_single_line_comment
-       ~loc:
-         Location.{loc_start = start_pos; loc_end = end_pos; loc_ghost = false}
-       ((String.sub [@doesNotRaise]) scanner.src start_off
-          (scanner.offset - start_off)))
+    (Comment.makeSingleLineComment
+       ~loc:Location.{loc_start = startPos; loc_end = endPos; loc_ghost = false}
+       ((String.sub [@doesNotRaise]) scanner.src startOff
+          (scanner.offset - startOff)))
 
-let scan_multi_line_comment scanner =
+let scanMultiLineComment scanner =
   (* assumption: we're only ever using this helper in `scan` after detecting a comment *)
-  let doc_comment = peek2 scanner = '*' && peek3 scanner <> '/' (* no /**/ *) in
-  let standalone = doc_comment && peek3 scanner = '*' (* /*** *) in
-  let content_start_off =
-    scanner.offset + if doc_comment then if standalone then 4 else 3 else 2
+  let docComment = peek2 scanner = '*' && peek3 scanner <> '/' (* no /**/ *) in
+  let standalone = docComment && peek3 scanner = '*' (* /*** *) in
+  let contentStartOff =
+    scanner.offset + if docComment then if standalone then 4 else 3 else 2
   in
-  let start_pos = position scanner in
+  let startPos = position scanner in
   let rec scan ~depth =
     (* invariant: depth > 0 right after this match. See assumption *)
     match (scanner.ch, peek scanner) with
@@ -574,54 +570,50 @@ let scan_multi_line_comment scanner =
     | '*', '/' ->
       next2 scanner;
       if depth > 1 then scan ~depth:(depth - 1)
-    | ch, _ when ch == hacky_eof_char ->
-      let end_pos = position scanner in
-      scanner.err ~start_pos ~end_pos Diagnostics.unclosed_comment
+    | ch, _ when ch == hackyEOFChar ->
+      let endPos = position scanner in
+      scanner.err ~startPos ~endPos Diagnostics.unclosedComment
     | _ ->
       next scanner;
       scan ~depth
   in
   scan ~depth:0;
-  let length = scanner.offset - 2 - content_start_off in
+  let length = scanner.offset - 2 - contentStartOff in
   let length = if length < 0 (* in case of EOF *) then 0 else length in
   Token.Comment
-    (Comment.make_multi_line_comment ~doc_comment ~standalone
+    (Comment.makeMultiLineComment ~docComment ~standalone
        ~loc:
          Location.
-           {
-             loc_start = start_pos;
-             loc_end = position scanner;
-             loc_ghost = false;
-           }
-       ((String.sub [@doesNotRaise]) scanner.src content_start_off length))
+           {loc_start = startPos; loc_end = position scanner; loc_ghost = false}
+       ((String.sub [@doesNotRaise]) scanner.src contentStartOff length))
 
-let scan_template_literal_token scanner =
-  let start_off = scanner.offset in
+let scanTemplateLiteralToken scanner =
+  let startOff = scanner.offset in
 
   (* if starting } here, consume it *)
   if scanner.ch == '}' then next scanner;
 
-  let start_pos = position scanner in
+  let startPos = position scanner in
 
   let rec scan () =
-    let last_pos = position scanner in
+    let lastPos = position scanner in
     match scanner.ch with
     | '`' ->
       next scanner;
       let contents =
-        (String.sub [@doesNotRaise]) scanner.src start_off
-          (scanner.offset - 1 - start_off)
+        (String.sub [@doesNotRaise]) scanner.src startOff
+          (scanner.offset - 1 - startOff)
       in
-      Token.TemplateTail (contents, last_pos)
+      Token.TemplateTail (contents, lastPos)
     | '$' -> (
       match peek scanner with
       | '{' ->
         next2 scanner;
         let contents =
-          (String.sub [@doesNotRaise]) scanner.src start_off
-            (scanner.offset - 2 - start_off)
+          (String.sub [@doesNotRaise]) scanner.src startOff
+            (scanner.offset - 2 - startOff)
         in
-        Token.TemplatePart (contents, last_pos)
+        Token.TemplatePart (contents, lastPos)
       | _ ->
         next scanner;
         scan ())
@@ -634,31 +626,31 @@ let scan_template_literal_token scanner =
       | _ ->
         next scanner;
         scan ())
-    | ch when ch = hacky_eof_char ->
-      let end_pos = position scanner in
-      scanner.err ~start_pos ~end_pos Diagnostics.unclosed_template;
+    | ch when ch = hackyEOFChar ->
+      let endPos = position scanner in
+      scanner.err ~startPos ~endPos Diagnostics.unclosedTemplate;
       let contents =
-        (String.sub [@doesNotRaise]) scanner.src start_off
-          (max (scanner.offset - 1 - start_off) 0)
+        (String.sub [@doesNotRaise]) scanner.src startOff
+          (max (scanner.offset - 1 - startOff) 0)
       in
-      Token.TemplateTail (contents, last_pos)
+      Token.TemplateTail (contents, lastPos)
     | _ ->
       next scanner;
       scan ()
   in
   let token = scan () in
-  let end_pos = position scanner in
-  (start_pos, end_pos, token)
+  let endPos = position scanner in
+  (startPos, endPos, token)
 
 let rec scan scanner =
-  skip_whitespace scanner;
-  let start_pos = position scanner in
+  skipWhitespace scanner;
+  let startPos = position scanner in
 
   let token =
     match scanner.ch with
     (* peeking 0 char *)
-    | 'A' .. 'Z' | 'a' .. 'z' -> scan_identifier scanner
-    | '0' .. '9' -> scan_number scanner
+    | 'A' .. 'Z' | 'a' .. 'z' -> scanIdentifier scanner
+    | '0' .. '9' -> scanNumber scanner
     | '`' ->
       next scanner;
       Token.Backtick
@@ -692,11 +684,11 @@ let rec scan scanner =
     | ',' ->
       next scanner;
       Token.Comma
-    | '"' -> scan_string scanner
+    | '"' -> scanString scanner
     (* peeking 1 char *)
     | '_' -> (
       match peek scanner with
-      | 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '_' -> scan_identifier scanner
+      | 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '_' -> scanIdentifier scanner
       | _ ->
         next scanner;
         Token.Underscore)
@@ -765,13 +757,15 @@ let rec scan scanner =
       | _ ->
         next scanner;
         Token.Colon)
-    | '\\' -> scan_exotic_identifier scanner
+    | '\\' ->
+      next scanner;
+      scanExoticIdentifier scanner
     | '/' -> (
       match peek scanner with
       | '/' ->
         next2 scanner;
-        scan_single_line_comment scanner
-      | '*' -> scan_multi_line_comment scanner
+        scanSingleLineComment scanner
+      | '*' -> scanMultiLineComment scanner
       | '.' ->
         next2 scanner;
         Token.ForwardslashDot
@@ -805,13 +799,13 @@ let rec scan scanner =
         Token.Plus)
     | '>' -> (
       match peek scanner with
-      | '=' when not (in_diamond_mode scanner) ->
+      | '=' when not (inDiamondMode scanner) ->
         next2 scanner;
         Token.GreaterEqual
       | _ ->
         next scanner;
         Token.GreaterThan)
-    | '<' when not (in_jsx_mode scanner) -> (
+    | '<' when not (inJsxMode scanner) -> (
       match peek scanner with
       | '=' ->
         next2 scanner;
@@ -829,7 +823,7 @@ let rec scan scanner =
        * This signals a closing element. To simulate the two-token lookahead,
        * the </ is emitted as a single new token LessThanSlash *)
       next scanner;
-      skip_whitespace scanner;
+      skipWhitespace scanner;
       match scanner.ch with
       | '/' ->
         next scanner;
@@ -859,7 +853,7 @@ let rec scan scanner =
         SingleQuote
       | '\\', _ ->
         next2 scanner;
-        scan_escape scanner
+        scanEscape scanner
       | ch, '\'' ->
         let offset = scanner.offset + 1 in
         next3 scanner;
@@ -873,7 +867,7 @@ let rec scan scanner =
         let offset = scanner.offset in
         let offset16 = scanner.offset16 in
         let codepoint, length =
-          Res_utf8.decode_code_point scanner.offset scanner.src
+          Res_utf8.decodeCodePoint scanner.offset scanner.src
             (String.length scanner.src)
         in
         for _ = 0 to length - 1 do
@@ -916,21 +910,21 @@ let rec scan scanner =
         next scanner;
         Token.Equal)
     (* special cases *)
-    | ch when ch == hacky_eof_char ->
+    | ch when ch == hackyEOFChar ->
       next scanner;
       Token.Eof
     | ch ->
       (* if we arrive here, we're dealing with an unknown character,
        * report the error and continue scanning… *)
       next scanner;
-      let end_pos = position scanner in
-      scanner.err ~start_pos ~end_pos (Diagnostics.unknown_uchar ch);
+      let endPos = position scanner in
+      scanner.err ~startPos ~endPos (Diagnostics.unknownUchar ch);
       let _, _, token = scan scanner in
       token
   in
-  let end_pos = position scanner in
+  let endPos = position scanner in
   (* _printDebug ~startPos ~endPos scanner token; *)
-  (start_pos, end_pos, token)
+  (startPos, endPos, token)
 
 (* misc helpers used elsewhere *)
 
@@ -939,9 +933,9 @@ let rec scan scanner =
  * or is it the start of a closing tag?  </div>
  * reconsiderLessThan peeks at the next token and
  * determines the correct token to disambiguate *)
-let reconsider_less_than scanner =
+let reconsiderLessThan scanner =
   (* < consumed *)
-  skip_whitespace scanner;
+  skipWhitespace scanner;
   if scanner.ch == '/' then
     let () = next scanner in
     Token.LessThanSlash
@@ -949,17 +943,17 @@ let reconsider_less_than scanner =
 
 (* If an operator has whitespace around both sides, it's a binary operator *)
 (* TODO: this helper seems out of place *)
-let is_binary_op src start_cnum end_cnum =
-  if start_cnum == 0 then false
+let isBinaryOp src startCnum endCnum =
+  if startCnum == 0 then false
   else (
     (* we're gonna put some assertions and invariant checks here because this is
        used outside of the scanner's normal invariant assumptions *)
-    assert (end_cnum >= 0);
-    assert (start_cnum > 0 && start_cnum < String.length src);
-    let left_ok = is_whitespace (String.unsafe_get src (start_cnum - 1)) in
+    assert (endCnum >= 0);
+    assert (startCnum > 0 && startCnum < String.length src);
+    let leftOk = isWhitespace (String.unsafe_get src (startCnum - 1)) in
     (* we need some stronger confidence that endCnum is ok *)
-    let right_ok =
-      end_cnum >= String.length src
-      || is_whitespace (String.unsafe_get src end_cnum)
+    let rightOk =
+      endCnum >= String.length src
+      || isWhitespace (String.unsafe_get src endCnum)
     in
-    left_ok && right_ok)
+    leftOk && rightOk)

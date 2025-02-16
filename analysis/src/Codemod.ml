@@ -11,8 +11,8 @@ let transform ~path ~pos ~debug ~typ ~hint =
   | AddMissingCases -> (
     let source = "let " ^ hint ^ " = ()" in
     let {Res_driver.parsetree = hintStructure} =
-      Res_driver.parse_implementation_from_source ~for_printer:false
-        ~display_filename:"<none>" ~source
+      Res_driver.parseImplementationFromSource ~forPrinter:false
+        ~displayFilename:"<none>" ~source
     in
     match hintStructure with
     | [{pstr_desc = Pstr_value (_, [{pvb_pat = pattern}])}] -> (

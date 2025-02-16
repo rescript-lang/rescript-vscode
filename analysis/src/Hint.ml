@@ -72,7 +72,7 @@ let inlay ~path ~pos ~maxLength ~debug =
   let iterator = {Ast_iterator.default_iterator with value_binding} in
   (if Files.classifySourceFile path = Res then
      let parser =
-       Res_driver.parsing_engine.parse_implementation ~for_printer:false
+       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
      in
      let {Res_driver.parsetree = structure} = parser ~filename:path in
      iterator.structure iterator structure |> ignore);
@@ -136,7 +136,7 @@ let codeLens ~path ~debug =
      where the definition itself will be the same thing as what would've been printed in the code lens. *)
   (if Files.classifySourceFile path = Res then
      let parser =
-       Res_driver.parsing_engine.parse_implementation ~for_printer:false
+       Res_driver.parsingEngine.parseImplementation ~forPrinter:false
      in
      let {Res_driver.parsetree = structure} = parser ~filename:path in
      iterator.structure iterator structure |> ignore);

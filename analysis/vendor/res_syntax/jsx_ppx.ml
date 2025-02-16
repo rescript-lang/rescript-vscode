@@ -3,20 +3,20 @@ open Asttypes
 open Parsetree
 open Longident
 
-let get_payload_fields payload =
+let getPayloadFields payload =
   match payload with
   | PStr
       ({
          pstr_desc =
-           Pstr_eval ({pexp_desc = Pexp_record (record_fields, None)}, _);
+           Pstr_eval ({pexp_desc = Pexp_record (recordFields, None)}, _);
        }
       :: _rest) ->
-    record_fields
+    recordFields
   | _ -> []
 
-type config_key = Int | String
+type configKey = Int | String
 
-let get_jsx_config_by_key ~key ~type_ record_fields =
+let getJsxConfigByKey ~key ~type_ recordFields =
   let values =
     List.filter_map
       (fun ((lid, expr) : Longident.t Location.loc * expression) ->
@@ -33,56 +33,50 @@ let get_jsx_config_by_key ~key ~type_ record_fields =
           when k = key ->
           Some value
         | _ -> None)
-      record_fields
+      recordFields
   in
   match values with
   | [] -> None
   | [v] | v :: _ -> Some v
 
-let get_int ~key fields =
-  match fields |> get_jsx_config_by_key ~key ~type_:Int with
+let getInt ~key fields =
+  match fields |> getJsxConfigByKey ~key ~type_:Int with
   | None -> None
   | Some s -> int_of_string_opt s
 
-let get_string ~key fields = fields |> get_jsx_config_by_key ~key ~type_:String
+let getString ~key fields = fields |> getJsxConfigByKey ~key ~type_:String
 
-let update_config config payload =
-  let fields = get_payload_fields payload in
-  let module_raw = get_string ~key:"module_" fields in
-  let is_generic =
-    match module_raw |> Option.map (fun m -> String.lowercase_ascii m) with
+let updateConfig config payload =
+  let fields = getPayloadFields payload in
+  let moduleRaw = getString ~key:"module_" fields in
+  let isGeneric =
+    match moduleRaw |> Option.map (fun m -> String.lowercase_ascii m) with
     | Some "react" | None -> false
     | Some _ -> true
   in
-  (match (is_generic, get_int ~key:"version" fields) with
+  (match (isGeneric, getInt ~key:"version" fields) with
   | true, _ -> config.Jsx_common.version <- 4
   | false, Some i -> config.Jsx_common.version <- i
   | _ -> ());
-  (match module_raw with
+  (match moduleRaw with
   | None -> ()
   | Some s -> config.module_ <- s);
-  match (is_generic, get_string ~key:"mode" fields) with
+  match (isGeneric, getString ~key:"mode" fields) with
   | true, _ -> config.mode <- "automatic"
   | false, Some s -> config.mode <- s
   | _ -> ()
 
-let is_jsx_config_attr ((loc, _) : attribute) = loc.txt = "jsxConfig"
+let isJsxConfigAttr ((loc, _) : attribute) = loc.txt = "jsxConfig"
 
-let process_config_attribute attribute config =
-  if is_jsx_config_attr attribute then update_config config (snd attribute)
+let processConfigAttribute attribute config =
+  if isJsxConfigAttr attribute then updateConfig config (snd attribute)
 
-let get_mapper ~config =
-  let ( expr3,
-        module_binding3,
-        transform_signature_item3,
-        transform_structure_item3 ) =
-    Reactjs_jsx_v3.jsx_mapper ~config
+let getMapper ~config =
+  let expr3, module_binding3, transformSignatureItem3, transformStructureItem3 =
+    Reactjs_jsx_v3.jsxMapper ~config
   in
-  let ( expr4,
-        module_binding4,
-        transform_signature_item4,
-        transform_structure_item4 ) =
-    Jsx_v4.jsx_mapper ~config
+  let expr4, module_binding4, transformSignatureItem4, transformStructureItem4 =
+    Jsx_v4.jsxMapper ~config
   in
 
   let expr mapper e =
@@ -97,86 +91,86 @@ let get_mapper ~config =
     | 4 -> module_binding4 mapper mb
     | _ -> default_mapper.module_binding mapper mb
   in
-  let save_config () =
+  let saveConfig () =
     {
       config with
       version = config.version;
       module_ = config.module_;
       mode = config.mode;
-      has_component = config.has_component;
+      hasComponent = config.hasComponent;
     }
   in
-  let restore_config old_config =
-    config.version <- old_config.Jsx_common.version;
-    config.module_ <- old_config.module_;
-    config.mode <- old_config.mode;
-    config.has_component <- old_config.has_component
+  let restoreConfig oldConfig =
+    config.version <- oldConfig.Jsx_common.version;
+    config.module_ <- oldConfig.module_;
+    config.mode <- oldConfig.mode;
+    config.hasComponent <- oldConfig.hasComponent
   in
   let signature mapper items =
-    let old_config = save_config () in
-    config.has_component <- false;
+    let oldConfig = saveConfig () in
+    config.hasComponent <- false;
     let result =
       List.map
         (fun item ->
           (match item.psig_desc with
-          | Psig_attribute attr -> process_config_attribute attr config
+          | Psig_attribute attr -> processConfigAttribute attr config
           | _ -> ());
           let item = default_mapper.signature_item mapper item in
-          if config.version = 3 then transform_signature_item3 item
-          else if config.version = 4 then transform_signature_item4 item
+          if config.version = 3 then transformSignatureItem3 item
+          else if config.version = 4 then transformSignatureItem4 item
           else [item])
         items
       |> List.flatten
     in
-    restore_config old_config;
+    restoreConfig oldConfig;
     result
   in
   let structure mapper items =
-    let old_config = save_config () in
-    config.has_component <- false;
+    let oldConfig = saveConfig () in
+    config.hasComponent <- false;
     let result =
       List.map
         (fun item ->
           (match item.pstr_desc with
-          | Pstr_attribute attr -> process_config_attribute attr config
+          | Pstr_attribute attr -> processConfigAttribute attr config
           | _ -> ());
           let item = default_mapper.structure_item mapper item in
-          if config.version = 3 then transform_structure_item3 item
-          else if config.version = 4 then transform_structure_item4 item
+          if config.version = 3 then transformStructureItem3 item
+          else if config.version = 4 then transformStructureItem4 item
           else [item])
         items
       |> List.flatten
     in
-    restore_config old_config;
+    restoreConfig oldConfig;
     result
   in
 
   {default_mapper with expr; module_binding; signature; structure}
 
-let rewrite_implementation ~jsx_version ~jsx_module ~jsx_mode
+let rewrite_implementation ~jsxVersion ~jsxModule ~jsxMode
     (code : Parsetree.structure) : Parsetree.structure =
   let config =
     {
-      Jsx_common.version = jsx_version;
-      module_ = jsx_module;
-      mode = jsx_mode;
-      nested_modules = [];
-      has_component = false;
+      Jsx_common.version = jsxVersion;
+      module_ = jsxModule;
+      mode = jsxMode;
+      nestedModules = [];
+      hasComponent = false;
     }
   in
-  let mapper = get_mapper ~config in
+  let mapper = getMapper ~config in
   mapper.structure mapper code
 
-let rewrite_signature ~jsx_version ~jsx_module ~jsx_mode
+let rewrite_signature ~jsxVersion ~jsxModule ~jsxMode
     (code : Parsetree.signature) : Parsetree.signature =
   let config =
     {
-      Jsx_common.version = jsx_version;
-      module_ = jsx_module;
-      mode = jsx_mode;
-      nested_modules = [];
-      has_component = false;
+      Jsx_common.version = jsxVersion;
+      module_ = jsxModule;
+      mode = jsxMode;
+      nestedModules = [];
+      hasComponent = false;
     }
   in
-  let mapper = get_mapper ~config in
+  let mapper = getMapper ~config in
   mapper.signature mapper code

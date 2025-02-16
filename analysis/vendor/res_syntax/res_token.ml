@@ -55,6 +55,7 @@ type t =
   | Hash
   | HashEqual
   | Assert
+  | Lazy
   | Tilde
   | Question
   | If
@@ -110,7 +111,7 @@ let precedence = function
   | Dot -> 9
   | _ -> 0
 
-let to_string = function
+let toString = function
   | Await -> "await"
   | Open -> "open"
   | True -> "true"
@@ -165,6 +166,7 @@ let to_string = function
   | AsteriskDot -> "*."
   | Exponentiation -> "**"
   | Assert -> "assert"
+  | Lazy -> "lazy"
   | Tilde -> "tilde"
   | Question -> "?"
   | If -> "if"
@@ -196,7 +198,7 @@ let to_string = function
   | AtAt -> "@@"
   | Percent -> "%"
   | PercentPercent -> "%%"
-  | Comment c -> "Comment" ^ Comment.to_string c
+  | Comment c -> "Comment" ^ Comment.toString c
   | List -> "list{"
   | TemplatePart (text, _) -> text ^ "${"
   | TemplateTail (text, _) -> "TemplateTail(" ^ text ^ ")"
@@ -206,7 +208,7 @@ let to_string = function
   | DocComment (_loc, s) -> "DocComment " ^ s
   | ModuleComment (_loc, s) -> "ModuleComment " ^ s
 
-let keyword_table = function
+let keywordTable = function
   | "and" -> And
   | "as" -> As
   | "assert" -> Assert
@@ -220,6 +222,7 @@ let keyword_table = function
   | "if" -> If
   | "in" -> In
   | "include" -> Include
+  | "lazy" -> Lazy
   | "let" -> Let
   | "list{" -> List
   | "module" -> Module
@@ -237,23 +240,23 @@ let keyword_table = function
   | _ -> raise Not_found
 [@@raises Not_found]
 
-let is_keyword = function
+let isKeyword = function
   | Await | And | As | Assert | Constraint | Else | Exception | External | False
-  | For | If | In | Include | Land | Let | List | Lor | Module | Mutable | Of
-  | Open | Private | Rec | Switch | True | Try | Typ | When | While ->
+  | For | If | In | Include | Land | Lazy | Let | List | Lor | Module | Mutable
+  | Of | Open | Private | Rec | Switch | True | Try | Typ | When | While ->
     true
   | _ -> false
 
-let lookup_keyword str =
-  try keyword_table str
+let lookupKeyword str =
+  try keywordTable str
   with Not_found -> (
     match str.[0] [@doesNotRaise] with
     | 'A' .. 'Z' -> Uident str
     | _ -> Lident str)
 
-let is_keyword_txt str =
+let isKeywordTxt str =
   try
-    let _ = keyword_table str in
+    let _ = keywordTable str in
     true
   with Not_found -> false
 

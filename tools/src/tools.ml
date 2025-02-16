@@ -622,7 +622,7 @@ let extractDocs ~entryPointFile ~debug =
 
 let extractEmbedded ~extensionPoints ~filename =
   let {Res_driver.parsetree = structure} =
-    Res_driver.parsing_engine.parse_implementation ~for_printer:false ~filename
+    Res_driver.parsingEngine.parseImplementation ~forPrinter:false ~filename
   in
   let content = ref [] in
   let append item = content := item :: !content in

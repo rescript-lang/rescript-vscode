@@ -27,7 +27,7 @@ let mapRecordField {Types.ld_id; ld_type; ld_attributes} =
     stamp = astamp;
     fname = Location.mknoloc name;
     typ = ld_type;
-    optional = Res_parsetree_viewer.has_optional_attribute ld_attributes;
+    optional = Res_parsetree_viewer.hasOptionalAttribute ld_attributes;
     docstring =
       (match ProcessAttributes.findDocAttribute ld_attributes with
       | None -> []
@@ -261,7 +261,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                                           typ = f.ld_type.ctyp_type;
                                           optional =
                                             Res_parsetree_viewer
-                                            .has_optional_attribute
+                                            .hasOptionalAttribute
                                               f.ld_attributes;
                                           docstring =
                                             (match
@@ -308,7 +308,7 @@ let forTypeDeclaration ~env ~(exported : Exported.t)
                          fname;
                          typ = ctyp_type;
                          optional =
-                           Res_parsetree_viewer.has_optional_attribute
+                           Res_parsetree_viewer.hasOptionalAttribute
                              ld_attributes;
                          docstring = attrsToDocstring ld_attributes;
                          deprecated =

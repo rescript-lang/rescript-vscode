@@ -313,7 +313,7 @@ let printStructItem structItem ~pos ~source =
 
 let dump ~currentFile ~pos =
   let {Res_driver.parsetree = structure; source} =
-    Res_driver.parsing_engine.parse_implementation ~for_printer:true
+    Res_driver.parsingEngine.parseImplementation ~forPrinter:true
       ~filename:currentFile
   in
 

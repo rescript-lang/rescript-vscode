@@ -293,7 +293,7 @@ let extract_concrete_record env ty =
 let extract_concrete_variant env ty =
   match extract_concrete_typedecl env ty with
   | p0, p, {type_kind = Type_variant cstrs}
-    when not (Ast_uncurried.type_is_uncurried_fun ty) ->
+    when not (Ast_uncurried.typeIsUncurriedFun ty) ->
     (p0, p, cstrs)
   | p0, p, {type_kind = Type_open} -> (p0, p, [])
   | _ -> raise Not_found
@@ -690,8 +690,8 @@ let rec collect_missing_arguments env type1 type2 =
     match collect_missing_arguments env typ type2 with
     | Some res -> Some ((label, argtype) :: res)
     | None -> None)
-  | t when Ast_uncurried.type_is_uncurried_fun t ->
-    let typ = Ast_uncurried.type_extract_uncurried_fun t in
+  | t when Ast_uncurried.typeIsUncurriedFun t ->
+    let typ = Ast_uncurried.typeExtractUncurriedFun t in
     collect_missing_arguments env typ type2
   | _ -> None
 

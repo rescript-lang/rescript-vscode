@@ -247,7 +247,7 @@ let command ~debug ~emitter ~path =
                ~lid ~debug;
       Ast_iterator.default_iterator.expr iterator e
     | Pexp_apply ({pexp_desc = Pexp_ident lident; pexp_loc}, args)
-      when Res_parsetree_viewer.is_jsx_expression e ->
+      when Res_parsetree_viewer.isJsxExpression e ->
       (*
          Angled brackets:
           - These are handled in the grammar:  <>  </>  </  />
@@ -440,7 +440,7 @@ let command ~debug ~emitter ~path =
 
   if Files.classifySourceFile path = Res then (
     let parser =
-      Res_driver.parsing_engine.parse_implementation ~for_printer:false
+      Res_driver.parsingEngine.parseImplementation ~forPrinter:false
     in
     let {Res_driver.parsetree = structure; diagnostics} =
       parser ~filename:path
@@ -450,7 +450,7 @@ let command ~debug ~emitter ~path =
         (List.length structure) (List.length diagnostics);
     iterator.structure iterator structure |> ignore)
   else
-    let parser = Res_driver.parsing_engine.parse_interface ~for_printer:false in
+    let parser = Res_driver.parsingEngine.parseInterface ~forPrinter:false in
     let {Res_driver.parsetree = signature; diagnostics} =
       parser ~filename:path
     in

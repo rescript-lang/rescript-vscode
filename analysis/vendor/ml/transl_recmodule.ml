@@ -50,7 +50,7 @@ let init_shape modl =
     | [] -> []
     | Sig_value (id, {val_kind = Val_reg; val_type = ty}) :: rem ->
       let is_function t =
-        Ast_uncurried_utils.type_is_uncurried_fun t
+        Ast_uncurried_utils.typeIsUncurriedFun t
         ||
         match t.desc with
         | Tarrow _ -> true

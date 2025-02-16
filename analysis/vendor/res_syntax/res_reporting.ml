@@ -13,4 +13,4 @@ type problem =
   | Lident [@live]
   | Unbalanced of Token.t [@live]
 
-type parse_error = Lexing.position * problem
+type parseError = Lexing.position * problem

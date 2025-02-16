@@ -1,33 +1,33 @@
 open Parsetree
 
-let arrow_type ?(arity = max_int) ct =
-  let rec process attrs_before acc typ arity =
+let arrowType ?(arity = max_int) ct =
+  let rec process attrsBefore acc typ arity =
     match typ with
-    | typ when arity <= 0 -> (attrs_before, List.rev acc, typ)
+    | typ when arity <= 0 -> (attrsBefore, List.rev acc, typ)
     | {
      ptyp_desc = Ptyp_arrow ((Nolabel as lbl), typ1, typ2);
      ptyp_attributes = [];
     } ->
       let arg = ([], lbl, typ1) in
-      process attrs_before (arg :: acc) typ2 (arity - 1)
+      process attrsBefore (arg :: acc) typ2 (arity - 1)
     | {
      ptyp_desc = Ptyp_arrow (Nolabel, _typ1, _typ2);
      ptyp_attributes = [({txt = "bs"}, _)];
     } ->
       (* stop here, the uncurried attribute always indicates the beginning of an arrow function
          * e.g. `(. int) => (. int)` instead of `(. int, . int)` *)
-      (attrs_before, List.rev acc, typ)
+      (attrsBefore, List.rev acc, typ)
     | {ptyp_desc = Ptyp_arrow (Nolabel, _typ1, _typ2); ptyp_attributes = _attrs}
-      as return_type ->
+      as returnType ->
       let args = List.rev acc in
-      (attrs_before, args, return_type)
+      (attrsBefore, args, returnType)
     | {
      ptyp_desc = Ptyp_arrow (((Labelled _ | Optional _) as lbl), typ1, typ2);
      ptyp_attributes = attrs;
     } ->
       let arg = (attrs, lbl, typ1) in
-      process attrs_before (arg :: acc) typ2 (arity - 1)
-    | typ -> (attrs_before, List.rev acc, typ)
+      process attrsBefore (arg :: acc) typ2 (arity - 1)
+    | typ -> (attrsBefore, List.rev acc, typ)
   in
   match ct with
   | {ptyp_desc = Ptyp_arrow (Nolabel, _typ1, _typ2); ptyp_attributes = attrs} as
@@ -35,32 +35,32 @@ let arrow_type ?(arity = max_int) ct =
     process attrs [] {typ with ptyp_attributes = []} arity
   | typ -> process [] [] typ arity
 
-let functor_type modtype =
+let functorType modtype =
   let rec process acc modtype =
     match modtype with
     | {
-     pmty_desc = Pmty_functor (lbl, arg_type, return_type);
+     pmty_desc = Pmty_functor (lbl, argType, returnType);
      pmty_attributes = attrs;
     } ->
-      let arg = (attrs, lbl, arg_type) in
-      process (arg :: acc) return_type
-    | mod_type -> (List.rev acc, mod_type)
+      let arg = (attrs, lbl, argType) in
+      process (arg :: acc) returnType
+    | modType -> (List.rev acc, modType)
   in
   process [] modtype
 
-let process_bs_attribute attrs =
-  let rec process bs_spotted acc attrs =
+let processBsAttribute attrs =
+  let rec process bsSpotted acc attrs =
     match attrs with
-    | [] -> (bs_spotted, List.rev acc)
+    | [] -> (bsSpotted, List.rev acc)
     | ({Location.txt = "bs"}, _) :: rest -> process true acc rest
-    | attr :: rest -> process bs_spotted (attr :: acc) rest
+    | attr :: rest -> process bsSpotted (attr :: acc) rest
   in
   process false [] attrs
 
-let process_uncurried_app_attribute attrs =
-  let rec process uncurried_app acc attrs =
+let processUncurriedAppAttribute attrs =
+  let rec process uncurriedApp acc attrs =
     match attrs with
-    | [] -> (uncurried_app, List.rev acc)
+    | [] -> (uncurriedApp, List.rev acc)
     | ( {
           Location.txt =
             "bs" (* still support @bs to convert .ml files *) | "res.uapp";
@@ -68,26 +68,33 @@ let process_uncurried_app_attribute attrs =
         _ )
       :: rest ->
       process true acc rest
-    | attr :: rest -> process uncurried_app (attr :: acc) rest
+    | attr :: rest -> process uncurriedApp (attr :: acc) rest
   in
   process false [] attrs
 
-let process_partial_app_attribute attrs =
-  let rec process partial_app acc attrs =
+let hasPartialAttribute attrs =
+  List.exists
+    (function
+      | {Location.txt = "res.partial"}, _ -> true
+      | _ -> false)
+    attrs
+
+let processPartialAppAttribute attrs =
+  let rec process partialApp acc attrs =
     match attrs with
-    | [] -> (partial_app, List.rev acc)
+    | [] -> (partialApp, List.rev acc)
     | ({Location.txt = "res.partial"}, _) :: rest -> process true acc rest
-    | attr :: rest -> process partial_app (attr :: acc) rest
+    | attr :: rest -> process partialApp (attr :: acc) rest
   in
   process false [] attrs
 
-type function_attributes_info = {
+type functionAttributesInfo = {
   async: bool;
   bs: bool;
   attributes: Parsetree.attributes;
 }
 
-let process_function_attributes attrs =
+let processFunctionAttributes attrs =
   let rec process async bs acc attrs =
     match attrs with
     | [] -> {async; bs; attributes = List.rev acc}
@@ -97,19 +104,19 @@ let process_function_attributes attrs =
   in
   process false false [] attrs
 
-let has_await_attribute attrs =
+let hasAwaitAttribute attrs =
   List.exists
     (function
       | {Location.txt = "res.await"}, _ -> true
       | _ -> false)
     attrs
 
-let collect_array_expressions expr =
+let collectArrayExpressions expr =
   match expr.pexp_desc with
   | Pexp_array exprs -> (exprs, None)
   | _ -> ([], Some expr)
 
-let collect_list_expressions expr =
+let collectListExpressions expr =
   let rec collect acc expr =
     match expr.pexp_desc with
     | Pexp_construct ({txt = Longident.Lident "[]"}, _) -> (List.rev acc, None)
@@ -122,10 +129,10 @@ let collect_list_expressions expr =
   collect [] expr
 
 (* (__x) => f(a, __x, c) -----> f(a, _, c)  *)
-let rewrite_underscore_apply expr =
+let rewriteUnderscoreApply expr =
   let expr_fun =
-    if Ast_uncurried.expr_is_uncurried_fun expr then
-      Ast_uncurried.expr_extract_uncurried_fun expr
+    if Ast_uncurried.exprIsUncurriedFun expr then
+      Ast_uncurried.exprExtractUncurriedFun expr
     else expr
   in
   match expr_fun.pexp_desc with
@@ -133,44 +140,44 @@ let rewrite_underscore_apply expr =
       ( Nolabel,
         None,
         {ppat_desc = Ppat_var {txt = "__x"}},
-        ({pexp_desc = Pexp_apply (call_expr, args)} as e) ) ->
-    let new_args =
+        ({pexp_desc = Pexp_apply (callExpr, args)} as e) ) ->
+    let newArgs =
       List.map
         (fun arg ->
           match arg with
           | ( lbl,
               ({pexp_desc = Pexp_ident ({txt = Longident.Lident "__x"} as lid)}
-               as arg_expr) ) ->
+               as argExpr) ) ->
             ( lbl,
               {
-                arg_expr with
+                argExpr with
                 pexp_desc = Pexp_ident {lid with txt = Longident.Lident "_"};
               } )
           | arg -> arg)
         args
     in
-    {e with pexp_desc = Pexp_apply (call_expr, new_args)}
+    {e with pexp_desc = Pexp_apply (callExpr, newArgs)}
   | _ -> expr
 
-type fun_param_kind =
+type funParamKind =
   | Parameter of {
       attrs: Parsetree.attributes;
       lbl: Asttypes.arg_label;
-      default_expr: Parsetree.expression option;
+      defaultExpr: Parsetree.expression option;
       pat: Parsetree.pattern;
     }
   | NewTypes of {attrs: Parsetree.attributes; locs: string Asttypes.loc list}
 
-let fun_expr expr =
+let funExpr expr =
   (* Turns (type t, type u, type z) into "type t u z" *)
-  let rec collect_new_types acc return_expr =
-    match return_expr with
-    | {pexp_desc = Pexp_newtype (string_loc, return_expr); pexp_attributes = []}
+  let rec collectNewTypes acc returnExpr =
+    match returnExpr with
+    | {pexp_desc = Pexp_newtype (stringLoc, returnExpr); pexp_attributes = []}
       ->
-      collect_new_types (string_loc :: acc) return_expr
-    | return_expr -> (List.rev acc, return_expr)
+      collectNewTypes (stringLoc :: acc) returnExpr
+    | returnExpr -> (List.rev acc, returnExpr)
   in
-  let rec collect ~uncurried ~n_fun attrs_before acc expr =
+  let rec collect ~uncurried ~nFun attrsBefore acc expr =
     match expr with
     | {
      pexp_desc =
@@ -180,45 +187,43 @@ let fun_expr expr =
            {ppat_desc = Ppat_var {txt = "__x"}},
            {pexp_desc = Pexp_apply _} );
     } ->
-      (uncurried, attrs_before, List.rev acc, rewrite_underscore_apply expr)
-    | {pexp_desc = Pexp_newtype (string_loc, rest); pexp_attributes = attrs} ->
-      let string_locs, return_expr = collect_new_types [string_loc] rest in
-      let param = NewTypes {attrs; locs = string_locs} in
-      collect ~uncurried ~n_fun attrs_before (param :: acc) return_expr
+      (uncurried, attrsBefore, List.rev acc, rewriteUnderscoreApply expr)
+    | {pexp_desc = Pexp_newtype (stringLoc, rest); pexp_attributes = attrs} ->
+      let stringLocs, returnExpr = collectNewTypes [stringLoc] rest in
+      let param = NewTypes {attrs; locs = stringLocs} in
+      collect ~uncurried ~nFun attrsBefore (param :: acc) returnExpr
     | {
-     pexp_desc = Pexp_fun (lbl, default_expr, pattern, return_expr);
+     pexp_desc = Pexp_fun (lbl, defaultExpr, pattern, returnExpr);
      pexp_attributes = [];
     } ->
-      let parameter =
-        Parameter {attrs = []; lbl; default_expr; pat = pattern}
-      in
-      collect ~uncurried ~n_fun:(n_fun + 1) attrs_before (parameter :: acc)
-        return_expr
+      let parameter = Parameter {attrs = []; lbl; defaultExpr; pat = pattern} in
+      collect ~uncurried ~nFun:(nFun + 1) attrsBefore (parameter :: acc)
+        returnExpr
     (* If a fun has an attribute, then it stops here and makes currying.
        i.e attributes outside of (...), uncurried `(.)` and `async` make currying *)
-    | {pexp_desc = Pexp_fun _} -> (uncurried, attrs_before, List.rev acc, expr)
-    | expr when n_fun = 0 && Ast_uncurried.expr_is_uncurried_fun expr ->
-      let expr = Ast_uncurried.expr_extract_uncurried_fun expr in
-      collect ~uncurried:true ~n_fun attrs_before acc expr
-    | expr -> (uncurried, attrs_before, List.rev acc, expr)
+    | {pexp_desc = Pexp_fun _} -> (uncurried, attrsBefore, List.rev acc, expr)
+    | expr when nFun = 0 && Ast_uncurried.exprIsUncurriedFun expr ->
+      let expr = Ast_uncurried.exprExtractUncurriedFun expr in
+      collect ~uncurried:true ~nFun attrsBefore acc expr
+    | expr -> (uncurried, attrsBefore, List.rev acc, expr)
   in
   match expr with
   | {pexp_desc = Pexp_fun _ | Pexp_newtype _} ->
-    collect ~uncurried:false ~n_fun:0 expr.pexp_attributes []
+    collect ~uncurried:false ~nFun:0 expr.pexp_attributes []
       {expr with pexp_attributes = []}
-  | _ when Ast_uncurried.expr_is_uncurried_fun expr ->
-    let expr = Ast_uncurried.expr_extract_uncurried_fun expr in
-    collect ~uncurried:true ~n_fun:0 expr.pexp_attributes []
+  | _ when Ast_uncurried.exprIsUncurriedFun expr ->
+    let expr = Ast_uncurried.exprExtractUncurriedFun expr in
+    collect ~uncurried:true ~nFun:0 expr.pexp_attributes []
       {expr with pexp_attributes = []}
-  | _ -> collect ~uncurried:false ~n_fun:0 [] [] expr
+  | _ -> collect ~uncurried:false ~nFun:0 [] [] expr
 
-let process_braces_attr expr =
+let processBracesAttr expr =
   match expr.pexp_attributes with
   | (({txt = "res.braces" | "ns.braces"}, _) as attr) :: attrs ->
     (Some attr, {expr with pexp_attributes = attrs})
   | _ -> (None, expr)
 
-let filter_parsing_attrs attrs =
+let filterParsingAttrs attrs =
   List.filter
     (fun attr ->
       match attr with
@@ -234,19 +239,19 @@ let filter_parsing_attrs attrs =
       | _ -> true)
     attrs
 
-let is_block_expr expr =
+let isBlockExpr expr =
   match expr.pexp_desc with
   | Pexp_letmodule _ | Pexp_letexception _ | Pexp_let _ | Pexp_open _
   | Pexp_sequence _ ->
     true
   | _ -> false
 
-let is_braced_expr expr =
-  match process_braces_attr expr with
+let isBracedExpr expr =
+  match processBracesAttr expr with
   | Some _, _ -> true
   | _ -> false
 
-let is_multiline_text txt =
+let isMultilineText txt =
   let len = String.length txt in
   let rec check i =
     if i >= len then false
@@ -259,36 +264,36 @@ let is_multiline_text txt =
   in
   check 0
 
-let is_huggable_expression expr =
+let isHuggableExpression expr =
   match expr.pexp_desc with
   | Pexp_array _ | Pexp_tuple _
   | Pexp_constant (Pconst_string (_, Some _))
   | Pexp_construct ({txt = Longident.Lident ("::" | "[]")}, _)
-  | Pexp_extension ({txt = "obj"}, _)
+  | Pexp_extension ({txt = "bs.obj" | "obj"}, _)
   | Pexp_record _ ->
     true
-  | _ when is_block_expr expr -> true
-  | _ when is_braced_expr expr -> true
-  | Pexp_constant (Pconst_string (txt, None)) when is_multiline_text txt -> true
+  | _ when isBlockExpr expr -> true
+  | _ when isBracedExpr expr -> true
+  | Pexp_constant (Pconst_string (txt, None)) when isMultilineText txt -> true
   | _ -> false
 
-let is_huggable_rhs expr =
+let isHuggableRhs expr =
   match expr.pexp_desc with
   | Pexp_array _ | Pexp_tuple _
-  | Pexp_extension ({txt = "obj"}, _)
+  | Pexp_extension ({txt = "bs.obj" | "obj"}, _)
   | Pexp_record _ ->
     true
-  | _ when is_braced_expr expr -> true
+  | _ when isBracedExpr expr -> true
   | _ -> false
 
-let is_huggable_pattern pattern =
+let isHuggablePattern pattern =
   match pattern.ppat_desc with
   | Ppat_array _ | Ppat_tuple _ | Ppat_record _ | Ppat_variant _
   | Ppat_construct _ ->
     true
   | _ -> false
 
-let operator_precedence operator =
+let operatorPrecedence operator =
   match operator with
   | ":=" -> 1
   | "||" -> 2
@@ -300,22 +305,22 @@ let operator_precedence operator =
   | "#" | "##" | "|." | "|.u" -> 8
   | _ -> 0
 
-let is_unary_operator operator =
+let isUnaryOperator operator =
   match operator with
   | "~+" | "~+." | "~-" | "~-." | "not" -> true
   | _ -> false
 
-let is_unary_expression expr =
+let isUnaryExpression expr =
   match expr.pexp_desc with
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Longident.Lident operator}},
         [(Nolabel, _arg)] )
-    when is_unary_operator operator ->
+    when isUnaryOperator operator ->
     true
   | _ -> false
 
 (* TODO: tweak this to check for ghost ^ as template literal *)
-let is_binary_operator operator =
+let isBinaryOperator operator =
   match operator with
   | ":=" | "||" | "&&" | "=" | "==" | "<" | ">" | "!=" | "!==" | "<=" | ">="
   | "|>" | "+" | "+." | "-" | "-." | "^" | "*" | "*." | "/" | "/." | "**" | "|."
@@ -323,59 +328,57 @@ let is_binary_operator operator =
     true
   | _ -> false
 
-let is_binary_expression expr =
+let isBinaryExpression expr =
   match expr.pexp_desc with
   | Pexp_apply
       ( {
           pexp_desc =
-            Pexp_ident {txt = Longident.Lident operator; loc = operator_loc};
+            Pexp_ident {txt = Longident.Lident operator; loc = operatorLoc};
         },
         [(Nolabel, _operand1); (Nolabel, _operand2)] )
-    when is_binary_operator operator
-         && not (operator_loc.loc_ghost && operator = "^")
+    when isBinaryOperator operator
+         && not (operatorLoc.loc_ghost && operator = "^")
          (* template literal *) ->
     true
   | _ -> false
 
-let is_equality_operator operator =
+let isEqualityOperator operator =
   match operator with
   | "=" | "==" | "<>" | "!=" -> true
   | _ -> false
 
-let is_rhs_binary_operator operator =
+let isRhsBinaryOperator operator =
   match operator with
   | "**" -> true
   | _ -> false
 
-let flattenable_operators parent_operator child_operator =
-  let prec_parent = operator_precedence parent_operator in
-  let prec_child = operator_precedence child_operator in
-  if prec_parent == prec_child then
-    not
-      (is_equality_operator parent_operator
-      && is_equality_operator child_operator)
+let flattenableOperators parentOperator childOperator =
+  let precParent = operatorPrecedence parentOperator in
+  let precChild = operatorPrecedence childOperator in
+  if precParent == precChild then
+    not (isEqualityOperator parentOperator && isEqualityOperator childOperator)
   else false
 
-let rec has_if_let_attribute attrs =
+let rec hasIfLetAttribute attrs =
   match attrs with
   | [] -> false
   | ({Location.txt = "res.iflet"}, _) :: _ -> true
-  | _ :: attrs -> has_if_let_attribute attrs
+  | _ :: attrs -> hasIfLetAttribute attrs
 
-let is_if_let_expr expr =
+let isIfLetExpr expr =
   match expr with
   | {pexp_attributes = attrs; pexp_desc = Pexp_match _}
-    when has_if_let_attribute attrs ->
+    when hasIfLetAttribute attrs ->
     true
   | _ -> false
 
-let rec has_optional_attribute attrs =
+let rec hasOptionalAttribute attrs =
   match attrs with
   | [] -> false
   | ({Location.txt = "ns.optional" | "res.optional"}, _) :: _ -> true
-  | _ :: attrs -> has_optional_attribute attrs
+  | _ :: attrs -> hasOptionalAttribute attrs
 
-let has_attributes attrs =
+let hasAttributes attrs =
   List.exists
     (fun attr ->
       match attr with
@@ -397,11 +400,11 @@ let has_attributes attrs =
                     ({pexp_desc = Pexp_constant (Pconst_string ("-4", None))}, _);
               };
             ] ) ->
-        not (has_if_let_attribute attrs)
+        not (hasIfLetAttribute attrs)
       | _ -> true)
     attrs
 
-let is_array_access expr =
+let isArrayAccess expr =
   match expr.pexp_desc with
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Longident.Ldot (Lident "Array", "get")}},
@@ -409,81 +412,79 @@ let is_array_access expr =
     true
   | _ -> false
 
-type if_condition_kind =
+type ifConditionKind =
   | If of Parsetree.expression
   | IfLet of Parsetree.pattern * Parsetree.expression
 
-let collect_if_expressions expr =
+let collectIfExpressions expr =
   let rec collect acc expr =
-    let expr_loc = expr.pexp_loc in
+    let exprLoc = expr.pexp_loc in
     match expr.pexp_desc with
-    | Pexp_ifthenelse (if_expr, then_expr, Some else_expr) ->
-      collect ((expr_loc, If if_expr, then_expr) :: acc) else_expr
-    | Pexp_ifthenelse (if_expr, then_expr, (None as else_expr)) ->
-      let ifs = List.rev ((expr_loc, If if_expr, then_expr) :: acc) in
-      (ifs, else_expr)
+    | Pexp_ifthenelse (ifExpr, thenExpr, Some elseExpr) ->
+      collect ((exprLoc, If ifExpr, thenExpr) :: acc) elseExpr
+    | Pexp_ifthenelse (ifExpr, thenExpr, (None as elseExpr)) ->
+      let ifs = List.rev ((exprLoc, If ifExpr, thenExpr) :: acc) in
+      (ifs, elseExpr)
     | Pexp_match
         ( condition,
           [
-            {pc_lhs = pattern; pc_guard = None; pc_rhs = then_expr};
+            {pc_lhs = pattern; pc_guard = None; pc_rhs = thenExpr};
             {
               pc_rhs =
                 {pexp_desc = Pexp_construct ({txt = Longident.Lident "()"}, _)};
             };
           ] )
-      when is_if_let_expr expr ->
+      when isIfLetExpr expr ->
       let ifs =
-        List.rev ((expr_loc, IfLet (pattern, condition), then_expr) :: acc)
+        List.rev ((exprLoc, IfLet (pattern, condition), thenExpr) :: acc)
       in
       (ifs, None)
     | Pexp_match
         ( condition,
           [
-            {pc_lhs = pattern; pc_guard = None; pc_rhs = then_expr};
-            {pc_rhs = else_expr};
+            {pc_lhs = pattern; pc_guard = None; pc_rhs = thenExpr};
+            {pc_rhs = elseExpr};
           ] )
-      when is_if_let_expr expr ->
-      collect
-        ((expr_loc, IfLet (pattern, condition), then_expr) :: acc)
-        else_expr
+      when isIfLetExpr expr ->
+      collect ((exprLoc, IfLet (pattern, condition), thenExpr) :: acc) elseExpr
     | _ -> (List.rev acc, Some expr)
   in
   collect [] expr
 
-let rec has_ternary_attribute attrs =
+let rec hasTernaryAttribute attrs =
   match attrs with
   | [] -> false
   | ({Location.txt = "res.ternary"}, _) :: _ -> true
-  | _ :: attrs -> has_ternary_attribute attrs
+  | _ :: attrs -> hasTernaryAttribute attrs
 
-let is_ternary_expr expr =
+let isTernaryExpr expr =
   match expr with
   | {pexp_attributes = attrs; pexp_desc = Pexp_ifthenelse _}
-    when has_ternary_attribute attrs ->
+    when hasTernaryAttribute attrs ->
     true
   | _ -> false
 
-let collect_ternary_parts expr =
+let collectTernaryParts expr =
   let rec collect acc expr =
     match expr with
     | {
      pexp_attributes = attrs;
      pexp_desc = Pexp_ifthenelse (condition, consequent, Some alternate);
     }
-      when has_ternary_attribute attrs ->
+      when hasTernaryAttribute attrs ->
       collect ((condition, consequent) :: acc) alternate
     | alternate -> (List.rev acc, alternate)
   in
   collect [] expr
 
-let parameters_should_hug parameters =
+let parametersShouldHug parameters =
   match parameters with
-  | [Parameter {attrs = []; lbl = Asttypes.Nolabel; default_expr = None; pat}]
-    when is_huggable_pattern pat ->
+  | [Parameter {attrs = []; lbl = Asttypes.Nolabel; defaultExpr = None; pat}]
+    when isHuggablePattern pat ->
     true
   | _ -> false
 
-let filter_ternary_attributes attrs =
+let filterTernaryAttributes attrs =
   List.filter
     (fun attr ->
       match attr with
@@ -491,7 +492,7 @@ let filter_ternary_attributes attrs =
       | _ -> true)
     attrs
 
-let filter_fragile_match_attributes attrs =
+let filterFragileMatchAttributes attrs =
   List.filter
     (fun attr ->
       match attr with
@@ -508,7 +509,7 @@ let filter_fragile_match_attributes attrs =
       | _ -> true)
     attrs
 
-let is_jsx_expression expr =
+let isJsxExpression expr =
   let rec loop attrs =
     match attrs with
     | [] -> false
@@ -519,7 +520,7 @@ let is_jsx_expression expr =
   | Pexp_apply _ -> loop expr.Parsetree.pexp_attributes
   | _ -> false
 
-let has_jsx_attribute attributes =
+let hasJsxAttribute attributes =
   let rec loop attrs =
     match attrs with
     | [] -> false
@@ -528,17 +529,17 @@ let has_jsx_attribute attributes =
   in
   loop attributes
 
-let should_indent_binary_expr expr =
-  let same_precedence_sub_expression operator sub_expression =
-    match sub_expression with
+let shouldIndentBinaryExpr expr =
+  let samePrecedenceSubExpression operator subExpression =
+    match subExpression with
     | {
      pexp_desc =
        Pexp_apply
-         ( {pexp_desc = Pexp_ident {txt = Longident.Lident sub_operator}},
+         ( {pexp_desc = Pexp_ident {txt = Longident.Lident subOperator}},
            [(Nolabel, _lhs); (Nolabel, _rhs)] );
     }
-      when is_binary_operator sub_operator ->
-      flattenable_operators operator sub_operator
+      when isBinaryOperator subOperator ->
+      flattenableOperators operator subOperator
     | _ -> true
   in
   match expr with
@@ -548,13 +549,13 @@ let should_indent_binary_expr expr =
        ( {pexp_desc = Pexp_ident {txt = Longident.Lident operator}},
          [(Nolabel, lhs); (Nolabel, _rhs)] );
   }
-    when is_binary_operator operator ->
-    is_equality_operator operator
-    || (not (same_precedence_sub_expression operator lhs))
+    when isBinaryOperator operator ->
+    isEqualityOperator operator
+    || (not (samePrecedenceSubExpression operator lhs))
     || operator = ":="
   | _ -> false
 
-let should_inline_rhs_binary_expr rhs =
+let shouldInlineRhsBinaryExpr rhs =
   match rhs.pexp_desc with
   | Parsetree.Pexp_constant _ | Pexp_let _ | Pexp_letmodule _
   | Pexp_letexception _ | Pexp_sequence _ | Pexp_open _ | Pexp_ifthenelse _
@@ -562,7 +563,7 @@ let should_inline_rhs_binary_expr rhs =
     true
   | _ -> false
 
-let is_printable_attribute attr =
+let isPrintableAttribute attr =
   match attr with
   | ( {
         Location.txt =
@@ -574,71 +575,71 @@ let is_printable_attribute attr =
     false
   | _ -> true
 
-let has_printable_attributes attrs = List.exists is_printable_attribute attrs
+let hasPrintableAttributes attrs = List.exists isPrintableAttribute attrs
 
-let filter_printable_attributes attrs = List.filter is_printable_attribute attrs
+let filterPrintableAttributes attrs = List.filter isPrintableAttribute attrs
 
-let partition_printable_attributes attrs =
-  List.partition is_printable_attribute attrs
+let partitionPrintableAttributes attrs =
+  List.partition isPrintableAttribute attrs
 
-let is_fun_newtype expr =
+let isFunNewtype expr =
   match expr.pexp_desc with
   | Pexp_fun _ | Pexp_newtype _ -> true
-  | _ -> Ast_uncurried.expr_is_uncurried_fun expr
+  | _ -> Ast_uncurried.exprIsUncurriedFun expr
 
-let requires_special_callback_printing_last_arg args =
+let requiresSpecialCallbackPrintingLastArg args =
   let rec loop args =
     match args with
     | [] -> false
-    | [(_, expr)] when is_fun_newtype expr -> true
-    | (_, expr) :: _ when is_fun_newtype expr -> false
+    | [(_, expr)] when isFunNewtype expr -> true
+    | (_, expr) :: _ when isFunNewtype expr -> false
     | _ :: rest -> loop rest
   in
   loop args
 
-let requires_special_callback_printing_first_arg args =
+let requiresSpecialCallbackPrintingFirstArg args =
   let rec loop args =
     match args with
     | [] -> true
-    | (_, expr) :: _ when is_fun_newtype expr -> false
+    | (_, expr) :: _ when isFunNewtype expr -> false
     | _ :: rest -> loop rest
   in
   match args with
-  | [(_, expr)] when is_fun_newtype expr -> false
-  | (_, expr) :: rest when is_fun_newtype expr -> loop rest
+  | [(_, expr)] when isFunNewtype expr -> false
+  | (_, expr) :: rest when isFunNewtype expr -> loop rest
   | _ -> false
 
-let mod_expr_apply mod_expr =
-  let rec loop acc mod_expr =
-    match mod_expr with
+let modExprApply modExpr =
+  let rec loop acc modExpr =
+    match modExpr with
     | {pmod_desc = Pmod_apply (next, arg)} -> loop (arg :: acc) next
-    | _ -> (acc, mod_expr)
+    | _ -> (acc, modExpr)
   in
-  loop [] mod_expr
+  loop [] modExpr
 
-let mod_expr_functor mod_expr =
-  let rec loop acc mod_expr =
-    match mod_expr with
+let modExprFunctor modExpr =
+  let rec loop acc modExpr =
+    match modExpr with
     | {
-     pmod_desc = Pmod_functor (lbl, mod_type, return_mod_expr);
+     pmod_desc = Pmod_functor (lbl, modType, returnModExpr);
      pmod_attributes = attrs;
     } ->
-      let param = (attrs, lbl, mod_type) in
-      loop (param :: acc) return_mod_expr
-    | return_mod_expr -> (List.rev acc, return_mod_expr)
+      let param = (attrs, lbl, modType) in
+      loop (param :: acc) returnModExpr
+    | returnModExpr -> (List.rev acc, returnModExpr)
   in
-  loop [] mod_expr
+  loop [] modExpr
 
-let rec collect_patterns_from_list_construct acc pattern =
+let rec collectPatternsFromListConstruct acc pattern =
   let open Parsetree in
   match pattern.ppat_desc with
   | Ppat_construct
       ({txt = Longident.Lident "::"}, Some {ppat_desc = Ppat_tuple [pat; rest]})
     ->
-    collect_patterns_from_list_construct (pat :: acc) rest
+    collectPatternsFromListConstruct (pat :: acc) rest
   | _ -> (List.rev acc, pattern)
 
-let has_template_literal_attr attrs =
+let hasTemplateLiteralAttr attrs =
   List.exists
     (fun attr ->
       match attr with
@@ -646,7 +647,7 @@ let has_template_literal_attr attrs =
       | _ -> false)
     attrs
 
-let has_tagged_template_literal_attr attrs =
+let hasTaggedTemplateLiteralAttr attrs =
   List.exists
     (fun attr ->
       match attr with
@@ -654,24 +655,24 @@ let has_tagged_template_literal_attr attrs =
       | _ -> false)
     attrs
 
-let is_template_literal expr =
+let isTemplateLiteral expr =
   match expr.pexp_desc with
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Longident.Lident "^"}},
         [(Nolabel, _); (Nolabel, _)] )
-    when has_template_literal_attr expr.pexp_attributes ->
+    when hasTemplateLiteralAttr expr.pexp_attributes ->
     true
   | Pexp_constant (Pconst_string (_, Some "")) -> true
-  | Pexp_constant _ when has_template_literal_attr expr.pexp_attributes -> true
+  | Pexp_constant _ when hasTemplateLiteralAttr expr.pexp_attributes -> true
   | _ -> false
 
-let is_tagged_template_literal expr =
+let isTaggedTemplateLiteral expr =
   match expr with
   | {pexp_desc = Pexp_apply _; pexp_attributes = attrs} ->
-    has_tagged_template_literal_attr attrs
+    hasTaggedTemplateLiteralAttr attrs
   | _ -> false
 
-let has_spread_attr attrs =
+let hasSpreadAttr attrs =
   List.exists
     (fun attr ->
       match attr with
@@ -679,7 +680,7 @@ let has_spread_attr attrs =
       | _ -> false)
     attrs
 
-let is_spread_belt_list_concat expr =
+let isSpreadBeltListConcat expr =
   match expr.pexp_desc with
   | Pexp_ident
       {
@@ -687,10 +688,10 @@ let is_spread_belt_list_concat expr =
           Longident.Ldot
             (Longident.Ldot (Longident.Lident "Belt", "List"), "concatMany");
       } ->
-    has_spread_attr expr.pexp_attributes
+    hasSpreadAttr expr.pexp_attributes
   | _ -> false
 
-let is_spread_belt_array_concat expr =
+let isSpreadBeltArrayConcat expr =
   match expr.pexp_desc with
   | Pexp_ident
       {
@@ -698,11 +699,11 @@ let is_spread_belt_array_concat expr =
           Longident.Ldot
             (Longident.Ldot (Longident.Lident "Belt", "Array"), "concatMany");
       } ->
-    has_spread_attr expr.pexp_attributes
+    hasSpreadAttr expr.pexp_attributes
   | _ -> false
 
 (* Blue | Red | Green -> [Blue; Red; Green] *)
-let collect_or_pattern_chain pat =
+let collectOrPatternChain pat =
   let rec loop pattern chain =
     match pattern.ppat_desc with
     | Ppat_or (left, right) -> loop left (right :: chain)
@@ -710,7 +711,7 @@ let collect_or_pattern_chain pat =
   in
   loop pat []
 
-let is_single_pipe_expr expr =
+let isSinglePipeExpr expr =
   (* handles:
    *   x
    *   ->Js.Dict.get("wm-property")
@@ -723,7 +724,7 @@ let is_single_pipe_expr expr =
    *     }
    *   )
    *)
-  let is_pipe_expr expr =
+  let isPipeExpr expr =
     match expr.pexp_desc with
     | Pexp_apply
         ( {pexp_desc = Pexp_ident {txt = Longident.Lident ("|." | "|.u" | "|>")}},
@@ -735,11 +736,11 @@ let is_single_pipe_expr expr =
   | Pexp_apply
       ( {pexp_desc = Pexp_ident {txt = Longident.Lident ("|." | "|.u" | "|>")}},
         [(Nolabel, operand1); (Nolabel, _operand2)] )
-    when not (is_pipe_expr operand1) ->
+    when not (isPipeExpr operand1) ->
     true
   | _ -> false
 
-let is_underscore_apply_sugar expr =
+let isUnderscoreApplySugar expr =
   match expr.pexp_desc with
   | Pexp_fun
       ( Nolabel,
@@ -749,7 +750,7 @@ let is_underscore_apply_sugar expr =
     true
   | _ -> false
 
-let is_rewritten_underscore_apply_sugar expr =
+let isRewrittenUnderscoreApplySugar expr =
   match expr.pexp_desc with
   | Pexp_ident {txt = Longident.Lident "_"} -> true
   | _ -> false

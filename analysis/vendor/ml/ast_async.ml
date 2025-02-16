@@ -14,8 +14,7 @@ let add_promise_type ?(loc = Location.none) ~async
 let add_async_attribute ~async (body : Parsetree.expression) =
   if async then
     match body.pexp_desc with
-    | Pexp_construct (x, Some e) when Ast_uncurried.expr_is_uncurried_fun body
-      ->
+    | Pexp_construct (x, Some e) when Ast_uncurried.exprIsUncurriedFun body ->
       {
         body with
         pexp_desc =
