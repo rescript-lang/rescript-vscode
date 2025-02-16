@@ -100,17 +100,12 @@ type execResult =
       error: string;
     };
 
-type formatCodeResult =
-  | execResult
-  | {
-      kind: "blocked-using-built-in-formatter";
-    };
+type formatCodeResult = execResult;
 
 export let formatCode = (
   bscPath: p.DocumentUri | null,
   filePath: string,
-  code: string,
-  allowBuiltInFormatter: boolean
+  code: string
 ): formatCodeResult => {
   let extension = path.extname(filePath);
   let formatTempFileFullPath = createFileInTempDir(extension);
@@ -132,29 +127,7 @@ export let formatCode = (
         result: result.toString(),
       };
     } else {
-      if (!allowBuiltInFormatter) {
-        return {
-          kind: "blocked-using-built-in-formatter",
-        };
-      }
-
-      let result = runAnalysisAfterSanityCheck(
-        formatTempFileFullPath,
-        ["format", formatTempFileFullPath],
-        false
-      );
-
-      // The formatter returning an empty string means it couldn't format the
-      // sources, probably because of errors. In that case, we bail from
-      // formatting by returning the unformatted content.
-      if (result === "") {
-        result = code;
-      }
-
-      return {
-        kind: "success",
-        result,
-      };
+      throw new Error("Could not find ReScript compiler for project.");
     }
   } catch (e) {
     return {

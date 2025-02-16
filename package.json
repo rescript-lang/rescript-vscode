@@ -136,12 +136,6 @@
       "type": "object",
       "title": "ReScript",
       "properties": {
-        "rescript.settings.allowBuiltInFormatter": {
-          "scope": "language-overridable",
-          "type": "boolean",
-          "default": false,
-          "description": "Whether you want to allow the extension to format your code using its built in formatter when it cannot find a ReScript compiler version in your current project to use for formatting."
-        },
         "rescript.settings.askToStartBuild": {
           "scope": "language-overridable",
           "type": "boolean",

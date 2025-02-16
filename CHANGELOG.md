@@ -12,6 +12,10 @@
 
 ## master
 
+#### :nail_care: Polish
+
+- Remove the built-in formatter since it has been causing more harm than done good. https://github.com/rescript-lang/rescript-vscode/pull/1073
+
 #### :rocket: New Feature
 
 - Port [7292](https://github.com/rescript-lang/rescript/pull/7292): Fix dot completion issue with React primitives. https://github.com/rescript-lang/rescript-vscode/pull/1074

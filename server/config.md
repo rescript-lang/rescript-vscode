@@ -7,12 +7,6 @@ These configurations are sent to the server on [initialization](https://microsof
 ```typescript
 interface config {
   /**
-  * Format code using builtin formatter from server
-  * @default false
-  */
-  allowBuiltInFormatter: boolean;
-
-  /**
   * Whether you want the extension to prompt for autostarting a ReScript build if a project is opened with no build running
   * @default true
   */
