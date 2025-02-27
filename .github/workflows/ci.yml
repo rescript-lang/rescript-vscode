@@ -239,9 +239,11 @@ jobs:
 
     - name: Move latest-master tag to current commit
       if: github.ref == 'refs/heads/master'
-      uses: jimeh/update-tags-action@v1
-      with: 
-        tags: "latest-master"
+      run: |
+        git tag -d latest-master || true
+        git push origin --delete latest-master || true
+        git tag latest-master
+        git push origin latest-master
 
     - name: Publish latest master to GitHub
       if: github.ref == 'refs/heads/master'
