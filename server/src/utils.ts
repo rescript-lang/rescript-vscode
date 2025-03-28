@@ -67,8 +67,7 @@ export let findProjectRootOfFile = (
   if (foundRootFromProjectFiles != null) {
     return foundRootFromProjectFiles;
   } else {
-    const dirStat = fs.statSync(source);
-    const isDir = dirStat.isDirectory();
+    const isDir = path.extname(source) === "";
     return findProjectRootOfFileInDir(
       isDir && !allowDir ? path.join(source, "dummy.res") : source
     );
@@ -165,6 +164,24 @@ export let findReScriptVersion = (
     return undefined;
   }
 };
+
+export function findReScriptVersionForProjectRoot(projectRootPath:string) : string | undefined {
+  let rescriptBinary = lookup.findFilePathFromProjectRoot(
+    projectRootPath,
+    path.join(c.nodeModulesBinDir, c.rescriptBinName)
+  );
+
+  if (rescriptBinary == null) {
+    return undefined;
+  }
+
+  try {
+    let version = childProcess.execSync(`${rescriptBinary} -v`);
+    return version.toString().trim();
+  } catch (e) {
+    return undefined;
+  }
+}
 
 // This is the path for the _builtin_ legacy analysis, that works for versions 11 and below.
 let builtinBinaryPath: string | null = null;
