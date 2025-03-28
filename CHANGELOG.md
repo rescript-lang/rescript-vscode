@@ -12,6 +12,10 @@
 
 ## master
 
+#### :bug: Bug fix
+
+- Fix: bug where incremental analysis does not work when the project folder contains a dot. https://github.com/rescript-lang/rescript-vscode/pull/1080
+
 ## 1.62.0
 
 #### :nail_care: Polish

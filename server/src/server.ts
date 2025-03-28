@@ -268,7 +268,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
         filesDiagnostics: {},
         namespaceName:
           namespaceName.kind === "success" ? namespaceName.result : null,
-        rescriptVersion: utils.findReScriptVersion(projectRootPath),
+        rescriptVersion: utils.findReScriptVersionForProjectRoot(projectRootPath),
         bsbWatcherByEditor: null,
         bscBinaryLocation: utils.findBscExeBinary(projectRootPath),
         editorAnalysisLocation: utils.findEditorAnalysisBinary(projectRootPath),
