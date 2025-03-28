@@ -67,7 +67,8 @@ export let findProjectRootOfFile = (
   if (foundRootFromProjectFiles != null) {
     return foundRootFromProjectFiles;
   } else {
-    const isDir = path.extname(source) === "";
+    const dirStat = fs.statSync(source);
+    const isDir = dirStat.isDirectory();
     return findProjectRootOfFileInDir(
       isDir && !allowDir ? path.join(source, "dummy.res") : source
     );
