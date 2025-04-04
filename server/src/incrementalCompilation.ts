@@ -472,7 +472,7 @@ export function triggerIncrementalCompilationOfFile(
   // TODO: Can we remove this timeout? Don't remember why it was added...
   const timeout = setTimeout(() => {
     compileContents(entry, fileContent, send, onCompilationFinished);
-  }, 20);
+  }, 0);
 
   if (entry.compilation != null) {
     entry.compilation.timeout = timeout;
