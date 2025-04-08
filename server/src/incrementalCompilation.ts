@@ -390,9 +390,23 @@ function triggerIncrementalCompilationOfFile(
       if (debug()) console.log("Did not find open project for " + filePath);
       return;
     }
-    const workspaceRootPath = projectRootPath
-      ? utils.findProjectRootOfFile(projectRootPath, true)
-      : null;
+
+    const projectRewatchLockfile = path.resolve(
+      projectRootPath,
+      c.rewatchLockPartialPath
+    );
+
+    let foundRewatchLockfileInProjectRoot = false;
+    if (fs.existsSync(projectRewatchLockfile)) {
+      foundRewatchLockfileInProjectRoot = true;
+    }
+
+    // if we find a rewatch.lock in the project root, it's a compilation of a local package
+    // in the workspace.
+    const workspaceRootPath =
+      projectRootPath && !foundRewatchLockfileInProjectRoot
+        ? utils.findProjectRootOfFile(projectRootPath, true)
+        : null;
 
     const bscBinaryLocation = project.bscBinaryLocation;
     if (bscBinaryLocation == null) {
