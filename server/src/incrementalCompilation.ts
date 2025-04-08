@@ -397,10 +397,9 @@ function triggerIncrementalCompilationOfFile(
     );
 
     let foundRewatchLockfileInProjectRoot = false;
-    try {
-      fs.statSync(projectRewatchLockfile);
+    if (fs.existsSync(projectRewatchLockfile)) {
       foundRewatchLockfileInProjectRoot = true;
-    } catch {}
+    }
 
     // if we find a rewatch.lock in the project root, it's a compilation of a local package
     // in the workspace.
