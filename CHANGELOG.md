@@ -16,6 +16,8 @@
 
 - Fix: bug where incremental analysis does not work when the project folder contains a dot. https://github.com/rescript-lang/rescript-vscode/pull/1080
 
+- Fix: bug where incremental compilation crashes when rewatch is being run in a specific package vs the root of the monorepo. https://github.com/rescript-lang/rescript-vscode/pull/1082
+
 ## 1.62.0
 
 #### :nail_care: Polish
