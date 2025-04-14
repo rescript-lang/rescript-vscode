@@ -18,6 +18,8 @@
 
 - Fix: bug where incremental compilation crashes when rewatch is being run in a specific package vs the root of the monorepo. https://github.com/rescript-lang/rescript-vscode/pull/1082
 
+- Fix: Absence of Node.js does not hinder LSP server. https://github.com/rescript-lang/rescript-vscode/pull/1083
+
 ## 1.62.0
 
 #### :nail_care: Polish

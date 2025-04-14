@@ -148,36 +148,31 @@ export let findReScriptVersion = (
     return undefined;
   }
 
-  let rescriptBinary = lookup.findFilePathFromProjectRoot(
-    projectRoot,
-    path.join(c.nodeModulesBinDir, c.rescriptBinName)
-  );
+  const bscExe = findBinary(findPlatformPath(projectRoot), c.bscExeName);
 
-  if (rescriptBinary == null) {
+  if (bscExe == null) {
     return undefined;
   }
 
   try {
-    let version = childProcess.execSync(`${rescriptBinary} -v`);
-    return version.toString().trim();
+    let version = childProcess.execSync(`${bscExe} -v`);
+    return version.toString().replace(/rescript/gi, "").trim();
   } catch (e) {
+    console.error("rescrip binary failed", e);
     return undefined;
   }
 };
 
 export function findReScriptVersionForProjectRoot(projectRootPath:string) : string | undefined {
-  let rescriptBinary = lookup.findFilePathFromProjectRoot(
-    projectRootPath,
-    path.join(c.nodeModulesBinDir, c.rescriptBinName)
-  );
+  const bscExe = findBinary(findPlatformPath(projectRootPath), c.bscExeName);
 
-  if (rescriptBinary == null) {
+  if (bscExe == null) {
     return undefined;
   }
 
   try {
-    let version = childProcess.execSync(`${rescriptBinary} -v`);
-    return version.toString().trim();
+    let version = childProcess.execSync(`${bscExe} -v`);
+    return version.toString().replace(/rescript/gi, "").trim();
   } catch (e) {
     return undefined;
   }
