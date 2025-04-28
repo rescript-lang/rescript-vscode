@@ -680,11 +680,15 @@ async function completion(msg: p.RequestMessage) {
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  await new Promise<void>((resolve) => {
-    ic.triggerIncrementalCompilationOfFile(filePath, code, send, () => {
-      resolve();
+
+  if (config.extensionConfiguration.newCompletion) {
+    await new Promise<void>((resolve) => {
+      ic.triggerIncrementalCompilationOfFile(filePath, code, send, () => {
+        resolve();
+      });
     });
-  });
+  }
+
   let response = utils.runAnalysisCommand(
     filePath,
     [
