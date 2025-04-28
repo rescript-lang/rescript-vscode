@@ -21,7 +21,7 @@
           }
         },
         {
-          "match": "(to|downto)\\s*(as)",
+          "match": "(to|downto)\\s+(as)",
           "captures": {
             "1": {
               "name": "variable"
