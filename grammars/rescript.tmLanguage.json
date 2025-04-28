@@ -10,7 +10,7 @@
     "RE_TO_DOWNTO_AS_LABELS": {
       "patterns": [
         {
-          "match": "(to|downto)\\s*(=)",
+          "match": "~(to|downto)\\s*(=)",
           "captures": {
             "1": {
               "name": "variable"
@@ -21,7 +21,7 @@
           }
         },
         {
-          "match": "(to|downto)\\s*(as)",
+          "match": "~(to|downto)\\s+(as)",
           "captures": {
             "1": {
               "name": "variable"
