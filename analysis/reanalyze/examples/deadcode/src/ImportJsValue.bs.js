@@ -23,7 +23,8 @@ var areaValue = ImportJsValueGen$1.area({
     });
 
 function getAbs(x) {
-  return x.getAbs();
+  var getAbs$1 = x.getAbs;
+  return getAbs$1();
 }
 
 var AbsoluteValue = {
@@ -35,7 +36,7 @@ function useGetProp(x) {
 }
 
 function useGetAbs(x) {
-  return x.getAbs() + 1 | 0;
+  return getAbs(x) + 1 | 0;
 }
 
 function useColor(prim) {
@@ -74,7 +75,6 @@ export {
   returnedFromHigherOrder ,
   convertVariant ,
   polymorphic ,
-  $$default ,
   $$default as default,
 }
 /* roundedNumber Not a pure module */
