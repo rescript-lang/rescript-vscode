@@ -677,8 +677,13 @@ async function compileContents(
             .filter((d) => {
               if (
                 !d.message.startsWith("Uninterpreted extension 'rescript.") &&
-                !d.message.includes(
-                  `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`
+                (
+                  !d.message.includes(
+                    `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`
+                  ) ||
+                  // The `Multiple definition of the <kind> name <name>` type error's
+                  // message includes the filepath with LOC of the duplicate definition
+                  d.message.includes("Multiple definition of the")
                 )
               ) {
                 hasIgnoredErrorMessages = true;
