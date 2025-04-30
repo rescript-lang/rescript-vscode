@@ -380,7 +380,17 @@ let handleUndefinedRecordFieldsAction = ({
       newText += `${paddingContentEndBrace}`;
     } else {
       // A single line record definition body is a bit easier - we'll just add the new fields on the same line.
-      newText += ", ";
+
+      // For an empty record (`range.end.character - range.start.character == 2`),
+      // we don't want to add an initial trailing comma as that would be invalid syntax.
+      //
+      // We assume that records that already contain some characters between
+      // their braces have at least one field and therefore we need to insert
+      // an initial trailing comma.
+      if (range.end.character - range.start.character > 2) {
+        newText += ", ";
+      }
+
       newText += recordFieldNames
         .map((fieldName) => `${fieldName}: failwith("TODO")`)
         .join(", ");
