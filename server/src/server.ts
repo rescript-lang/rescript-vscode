@@ -102,7 +102,7 @@ let sendUpdatedDiagnostics = () => {
       result: filesAndErrors,
       codeActions,
       linesWithParseErrors,
-    } = utils.parseCompilerLogOutput(content);
+    } = utils.parseCompilerLogOutput(content, stupidFileContentCache);
 
     if (linesWithParseErrors.length > 0) {
       let params: p.ShowMessageParams = {

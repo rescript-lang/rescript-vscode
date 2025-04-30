@@ -2,6 +2,7 @@
 // actions available in the extension, but they are derived via the analysis
 // OCaml binary.
 import * as p from "vscode-languageserver-protocol";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import * as utils from "./utils";
 import { fileURLToPath } from "url";
 
@@ -16,6 +17,7 @@ interface findCodeActionsConfig {
   diagnosticMessage: string[];
   file: string;
   range: p.Range;
+  fileContentCache: Map<string, string>;
   addFoundActionsHere: filesCodeActions;
 }
 
@@ -146,6 +148,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
   diagnosticMessage,
   file,
   range,
+  fileContentCache,
   addFoundActionsHere: codeActions,
 }: findCodeActionsConfig) => {
   diagnosticMessage.forEach((line, index, array) => {
@@ -174,6 +177,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
           index,
           line,
           range,
+          fileContentCache,
         });
       } catch (e) {
         console.error(e);
@@ -194,6 +198,7 @@ interface codeActionExtractorConfig {
   range: p.Range;
   diagnostic: p.Diagnostic;
   codeActions: filesCodeActions;
+  fileContentCache: Map<string, string>;
 }
 
 type codeActionExtractor = (config: codeActionExtractorConfig) => boolean;
@@ -319,12 +324,14 @@ let handleUndefinedRecordFieldsAction = ({
   file,
   range,
   diagnostic,
+  fileContentCache
 }: {
   recordFieldNames: string[];
   codeActions: filesCodeActions;
   file: string;
   range: p.Range;
   diagnostic: p.Diagnostic;
+  fileContentCache: Map<string, string>;
 }) => {
   if (recordFieldNames != null) {
     codeActions[file] = codeActions[file] || [];
@@ -379,8 +386,19 @@ let handleUndefinedRecordFieldsAction = ({
       // Let's put the end brace back where it was (we still have it to the direct right of us).
       newText += `${paddingContentEndBrace}`;
     } else {
+      let insertLeadingComma = true
+      const fileContent = fileContentCache.get(file.replace("file://", ""))
+      if (fileContent) {
+        const textDocument = TextDocument.create(file, "text", 0, fileContent)
+        if (textDocument.getText(range) == "{}") {
+          insertLeadingComma = false
+        }
+      }
+
       // A single line record definition body is a bit easier - we'll just add the new fields on the same line.
-      newText += ", ";
+      if (insertLeadingComma) {
+        newText += ", ";
+      }
       newText += recordFieldNames
         .map((fieldName) => `${fieldName}: failwith("TODO")`)
         .join(", ");
@@ -421,6 +439,7 @@ let addUndefinedRecordFieldsV10: codeActionExtractor = ({
   index,
   line,
   range,
+  fileContentCache,
 }) => {
   if (line.startsWith("Some record fields are undefined:")) {
     let recordFieldNames = line
@@ -440,6 +459,7 @@ let addUndefinedRecordFieldsV10: codeActionExtractor = ({
       diagnostic,
       file,
       range,
+      fileContentCache,
     });
   }
 
@@ -454,6 +474,7 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = ({
   index,
   line,
   range,
+  fileContentCache
 }) => {
   if (line.startsWith("Some required record fields are missing:")) {
     let theLine = line;
@@ -486,6 +507,7 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = ({
       diagnostic,
       file,
       range,
+      fileContentCache,
     });
   }
 
