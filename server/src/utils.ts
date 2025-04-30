@@ -509,8 +509,7 @@ type parsedCompilerLogResult = {
   linesWithParseErrors: string[];
 };
 export let parseCompilerLogOutput = (
-  content: string,
-  fileContentCache: Map<string, string>
+  content: string
 ): parsedCompilerLogResult => {
   type parsedDiagnostic = {
     code: number | undefined;
@@ -681,7 +680,6 @@ export let parseCompilerLogOutput = (
       diagnosticMessage,
       file,
       range,
-      fileContentCache,
     });
 
     result[file].push(diagnostic);

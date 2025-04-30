@@ -644,13 +644,8 @@ async function compileContents(
           }
           // Reset compilation status as this compilation finished
           entry.compilation = null;
-
-          const fileContentCache = new Map();
-          fileContentCache.set(entry.file.incrementalFilePath, fileContent)
-
           const { result, codeActions } = utils.parseCompilerLogOutput(
-            `${stderr}\n#Done()`,
-            fileContentCache
+            `${stderr}\n#Done()`
           );
 
           const actions = Object.values(codeActions)[0] ?? [];
