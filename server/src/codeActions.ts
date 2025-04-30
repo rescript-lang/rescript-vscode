@@ -458,7 +458,7 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = ({
   if (line.startsWith("Some required record fields are missing:")) {
     let theLine = line;
     if (theLine.endsWith(".")) {
-      theLine = theLine.slice(0, theLine.length - 2);
+      theLine = theLine.slice(0, theLine.length - 1);
     }
 
     let recordFieldNames = theLine
