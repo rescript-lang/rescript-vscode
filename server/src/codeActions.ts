@@ -151,7 +151,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
   diagnosticMessage.forEach((line, index, array) => {
     // Because of how actions work, there can only be one per diagnostic. So,
     // halt whenever a code action has been found.
-    let codeActionEtractors = [
+    let codeActionExtractors = [
       simpleTypeMismatches,
       didYouMeanAction,
       addUndefinedRecordFieldsV10,
@@ -162,7 +162,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
       wrapInSome,
     ];
 
-    for (let extractCodeAction of codeActionEtractors) {
+    for (let extractCodeAction of codeActionExtractors) {
       let didFindAction = false;
 
       try {
@@ -319,12 +319,14 @@ let handleUndefinedRecordFieldsAction = ({
   file,
   range,
   diagnostic,
+  todoValue
 }: {
   recordFieldNames: string[];
   codeActions: filesCodeActions;
   file: string;
   range: p.Range;
   diagnostic: p.Diagnostic;
+  todoValue: string
 }) => {
   if (recordFieldNames != null) {
     codeActions[file] = codeActions[file] || [];
@@ -373,16 +375,26 @@ let handleUndefinedRecordFieldsAction = ({
           newText += paddingContentRecordField;
         }
 
-        newText += `${fieldName}: failwith("TODO"),\n`;
+        newText += `${fieldName}: ${todoValue},\n`;
       });
 
       // Let's put the end brace back where it was (we still have it to the direct right of us).
       newText += `${paddingContentEndBrace}`;
     } else {
       // A single line record definition body is a bit easier - we'll just add the new fields on the same line.
-      newText += ", ";
+
+      // For an empty record (`range.end.character - range.start.character == 2`),
+      // we don't want to add an initial trailing comma as that would be invalid syntax.
+      //
+      // We assume that records that already contain some characters between
+      // their braces have at least one field and therefore we need to insert
+      // an initial trailing comma.
+      if (range.end.character - range.start.character > 2) {
+        newText += ", ";
+      }
+
       newText += recordFieldNames
-        .map((fieldName) => `${fieldName}: failwith("TODO")`)
+        .map((fieldName) => `${fieldName}: ${todoValue}`)
         .join(", ");
     }
 
@@ -440,6 +452,7 @@ let addUndefinedRecordFieldsV10: codeActionExtractor = ({
       diagnostic,
       file,
       range,
+      todoValue: `failwith("TODO")`
     });
   }
 
@@ -458,7 +471,7 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = ({
   if (line.startsWith("Some required record fields are missing:")) {
     let theLine = line;
     if (theLine.endsWith(".")) {
-      theLine = theLine.slice(0, theLine.length - 2);
+      theLine = theLine.slice(0, theLine.length - 1);
     }
 
     let recordFieldNames = theLine
@@ -486,6 +499,7 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = ({
       diagnostic,
       file,
       range,
+      todoValue: `%todo`
     });
   }
 
