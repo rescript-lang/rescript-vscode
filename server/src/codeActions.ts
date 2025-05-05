@@ -319,12 +319,14 @@ let handleUndefinedRecordFieldsAction = ({
   file,
   range,
   diagnostic,
+  todoValue
 }: {
   recordFieldNames: string[];
   codeActions: filesCodeActions;
   file: string;
   range: p.Range;
   diagnostic: p.Diagnostic;
+  todoValue: string
 }) => {
   if (recordFieldNames != null) {
     codeActions[file] = codeActions[file] || [];
@@ -373,7 +375,7 @@ let handleUndefinedRecordFieldsAction = ({
           newText += paddingContentRecordField;
         }
 
-        newText += `${fieldName}: failwith("TODO"),\n`;
+        newText += `${fieldName}: ${todoValue},\n`;
       });
 
       // Let's put the end brace back where it was (we still have it to the direct right of us).
@@ -392,7 +394,7 @@ let handleUndefinedRecordFieldsAction = ({
       }
 
       newText += recordFieldNames
-        .map((fieldName) => `${fieldName}: failwith("TODO")`)
+        .map((fieldName) => `${fieldName}: ${todoValue}`)
         .join(", ");
     }
 
@@ -450,6 +452,7 @@ let addUndefinedRecordFieldsV10: codeActionExtractor = ({
       diagnostic,
       file,
       range,
+      todoValue: `failwith("TODO")`
     });
   }
 
@@ -496,6 +499,7 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = ({
       diagnostic,
       file,
       range,
+      todoValue: `%todo`
     });
   }
 
