@@ -24,6 +24,8 @@
 
 - Fix: Absence of Node.js does not hinder LSP server. https://github.com/rescript-lang/rescript-vscode/pull/1083
 
+- Fix: JSON from `rescript-code-editor-analysis` was not always escaped properly, which prevented code actions from being available in certain situations https://github.com/rescript-lang/rescript-vscode/pull/1089
+
 ## 1.62.0
 
 #### :nail_care: Polish
