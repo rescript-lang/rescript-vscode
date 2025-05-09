@@ -370,7 +370,7 @@ function removeAnsiCodes(s: string): string {
   const ansiEscape = /\x1B[@-_][0-?]*[ -/]*[@-~]/g;
   return s.replace(ansiEscape, "");
 }
-function triggerIncrementalCompilationOfFile(
+export function triggerIncrementalCompilationOfFile(
   filePath: string,
   fileContent: string,
   send: send,
@@ -483,9 +483,10 @@ function triggerIncrementalCompilationOfFile(
     entry.killCompilationListeners = [];
   }
   const triggerToken = performance.now();
+  // TODO: Can we remove this timeout? Don't remember why it was added...
   const timeout = setTimeout(() => {
     compileContents(entry, fileContent, send, onCompilationFinished);
-  }, 20);
+  }, 0);
 
   if (entry.compilation != null) {
     entry.compilation.timeout = timeout;
@@ -751,6 +752,7 @@ async function compileContents(
   }
 }
 
+// TODO(compilation-revamp) make sure we don't unecessarily trigger incremental compilations
 export function handleUpdateOpenedFile(
   filePath: string,
   fileContent: string,

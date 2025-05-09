@@ -11,6 +11,7 @@ export interface extensionConfiguration {
   codeLens?: boolean;
   binaryPath?: string | null;
   platformPath?: string | null;
+  newCompletion?: boolean;
   signatureHelp?: {
     enabled?: boolean;
     forConstructorPayloads?: boolean;
@@ -39,6 +40,7 @@ let config: { extensionConfiguration: extensionConfiguration } = {
     codeLens: false,
     binaryPath: null,
     platformPath: null,
+    newCompletion: false,
     signatureHelp: {
       enabled: true,
       forConstructorPayloads: true,

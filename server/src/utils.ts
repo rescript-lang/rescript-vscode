@@ -242,6 +242,10 @@ export let runAnalysisAfterSanityCheck = (
         config.extensionConfiguration.cache?.projectConfig?.enable === true
           ? "true"
           : undefined,
+      RESCRIPT_NEW_ANALYSIS_ENGINE:
+        config.extensionConfiguration.newCompletion === true
+          ? "true"
+          : undefined,
     },
   };
 
