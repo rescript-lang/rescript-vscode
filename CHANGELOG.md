@@ -14,6 +14,8 @@
 
 #### :bug: Bug fix
 
+- Fix: bug where we incorrectly showed a warning notification about something going wrong with incremental type checking, when in fact the compiler was reporting module-related type errors https://github.com/rescript-lang/rescript-vscode/pull/1090
+
 - Fix: bug where we incorrectly showed a warning notification about something going wrong with incremental type checking, when in fact the compiler was reporting multiple definitions of the same type or module name https://github.com/rescript-lang/rescript-vscode/pull/1086
 
 - Fix: incorrect highlighting of `as` inside labelled arguments like `toast` https://github.com/rescript-lang/rescript-vscode/pull/1085
