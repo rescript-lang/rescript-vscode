@@ -683,7 +683,12 @@ async function compileContents(
                   ) ||
                   // The `Multiple definition of the <kind> name <name>` type error's
                   // message includes the filepath with LOC of the duplicate definition
-                  d.message.includes("Multiple definition of the")
+                  d.message.startsWith("Multiple definition of the") ||
+                  // The signature mismatch, with mismatch and ill typed applicative functor
+                  // type errors all include the filepath with LOC
+                  d.message.startsWith("Signature mismatch") ||
+                  d.message.startsWith("In this `with' constraint") ||
+                  d.message.startsWith("This `with' constraint on")
                 )
               ) {
                 hasIgnoredErrorMessages = true;
