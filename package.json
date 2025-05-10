@@ -206,6 +206,12 @@
           ],
           "default": null,
           "description": "Path to the directory where platform-specific ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
+        },
+        "rescript.settings.logLevel": {
+          "type": "string",
+          "enum": ["error", "warning", "info", "log"],
+          "default": "info",
+          "description": "Controls the log level of the language server. Logs below this level will be filtered out."
         }
       }
     },
