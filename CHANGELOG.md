@@ -12,6 +12,10 @@
 
 ## master
 
+#### :rocket: New Feature
+
+- Find `bsc.exe` and `rescript-code-editor-analysis.exe` from platform-specific packages used by ReScript `v12.0.0-alpha.13`+.https://github.com/rescript-lang/rescript-vscode/pull/1092
+
 #### :bug: Bug fix
 
 - Fix: bug where we incorrectly showed a warning notification about something going wrong with incremental type checking, when in fact the compiler was reporting module-related type errors https://github.com/rescript-lang/rescript-vscode/pull/1090
