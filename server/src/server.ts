@@ -1330,7 +1330,7 @@ onErrorReported((msg) => {
   let params: p.ShowMessageParams = {
     type: p.MessageType.Warning,
     message: `ReScript tooling: Internal error. Something broke. Here's the error message that you can report if you want:
-    
+
 ${msg}
 
 (this message will only be reported once every 15 minutes)`,
