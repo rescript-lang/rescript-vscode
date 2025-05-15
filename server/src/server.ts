@@ -546,7 +546,7 @@ async function typeDefinition(msg: p.RequestMessage) {
   return response;
 }
 
-function references(msg: p.RequestMessage) {
+async function references(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -1230,7 +1230,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.TypeDefinitionRequest.method) {
       send(await typeDefinition(msg));
     } else if (msg.method === p.ReferencesRequest.method) {
-      send(references(msg));
+      send(await references(msg));
     } else if (msg.method === p.PrepareRenameRequest.method) {
       send(prepareRename(msg));
     } else if (msg.method === p.RenameRequest.method) {
