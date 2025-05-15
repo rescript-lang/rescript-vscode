@@ -658,7 +658,7 @@ function askForAllCurrentConfiguration() {
   send(req);
 }
 
-function semanticTokens(msg: p.RequestMessage) {
+async function semanticTokens(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens
   let params = msg.params as p.SemanticTokensParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -666,7 +666,7 @@ function semanticTokens(msg: p.RequestMessage) {
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     ["semanticTokens", tmpname],
     msg,
@@ -1242,7 +1242,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.CompletionResolveRequest.method) {
       send(await completionResolve(msg));
     } else if (msg.method === p.SemanticTokensRequest.method) {
-      send(semanticTokens(msg));
+      send(await semanticTokens(msg));
     } else if (msg.method === p.CodeActionRequest.method) {
       send(codeAction(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
