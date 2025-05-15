@@ -698,7 +698,7 @@ function completion(msg: p.RequestMessage) {
   return response;
 }
 
-function completionResolve(msg: p.RequestMessage) {
+async function completionResolve(msg: p.RequestMessage) {
   const item = msg.params as p.CompletionItem;
   let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
@@ -1240,7 +1240,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.CompletionRequest.method) {
       send(completion(msg));
     } else if (msg.method === p.CompletionResolveRequest.method) {
-      send(completionResolve(msg));
+      send(await completionResolve(msg));
     } else if (msg.method === p.SemanticTokensRequest.method) {
       send(semanticTokens(msg));
     } else if (msg.method === p.CodeActionRequest.method) {
