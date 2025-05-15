@@ -115,7 +115,7 @@ let findBinary = async (
     // TODO: export `binPaths` from `rescript` package so that we don't need to
     // copy the logic for figuring out `target`.
     const target = `${process.platform}-${process.arch}`;
-    const targetPackagePath = path.join(rescriptDir, "..", `@rescript/${target}`)
+    const targetPackagePath = path.join(rescriptDir, "..", `@rescript/${target}/bin.js`)
     const { binPaths } = await import(targetPackagePath);
 
     if (binary == "bsc.exe") {
