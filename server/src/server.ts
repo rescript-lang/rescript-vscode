@@ -271,7 +271,7 @@ let openedFile = async (fileUri: string, fileContent: string) => {
         filesDiagnostics: {},
         namespaceName:
           namespaceName.kind === "success" ? namespaceName.result : null,
-        rescriptVersion: utils.findReScriptVersionForProjectRoot(projectRootPath),
+        rescriptVersion: await utils.findReScriptVersionForProjectRoot(projectRootPath),
         bsbWatcherByEditor: null,
         bscBinaryLocation: await utils.findBscExeBinary(projectRootPath),
         editorAnalysisLocation: await utils.findEditorAnalysisBinary(projectRootPath),

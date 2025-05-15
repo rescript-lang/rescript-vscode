@@ -260,8 +260,8 @@ export let findReScriptVersion = async (
   }
 };
 
-export function findReScriptVersionForProjectRoot(projectRootPath: string) : string | undefined {
-  const bscExe = findBinary(findPlatformPath(projectRootPath), c.bscExeName);
+export async function findReScriptVersionForProjectRoot(projectRootPath: string): Promise<string | undefined> {
+  const bscExe = await findBscExeBinary(projectRootPath)
 
   if (bscExe == null) {
     return undefined;
