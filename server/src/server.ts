@@ -719,7 +719,7 @@ async function completionResolve(msg: p.RequestMessage) {
   return response;
 }
 
-function codeAction(msg: p.RequestMessage): p.ResponseMessage {
+async function codeAction(msg: p.RequestMessage): Promise<p.ResponseMessage> {
   let params = msg.params as p.CodeActionParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
@@ -741,7 +741,7 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
   );
 
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     [
       "codeAction",
@@ -1244,7 +1244,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.SemanticTokensRequest.method) {
       send(await semanticTokens(msg));
     } else if (msg.method === p.CodeActionRequest.method) {
-      send(codeAction(msg));
+      send(await codeAction(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       let responses = format(msg);
       responses.forEach((response) => send(response));
