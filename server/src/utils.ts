@@ -283,7 +283,7 @@ if (fs.existsSync(c.builtinAnalysisDevPath)) {
   builtinBinaryPath = c.builtinAnalysisProdPath;
 }
 
-export let runAnalysisAfterSanityCheck = (
+export let runAnalysisAfterSanityCheck = async (
   filePath: p.DocumentUri,
   args: Array<any>,
   projectRequired = false
@@ -294,7 +294,7 @@ export let runAnalysisAfterSanityCheck = (
   }
   let rescriptVersion =
     projectsFiles.get(projectRootPath ?? "")?.rescriptVersion ??
-    findReScriptVersion(filePath);
+    await findReScriptVersion(filePath);
 
   let binaryPath = builtinBinaryPath;
 
@@ -366,7 +366,7 @@ export let runAnalysisCommand = (
   msg: RequestMessage,
   projectRequired = true
 ) => {
-  let result = runAnalysisAfterSanityCheck(filePath, args, projectRequired);
+  let result = await runAnalysisAfterSanityCheck(filePath, args, projectRequired);
   let response: ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
@@ -379,7 +379,7 @@ export let getReferencesForPosition = (
   filePath: p.DocumentUri,
   position: p.Position
 ) =>
-  runAnalysisAfterSanityCheck(filePath, [
+  await runAnalysisAfterSanityCheck(filePath, [
     "references",
     filePath,
     position.line,

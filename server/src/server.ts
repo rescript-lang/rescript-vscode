@@ -102,7 +102,7 @@ let sendUpdatedDiagnostics = () => {
       result: filesAndErrors,
       codeActions,
       linesWithParseErrors,
-    } = utils.parseCompilerLogOutput(content);
+    } = await utils.parseCompilerLogOutput(content);
 
     if (linesWithParseErrors.length > 0) {
       let params: p.ShowMessageParams = {
@@ -192,7 +192,7 @@ let debug = false;
 let syncProjectConfigCache = (rootPath: string) => {
   try {
     if (debug) console.log("syncing project config cache for " + rootPath);
-    utils.runAnalysisAfterSanityCheck(rootPath, ["cache-project", rootPath]);
+    await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-project", rootPath]);
     if (debug) console.log("OK - synced project config cache for " + rootPath);
   } catch (e) {
     if (debug) console.error(e);
@@ -202,7 +202,7 @@ let syncProjectConfigCache = (rootPath: string) => {
 let deleteProjectConfigCache = (rootPath: string) => {
   try {
     if (debug) console.log("deleting project config cache for " + rootPath);
-    utils.runAnalysisAfterSanityCheck(rootPath, ["cache-delete", rootPath]);
+    await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-delete", rootPath]);
     if (debug) console.log("OK - deleted project config cache for " + rootPath);
   } catch (e) {
     if (debug) console.error(e);
@@ -600,7 +600,7 @@ function rename(msg: p.RequestMessage) {
   let params = msg.params as p.RenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let documentChanges: (p.RenameFile | p.TextDocumentEdit)[] | null =
-    utils.runAnalysisAfterSanityCheck(filePath, [
+    await utils.runAnalysisAfterSanityCheck(filePath, [
       "rename",
       filePath,
       params.position.line,
@@ -705,7 +705,7 @@ function completionResolve(msg: p.RequestMessage) {
 
   if (item.documentation == null && item.data != null) {
     const data = item.data as { filePath: string; modulePath: string };
-    let result = utils.runAnalysisAfterSanityCheck(
+    let result = await utils.runAnalysisAfterSanityCheck(
       data.filePath,
       ["completionResolve", data.filePath, data.modulePath],
       true
@@ -851,7 +851,7 @@ let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
   let compilerDiagnosticsForFile =
     getCurrentCompilerDiagnosticsForFile(fileUri);
   let syntaxDiagnosticsForFile: p.Diagnostic[] =
-    utils.runAnalysisAfterSanityCheck(filePath, ["diagnosticSyntax", tmpname]);
+    await utils.runAnalysisAfterSanityCheck(filePath, ["diagnosticSyntax", tmpname]);
 
   let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,

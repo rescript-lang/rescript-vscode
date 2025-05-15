@@ -644,7 +644,7 @@ async function compileContents(
           }
           // Reset compilation status as this compilation finished
           entry.compilation = null;
-          const { result, codeActions } = utils.parseCompilerLogOutput(
+          const { result, codeActions } = await utils.parseCompilerLogOutput(
             `${stderr}\n#Done()`
           );
 
