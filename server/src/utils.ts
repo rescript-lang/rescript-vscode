@@ -360,7 +360,7 @@ export let runAnalysisAfterSanityCheck = async (
   }
 };
 
-export let runAnalysisCommand = (
+export let runAnalysisCommand = async (
   filePath: p.DocumentUri,
   args: Array<any>,
   msg: RequestMessage,
