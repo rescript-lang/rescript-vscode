@@ -445,11 +445,11 @@ async function hover(msg: p.RequestMessage) {
   return response;
 }
 
-function inlayHint(msg: p.RequestMessage) {
+async function inlayHint(msg: p.RequestMessage) {
   const params = msg.params as p.InlayHintParams;
   const filePath = fileURLToPath(params.textDocument.uri);
 
-  const response = utils.runAnalysisCommand(
+  const response = await utils.runAnalysisCommand(
     filePath,
     [
       "inlayHint",
@@ -1256,7 +1256,7 @@ async function onMessage(msg: p.Message) {
       let params = msg.params as InlayHintParams;
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
-        send(inlayHint(msg));
+        send(await inlayHint(msg));
       }
     } else if (msg.method === p.CodeLensRequest.method) {
       let params = msg.params as CodeLensParams;
