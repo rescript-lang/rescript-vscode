@@ -8,9 +8,7 @@ export let platformDir =
 // version is fixed to 2.0
 export let jsonrpcVersion = "2.0";
 
-export let bscExeName = "bsc.exe";
 export let editorAnalysisName = "rescript-editor-analysis.exe";
-
 export let builtinAnalysisDevPath = path.join(
   path.dirname(__dirname),
   "..",
