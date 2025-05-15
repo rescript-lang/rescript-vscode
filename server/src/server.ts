@@ -493,13 +493,13 @@ function sendCodeLensRefresh() {
   send(request);
 }
 
-function signatureHelp(msg: p.RequestMessage) {
+async function signatureHelp(msg: p.RequestMessage) {
   let params = msg.params as p.SignatureHelpParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     [
       "signatureHelp",
@@ -1268,7 +1268,7 @@ async function onMessage(msg: p.Message) {
       let params = msg.params as SignatureHelpParams;
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
-        send(signatureHelp(msg));
+        send(await signatureHelp(msg));
       }
     } else {
       let response: p.ResponseMessage = {
