@@ -622,7 +622,7 @@ async function rename(msg: p.RequestMessage) {
   return response;
 }
 
-function documentSymbol(msg: p.RequestMessage) {
+async function documentSymbol(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
   let params = msg.params as p.DocumentSymbolParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -630,7 +630,7 @@ function documentSymbol(msg: p.RequestMessage) {
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     ["documentSymbol", tmpname],
     msg,
@@ -1236,7 +1236,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.RenameRequest.method) {
       send(await rename(msg));
     } else if (msg.method === p.DocumentSymbolRequest.method) {
-      send(documentSymbol(msg));
+      send(await documentSymbol(msg));
     } else if (msg.method === p.CompletionRequest.method) {
       send(completion(msg));
     } else if (msg.method === p.CompletionResolveRequest.method) {
