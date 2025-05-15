@@ -7,7 +7,9 @@ import {
   ResponseMessage,
 } from "vscode-languageserver-protocol";
 import fs from "fs";
+import fsAsync from "fs/promises";
 import * as os from "os";
+import semver from "semver";
 
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
@@ -89,6 +91,101 @@ export let findBinary = (
     return null;
   }
 };
+
+let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
+  if (config.extensionConfiguration.platformPath != null) {
+    return config.extensionConfiguration.platformPath;
+  }
+
+  let rescriptDir = lookup.findFilePathFromProjectRoot(
+    projectRootPath,
+    path.join("node_modules", "rescript")
+  );
+  if (rescriptDir == null) {
+    return null;
+  }
+
+  let platformPath = path.join(rescriptDir, c.platformDir);
+
+  // Binaries have been split into optional platform-specific dependencies
+  // since v12.0.0-alpha.13
+  if (!fs.existsSync(platformPath)) {
+    platformPath = path.join(
+      rescriptDir,
+      "..",
+      `@rescript/${process.platform}-${process.arch}/bin`
+    )
+  }
+
+  // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
+  if (
+    process.platform == "darwin" &&
+    process.arch == "arm64" &&
+    !fs.existsSync(platformPath)
+  ) {
+    platformPath = path.join(rescriptDir, process.platform);
+  }
+
+  return platformPath;
+};
+
+export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinary(findPlatformPath(projectRootPath), c.bscExeName);
+
+export let findEditorAnalysisBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinary(findPlatformPath(projectRootPath), c.editorAnalysisName);
+
+// If ReScript < 12.0.0-alpha.13, then we want `{project_root}/node_modules/rescript/{c.platformDir}/{binary}`.
+// Otherwise, we want to dynamically import `{project_root}/node_modules/rescript` and from `binPaths` get the relevant binary.
+// We won't know which version is in the project root until we read and parse `{project_root}/node_modules/rescript/package.json`
+let findBinaryAsync = async (
+  projectRootPath: p.DocumentUri | null,
+  binary: "bsc.exe" | "rescript-editor-analysis.exe"
+) => {
+  if (config.extensionConfiguration.platformPath != null) {
+    return path.join(config.extensionConfiguration.platformPath, binary);
+  }
+
+  const rescriptDir = lookup.findFilePathFromProjectRoot(
+    projectRootPath,
+    path.join("node_modules", "rescript")
+  );
+  if (rescriptDir == null) {
+    return null;
+  }
+
+  let rescriptVersion = null;
+  try {
+    const rescriptPackageJSONPath = path.join(rescriptDir, "package.json");
+    const rescriptPackageJSON = JSON.parse(await fsAsync.readFile(rescriptPackageJSONPath, "utf-8"));
+    rescriptVersion = rescriptPackageJSON.version
+  } catch (error) {
+    return null
+  }
+
+  let binaryPath: string | null = null
+  if (semver.gte(rescriptVersion, "12.0.0-alpha.13")) {
+    // TODO: export `binPaths` from `rescript` package so that we don't need to
+    // copy the logic for figuring out `target`.
+    const target = `${process.platform}-${process.arch}`;
+    const targetPackagePath = path.join(rescriptDir, "..", `@rescript/${target}`)
+    const { binPaths } = await import(targetPackagePath);
+
+    if (binary == "bsc.exe") {
+      binaryPath = binPaths.bsc_exe
+    } else if (binary == "rescript-editor-analysis.exe") {
+      binaryPath = binPaths.rescript_editor_analysis_exe
+    }
+  } else {
+    binaryPath = path.join(rescriptDir, c.platformDir, binary)
+  }
+
+  if (binaryPath != null && fs.existsSync(binaryPath)) {
+    return binaryPath
+  } else {
+    return null
+  }
+}
 
 type execResult =
   | {
@@ -723,46 +820,3 @@ export let rangeContainsRange = (
   }
   return true;
 };
-
-let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
-  if (config.extensionConfiguration.platformPath != null) {
-    return config.extensionConfiguration.platformPath;
-  }
-
-  let rescriptDir = lookup.findFilePathFromProjectRoot(
-    projectRootPath,
-    path.join("node_modules", "rescript")
-  );
-  if (rescriptDir == null) {
-    return null;
-  }
-
-  let platformPath = path.join(rescriptDir, c.platformDir);
-
-  // Binaries have been split into optional platform-specific dependencies
-  // since v12.0.0-alpha.13
-  if (!fs.existsSync(platformPath)) {
-    platformPath = path.join(
-      rescriptDir,
-      "..",
-      `@rescript/${process.platform}-${process.arch}/bin`
-    )
-  }
-
-  // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
-  if (
-    process.platform == "darwin" &&
-    process.arch == "arm64" &&
-    !fs.existsSync(platformPath)
-  ) {
-    platformPath = path.join(rescriptDir, process.platform);
-  }
-
-  return platformPath;
-};
-
-export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
-  findBinary(findPlatformPath(projectRootPath), c.bscExeName);
-
-export let findEditorAnalysisBinary = (projectRootPath: p.DocumentUri | null) =>
-  findBinary(findPlatformPath(projectRootPath), c.editorAnalysisName);
