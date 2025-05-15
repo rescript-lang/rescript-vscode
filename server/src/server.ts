@@ -92,8 +92,9 @@ let getCurrentCompilerDiagnosticsForFile = (
 
   return diagnostics ?? [];
 };
-let sendUpdatedDiagnostics = () => {
-  projectsFiles.forEach((projectFile, projectRootPath) => {
+
+let sendUpdatedDiagnostics = async () => {
+  for (const [projectRootPath, projectFile] of projectsFiles) {
     let { filesWithDiagnostics } = projectFile;
     let compilerLogPath = path.join(projectRootPath, c.compilerLogPartialPath);
     let content = fs.readFileSync(compilerLogPath, { encoding: "utf-8" });
@@ -154,8 +155,9 @@ let sendUpdatedDiagnostics = () => {
         }
       });
     }
-  });
+  }
 };
+
 let deleteProjectDiagnostics = (projectRootPath: string) => {
   let root = projectsFiles.get(projectRootPath);
   if (root != null) {
@@ -178,6 +180,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
     }
   }
 };
+
 let sendCompilationFinishedMessage = () => {
   let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
@@ -215,7 +218,7 @@ let compilerLogsWatcher = chokidar
       stabilityThreshold: 1,
     },
   })
-  .on("all", (_e, changedPath) => {
+  .on("all", async (_e, changedPath) => {
     if (changedPath.includes("build.ninja")) {
       if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
         let projectRoot = utils.findProjectRootOfFile(changedPath);
@@ -225,7 +228,7 @@ let compilerLogsWatcher = chokidar
       }
     } else {
       try {
-        sendUpdatedDiagnostics();
+        await sendUpdatedDiagnostics();
         sendCompilationFinishedMessage();
         if (config.extensionConfiguration.inlayHints?.enable === true) {
           sendInlayHintsRefresh();
