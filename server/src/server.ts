@@ -423,13 +423,13 @@ export default function listen(useStdio = false) {
   }
 }
 
-function hover(msg: p.RequestMessage) {
+async function hover(msg: p.RequestMessage) {
   let params = msg.params as p.HoverParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     [
       "hover",
@@ -1224,7 +1224,7 @@ async function onMessage(msg: p.Message) {
         send(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
-      send(hover(msg));
+      send(await hover(msg));
     } else if (msg.method === p.DefinitionRequest.method) {
       send(definition(msg));
     } else if (msg.method === p.TypeDefinitionRequest.method) {
