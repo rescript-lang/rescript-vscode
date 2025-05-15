@@ -870,7 +870,7 @@ let updateDiagnosticSyntax = async (fileUri: string, fileContent: string) => {
   send(notification);
 };
 
-function createInterface(msg: p.RequestMessage): p.Message {
+async function createInterface(msg: p.RequestMessage): Promise<p.Message> {
   let params = msg.params as p.TextDocumentIdentifier;
   let extension = path.extname(params.uri);
   let filePath = fileURLToPath(params.uri);
@@ -952,7 +952,7 @@ function createInterface(msg: p.RequestMessage): p.Message {
     return response;
   }
 
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     ["createInterface", filePath, cmiPath],
     msg
@@ -1249,7 +1249,7 @@ async function onMessage(msg: p.Message) {
       let responses = format(msg);
       responses.forEach((response) => send(response));
     } else if (msg.method === createInterfaceRequest.method) {
-      send(createInterface(msg));
+      send(await createInterface(msg));
     } else if (msg.method === openCompiledFileRequest.method) {
       send(openCompiledFile(msg));
     } else if (msg.method === p.InlayHintRequest.method) {
