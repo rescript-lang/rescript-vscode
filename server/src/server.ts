@@ -472,11 +472,11 @@ function sendInlayHintsRefresh() {
   send(request);
 }
 
-function codeLens(msg: p.RequestMessage) {
+async function codeLens(msg: p.RequestMessage) {
   const params = msg.params as p.CodeLensParams;
   const filePath = fileURLToPath(params.textDocument.uri);
 
-  const response = utils.runAnalysisCommand(
+  const response = await utils.runAnalysisCommand(
     filePath,
     ["codeLens", filePath],
     msg
@@ -1262,7 +1262,7 @@ async function onMessage(msg: p.Message) {
       let params = msg.params as CodeLensParams;
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
-        send(codeLens(msg));
+        send(await codeLens(msg));
       }
     } else if (msg.method === p.SignatureHelpRequest.method) {
       let params = msg.params as SignatureHelpParams;
