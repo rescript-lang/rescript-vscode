@@ -247,7 +247,7 @@ type clientSentBuildAction = {
   title: string;
   projectRootPath: string;
 };
-let openedFile = (fileUri: string, fileContent: string) => {
+let openedFile = async (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
 
   stupidFileContentCache.set(filePath, fileContent);
@@ -270,8 +270,8 @@ let openedFile = (fileUri: string, fileContent: string) => {
           namespaceName.kind === "success" ? namespaceName.result : null,
         rescriptVersion: utils.findReScriptVersionForProjectRoot(projectRootPath),
         bsbWatcherByEditor: null,
-        bscBinaryLocation: utils.findBscExeBinary(projectRootPath),
-        editorAnalysisLocation: utils.findEditorAnalysisBinary(projectRootPath),
+        bscBinaryLocation: await utils.findBscExeBinary(projectRootPath),
+        editorAnalysisLocation: await utils.findEditorAnalysisBinary(projectRootPath),
         hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
           projectRootPath
         )
@@ -1036,7 +1036,7 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
   return response;
 }
 
-function onMessage(msg: p.Message) {
+async function onMessage(msg: p.Message) {
   if (p.Message.isNotification(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
     if (!initialized && msg.method !== "exit") {
@@ -1052,7 +1052,7 @@ function onMessage(msg: p.Message) {
       }
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
-      openedFile(params.textDocument.uri, params.textDocument.text);
+      await openedFile(params.textDocument.uri, params.textDocument.text);
       updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
