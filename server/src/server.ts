@@ -676,14 +676,14 @@ async function semanticTokens(msg: p.RequestMessage) {
   return response;
 }
 
-function completion(msg: p.RequestMessage) {
+async function completion(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     [
       "completion",
@@ -1238,7 +1238,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.DocumentSymbolRequest.method) {
       send(await documentSymbol(msg));
     } else if (msg.method === p.CompletionRequest.method) {
-      send(completion(msg));
+      send(await completion(msg));
     } else if (msg.method === p.CompletionResolveRequest.method) {
       send(await completionResolve(msg));
     } else if (msg.method === p.SemanticTokensRequest.method) {
