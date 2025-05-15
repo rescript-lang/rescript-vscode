@@ -237,30 +237,11 @@ export let formatCode = (
   }
 };
 
-export let findReScriptVersion = async (
-  filePath: p.DocumentUri
-): Promise<string | undefined> => {
-  let projectRoot = findProjectRootOfFile(filePath);
-  if (projectRoot == null) {
+export async function findReScriptVersionForProjectRoot(projectRootPath: string | null): Promise<string | undefined> {
+  if (projectRootPath == null)  {
     return undefined;
   }
 
-  const bscExe = findBinary(findPlatformPath(projectRoot), c.bscExeName);
-
-  if (bscExe == null) {
-    return undefined;
-  }
-
-  try {
-    let version = childProcess.execSync(`${bscExe} -v`);
-    return version.toString().replace(/rescript/gi, "").trim();
-  } catch (e) {
-    console.error("rescrip binary failed", e);
-    return undefined;
-  }
-};
-
-export async function findReScriptVersionForProjectRoot(projectRootPath: string): Promise<string | undefined> {
   const bscExe = await findBscExeBinary(projectRootPath)
 
   if (bscExe == null) {
@@ -294,7 +275,7 @@ export let runAnalysisAfterSanityCheck = async (
   }
   let rescriptVersion =
     projectsFiles.get(projectRootPath ?? "")?.rescriptVersion ??
-    await findReScriptVersion(filePath);
+    await findReScriptVersionForProjectRoot(projectRootPath)
 
   let binaryPath = builtinBinaryPath;
 
