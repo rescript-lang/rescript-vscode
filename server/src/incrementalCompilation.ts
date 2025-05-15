@@ -619,7 +619,7 @@ async function compileContents(
       entry.project.bscBinaryLocation,
       callArgs,
       { cwd: entry.project.rootPath },
-      (error, _stdout, stderr) => {
+      async (error, _stdout, stderr) => {
         if (!error?.killed) {
           if (debug())
             console.log(
