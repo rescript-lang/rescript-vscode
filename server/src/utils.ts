@@ -375,7 +375,7 @@ export let runAnalysisCommand = async (
   return response;
 };
 
-export let getReferencesForPosition = (
+export let getReferencesForPosition = async (
   filePath: p.DocumentUri,
   position: p.Position
 ) =>

@@ -550,7 +550,7 @@ function references(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(
+  let result: typeof p.ReferencesRequest.type = await utils.getReferencesForPosition(
     filePath,
     params.position
   );
@@ -567,7 +567,7 @@ function prepareRename(msg: p.RequestMessage): p.ResponseMessage {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let locations: null | p.Location[] = utils.getReferencesForPosition(
+  let locations: null | p.Location[] = await utils.getReferencesForPosition(
     filePath,
     params.position
   );
