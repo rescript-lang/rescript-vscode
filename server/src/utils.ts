@@ -79,7 +79,7 @@ export let findProjectRootOfFile = (
 // If ReScript < 12.0.0-alpha.13, then we want `{project_root}/node_modules/rescript/{c.platformDir}/{binary}`.
 // Otherwise, we want to dynamically import `{project_root}/node_modules/rescript` and from `binPaths` get the relevant binary.
 // We won't know which version is in the project root until we read and parse `{project_root}/node_modules/rescript/package.json`
-let findBinaryAsync = async (
+let findBinary = async (
   projectRootPath: p.DocumentUri | null,
   binary: "bsc.exe" | "rescript-editor-analysis.exe" | "rescript"
 ) => {
@@ -135,13 +135,13 @@ let findBinaryAsync = async (
 }
 
 export let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
-  findBinaryAsync(projectRootPath, "rescript");
+  findBinary(projectRootPath, "rescript");
 
 export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
-  findBinaryAsync(projectRootPath, "bsc.exe");
+  findBinary(projectRootPath, "bsc.exe");
 
 export let findEditorAnalysisBinary = (projectRootPath: p.DocumentUri | null) =>
-  findBinaryAsync(projectRootPath, "rescript-editor-analysis.exe");
+  findBinary(projectRootPath, "rescript-editor-analysis.exe");
 
 type execResult =
   | {
