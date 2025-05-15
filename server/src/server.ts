@@ -563,7 +563,7 @@ async function references(msg: p.RequestMessage) {
   return response;
 }
 
-function prepareRename(msg: p.RequestMessage): p.ResponseMessage {
+async function prepareRename(msg: p.RequestMessage): Promise<p.ResponseMessage> {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -1232,7 +1232,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.ReferencesRequest.method) {
       send(await references(msg));
     } else if (msg.method === p.PrepareRenameRequest.method) {
-      send(prepareRename(msg));
+      send(await prepareRename(msg));
     } else if (msg.method === p.RenameRequest.method) {
       send(await rename(msg));
     } else if (msg.method === p.DocumentSymbolRequest.method) {
