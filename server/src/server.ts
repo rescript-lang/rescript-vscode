@@ -517,11 +517,11 @@ async function signatureHelp(msg: p.RequestMessage) {
   return response;
 }
 
-function definition(msg: p.RequestMessage) {
+async function definition(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
   let params = msg.params as p.DefinitionParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     ["definition", filePath, params.position.line, params.position.character],
     msg
@@ -1226,7 +1226,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.HoverRequest.method) {
       send(await hover(msg));
     } else if (msg.method === p.DefinitionRequest.method) {
-      send(definition(msg));
+      send(await definition(msg));
     } else if (msg.method === p.TypeDefinitionRequest.method) {
       send(typeDefinition(msg));
     } else if (msg.method === p.ReferencesRequest.method) {
