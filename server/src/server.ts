@@ -202,7 +202,7 @@ let syncProjectConfigCache = async (rootPath: string) => {
   }
 };
 
-let deleteProjectConfigCache = (rootPath: string) => {
+let deleteProjectConfigCache = async (rootPath: string) => {
   try {
     if (debug) console.log("deleting project config cache for " + rootPath);
     await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-delete", rootPath]);
@@ -350,7 +350,7 @@ let openedFile = async (fileUri: string, fileContent: string) => {
   }
 };
 
-let closedFile = (fileUri: string) => {
+let closedFile = async (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
 
   if (config.extensionConfiguration.incrementalTypechecking?.enable) {
@@ -372,7 +372,7 @@ let closedFile = (fileUri: string) => {
         compilerLogsWatcher.unwatch(
           path.join(projectRootPath, c.buildNinjaPartialPath)
         );
-        deleteProjectConfigCache(projectRootPath);
+        await deleteProjectConfigCache(projectRootPath);
         deleteProjectDiagnostics(projectRootPath);
         if (root.bsbWatcherByEditor !== null) {
           root.bsbWatcherByEditor.kill();
@@ -1078,7 +1078,7 @@ async function onMessage(msg: p.Message) {
       }
     } else if (msg.method === DidCloseTextDocumentNotification.method) {
       let params = msg.params as p.DidCloseTextDocumentParams;
-      closedFile(params.textDocument.uri);
+      await closedFile(params.textDocument.uri);
     } else if (msg.method === DidChangeConfigurationNotification.type.method) {
       // Can't seem to get this notification to trigger, but if it does this will be here and ensure we're synced up at the server.
       askForAllCurrentConfiguration();
