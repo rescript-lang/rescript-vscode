@@ -836,7 +836,7 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   }
 }
 
-let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
+let updateDiagnosticSyntax = async (fileUri: string, fileContent: string) => {
   if (config.extensionConfiguration.incrementalTypechecking?.enable) {
     // The incremental typechecking already sends syntax diagnostics.
     return;
@@ -1056,7 +1056,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       await openedFile(params.textDocument.uri, params.textDocument.text);
-      updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
+      await updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
@@ -1070,7 +1070,7 @@ async function onMessage(msg: p.Message) {
             params.textDocument.uri,
             changes[changes.length - 1].text
           );
-          updateDiagnosticSyntax(
+          await updateDiagnosticSyntax(
             params.textDocument.uri,
             changes[changes.length - 1].text
           );
