@@ -237,9 +237,9 @@ export let formatCode = (
   }
 };
 
-export let findReScriptVersion = (
+export let findReScriptVersion = async (
   filePath: p.DocumentUri
-): string | undefined => {
+): Promise<string | undefined> => {
   let projectRoot = findProjectRootOfFile(filePath);
   if (projectRoot == null) {
     return undefined;
@@ -260,7 +260,7 @@ export let findReScriptVersion = (
   }
 };
 
-export function findReScriptVersionForProjectRoot(projectRootPath:string) : string | undefined {
+export function findReScriptVersionForProjectRoot(projectRootPath: string) : string | undefined {
   const bscExe = findBinary(findPlatformPath(projectRootPath), c.bscExeName);
 
   if (bscExe == null) {
@@ -605,9 +605,9 @@ type parsedCompilerLogResult = {
   codeActions: codeActions.filesCodeActions;
   linesWithParseErrors: string[];
 };
-export let parseCompilerLogOutput = (
+export let parseCompilerLogOutput = async (
   content: string
-): parsedCompilerLogResult => {
+): Promise<parsedCompilerLogResult> => {
   type parsedDiagnostic = {
     code: number | undefined;
     severity: t.DiagnosticSeverity;
@@ -752,7 +752,7 @@ export let parseCompilerLogOutput = (
   let result: filesDiagnostics = {};
   let foundCodeActions: codeActions.filesCodeActions = {};
 
-  parsedDiagnostics.forEach((parsedDiagnostic) => {
+  for (const parsedDiagnostic of parsedDiagnostics) {
     let [fileAndRangeLine, ...diagnosticMessage] = parsedDiagnostic.content;
     let { file, range } = parseFileAndRange(fileAndRangeLine);
 
@@ -771,7 +771,7 @@ export let parseCompilerLogOutput = (
     };
 
     // Check for potential code actions
-    codeActions.findCodeActionsInDiagnosticsMessage({
+    await codeActions.findCodeActionsInDiagnosticsMessage({
       addFoundActionsHere: foundCodeActions,
       diagnostic,
       diagnosticMessage,
@@ -780,7 +780,7 @@ export let parseCompilerLogOutput = (
     });
 
     result[file].push(diagnostic);
-  });
+  }
 
   return {
     done,
