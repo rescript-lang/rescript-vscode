@@ -598,7 +598,7 @@ function prepareRename(msg: p.RequestMessage): p.ResponseMessage {
   };
 }
 
-function rename(msg: p.RequestMessage) {
+async function rename(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
   let params = msg.params as p.RenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -1234,7 +1234,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.PrepareRenameRequest.method) {
       send(prepareRename(msg));
     } else if (msg.method === p.RenameRequest.method) {
-      send(rename(msg));
+      send(await rename(msg));
     } else if (msg.method === p.DocumentSymbolRequest.method) {
       send(documentSymbol(msg));
     } else if (msg.method === p.CompletionRequest.method) {
