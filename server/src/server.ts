@@ -192,7 +192,7 @@ let sendCompilationFinishedMessage = () => {
 
 let debug = false;
 
-let syncProjectConfigCache = (rootPath: string) => {
+let syncProjectConfigCache = async (rootPath: string) => {
   try {
     if (debug) console.log("syncing project config cache for " + rootPath);
     await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-project", rootPath]);
@@ -223,7 +223,7 @@ let compilerLogsWatcher = chokidar
       if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
         let projectRoot = utils.findProjectRootOfFile(changedPath);
         if (projectRoot != null) {
-          syncProjectConfigCache(projectRoot);
+          await syncProjectConfigCache(projectRoot);
         }
       }
     } else {
@@ -289,7 +289,7 @@ let openedFile = async (fileUri: string, fileContent: string) => {
         compilerLogsWatcher.add(
           path.join(projectRootPath, c.buildNinjaPartialPath)
         );
-        syncProjectConfigCache(projectRootPath);
+        await syncProjectConfigCache(projectRootPath);
       }
     }
     let root = projectsFiles.get(projectRootPath)!;
