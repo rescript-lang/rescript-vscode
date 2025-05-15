@@ -29,12 +29,6 @@ export let bscBinName = "bsc";
 
 export let nodeModulesBinDir = path.join("node_modules", ".bin");
 
-// can't use the native bsb/rescript since we might need the watcher -w flag, which is only in the JS wrapper
-export let rescriptNodePartialPath = path.join(
-  nodeModulesBinDir,
-  rescriptBinName
-);
-
 export let bsbLock = ".bsb.lock";
 export let bsconfigPartialPath = "bsconfig.json";
 export let rescriptJsonPartialPath = "rescript.json";

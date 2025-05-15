@@ -76,27 +76,12 @@ export let findProjectRootOfFile = (
   }
 };
 
-// Check if binaryName exists inside binaryDirPath and return the joined path.
-export let findBinary = (
-  binaryDirPath: p.DocumentUri | null,
-  binaryName: string
-): p.DocumentUri | null => {
-  if (binaryDirPath == null) {
-    return null;
-  }
-  let binaryPath: p.DocumentUri = path.join(binaryDirPath, binaryName);
-  if (fs.existsSync(binaryPath)) {
-    return binaryPath;
-  } else {
-    return null;
-  }
-};
 // If ReScript < 12.0.0-alpha.13, then we want `{project_root}/node_modules/rescript/{c.platformDir}/{binary}`.
 // Otherwise, we want to dynamically import `{project_root}/node_modules/rescript` and from `binPaths` get the relevant binary.
 // We won't know which version is in the project root until we read and parse `{project_root}/node_modules/rescript/package.json`
 let findBinaryAsync = async (
   projectRootPath: p.DocumentUri | null,
-  binary: "bsc.exe" | "rescript-editor-analysis.exe"
+  binary: "bsc.exe" | "rescript-editor-analysis.exe" | "rescript"
 ) => {
   if (config.extensionConfiguration.platformPath != null) {
     return path.join(config.extensionConfiguration.platformPath, binary);
@@ -111,16 +96,22 @@ let findBinaryAsync = async (
   }
 
   let rescriptVersion = null;
+  let rescriptJSWrapperPath = null
   try {
     const rescriptPackageJSONPath = path.join(rescriptDir, "package.json");
     const rescriptPackageJSON = JSON.parse(await fsAsync.readFile(rescriptPackageJSONPath, "utf-8"));
     rescriptVersion = rescriptPackageJSON.version
+    rescriptJSWrapperPath = rescriptPackageJSON.bin.rescript
   } catch (error) {
     return null
   }
 
   let binaryPath: string | null = null
-  if (semver.gte(rescriptVersion, "12.0.0-alpha.13")) {
+  if (binary == "rescript") {
+    // Can't use the native bsb/rescript since we might need the watcher -w
+    // flag, which is only in the JS wrapper
+    binaryPath = path.join(rescriptDir, rescriptJSWrapperPath)
+  } else if (semver.gte(rescriptVersion, "12.0.0-alpha.13")) {
     // TODO: export `binPaths` from `rescript` package so that we don't need to
     // copy the logic for figuring out `target`.
     const target = `${process.platform}-${process.arch}`;
@@ -142,6 +133,9 @@ let findBinaryAsync = async (
     return null
   }
 }
+
+export let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinaryAsync(projectRootPath, "rescript");
 
 export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
   findBinaryAsync(projectRootPath, "bsc.exe");

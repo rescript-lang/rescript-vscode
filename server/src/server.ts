@@ -56,16 +56,14 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
-  config.extensionConfiguration.binaryPath == null
-    ? lookup.findFilePathFromProjectRoot(
-        projectRootPath,
-        path.join(c.nodeModulesBinDir, c.rescriptBinName)
-      )
-    : utils.findBinary(
-        config.extensionConfiguration.binaryPath,
-        c.rescriptBinName
-      );
+let findRescriptBinary = async (projectRootPath: p.DocumentUri | null): Promise<string | null> => {
+  if (config.extensionConfiguration.binaryPath != null &&
+    fs.existsSync(path.join(config.extensionConfiguration.binaryPath, "rescript"))) {
+      return path.join(config.extensionConfiguration.binaryPath, "rescript")
+  }
+
+  return utils.findRescriptBinary(projectRootPath)
+}
 
 let createInterfaceRequest = new v.RequestType<
   p.TextDocumentIdentifier,
@@ -305,7 +303,7 @@ let openedFile = async (fileUri: string, fileContent: string) => {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
-      if (findRescriptBinary(projectRootPath) != null) {
+      if (await findRescriptBinary(projectRootPath) != null) {
         let payload: clientSentBuildAction = {
           title: c.startBuildAction,
           projectRootPath: projectRootPath,
@@ -1311,7 +1309,7 @@ async function onMessage(msg: p.Message) {
       // TODO: close watcher when lang-server shuts down. However, by Node's
       // default, these subprocesses are automatically killed when this
       // language-server process exits
-      let rescriptBinaryPath = findRescriptBinary(projectRootPath);
+      let rescriptBinaryPath = await findRescriptBinary(projectRootPath);
       if (rescriptBinaryPath != null) {
         let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
           rescriptBinaryPath,
