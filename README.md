@@ -105,6 +105,7 @@ You'll find all ReScript specific settings under the scope `rescript.settings`.
 | Inlay Hints (experimental) | This allows an editor to place annotations inline with text to display type hints. Enable using `rescript.settings.inlayHints.enable: true`                                                                                                                                                                                                                                                                                                                                                                                      |
 | Code Lens (experimental)   | This tells the editor to add code lenses to function definitions, showing its full type above the definition. Enable using `rescript.settings.codeLens: true`                                                                                                                                                                                                                                                                                                                                                                    |
 | Signature Help             | This tells the editor to show signature help when you're writing function calls. Enable using `rescript.settings.signatureHelp.enabled: true`                                                                                                                                                                                                                                                                                                                                                                                    |
+| Log level                  | This tells the editor which log messages to show in the Output window. The options are `"error"`, `"warning"`, `"info"`, `"log"` with default `"info"`. Set via `"rescript.settings.logLevel"`. |
 
 **Default settings:**
 
@@ -126,6 +127,9 @@ You'll find all ReScript specific settings under the scope `rescript.settings`.
 
 // Enable (experimental) code lens for function definitions.
 "rescript.settings.codeLens": true
+
+// Set log level ("error", "warning", "info", "log").
+"rescript.settings.logLevel": "info"
 ```
 
 ## 🚀 Code Analyzer
