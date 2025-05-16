@@ -56,16 +56,14 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
-  config.extensionConfiguration.binaryPath == null
-    ? lookup.findFilePathFromProjectRoot(
-        projectRootPath,
-        path.join(c.nodeModulesBinDir, c.rescriptBinName)
-      )
-    : utils.findBinary(
-        config.extensionConfiguration.binaryPath,
-        c.rescriptBinName
-      );
+let findRescriptBinary = async (projectRootPath: p.DocumentUri | null): Promise<string | null> => {
+  if (config.extensionConfiguration.binaryPath != null &&
+    fs.existsSync(path.join(config.extensionConfiguration.binaryPath, "rescript"))) {
+      return path.join(config.extensionConfiguration.binaryPath, "rescript")
+  }
+
+  return utils.findRescriptBinary(projectRootPath)
+}
 
 let createInterfaceRequest = new v.RequestType<
   p.TextDocumentIdentifier,
@@ -92,8 +90,9 @@ let getCurrentCompilerDiagnosticsForFile = (
 
   return diagnostics ?? [];
 };
-let sendUpdatedDiagnostics = () => {
-  projectsFiles.forEach((projectFile, projectRootPath) => {
+
+let sendUpdatedDiagnostics = async () => {
+  for (const [projectRootPath, projectFile] of projectsFiles) {
     let { filesWithDiagnostics } = projectFile;
     let compilerLogPath = path.join(projectRootPath, c.compilerLogPartialPath);
     let content = fs.readFileSync(compilerLogPath, { encoding: "utf-8" });
@@ -102,7 +101,7 @@ let sendUpdatedDiagnostics = () => {
       result: filesAndErrors,
       codeActions,
       linesWithParseErrors,
-    } = utils.parseCompilerLogOutput(content);
+    } = await utils.parseCompilerLogOutput(content);
 
     if (linesWithParseErrors.length > 0) {
       let params: p.ShowMessageParams = {
@@ -154,8 +153,9 @@ let sendUpdatedDiagnostics = () => {
         }
       });
     }
-  });
+  }
 };
+
 let deleteProjectDiagnostics = (projectRootPath: string) => {
   let root = projectsFiles.get(projectRootPath);
   if (root != null) {
@@ -178,6 +178,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
     }
   }
 };
+
 let sendCompilationFinishedMessage = () => {
   let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
@@ -189,20 +190,20 @@ let sendCompilationFinishedMessage = () => {
 
 let debug = false;
 
-let syncProjectConfigCache = (rootPath: string) => {
+let syncProjectConfigCache = async (rootPath: string) => {
   try {
     if (debug) console.log("syncing project config cache for " + rootPath);
-    utils.runAnalysisAfterSanityCheck(rootPath, ["cache-project", rootPath]);
+    await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-project", rootPath]);
     if (debug) console.log("OK - synced project config cache for " + rootPath);
   } catch (e) {
     if (debug) console.error(e);
   }
 };
 
-let deleteProjectConfigCache = (rootPath: string) => {
+let deleteProjectConfigCache = async (rootPath: string) => {
   try {
     if (debug) console.log("deleting project config cache for " + rootPath);
-    utils.runAnalysisAfterSanityCheck(rootPath, ["cache-delete", rootPath]);
+    await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-delete", rootPath]);
     if (debug) console.log("OK - deleted project config cache for " + rootPath);
   } catch (e) {
     if (debug) console.error(e);
@@ -215,17 +216,17 @@ let compilerLogsWatcher = chokidar
       stabilityThreshold: 1,
     },
   })
-  .on("all", (_e, changedPath) => {
+  .on("all", async (_e, changedPath) => {
     if (changedPath.includes("build.ninja")) {
       if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
         let projectRoot = utils.findProjectRootOfFile(changedPath);
         if (projectRoot != null) {
-          syncProjectConfigCache(projectRoot);
+          await syncProjectConfigCache(projectRoot);
         }
       }
     } else {
       try {
-        sendUpdatedDiagnostics();
+        await sendUpdatedDiagnostics();
         sendCompilationFinishedMessage();
         if (config.extensionConfiguration.inlayHints?.enable === true) {
           sendInlayHintsRefresh();
@@ -247,7 +248,7 @@ type clientSentBuildAction = {
   title: string;
   projectRootPath: string;
 };
-let openedFile = (fileUri: string, fileContent: string) => {
+let openedFile = async (fileUri: string, fileContent: string) => {
   let filePath = fileURLToPath(fileUri);
 
   stupidFileContentCache.set(filePath, fileContent);
@@ -268,10 +269,10 @@ let openedFile = (fileUri: string, fileContent: string) => {
         filesDiagnostics: {},
         namespaceName:
           namespaceName.kind === "success" ? namespaceName.result : null,
-        rescriptVersion: utils.findReScriptVersionForProjectRoot(projectRootPath),
+        rescriptVersion: await utils.findReScriptVersionForProjectRoot(projectRootPath),
         bsbWatcherByEditor: null,
-        bscBinaryLocation: utils.findBscExeBinary(projectRootPath),
-        editorAnalysisLocation: utils.findEditorAnalysisBinary(projectRootPath),
+        bscBinaryLocation: await utils.findBscExeBinary(projectRootPath),
+        editorAnalysisLocation: await utils.findEditorAnalysisBinary(projectRootPath),
         hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
           projectRootPath
         )
@@ -286,7 +287,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
         compilerLogsWatcher.add(
           path.join(projectRootPath, c.buildNinjaPartialPath)
         );
-        syncProjectConfigCache(projectRootPath);
+        await syncProjectConfigCache(projectRootPath);
       }
     }
     let root = projectsFiles.get(projectRootPath)!;
@@ -302,7 +303,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
-      if (findRescriptBinary(projectRootPath) != null) {
+      if (await findRescriptBinary(projectRootPath) != null) {
         let payload: clientSentBuildAction = {
           title: c.startBuildAction,
           projectRootPath: projectRootPath,
@@ -347,7 +348,7 @@ let openedFile = (fileUri: string, fileContent: string) => {
   }
 };
 
-let closedFile = (fileUri: string) => {
+let closedFile = async (fileUri: string) => {
   let filePath = fileURLToPath(fileUri);
 
   if (config.extensionConfiguration.incrementalTypechecking?.enable) {
@@ -369,7 +370,7 @@ let closedFile = (fileUri: string) => {
         compilerLogsWatcher.unwatch(
           path.join(projectRootPath, c.buildNinjaPartialPath)
         );
-        deleteProjectConfigCache(projectRootPath);
+        await deleteProjectConfigCache(projectRootPath);
         deleteProjectDiagnostics(projectRootPath);
         if (root.bsbWatcherByEditor !== null) {
           root.bsbWatcherByEditor.kill();
@@ -420,13 +421,13 @@ export default function listen(useStdio = false) {
   }
 }
 
-function hover(msg: p.RequestMessage) {
+async function hover(msg: p.RequestMessage) {
   let params = msg.params as p.HoverParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     [
       "hover",
@@ -442,11 +443,11 @@ function hover(msg: p.RequestMessage) {
   return response;
 }
 
-function inlayHint(msg: p.RequestMessage) {
+async function inlayHint(msg: p.RequestMessage) {
   const params = msg.params as p.InlayHintParams;
   const filePath = fileURLToPath(params.textDocument.uri);
 
-  const response = utils.runAnalysisCommand(
+  const response = await utils.runAnalysisCommand(
     filePath,
     [
       "inlayHint",
@@ -469,11 +470,11 @@ function sendInlayHintsRefresh() {
   send(request);
 }
 
-function codeLens(msg: p.RequestMessage) {
+async function codeLens(msg: p.RequestMessage) {
   const params = msg.params as p.CodeLensParams;
   const filePath = fileURLToPath(params.textDocument.uri);
 
-  const response = utils.runAnalysisCommand(
+  const response = await utils.runAnalysisCommand(
     filePath,
     ["codeLens", filePath],
     msg
@@ -490,13 +491,13 @@ function sendCodeLensRefresh() {
   send(request);
 }
 
-function signatureHelp(msg: p.RequestMessage) {
+async function signatureHelp(msg: p.RequestMessage) {
   let params = msg.params as p.SignatureHelpParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     [
       "signatureHelp",
@@ -514,11 +515,11 @@ function signatureHelp(msg: p.RequestMessage) {
   return response;
 }
 
-function definition(msg: p.RequestMessage) {
+async function definition(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
   let params = msg.params as p.DefinitionParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     ["definition", filePath, params.position.line, params.position.character],
     msg
@@ -526,11 +527,11 @@ function definition(msg: p.RequestMessage) {
   return response;
 }
 
-function typeDefinition(msg: p.RequestMessage) {
+async function typeDefinition(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specification/specification-current/#textDocument_typeDefinition
   let params = msg.params as p.TypeDefinitionParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     [
       "typeDefinition",
@@ -543,11 +544,11 @@ function typeDefinition(msg: p.RequestMessage) {
   return response;
 }
 
-function references(msg: p.RequestMessage) {
+async function references(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let result: typeof p.ReferencesRequest.type = utils.getReferencesForPosition(
+  let result: typeof p.ReferencesRequest.type = await utils.getReferencesForPosition(
     filePath,
     params.position
   );
@@ -560,11 +561,11 @@ function references(msg: p.RequestMessage) {
   return response;
 }
 
-function prepareRename(msg: p.RequestMessage): p.ResponseMessage {
+async function prepareRename(msg: p.RequestMessage): Promise<p.ResponseMessage> {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let locations: null | p.Location[] = utils.getReferencesForPosition(
+  let locations: null | p.Location[] = await utils.getReferencesForPosition(
     filePath,
     params.position
   );
@@ -595,12 +596,12 @@ function prepareRename(msg: p.RequestMessage): p.ResponseMessage {
   };
 }
 
-function rename(msg: p.RequestMessage) {
+async function rename(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_rename
   let params = msg.params as p.RenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let documentChanges: (p.RenameFile | p.TextDocumentEdit)[] | null =
-    utils.runAnalysisAfterSanityCheck(filePath, [
+    await utils.runAnalysisAfterSanityCheck(filePath, [
       "rename",
       filePath,
       params.position.line,
@@ -619,7 +620,7 @@ function rename(msg: p.RequestMessage) {
   return response;
 }
 
-function documentSymbol(msg: p.RequestMessage) {
+async function documentSymbol(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
   let params = msg.params as p.DocumentSymbolParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -627,7 +628,7 @@ function documentSymbol(msg: p.RequestMessage) {
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     ["documentSymbol", tmpname],
     msg,
@@ -655,7 +656,7 @@ function askForAllCurrentConfiguration() {
   send(req);
 }
 
-function semanticTokens(msg: p.RequestMessage) {
+async function semanticTokens(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_semanticTokens
   let params = msg.params as p.SemanticTokensParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -663,7 +664,7 @@ function semanticTokens(msg: p.RequestMessage) {
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir(extension);
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     ["semanticTokens", tmpname],
     msg,
@@ -673,14 +674,14 @@ function semanticTokens(msg: p.RequestMessage) {
   return response;
 }
 
-function completion(msg: p.RequestMessage) {
+async function completion(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
   let tmpname = utils.createFileInTempDir();
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     [
       "completion",
@@ -695,7 +696,7 @@ function completion(msg: p.RequestMessage) {
   return response;
 }
 
-function completionResolve(msg: p.RequestMessage) {
+async function completionResolve(msg: p.RequestMessage) {
   const item = msg.params as p.CompletionItem;
   let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
@@ -705,7 +706,7 @@ function completionResolve(msg: p.RequestMessage) {
 
   if (item.documentation == null && item.data != null) {
     const data = item.data as { filePath: string; modulePath: string };
-    let result = utils.runAnalysisAfterSanityCheck(
+    let result = await utils.runAnalysisAfterSanityCheck(
       data.filePath,
       ["completionResolve", data.filePath, data.modulePath],
       true
@@ -716,7 +717,7 @@ function completionResolve(msg: p.RequestMessage) {
   return response;
 }
 
-function codeAction(msg: p.RequestMessage): p.ResponseMessage {
+async function codeAction(msg: p.RequestMessage): Promise<p.ResponseMessage> {
   let params = msg.params as p.CodeActionParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri);
@@ -738,7 +739,7 @@ function codeAction(msg: p.RequestMessage): p.ResponseMessage {
   );
 
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     [
       "codeAction",
@@ -833,7 +834,7 @@ function format(msg: p.RequestMessage): Array<p.Message> {
   }
 }
 
-let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
+let updateDiagnosticSyntax = async (fileUri: string, fileContent: string) => {
   if (config.extensionConfiguration.incrementalTypechecking?.enable) {
     // The incremental typechecking already sends syntax diagnostics.
     return;
@@ -851,7 +852,7 @@ let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
   let compilerDiagnosticsForFile =
     getCurrentCompilerDiagnosticsForFile(fileUri);
   let syntaxDiagnosticsForFile: p.Diagnostic[] =
-    utils.runAnalysisAfterSanityCheck(filePath, ["diagnosticSyntax", tmpname]);
+    await utils.runAnalysisAfterSanityCheck(filePath, ["diagnosticSyntax", tmpname]);
 
   let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
@@ -867,7 +868,7 @@ let updateDiagnosticSyntax = (fileUri: string, fileContent: string) => {
   send(notification);
 };
 
-function createInterface(msg: p.RequestMessage): p.Message {
+async function createInterface(msg: p.RequestMessage): Promise<p.Message> {
   let params = msg.params as p.TextDocumentIdentifier;
   let extension = path.extname(params.uri);
   let filePath = fileURLToPath(params.uri);
@@ -949,7 +950,7 @@ function createInterface(msg: p.RequestMessage): p.Message {
     return response;
   }
 
-  let response = utils.runAnalysisCommand(
+  let response = await utils.runAnalysisCommand(
     filePath,
     ["createInterface", filePath, cmiPath],
     msg
@@ -1036,7 +1037,7 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
   return response;
 }
 
-function onMessage(msg: p.Message) {
+async function onMessage(msg: p.Message) {
   if (p.Message.isNotification(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
     if (!initialized && msg.method !== "exit") {
@@ -1052,8 +1053,8 @@ function onMessage(msg: p.Message) {
       }
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
-      openedFile(params.textDocument.uri, params.textDocument.text);
-      updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
+      await openedFile(params.textDocument.uri, params.textDocument.text);
+      await updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
@@ -1067,7 +1068,7 @@ function onMessage(msg: p.Message) {
             params.textDocument.uri,
             changes[changes.length - 1].text
           );
-          updateDiagnosticSyntax(
+          await updateDiagnosticSyntax(
             params.textDocument.uri,
             changes[changes.length - 1].text
           );
@@ -1075,7 +1076,7 @@ function onMessage(msg: p.Message) {
       }
     } else if (msg.method === DidCloseTextDocumentNotification.method) {
       let params = msg.params as p.DidCloseTextDocumentParams;
-      closedFile(params.textDocument.uri);
+      await closedFile(params.textDocument.uri);
     } else if (msg.method === DidChangeConfigurationNotification.type.method) {
       // Can't seem to get this notification to trigger, but if it does this will be here and ensure we're synced up at the server.
       askForAllCurrentConfiguration();
@@ -1221,51 +1222,51 @@ function onMessage(msg: p.Message) {
         send(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
-      send(hover(msg));
+      send(await hover(msg));
     } else if (msg.method === p.DefinitionRequest.method) {
-      send(definition(msg));
+      send(await definition(msg));
     } else if (msg.method === p.TypeDefinitionRequest.method) {
-      send(typeDefinition(msg));
+      send(await typeDefinition(msg));
     } else if (msg.method === p.ReferencesRequest.method) {
-      send(references(msg));
+      send(await references(msg));
     } else if (msg.method === p.PrepareRenameRequest.method) {
-      send(prepareRename(msg));
+      send(await prepareRename(msg));
     } else if (msg.method === p.RenameRequest.method) {
-      send(rename(msg));
+      send(await rename(msg));
     } else if (msg.method === p.DocumentSymbolRequest.method) {
-      send(documentSymbol(msg));
+      send(await documentSymbol(msg));
     } else if (msg.method === p.CompletionRequest.method) {
-      send(completion(msg));
+      send(await completion(msg));
     } else if (msg.method === p.CompletionResolveRequest.method) {
-      send(completionResolve(msg));
+      send(await completionResolve(msg));
     } else if (msg.method === p.SemanticTokensRequest.method) {
-      send(semanticTokens(msg));
+      send(await semanticTokens(msg));
     } else if (msg.method === p.CodeActionRequest.method) {
-      send(codeAction(msg));
+      send(await codeAction(msg));
     } else if (msg.method === p.DocumentFormattingRequest.method) {
       let responses = format(msg);
       responses.forEach((response) => send(response));
     } else if (msg.method === createInterfaceRequest.method) {
-      send(createInterface(msg));
+      send(await createInterface(msg));
     } else if (msg.method === openCompiledFileRequest.method) {
       send(openCompiledFile(msg));
     } else if (msg.method === p.InlayHintRequest.method) {
       let params = msg.params as InlayHintParams;
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
-        send(inlayHint(msg));
+        send(await inlayHint(msg));
       }
     } else if (msg.method === p.CodeLensRequest.method) {
       let params = msg.params as CodeLensParams;
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
-        send(codeLens(msg));
+        send(await codeLens(msg));
       }
     } else if (msg.method === p.SignatureHelpRequest.method) {
       let params = msg.params as SignatureHelpParams;
       let extName = path.extname(params.textDocument.uri);
       if (extName === c.resExt) {
-        send(signatureHelp(msg));
+        send(await signatureHelp(msg));
       }
     } else {
       let response: p.ResponseMessage = {
@@ -1308,7 +1309,7 @@ function onMessage(msg: p.Message) {
       // TODO: close watcher when lang-server shuts down. However, by Node's
       // default, these subprocesses are automatically killed when this
       // language-server process exits
-      let rescriptBinaryPath = findRescriptBinary(projectRootPath);
+      let rescriptBinaryPath = await findRescriptBinary(projectRootPath);
       if (rescriptBinaryPath != null) {
         let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
           rescriptBinaryPath,
@@ -1327,7 +1328,7 @@ onErrorReported((msg) => {
   let params: p.ShowMessageParams = {
     type: p.MessageType.Warning,
     message: `ReScript tooling: Internal error. Something broke. Here's the error message that you can report if you want:
-    
+
 ${msg}
 
 (this message will only be reported once every 15 minutes)`,

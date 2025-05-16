@@ -619,7 +619,7 @@ async function compileContents(
       entry.project.bscBinaryLocation,
       callArgs,
       { cwd: entry.project.rootPath },
-      (error, _stdout, stderr) => {
+      async (error, _stdout, stderr) => {
         if (!error?.killed) {
           if (debug())
             console.log(
@@ -644,7 +644,7 @@ async function compileContents(
           }
           // Reset compilation status as this compilation finished
           entry.compilation = null;
-          const { result, codeActions } = utils.parseCompilerLogOutput(
+          const { result, codeActions } = await utils.parseCompilerLogOutput(
             `${stderr}\n#Done()`
           );
 

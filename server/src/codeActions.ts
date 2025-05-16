@@ -141,14 +141,14 @@ let takeUntil = (array: string[], startsWith: string): string[] => {
   return res;
 };
 
-export let findCodeActionsInDiagnosticsMessage = ({
+export let findCodeActionsInDiagnosticsMessage = async ({
   diagnostic,
   diagnosticMessage,
   file,
   range,
   addFoundActionsHere: codeActions,
 }: findCodeActionsConfig) => {
-  diagnosticMessage.forEach((line, index, array) => {
+  for (const [index, line] of diagnosticMessage.entries()) {
     // Because of how actions work, there can only be one per diagnostic. So,
     // halt whenever a code action has been found.
     let codeActionExtractors = [
@@ -166,8 +166,8 @@ export let findCodeActionsInDiagnosticsMessage = ({
       let didFindAction = false;
 
       try {
-        didFindAction = extractCodeAction({
-          array,
+        didFindAction = await extractCodeAction({
+          array: diagnosticMessage,
           codeActions,
           diagnostic,
           file,
@@ -183,7 +183,7 @@ export let findCodeActionsInDiagnosticsMessage = ({
         break;
       }
     }
-  });
+  }
 };
 
 interface codeActionExtractorConfig {
@@ -196,12 +196,12 @@ interface codeActionExtractorConfig {
   codeActions: filesCodeActions;
 }
 
-type codeActionExtractor = (config: codeActionExtractorConfig) => boolean;
+type codeActionExtractor = (config: codeActionExtractorConfig) => Promise<boolean>;
 
 // This action extracts hints the compiler emits for misspelled identifiers, and
 // offers to replace the misspelled name with the correct name suggested by the
 // compiler.
-let didYouMeanAction: codeActionExtractor = ({
+let didYouMeanAction: codeActionExtractor = async ({
   codeActions,
   diagnostic,
   file,
@@ -245,7 +245,7 @@ let didYouMeanAction: codeActionExtractor = ({
 };
 
 // This action offers to wrap patterns that aren't option in Some.
-let wrapInSome: codeActionExtractor = ({
+let wrapInSome: codeActionExtractor = async ({
   codeActions,
   diagnostic,
   file,
@@ -425,7 +425,7 @@ let handleUndefinedRecordFieldsAction = ({
 // being undefined. We then offers an action that inserts all of the record
 // fields, with an `assert false` dummy value. `assert false` is so applying the
 // code action actually compiles.
-let addUndefinedRecordFieldsV10: codeActionExtractor = ({
+let addUndefinedRecordFieldsV10: codeActionExtractor = async ({
   array,
   codeActions,
   diagnostic,
@@ -459,7 +459,7 @@ let addUndefinedRecordFieldsV10: codeActionExtractor = ({
   return false;
 };
 
-let addUndefinedRecordFieldsV11: codeActionExtractor = ({
+let addUndefinedRecordFieldsV11: codeActionExtractor = async ({
   array,
   codeActions,
   diagnostic,
@@ -508,7 +508,7 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = ({
 
 // This action detects suggestions of converting between mismatches in types
 // that the compiler tells us about.
-let simpleConversion: codeActionExtractor = ({
+let simpleConversion: codeActionExtractor = async ({
   line,
   codeActions,
   file,
@@ -554,7 +554,7 @@ let simpleConversion: codeActionExtractor = ({
 
 // This action will apply a curried function (essentially inserting a dot in the
 // correct place).
-let applyUncurried: codeActionExtractor = ({
+let applyUncurried: codeActionExtractor = async ({
   line,
   codeActions,
   file,
@@ -608,7 +608,7 @@ let applyUncurried: codeActionExtractor = ({
 
 // This action detects missing cases for exhaustive pattern matches, and offers
 // to insert dummy branches (using `failwith("TODO")`) for those branches.
-let simpleAddMissingCases: codeActionExtractor = ({
+let simpleAddMissingCases: codeActionExtractor = async ({
   line,
   codeActions,
   file,
@@ -629,7 +629,7 @@ let simpleAddMissingCases: codeActionExtractor = ({
 
     let filePath = fileURLToPath(file);
 
-    let newSwitchCode = utils.runAnalysisAfterSanityCheck(filePath, [
+    let newSwitchCode = await utils.runAnalysisAfterSanityCheck(filePath, [
       "codemod",
       filePath,
       range.start.line,
@@ -665,7 +665,7 @@ let simpleAddMissingCases: codeActionExtractor = ({
 // This detects concrete variables or values put in a position which expects an
 // optional of that same type, and offers to wrap the value/variable in
 // `Some()`.
-let simpleTypeMismatches: codeActionExtractor = ({
+let simpleTypeMismatches: codeActionExtractor = async ({
   line,
   codeActions,
   file,
