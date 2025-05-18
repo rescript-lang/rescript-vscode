@@ -243,15 +243,8 @@ export let runAnalysisAfterSanityCheck = async (
    * with the extension itself.
    */
   let shouldUseBuiltinAnalysis =
-    rescriptVersion?.startsWith("9.") ||
-    rescriptVersion?.startsWith("10.") ||
-    rescriptVersion?.startsWith("11.") ||
-    [
-      "12.0.0-alpha.1",
-      "12.0.0-alpha.2",
-      "12.0.0-alpha.3",
-      "12.0.0-alpha.4",
-    ].includes(rescriptVersion ?? "");
+    semver.valid(rescriptVersion) &&
+    semver.lt(rescriptVersion as string, "12.0.0-alpha.5");
 
   if (!shouldUseBuiltinAnalysis && project != null) {
     binaryPath = project.editorAnalysisLocation;
