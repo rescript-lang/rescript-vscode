@@ -4,8 +4,8 @@ import * as v from "vscode-languageserver";
 import * as rpc from "vscode-jsonrpc/node";
 import * as path from "path";
 import fs from "fs";
-// TODO: check DidChangeWatchedFilesNotification.
 import {
+  DidChangeWatchedFilesNotification,
   DidOpenTextDocumentNotification,
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
@@ -14,6 +14,7 @@ import {
   InlayHintParams,
   CodeLensParams,
   SignatureHelpParams,
+  InitializedNotification,
 } from "vscode-languageserver-protocol";
 import * as lookup from "./lookup";
 import * as utils from "./utils";
@@ -26,6 +27,10 @@ import { onErrorReported } from "./errorReporter";
 import * as ic from "./incrementalCompilation";
 import config, { extensionConfiguration } from "./config";
 import { projectsFiles } from "./projectFiles";
+
+// Absolute paths to all the workspace folders
+// Configured during the initialize request
+const workspaceFolders = new Set<string>();
 
 // This holds client capabilities specific to our extension, and not necessarily
 // related to the LS protocol. It's for enabling/disabling features that might
@@ -209,21 +214,18 @@ let deleteProjectConfigCache = async (rootPath: string) => {
   }
 };
 
-let compilerLogsWatcher = chokidar
-  .watch([], {
-    awaitWriteFinish: {
-      stabilityThreshold: 1,
-    },
-  })
-  .on("all", async (_e, changedPath) => {
-    if (changedPath.includes("build.ninja")) {
+async function onWorkspaceDidChangeWatchedFiles(
+  params: p.DidChangeWatchedFilesParams
+) {
+  await Promise.all(params.changes.map(async (change) => {
+    if (change.uri.includes("build.ninja")) {
       if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
-        let projectRoot = utils.findProjectRootOfFile(changedPath);
+        let projectRoot = utils.findProjectRootOfFile(change.uri);
         if (projectRoot != null) {
           await syncProjectConfigCache(projectRoot);
         }
       }
-    } else {
+    } else if (change.uri.includes("compiler.log")) {
       try {
         await sendUpdatedDiagnostics();
         sendCompilationFinishedMessage();
@@ -236,13 +238,11 @@ let compilerLogsWatcher = chokidar
       } catch {
         console.log("Error while sending updated diagnostics");
       }
+    } else {
+      ic.incrementalCompilationFileChanged(fileURLToPath(change.uri));
     }
-  });
-
-let stopWatchingCompilerLog = () => {
-  // TODO: cleanup of compilerLogs?
-  compilerLogsWatcher.close();
-};
+  }));
+}
 
 type clientSentBuildAction = {
   title: string;
@@ -280,13 +280,7 @@ let openedFile = async (fileUri: string, fileContent: string) => {
           : false,
       };
       projectsFiles.set(projectRootPath, projectRootState);
-      compilerLogsWatcher.add(
-        path.join(projectRootPath, c.compilerLogPartialPath)
-      );
       if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
-        compilerLogsWatcher.add(
-          path.join(projectRootPath, c.buildNinjaPartialPath)
-        );
         await syncProjectConfigCache(projectRootPath);
       }
     }
@@ -364,12 +358,6 @@ let closedFile = async (fileUri: string) => {
       root.openFiles.delete(filePath);
       // clear diagnostics too if no open files open in said project
       if (root.openFiles.size === 0) {
-        compilerLogsWatcher.unwatch(
-          path.join(projectRootPath, c.compilerLogPartialPath)
-        );
-        compilerLogsWatcher.unwatch(
-          path.join(projectRootPath, c.buildNinjaPartialPath)
-        );
         await deleteProjectConfigCache(projectRootPath);
         deleteProjectDiagnostics(projectRootPath);
         if (root.bsbWatcherByEditor !== null) {
@@ -1051,7 +1039,7 @@ async function onMessage(msg: p.Message) {
       } else {
         process.exit(1);
       }
-    } else if (msg.method === "initialized") {
+    } else if (msg.method === InitializedNotification.method) {
       /*
       The initialized notification is sent from the client to the server after the client received the result of the initialize request
       but before the client is sending any other request or notification to the server.
@@ -1060,27 +1048,32 @@ async function onMessage(msg: p.Message) {
       We use this to register the file watchers for the project.
       The client can watch files for us and send us events via the `workspace/didChangeWatchedFiles`
       */
-      const watchers =
-        Array.from(projectsFiles.keys()).flatMap(projectRootPath => [
+      const watchers = Array.from(workspaceFolders).flatMap(
+        (projectRootPath) => [
           {
             globPattern: path.join(projectRootPath, c.compilerLogPartialPath),
-            kind: p.WatchKind.Change | p.WatchKind.Create,
+            kind: p.WatchKind.Change | p.WatchKind.Create | p.WatchKind.Delete,
           },
           {
             globPattern: path.join(projectRootPath, c.buildNinjaPartialPath),
-            kind: p.WatchKind.Change | p.WatchKind.Create,
+            kind: p.WatchKind.Change | p.WatchKind.Create | p.WatchKind.Delete,
           },
-        ])
-      const registrationParams : p.RegistrationParams = {
-        registrations:[
           {
-            id: "rescript_file_watcher",
-            method: p.DidChangeWatchedFilesNotification.method,
-            registerOptions: {
-              watchers
-            }
+            globPattern: `${path.join(projectRootPath, c.compilerDirPartialPath)}/**/*.{cmt,cmi}`,
+            kind: p.WatchKind.Change | p.WatchKind.Delete,
           }
         ]
+      );
+      const registrationParams: p.RegistrationParams = {
+        registrations: [
+          {
+            id: "rescript_file_watcher",
+            method: DidChangeWatchedFilesNotification.method,
+            registerOptions: {
+              watchers,
+            },
+          },
+        ],
       };
       const req: p.RequestMessage = {
         jsonrpc: c.jsonrpcVersion,
@@ -1089,6 +1082,9 @@ async function onMessage(msg: p.Message) {
         params: registrationParams,
       };
       send(req);
+    } else if (msg.method === DidChangeWatchedFilesNotification.method) {
+      const params = msg.params as p.DidChangeWatchedFilesParams;
+      await onWorkspaceDidChangeWatchedFiles(params);
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       await openedFile(params.textDocument.uri, params.textDocument.text);
@@ -1134,6 +1130,10 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === "initialize") {
       // Save initial configuration, if present
       let initParams = msg.params as InitializeParams;
+      for (const workspaceFolder of initParams.workspaceFolders || []) {
+        const workspaceRootPath = fileURLToPath(workspaceFolder.uri);
+        workspaceFolders.add(workspaceRootPath);
+      }
       let initialConfiguration = initParams.initializationOptions
         ?.extensionConfiguration as extensionConfiguration | undefined;
 
@@ -1245,8 +1245,6 @@ async function onMessage(msg: p.Message) {
       } else {
         shutdownRequestAlreadyReceived = true;
         // TODO: recheck logic around init/shutdown...
-        stopWatchingCompilerLog();
-        // TODO: delete bsb watchers
 
         if (pullConfigurationPeriodically != null) {
           clearInterval(pullConfigurationPeriodically);
