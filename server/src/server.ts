@@ -19,7 +19,6 @@ import * as lookup from "./lookup";
 import * as utils from "./utils";
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
-import * as chokidar from "chokidar";
 import { assert } from "console";
 import { fileURLToPath } from "url";
 import { WorkspaceEdit } from "vscode-languageserver";
@@ -239,6 +238,7 @@ let compilerLogsWatcher = chokidar
       }
     }
   });
+
 let stopWatchingCompilerLog = () => {
   // TODO: cleanup of compilerLogs?
   compilerLogsWatcher.close();
@@ -1051,6 +1051,44 @@ async function onMessage(msg: p.Message) {
       } else {
         process.exit(1);
       }
+    } else if (msg.method === "initialized") {
+      /*
+      The initialized notification is sent from the client to the server after the client received the result of the initialize request
+      but before the client is sending any other request or notification to the server.
+      The server can use the initialized notification, for example, to dynamically register capabilities.
+
+      We use this to register the file watchers for the project.
+      The client can watch files for us and send us events via the `workspace/didChangeWatchedFiles`
+      */
+      const watchers =
+        Array.from(projectsFiles.keys()).flatMap(projectRootPath => [
+          {
+            globPattern: path.join(projectRootPath, c.compilerLogPartialPath),
+            kind: p.WatchKind.Change | p.WatchKind.Create,
+          },
+          {
+            globPattern: path.join(projectRootPath, c.buildNinjaPartialPath),
+            kind: p.WatchKind.Change | p.WatchKind.Create,
+          },
+        ])
+      const registrationParams : p.RegistrationParams = {
+        registrations:[
+          {
+            id: "rescript_file_watcher",
+            method: p.DidChangeWatchedFilesNotification.method,
+            registerOptions: {
+              watchers
+            }
+          }
+        ]
+      };
+      const req: p.RequestMessage = {
+        jsonrpc: c.jsonrpcVersion,
+        id: serverSentRequestIdCounter++,
+        method: p.RegistrationRequest.method,
+        params: registrationParams,
+      };
+      send(req);
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       await openedFile(params.textDocument.uri, params.textDocument.text);
