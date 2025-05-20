@@ -23,3 +23,5 @@ rescript-tools.exe
 
 _opam/
 _build/
+
+*.tsbuildinfo

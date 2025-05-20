@@ -7,15 +7,8 @@ export let platformDir =
 // See https://microsoft.github.io/language-server-protocol/specification Abstract Message
 // version is fixed to 2.0
 export let jsonrpcVersion = "2.0";
-export let platformPath = path.join("rescript", platformDir);
-export let nodeModulesPlatformPath = path.join("node_modules", platformPath);
-export let bscExeName = "bsc.exe";
-export let editorAnalysisName = "rescript-editor-analysis.exe";
-export let bscNativeReScriptPartialPath = path.join(
-  nodeModulesPlatformPath,
-  bscExeName
-);
 
+export let editorAnalysisName = "rescript-editor-analysis.exe";
 export let builtinAnalysisDevPath = path.join(
   path.dirname(__dirname),
   "..",
@@ -33,12 +26,6 @@ export let rescriptBinName = "rescript";
 export let bscBinName = "bsc";
 
 export let nodeModulesBinDir = path.join("node_modules", ".bin");
-
-// can't use the native bsb/rescript since we might need the watcher -w flag, which is only in the JS wrapper
-export let rescriptNodePartialPath = path.join(
-  nodeModulesBinDir,
-  rescriptBinName
-);
 
 export let bsbLock = ".bsb.lock";
 export let bsconfigPartialPath = "bsconfig.json";

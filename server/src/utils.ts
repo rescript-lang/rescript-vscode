@@ -7,7 +7,9 @@ import {
   ResponseMessage,
 } from "vscode-languageserver-protocol";
 import fs from "fs";
+import fsAsync from "fs/promises";
 import * as os from "os";
+import semver from "semver";
 
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
@@ -74,21 +76,72 @@ export let findProjectRootOfFile = (
   }
 };
 
-// Check if binaryName exists inside binaryDirPath and return the joined path.
-export let findBinary = (
-  binaryDirPath: p.DocumentUri | null,
-  binaryName: string
-): p.DocumentUri | null => {
-  if (binaryDirPath == null) {
+// If ReScript < 12.0.0-alpha.13, then we want `{project_root}/node_modules/rescript/{c.platformDir}/{binary}`.
+// Otherwise, we want to dynamically import `{project_root}/node_modules/rescript` and from `binPaths` get the relevant binary.
+// We won't know which version is in the project root until we read and parse `{project_root}/node_modules/rescript/package.json`
+let findBinary = async (
+  projectRootPath: p.DocumentUri | null,
+  binary: "bsc.exe" | "rescript-editor-analysis.exe" | "rescript"
+) => {
+  if (config.extensionConfiguration.platformPath != null) {
+    return path.join(config.extensionConfiguration.platformPath, binary);
+  }
+
+  const rescriptDir = lookup.findFilePathFromProjectRoot(
+    projectRootPath,
+    path.join("node_modules", "rescript")
+  );
+  if (rescriptDir == null) {
     return null;
   }
-  let binaryPath: p.DocumentUri = path.join(binaryDirPath, binaryName);
-  if (fs.existsSync(binaryPath)) {
-    return binaryPath;
+
+  let rescriptVersion = null;
+  let rescriptJSWrapperPath = null
+  try {
+    const rescriptPackageJSONPath = path.join(rescriptDir, "package.json");
+    const rescriptPackageJSON = JSON.parse(await fsAsync.readFile(rescriptPackageJSONPath, "utf-8"));
+    rescriptVersion = rescriptPackageJSON.version
+    rescriptJSWrapperPath = rescriptPackageJSON.bin.rescript
+  } catch (error) {
+    return null
+  }
+
+  let binaryPath: string | null = null
+  if (binary == "rescript") {
+    // Can't use the native bsb/rescript since we might need the watcher -w
+    // flag, which is only in the JS wrapper
+    binaryPath = path.join(rescriptDir, rescriptJSWrapperPath)
+  } else if (semver.gte(rescriptVersion, "12.0.0-alpha.13")) {
+    // TODO: export `binPaths` from `rescript` package so that we don't need to
+    // copy the logic for figuring out `target`.
+    const target = `${process.platform}-${process.arch}`;
+    const targetPackagePath = path.join(rescriptDir, "..", `@rescript/${target}/bin.js`)
+    const { binPaths } = await import(targetPackagePath);
+
+    if (binary == "bsc.exe") {
+      binaryPath = binPaths.bsc_exe
+    } else if (binary == "rescript-editor-analysis.exe") {
+      binaryPath = binPaths.rescript_editor_analysis_exe
+    }
   } else {
-    return null;
+    binaryPath = path.join(rescriptDir, c.platformDir, binary)
   }
-};
+
+  if (binaryPath != null && fs.existsSync(binaryPath)) {
+    return binaryPath
+  } else {
+    return null
+  }
+}
+
+export let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinary(projectRootPath, "rescript");
+
+export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinary(projectRootPath, "bsc.exe");
+
+export let findEditorAnalysisBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinary(projectRootPath, "rescript-editor-analysis.exe");
 
 type execResult =
   | {
@@ -140,31 +193,12 @@ export let formatCode = (
   }
 };
 
-export let findReScriptVersion = (
-  filePath: p.DocumentUri
-): string | undefined => {
-  let projectRoot = findProjectRootOfFile(filePath);
-  if (projectRoot == null) {
+export async function findReScriptVersionForProjectRoot(projectRootPath: string | null): Promise<string | undefined> {
+  if (projectRootPath == null)  {
     return undefined;
   }
 
-  const bscExe = findBinary(findPlatformPath(projectRoot), c.bscExeName);
-
-  if (bscExe == null) {
-    return undefined;
-  }
-
-  try {
-    let version = childProcess.execSync(`${bscExe} -v`);
-    return version.toString().replace(/rescript/gi, "").trim();
-  } catch (e) {
-    console.error("rescrip binary failed", e);
-    return undefined;
-  }
-};
-
-export function findReScriptVersionForProjectRoot(projectRootPath:string) : string | undefined {
-  const bscExe = findBinary(findPlatformPath(projectRootPath), c.bscExeName);
+  const bscExe = await findBscExeBinary(projectRootPath)
 
   if (bscExe == null) {
     return undefined;
@@ -186,7 +220,7 @@ if (fs.existsSync(c.builtinAnalysisDevPath)) {
   builtinBinaryPath = c.builtinAnalysisProdPath;
 }
 
-export let runAnalysisAfterSanityCheck = (
+export let runAnalysisAfterSanityCheck = async (
   filePath: p.DocumentUri,
   args: Array<any>,
   projectRequired = false
@@ -197,7 +231,7 @@ export let runAnalysisAfterSanityCheck = (
   }
   let rescriptVersion =
     projectsFiles.get(projectRootPath ?? "")?.rescriptVersion ??
-    findReScriptVersion(filePath);
+    await findReScriptVersionForProjectRoot(projectRootPath)
 
   let binaryPath = builtinBinaryPath;
 
@@ -209,15 +243,8 @@ export let runAnalysisAfterSanityCheck = (
    * with the extension itself.
    */
   let shouldUseBuiltinAnalysis =
-    rescriptVersion?.startsWith("9.") ||
-    rescriptVersion?.startsWith("10.") ||
-    rescriptVersion?.startsWith("11.") ||
-    [
-      "12.0.0-alpha.1",
-      "12.0.0-alpha.2",
-      "12.0.0-alpha.3",
-      "12.0.0-alpha.4",
-    ].includes(rescriptVersion ?? "");
+    semver.valid(rescriptVersion) &&
+    semver.lt(rescriptVersion as string, "12.0.0-alpha.5");
 
   if (!shouldUseBuiltinAnalysis && project != null) {
     binaryPath = project.editorAnalysisLocation;
@@ -263,13 +290,13 @@ export let runAnalysisAfterSanityCheck = (
   }
 };
 
-export let runAnalysisCommand = (
+export let runAnalysisCommand = async (
   filePath: p.DocumentUri,
   args: Array<any>,
   msg: RequestMessage,
   projectRequired = true
 ) => {
-  let result = runAnalysisAfterSanityCheck(filePath, args, projectRequired);
+  let result = await runAnalysisAfterSanityCheck(filePath, args, projectRequired);
   let response: ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
@@ -278,11 +305,11 @@ export let runAnalysisCommand = (
   return response;
 };
 
-export let getReferencesForPosition = (
+export let getReferencesForPosition = async (
   filePath: p.DocumentUri,
   position: p.Position
 ) =>
-  runAnalysisAfterSanityCheck(filePath, [
+  await runAnalysisAfterSanityCheck(filePath, [
     "references",
     filePath,
     position.line,
@@ -508,9 +535,9 @@ type parsedCompilerLogResult = {
   codeActions: codeActions.filesCodeActions;
   linesWithParseErrors: string[];
 };
-export let parseCompilerLogOutput = (
+export let parseCompilerLogOutput = async (
   content: string
-): parsedCompilerLogResult => {
+): Promise<parsedCompilerLogResult> => {
   type parsedDiagnostic = {
     code: number | undefined;
     severity: t.DiagnosticSeverity;
@@ -655,7 +682,7 @@ export let parseCompilerLogOutput = (
   let result: filesDiagnostics = {};
   let foundCodeActions: codeActions.filesCodeActions = {};
 
-  parsedDiagnostics.forEach((parsedDiagnostic) => {
+  for (const parsedDiagnostic of parsedDiagnostics) {
     let [fileAndRangeLine, ...diagnosticMessage] = parsedDiagnostic.content;
     let { file, range } = parseFileAndRange(fileAndRangeLine);
 
@@ -674,7 +701,7 @@ export let parseCompilerLogOutput = (
     };
 
     // Check for potential code actions
-    codeActions.findCodeActionsInDiagnosticsMessage({
+    await codeActions.findCodeActionsInDiagnosticsMessage({
       addFoundActionsHere: foundCodeActions,
       diagnostic,
       diagnosticMessage,
@@ -683,7 +710,7 @@ export let parseCompilerLogOutput = (
     });
 
     result[file].push(diagnostic);
-  });
+  }
 
   return {
     done,
@@ -723,46 +750,3 @@ export let rangeContainsRange = (
   }
   return true;
 };
-
-let findPlatformPath = (projectRootPath: p.DocumentUri | null) => {
-  if (config.extensionConfiguration.platformPath != null) {
-    return config.extensionConfiguration.platformPath;
-  }
-
-  let rescriptDir = lookup.findFilePathFromProjectRoot(
-    projectRootPath,
-    path.join("node_modules", "rescript")
-  );
-  if (rescriptDir == null) {
-    return null;
-  }
-
-  let platformPath = path.join(rescriptDir, c.platformDir);
-
-  // Binaries have been split into optional platform-specific dependencies
-  // since v12.0.0-alpha.13
-  if (!fs.existsSync(platformPath)) {
-    platformPath = path.join(
-      rescriptDir,
-      "..",
-      `@rescript/${process.platform}-${process.arch}/bin`
-    )
-  }
-
-  // Workaround for darwinarm64 which has no folder yet in ReScript <= 9.1.4
-  if (
-    process.platform == "darwin" &&
-    process.arch == "arm64" &&
-    !fs.existsSync(platformPath)
-  ) {
-    platformPath = path.join(rescriptDir, process.platform);
-  }
-
-  return platformPath;
-};
-
-export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
-  findBinary(findPlatformPath(projectRootPath), c.bscExeName);
-
-export let findEditorAnalysisBinary = (projectRootPath: p.DocumentUri | null) =>
-  findBinary(findPlatformPath(projectRootPath), c.editorAnalysisName);

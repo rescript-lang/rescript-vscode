@@ -32,6 +32,10 @@
 
 - Fix: JSON from `rescript-code-editor-analysis` was not always escaped properly, which prevented code actions from being available in certain situations https://github.com/rescript-lang/rescript-vscode/pull/1089
 
+#### :house: Internal
+
+- Find binary paths asynchronously. On `>=12.0.0-alpha.13` we do this by dynamically importing the `@rescript/{target}` package in the project root. https://github.com/rescript-lang/rescript-vscode/pull/1093
+
 ## 1.62.0
 
 #### :nail_care: Polish

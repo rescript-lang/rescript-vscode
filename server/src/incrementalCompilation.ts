@@ -6,6 +6,7 @@ import readline from "readline";
 import { performance } from "perf_hooks";
 import * as p from "vscode-languageserver-protocol";
 import * as cp from "node:child_process";
+import semver from "semver";
 import config, { send } from "./config";
 import * as c from "./constants";
 import * as chokidar from "chokidar";
@@ -573,8 +574,11 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   });
 
   callArgs.push("-color", "never");
-  if (parseInt(project.rescriptVersion.split(".")[0] ?? "10") >= 11) {
-    // Only available in v11+
+  // Only available in v11+
+  if (
+    semver.valid(project.rescriptVersion) &&
+    semver.satisfies(project.rescriptVersion as string, ">=11", { includePrerelease: true })
+  ) {
     callArgs.push("-ignore-parse-errors");
   }
 
@@ -619,7 +623,7 @@ async function compileContents(
       entry.project.bscBinaryLocation,
       callArgs,
       { cwd: entry.project.rootPath },
-      (error, _stdout, stderr) => {
+      async (error, _stdout, stderr) => {
         if (!error?.killed) {
           if (debug())
             console.log(
@@ -644,7 +648,7 @@ async function compileContents(
           }
           // Reset compilation status as this compilation finished
           entry.compilation = null;
-          const { result, codeActions } = utils.parseCompilerLogOutput(
+          const { result, codeActions } = await utils.parseCompilerLogOutput(
             `${stderr}\n#Done()`
           );
 
