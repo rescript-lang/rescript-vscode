@@ -9,7 +9,6 @@ import * as cp from "node:child_process";
 import semver from "semver";
 import config, { send } from "./config";
 import * as c from "./constants";
-import * as chokidar from "chokidar";
 import { fileCodeActions } from "./codeActions";
 import { projectsFiles } from "./projectFiles";
 
@@ -92,38 +91,29 @@ const incrementallyCompiledFileInfo: Map<
 const hasReportedFeatureFailedError: Set<string> = new Set();
 const originalTypeFileToFilePath: Map<string, string> = new Map();
 
-let incrementalFilesWatcher = chokidar
-  .watch([], {
-    awaitWriteFinish: {
-      stabilityThreshold: 1,
-    },
-  })
-  .on("all", (e, changedPath) => {
-    if (e !== "change" && e !== "unlink") return;
-    const filePath = originalTypeFileToFilePath.get(changedPath);
-    if (filePath != null) {
-      const entry = incrementallyCompiledFileInfo.get(filePath);
-      if (entry != null) {
-        if (debug()) {
-          console.log(
-            "[watcher] Cleaning up incremental files for " + filePath
-          );
-        }
-        if (entry.compilation != null) {
-          if (debug()) {
-            console.log("[watcher] Was compiling, killing");
-          }
-          clearTimeout(entry.compilation.timeout);
-          entry.killCompilationListeners.forEach((cb) => cb());
-          entry.compilation = null;
-        }
-        cleanUpIncrementalFiles(
-          entry.file.sourceFilePath,
-          entry.project.rootPath
-        );
+export function incrementalCompilationFileChanged(changedPath: string) {
+  const filePath = originalTypeFileToFilePath.get(changedPath);
+  if (filePath != null) {
+    const entry = incrementallyCompiledFileInfo.get(filePath);
+    if (entry != null) {
+      if (debug()) {
+        console.log("[watcher] Cleaning up incremental files for " + filePath);
       }
+      if (entry.compilation != null) {
+        if (debug()) {
+          console.log("[watcher] Was compiling, killing");
+        }
+        clearTimeout(entry.compilation.timeout);
+        entry.killCompilationListeners.forEach((cb) => cb());
+        entry.compilation = null;
+      }
+      cleanUpIncrementalFiles(
+        entry.file.sourceFilePath,
+        entry.project.rootPath
+      );
     }
-  });
+  }
+}
 
 export function removeIncrementalFileFolder(
   projectRootPath: string,
@@ -465,10 +455,6 @@ function triggerIncrementalCompilationOfFile(
     incrementalFileCacheEntry.project.callArgs = figureOutBscArgs(
       incrementalFileCacheEntry
     );
-    // Set up watcher for relevant cmt/cmti
-    incrementalFilesWatcher.add([
-      incrementalFileCacheEntry.file.originalTypeFileLocation,
-    ]);
     originalTypeFileToFilePath.set(
       incrementalFileCacheEntry.file.originalTypeFileLocation,
       incrementalFileCacheEntry.file.sourceFilePath
@@ -781,7 +767,6 @@ export function handleClosedFile(filePath: string) {
   cleanUpIncrementalFiles(filePath, entry.project.rootPath);
   incrementallyCompiledFileInfo.delete(filePath);
   originalTypeFileToFilePath.delete(entry.file.originalTypeFileLocation);
-  incrementalFilesWatcher.unwatch([entry.file.originalTypeFileLocation]);
 }
 
 export function getCodeActionsFromIncrementalCompilation(

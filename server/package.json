@@ -30,10 +30,9 @@
     "url": "https://github.com/rescript-lang/rescript-vscode/issues"
   },
   "dependencies": {
-    "chokidar": "^3.5.1",
     "semver": "^7.7.2",
     "vscode-jsonrpc": "^8.0.1",
-    "vscode-languageserver": "^8.0.1",
+    "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-protocol": "^3.17.1"
   }
 }
