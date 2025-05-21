@@ -35,6 +35,7 @@
 #### :house: Internal
 
 - Find binary paths asynchronously. On `>=12.0.0-alpha.13` we do this by dynamically importing the `@rescript/{target}` package in the project root. https://github.com/rescript-lang/rescript-vscode/pull/1093
+- Remove chokidar from LSP server. We expect LSP clients to support [workspace_didChangeWatchedFiles](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_didChangeWatchedFiles). https://github.com/rescript-lang/rescript-vscode/pull/1096
 
 ## 1.62.0
 
