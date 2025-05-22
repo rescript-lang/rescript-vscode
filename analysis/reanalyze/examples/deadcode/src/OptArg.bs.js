@@ -35,9 +35,12 @@ function twoArgs(aOpt, bOpt, c) {
 
 console.log(twoArgs(undefined, undefined, 1));
 
-var a = 3;
+function wrapOneArg(a, n) {
+  var a$1 = a !== undefined ? a : 1;
+  return a$1 + n | 0;
+}
 
-console.log(a + 44 | 0);
+console.log(wrapOneArg(3, 44));
 
 function wrapfourArgs(a, b, c, n) {
   var dOpt;
