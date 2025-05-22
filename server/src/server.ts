@@ -1051,15 +1051,15 @@ async function onMessage(msg: p.Message) {
       const watchers = Array.from(workspaceFolders).flatMap(
         (projectRootPath) => [
           {
-            globPattern: path.join(projectRootPath, c.compilerLogPartialPath),
+            globPattern: path.join(projectRootPath, '**', c.compilerLogPartialPath),
             kind: p.WatchKind.Change | p.WatchKind.Create | p.WatchKind.Delete,
           },
           {
-            globPattern: path.join(projectRootPath, c.buildNinjaPartialPath),
+            globPattern: path.join(projectRootPath, '**', c.buildNinjaPartialPath),
             kind: p.WatchKind.Change | p.WatchKind.Create | p.WatchKind.Delete,
           },
           {
-            globPattern: `${path.join(projectRootPath, c.compilerDirPartialPath)}/**/*.{cmt,cmi}`,
+            globPattern: `${path.join(projectRootPath, '**', c.compilerDirPartialPath)}/**/*.{cmt,cmi}`,
             kind: p.WatchKind.Change | p.WatchKind.Delete,
           }
         ]
