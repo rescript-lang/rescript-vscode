@@ -46,6 +46,7 @@ type IncrementallyCompiledFileInfo = {
     /** Location of the original type file. */
     originalTypeFileLocation: string;
   };
+  buildSystem: "bsb" | "rewatch";
   /** Cache for build.ninja assets. */
   buildNinja: {
     /** When build.ninja was last modified. Used as a cache key. */
@@ -223,14 +224,16 @@ function getBscArgs(
   ) {
     return Promise.resolve(rewatchCacheEntry.compilerArgs);
   }
-  return new Promise((resolve, _reject) => {
+  return new Promise(async(resolve, _reject) => {
     function resolveResult(result: Array<string> | RewatchCompilerArgs) {
       if (stat != null && Array.isArray(result)) {
+        entry.buildSystem = "bsb";
         entry.buildNinja = {
           fileMtime: stat.mtimeMs,
           rawExtracted: result,
         };
       } else if (!Array.isArray(result)) {
+        entry.buildSystem = "rewatch";
         entry.buildRewatch = {
           lastFile: entry.file.sourceFilePath,
           compilerArgs: result,
@@ -295,6 +298,20 @@ function getBscArgs(
           entry.project.workspaceRootPath,
           "node_modules/@rolandpeelen/rewatch/rewatch"
         );
+        if (semver.valid(project.rescriptVersion) &&
+          semver.satisfies(project.rescriptVersion as string, ">11", { includePrerelease: true })) {
+          const rescriptRewatchPath = await utils.findRewatchBinary(entry.project.workspaceRootPath)
+          if (rescriptRewatchPath != null) {
+            rewatchPath = rescriptRewatchPath;
+            if (debug()) {
+              console.log(`Found rewatch binary bundled with v12: ${rescriptRewatchPath}`)
+            }
+          } else {
+            if (debug()) {
+              console.log("Did not find rewatch binary bundled with v12")
+            }
+          }
+        }
         const compilerArgs = JSON.parse(
           cp
             .execFileSync(rewatchPath, [
@@ -445,6 +462,7 @@ function triggerIncrementalCompilationOfFile(
         bscBinaryLocation,
         incrementalFolderPath,
       },
+      buildSystem: foundRewatchLockfileInProjectRoot ? "rewatch" : "bsb",
       buildRewatch: null,
       buildNinja: null,
       compilation: null,
@@ -531,6 +549,7 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
           path.resolve(entry.project.rootPath, c.compilerDirPartialPath, value)
         );
       } else {
+        // TODO: once ReScript v12 is out we can remove this check for `.`
         if (value === ".") {
           callArgs.push(
             "-I",
@@ -604,11 +623,15 @@ async function compileContents(
 
   try {
     fs.writeFileSync(entry.file.incrementalFilePath, fileContent);
-
+    let cwd = entry.buildSystem === "bsb" ? entry.project.rootPath : path.resolve(entry.project.rootPath, c.compilerDirPartialPath)
+    if (debug()) {
+      console.log(`About to invoke bsc from \"${cwd}\", used ${entry.buildSystem}`);
+      console.log(`${entry.project.bscBinaryLocation} ${callArgs.map(c => `"${c}"`).join(" ")}`);
+    }
     const process = cp.execFile(
       entry.project.bscBinaryLocation,
       callArgs,
-      { cwd: entry.project.rootPath },
+      { cwd },
       async (error, _stdout, stderr) => {
         if (!error?.killed) {
           if (debug())

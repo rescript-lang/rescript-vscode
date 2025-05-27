@@ -15,6 +15,7 @@
 #### :rocket: New Feature
 
 - Find `bsc.exe` and `rescript-code-editor-analysis.exe` from platform-specific packages used by ReScript `v12.0.0-alpha.13`+.https://github.com/rescript-lang/rescript-vscode/pull/1092
+- Find `rewatch.exe` from platform-specific packages used by ReScript `v12.0.0-alpha.13`+. https://github.com/rescript-lang/rescript-vscode/pull/1101
 
 #### :bug: Bug fix
 
