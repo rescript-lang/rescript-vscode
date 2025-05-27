@@ -223,7 +223,7 @@ function getBscArgs(
   ) {
     return Promise.resolve(rewatchCacheEntry.compilerArgs);
   }
-  return new Promise((resolve, _reject) => {
+  return new Promise(async(resolve, _reject) => {
     function resolveResult(result: Array<string> | RewatchCompilerArgs) {
       if (stat != null && Array.isArray(result)) {
         entry.buildNinja = {
@@ -295,6 +295,20 @@ function getBscArgs(
           entry.project.workspaceRootPath,
           "node_modules/@rolandpeelen/rewatch/rewatch"
         );
+        if (semver.valid(project.rescriptVersion) &&
+          semver.satisfies(project.rescriptVersion as string, ">11", { includePrerelease: true })) {
+          const rescriptRewatchPath = await utils.findRewatchBinary(entry.project.workspaceRootPath)
+          if (rescriptRewatchPath != null) {
+            rewatchPath = rescriptRewatchPath;
+            if (debug()) {
+              console.log(`Found rewatch binary bundled with v12: ${rescriptRewatchPath}`)
+            }
+          } else {
+            if (debug()) {
+              console.log("Did not find rewatch binary bundled with v12")
+            }
+          }
+        }
         const compilerArgs = JSON.parse(
           cp
             .execFileSync(rewatchPath, [
@@ -536,6 +550,10 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
             "-I",
             path.resolve(entry.project.rootPath, c.compilerOcamlDirPartialPath)
           );
+        } else if (value.startsWith("..") && value.endsWith("ocaml")) {
+          // This should be the lib/ocaml folder of the project
+          // This is a hack to support incremental compilation in monorepos
+          callArgs.push("-I", path.resolve(entry.project.incrementalFolderPath, "..", "..", "ocaml"));
         } else {
           callArgs.push("-I", value);
         }
