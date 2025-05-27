@@ -46,6 +46,7 @@ type IncrementallyCompiledFileInfo = {
     /** Location of the original type file. */
     originalTypeFileLocation: string;
   };
+  buildSystem: "bsb" | "rewatch";
   /** Cache for build.ninja assets. */
   buildNinja: {
     /** When build.ninja was last modified. Used as a cache key. */
@@ -226,11 +227,13 @@ function getBscArgs(
   return new Promise(async(resolve, _reject) => {
     function resolveResult(result: Array<string> | RewatchCompilerArgs) {
       if (stat != null && Array.isArray(result)) {
+        entry.buildSystem = "bsb";
         entry.buildNinja = {
           fileMtime: stat.mtimeMs,
           rawExtracted: result,
         };
       } else if (!Array.isArray(result)) {
+        entry.buildSystem = "rewatch";
         entry.buildRewatch = {
           lastFile: entry.file.sourceFilePath,
           compilerArgs: result,
@@ -459,6 +462,7 @@ function triggerIncrementalCompilationOfFile(
         bscBinaryLocation,
         incrementalFolderPath,
       },
+      buildSystem: foundRewatchLockfileInProjectRoot ? "rewatch" : "bsb",
       buildRewatch: null,
       buildNinja: null,
       compilation: null,
@@ -545,15 +549,12 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
           path.resolve(entry.project.rootPath, c.compilerDirPartialPath, value)
         );
       } else {
+        // TODO: once ReScript v12 is out we can remove this check for `.`
         if (value === ".") {
           callArgs.push(
             "-I",
             path.resolve(entry.project.rootPath, c.compilerOcamlDirPartialPath)
           );
-        } else if (value.startsWith("..") && value.endsWith("ocaml")) {
-          // This should be the lib/ocaml folder of the project
-          // This is a hack to support incremental compilation in monorepos
-          callArgs.push("-I", path.resolve(entry.project.incrementalFolderPath, "..", "..", "ocaml"));
         } else {
           callArgs.push("-I", value);
         }
@@ -622,11 +623,15 @@ async function compileContents(
 
   try {
     fs.writeFileSync(entry.file.incrementalFilePath, fileContent);
-
+    let cwd = entry.buildSystem === "bsb" ? entry.project.rootPath : path.resolve(entry.project.rootPath, c.compilerDirPartialPath)
+    if (debug()) {
+      console.log(`About to invoke bsc from \"${cwd}\", used ${entry.buildSystem}`);
+      console.log(`${entry.project.bscBinaryLocation} ${callArgs.map(c => `"${c}"`).join(" ")}`);
+    }
     const process = cp.execFile(
       entry.project.bscBinaryLocation,
       callArgs,
-      { cwd: entry.project.rootPath },
+      { cwd },
       async (error, _stdout, stderr) => {
         if (!error?.killed) {
           if (debug())
