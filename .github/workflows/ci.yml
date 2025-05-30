@@ -73,13 +73,13 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20
-        registry-url: 'https://registry.npmjs.org'
+        cache: yarn
+        node-version-file: .nvmrc
 
-    - run: npm ci
+    - run: yarn install
     - run: opam install dune cppo
-    - run: npm run compile
-    - run: npm run bundle
+    - run: yarn compile
+    - run: yarn bundle
 
     # These 2 runs (or just the second?) are for when you have opam dependencies. We don't.
     # Don't add deps. But if you ever do, un-comment these and add an .opam file.
@@ -124,11 +124,11 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20
-        registry-url: 'https://registry.npmjs.org'
+        cache: yarn
+        node-version-file: .nvmrc
 
-    - run: npm ci
-    - run: npm run compile
+    - run: yarn install
+    - run: yarn compile
 
     - name: Download MacOS binaries
       uses: actions/download-artifact@v4
@@ -209,15 +209,15 @@ jobs:
 
     - name: Package Extension
       if: github.ref != 'refs/heads/master'
-      run: npx vsce package -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
+      run: yarn dlx vsce package -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
 
     - name: Package Extension pre-release version
       if: github.ref == 'refs/heads/master'
-      run: npx vsce package -o rescript-vscode-latest-master.vsix ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
+      run: yarn dlx vsce package -o rescript-vscode-latest-master.vsix ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
 
     - name: Package Extension release version
       if: startsWith(github.ref, 'refs/tags/')
-      run: npx vsce package -o rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
+      run: yarn dlx vsce package -o rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
 
     - uses: actions/upload-artifact@v4
       if: github.ref != 'refs/heads/master'
@@ -273,37 +273,37 @@ jobs:
 
     - name: Publish extension as pre-release
       if: github.ref == 'refs/heads/master' && !startsWith(github.event.head_commit.message, 'publish tools')
-      run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} --pre-release ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
+      run: yarn dlx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} --pre-release ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
 
     - name: Publish extension as release
       if: startsWith(github.ref, 'refs/tags/')
-      run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
+      run: yarn dlx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
 
     - name: Publish LSP as pre-release to NPM
       if: github.ref == 'refs/heads/master'
       working-directory: server
       run: |
         npm version preminor --preid next-$(git rev-parse --short HEAD)
-        npm publish --access public --tag next
+        yarn publish --access public --tag next
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Publish LSP to NPM
       if: startsWith(github.ref, 'refs/tags/')
       working-directory: server
-      run: npm publish --access public
+      run: yarn publish --access public
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Build @rescript/tools package
       working-directory: tools
       run: |
-        npm ci
-        npm run build
+        yarn install
+        yarn build
 
     - name: Publish @rescript/tools package
       if: ${{ startsWith(github.event.head_commit.message, 'publish tools') && (github.ref == 'refs/heads/master') }}
       working-directory: tools
-      run: npm publish --access public
+      run: yarn publish --access public
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
