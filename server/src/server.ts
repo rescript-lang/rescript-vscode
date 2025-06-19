@@ -1088,6 +1088,7 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       await openedFile(params.textDocument.uri, params.textDocument.text);
+      await sendUpdatedDiagnostics();
       await updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
