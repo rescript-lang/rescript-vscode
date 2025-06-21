@@ -1,13 +1,19 @@
 {
-	"editor.insertSpaces": false,
-	"tslint.enable": true,
-	"typescript.tsc.autoDetect": "off",
-	"typescript.preferences.quoteStyle": "single",
-	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": "explicit"
-	},
-	"ocaml.sandbox": {
-		"kind": "opam",
-		"switch": "${workspaceFolder:rescript-vscode}"
-	}
+  "editor.insertSpaces": false,
+  "tslint.enable": true,
+  "typescript.tsc.autoDetect": "off",
+  "typescript.preferences.quoteStyle": "single",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "ocaml.sandbox": {
+    "kind": "opam",
+    "switch": "${workspaceFolder:rescript-vscode}"
+  },
+  "search.exclude": {
+    "**/.yarn": true,
+    "**/.pnp.*": true
+  },
+  "typescript.tsdk": ".yarn/sdks/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

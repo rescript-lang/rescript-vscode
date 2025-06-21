@@ -33,6 +33,11 @@
     "semver": "^7.7.2",
     "vscode-jsonrpc": "^8.0.1",
     "vscode-languageserver": "^9.0.1",
-    "vscode-languageserver-protocol": "^3.17.1"
+    "vscode-languageserver-protocol": "^3.17.1",
+    "vscode-languageserver-types": "^3.17.1"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.7.0",
+    "@types/vscode": "1.68.0"
   }
 }
