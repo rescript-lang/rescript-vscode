@@ -312,7 +312,7 @@ function getBscArgs(
             }
           }
         }
-        const rewatchArguments = semver.satisfies(project.rescriptVersion, ">=12.0.0-alpha.14", { includePrerelease: true }) ? [
+        const rewatchArguments = semver.satisfies(project.rescriptVersion, ">12.0.0-alpha.14", { includePrerelease: true }) ? [
           "compiler-args",
            "--rescript-version",
           project.rescriptVersion,
