@@ -312,14 +312,20 @@ function getBscArgs(
             }
           }
         }
-        const compilerArgs = JSON.parse(
-          cp
-            .execFileSync(rewatchPath, [
+        const rewatchArguments = semver.satisfies(project.rescriptVersion, ">12.0.0-alpha.14", { includePrerelease: true }) ? [
+          "compiler-args",
+           "--rescript-version",
+          project.rescriptVersion,
+          entry.file.sourceFilePath,
+        ] : [
               "--rescript-version",
               project.rescriptVersion,
               "--compiler-args",
               entry.file.sourceFilePath,
-            ])
+            ];
+        const compilerArgs = JSON.parse(
+          cp
+            .execFileSync(rewatchPath, rewatchArguments)
             .toString()
             .trim()
         ) as RewatchCompilerArgs;
