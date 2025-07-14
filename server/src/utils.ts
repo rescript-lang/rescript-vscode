@@ -81,7 +81,7 @@ export let findProjectRootOfFile = (
 // We won't know which version is in the project root until we read and parse `{project_root}/node_modules/rescript/package.json`
 let findBinary = async (
   projectRootPath: p.DocumentUri | null,
-  binary: "bsc.exe" | "rescript-editor-analysis.exe" | "rescript" | "rewatch.exe"
+  binary: "bsc.exe" | "rescript-editor-analysis.exe" | "rescript" | "rewatch.exe" | "rescript.exe"
 ) => {
   if (config.extensionConfiguration.platformPath != null) {
     return path.join(config.extensionConfiguration.platformPath, binary);
@@ -124,6 +124,8 @@ let findBinary = async (
       binaryPath = binPaths.rescript_editor_analysis_exe
     } else if (binary == "rewatch.exe") {
       binaryPath = binPaths.rewatch_exe
+    } else if (binary == "rescript.exe") {
+      binaryPath = binPaths.rescript_exe
     }
   } else {
     binaryPath = path.join(rescriptDir, c.platformDir, binary)
@@ -147,6 +149,9 @@ export let findEditorAnalysisBinary = (projectRootPath: p.DocumentUri | null) =>
 
 export let findRewatchBinary = (projectRootPath: p.DocumentUri | null) =>
   findBinary(projectRootPath, "rewatch.exe");
+
+export let findRescriptExeBinary = (projectRootPath: p.DocumentUri | null) =>
+  findBinary(projectRootPath, "rescript.exe");
 
 type execResult =
   | {
