@@ -191,6 +191,10 @@ function getBscArgs(
     entry.project.workspaceRootPath,
     c.rewatchLockPartialPath
   );
+  const rescriptLockfile = path.resolve(
+    entry.project.workspaceRootPath,
+    c.rescriptLockPartialPath
+  );
   let buildSystem: "bsb" | "rewatch" | null = null;
 
   let stat: fs.Stats | null = null;
@@ -202,9 +206,16 @@ function getBscArgs(
     stat = fs.statSync(rewatchLockfile);
     buildSystem = "rewatch";
   } catch {}
+  try {
+    stat = fs.statSync(rescriptLockfile);
+    buildSystem = "rewatch";
+  }
+  catch {}
   if (buildSystem == null) {
     console.log("Did not find build.ninja or rewatch.lock, cannot proceed..");
     return Promise.resolve(null);
+  } else if (debug()) {
+    console.log(`Using build system: ${buildSystem} for ${entry.file.sourceFilePath}`);
   }
   const bsbCacheEntry = entry.buildNinja;
   const rewatchCacheEntry = entry.buildRewatch;
@@ -298,20 +309,28 @@ function getBscArgs(
           entry.project.workspaceRootPath,
           "node_modules/@rolandpeelen/rewatch/rewatch"
         );
+        let rescriptRewatchPath = null;
         if (semver.valid(project.rescriptVersion) &&
           semver.satisfies(project.rescriptVersion as string, ">11", { includePrerelease: true })) {
-          const rescriptRewatchPath = await utils.findRewatchBinary(entry.project.workspaceRootPath)
-          if (rescriptRewatchPath != null) {
-            rewatchPath = rescriptRewatchPath;
-            if (debug()) {
-              console.log(`Found rewatch binary bundled with v12: ${rescriptRewatchPath}`)
-            }
-          } else {
-            if (debug()) {
-              console.log("Did not find rewatch binary bundled with v12")
-            }
+          rescriptRewatchPath = await utils.findRewatchBinary(entry.project.workspaceRootPath)
+        }
+
+        if (semver.valid(project.rescriptVersion) &&
+          semver.satisfies(project.rescriptVersion as string, ">=12.0.0-beta.1", { includePrerelease: true })) {
+          rescriptRewatchPath = await utils.findRescriptExeBinary(entry.project.workspaceRootPath)
+        }
+
+        if (rescriptRewatchPath != null) {
+          rewatchPath = rescriptRewatchPath;
+          if (debug()) {
+            console.log(`Found rewatch binary bundled with v12: ${rescriptRewatchPath}`)
+          }
+        } else {
+          if (debug()) {
+            console.log("Did not find rewatch binary bundled with v12")
           }
         }
+        
         const rewatchArguments = semver.satisfies(project.rescriptVersion, ">12.0.0-alpha.14", { includePrerelease: true }) ? [
           "compiler-args",
            "--rescript-version",

@@ -35,6 +35,7 @@ export let compilerOcamlDirPartialPath = path.join("lib", "ocaml");
 export let compilerLogPartialPath = path.join("lib", "bs", ".compiler.log");
 export let buildNinjaPartialPath = path.join("lib", "bs", "build.ninja");
 export let rewatchLockPartialPath = path.join("lib", "rewatch.lock");
+export let rescriptLockPartialPath = path.join("lib", "rescript.lock");
 export let resExt = ".res";
 export let resiExt = ".resi";
 export let cmiExt = ".cmi";
