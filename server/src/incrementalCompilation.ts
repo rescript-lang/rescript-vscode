@@ -331,10 +331,8 @@ function getBscArgs(
           }
         }
         
-        const rewatchArguments = semver.satisfies(project.rescriptVersion, ">12.0.0-alpha.14", { includePrerelease: true }) ? [
+        const rewatchArguments = semver.satisfies(project.rescriptVersion, ">=12.0.0-beta.2", { includePrerelease: true }) ? [
           "compiler-args",
-           "--rescript-version",
-          project.rescriptVersion,
           entry.file.sourceFilePath,
         ] : [
               "--rescript-version",
@@ -342,9 +340,11 @@ function getBscArgs(
               "--compiler-args",
               entry.file.sourceFilePath,
             ];
+        const bscExe = await utils.findBscExeBinary(entry.project.workspaceRootPath);
+        const env = bscExe != null ? { RESCRIPT_BSC_EXE: bscExe } : undefined;
         const compilerArgs = JSON.parse(
           cp
-            .execFileSync(rewatchPath, rewatchArguments)
+            .execFileSync(rewatchPath, rewatchArguments, { env })
             .toString()
             .trim()
         ) as RewatchCompilerArgs;
