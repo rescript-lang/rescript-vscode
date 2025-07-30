@@ -19,6 +19,8 @@
 
 #### :bug: Bug fix
 
+ - Fix: hang in `rescript-editor-analysis.exe codeAction` that sometimes prevented ReScript files from being saved in VS Code. https://github.com/rescript-lang/rescript-vscode/pull/1112
+
 - Fix: show existing compiler errors and warnings on file open. https://github.com/rescript-lang/rescript-vscode/pull/1103
 
 - Fix: bug where we incorrectly showed a warning notification about something going wrong with incremental type checking, when in fact the compiler was reporting module-related type errors https://github.com/rescript-lang/rescript-vscode/pull/1090
