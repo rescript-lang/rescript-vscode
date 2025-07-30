@@ -533,6 +533,7 @@ let rec resolveTypeForPipeCompletion ~env ~package ~lhsLoc ~full
     | _ -> None
   in
   match typFromLoc with
+  | Some ({desc = Tvar _} as t) -> (env, t)
   | Some typFromLoc ->
     typFromLoc |> resolveTypeForPipeCompletion ~lhsLoc ~env ~package ~full
   | None ->
