@@ -568,6 +568,8 @@ export let parseCompilerLogOutput = async (
         tag: undefined,
         content: [],
       });
+    } else if (line.startsWith("FAILED: cannot make progress due to previous errors.")) {
+      // skip
     } else if (line.startsWith("FAILED:")) {
       // File with a self cycle
       parsedDiagnostics.push({
