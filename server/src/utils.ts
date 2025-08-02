@@ -570,8 +570,9 @@ export let parseCompilerLogOutput = async (
       });
     } else if (line.startsWith("FAILED: cannot make progress due to previous errors.")) {
       // skip
+    } else if (line.startsWith("FAILED: dependency cycle")) {
+      // skip as we can't extract a filepath from this error message
     } else if (line.startsWith("FAILED:")) {
-      // File with a self cycle
       parsedDiagnostics.push({
         code: undefined,
         severity: t.DiagnosticSeverity.Error,
