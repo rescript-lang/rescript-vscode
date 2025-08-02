@@ -23,7 +23,7 @@
 
 - Fix: `rescript-editor-analysis.exe semanticTokens` sometimes returned invalid JSON, which affected syntax highlighting. https://github.com/rescript-lang/rescript-vscode/pull/1113
 
- - Fix: hang in `rescript-editor-analysis.exe codeAction` that sometimes prevented ReScript files from being saved in VS Code. https://github.com/rescript-lang/rescript-vscode/pull/1112
+- Fix: hang in `rescript-editor-analysis.exe codeAction` that sometimes prevented ReScript files from being saved in VS Code. https://github.com/rescript-lang/rescript-vscode/pull/1112
 
 - Fix: show existing compiler errors and warnings on file open. https://github.com/rescript-lang/rescript-vscode/pull/1103
 
