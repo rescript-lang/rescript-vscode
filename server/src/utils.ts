@@ -568,8 +568,11 @@ export let parseCompilerLogOutput = async (
         tag: undefined,
         content: [],
       });
+    } else if (line.startsWith("FAILED: cannot make progress due to previous errors.")) {
+      // skip
+    } else if (line.startsWith("FAILED: dependency cycle")) {
+      // skip as we can't extract a filepath from this error message
     } else if (line.startsWith("FAILED:")) {
-      // File with a self cycle
       parsedDiagnostics.push({
         code: undefined,
         severity: t.DiagnosticSeverity.Error,
@@ -700,26 +703,31 @@ export let parseCompilerLogOutput = async (
       result[file] = [];
     }
 
-    let diagnostic: p.Diagnostic = {
-      severity: parsedDiagnostic.severity,
-      tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
-      code: parsedDiagnostic.code,
-      range,
-      source: "ReScript",
-      // remove start and end whitespaces/newlines
-      message: diagnosticMessage.join("\n").trim(),
-    };
+    // remove start and end whitespaces/newlines
+    let message = diagnosticMessage.join("\n").trim()
 
-    // Check for potential code actions
-    await codeActions.findCodeActionsInDiagnosticsMessage({
-      addFoundActionsHere: foundCodeActions,
-      diagnostic,
-      diagnosticMessage,
-      file,
-      range,
-    });
+    // vscode.Diagnostic throws an error if `message` is a blank string
+    if (message != "") {
+      let diagnostic: p.Diagnostic = {
+        severity: parsedDiagnostic.severity,
+        tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
+        code: parsedDiagnostic.code,
+        range,
+        source: "ReScript",
+        message,
+      };
 
-    result[file].push(diagnostic);
+      // Check for potential code actions
+      await codeActions.findCodeActionsInDiagnosticsMessage({
+        addFoundActionsHere: foundCodeActions,
+        diagnostic,
+        diagnosticMessage,
+        file,
+        range,
+      });
+
+      result[file].push(diagnostic);
+    }
   }
 
   return {
