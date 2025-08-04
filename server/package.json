@@ -1,7 +1,7 @@
 {
   "name": "@rescript/language-server",
   "description": "LSP server for ReScript",
-  "version": "1.62.0",
+  "version": "1.64.0",
   "author": "ReScript Team",
   "license": "MIT",
   "bin": {
