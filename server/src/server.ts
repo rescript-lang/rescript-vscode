@@ -60,14 +60,20 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-let findRescriptBinary = async (projectRootPath: p.DocumentUri | null): Promise<string | null> => {
-  if (config.extensionConfiguration.binaryPath != null &&
-    fs.existsSync(path.join(config.extensionConfiguration.binaryPath, "rescript"))) {
-      return path.join(config.extensionConfiguration.binaryPath, "rescript")
+let findRescriptBinary = async (
+  projectRootPath: p.DocumentUri | null
+): Promise<string | null> => {
+  if (
+    config.extensionConfiguration.binaryPath != null &&
+    fs.existsSync(
+      path.join(config.extensionConfiguration.binaryPath, "rescript")
+    )
+  ) {
+    return path.join(config.extensionConfiguration.binaryPath, "rescript");
   }
 
-  return utils.findRescriptBinary(projectRootPath)
-}
+  return utils.findRescriptBinary(projectRootPath);
+};
 
 let createInterfaceRequest = new v.RequestType<
   p.TextDocumentIdentifier,
@@ -99,7 +105,12 @@ let sendUpdatedDiagnostics = async () => {
   for (const [projectRootPath, projectFile] of projectsFiles) {
     let { filesWithDiagnostics } = projectFile;
     let compilerLogPath = path.join(projectRootPath, c.compilerLogPartialPath);
-    let content = fs.readFileSync(compilerLogPath, { encoding: "utf-8" });
+    let content = "";
+    try {
+      content = fs.readFileSync(compilerLogPath, { encoding: "utf-8" });
+    } catch (e) {
+      console.error(`Error reading compiler log file ${compilerLogPath}: ${e}`);
+    }
     let {
       done,
       result: filesAndErrors,
@@ -197,7 +208,10 @@ let debug = false;
 let syncProjectConfigCache = async (rootPath: string) => {
   try {
     if (debug) console.log("syncing project config cache for " + rootPath);
-    await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-project", rootPath]);
+    await utils.runAnalysisAfterSanityCheck(rootPath, [
+      "cache-project",
+      rootPath,
+    ]);
     if (debug) console.log("OK - synced project config cache for " + rootPath);
   } catch (e) {
     if (debug) console.error(e);
@@ -207,7 +221,10 @@ let syncProjectConfigCache = async (rootPath: string) => {
 let deleteProjectConfigCache = async (rootPath: string) => {
   try {
     if (debug) console.log("deleting project config cache for " + rootPath);
-    await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-delete", rootPath]);
+    await utils.runAnalysisAfterSanityCheck(rootPath, [
+      "cache-delete",
+      rootPath,
+    ]);
     if (debug) console.log("OK - deleted project config cache for " + rootPath);
   } catch (e) {
     if (debug) console.error(e);
@@ -217,31 +234,35 @@ let deleteProjectConfigCache = async (rootPath: string) => {
 async function onWorkspaceDidChangeWatchedFiles(
   params: p.DidChangeWatchedFilesParams
 ) {
-  await Promise.all(params.changes.map(async (change) => {
-    if (change.uri.includes("build.ninja")) {
-      if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
-        let projectRoot = utils.findProjectRootOfFile(change.uri);
-        if (projectRoot != null) {
-          await syncProjectConfigCache(projectRoot);
+  await Promise.all(
+    params.changes.map(async (change) => {
+      if (change.uri.includes("build.ninja")) {
+        if (
+          config.extensionConfiguration.cache?.projectConfig?.enable === true
+        ) {
+          let projectRoot = utils.findProjectRootOfFile(change.uri);
+          if (projectRoot != null) {
+            await syncProjectConfigCache(projectRoot);
+          }
         }
+      } else if (change.uri.includes("compiler.log")) {
+        try {
+          await sendUpdatedDiagnostics();
+          sendCompilationFinishedMessage();
+          if (config.extensionConfiguration.inlayHints?.enable === true) {
+            sendInlayHintsRefresh();
+          }
+          if (config.extensionConfiguration.codeLens === true) {
+            sendCodeLensRefresh();
+          }
+        } catch {
+          console.log("Error while sending updated diagnostics");
+        }
+      } else {
+        ic.incrementalCompilationFileChanged(fileURLToPath(change.uri));
       }
-    } else if (change.uri.includes("compiler.log")) {
-      try {
-        await sendUpdatedDiagnostics();
-        sendCompilationFinishedMessage();
-        if (config.extensionConfiguration.inlayHints?.enable === true) {
-          sendInlayHintsRefresh();
-        }
-        if (config.extensionConfiguration.codeLens === true) {
-          sendCodeLensRefresh();
-        }
-      } catch {
-        console.log("Error while sending updated diagnostics");
-      }
-    } else {
-      ic.incrementalCompilationFileChanged(fileURLToPath(change.uri));
-    }
-  }));
+    })
+  );
 }
 
 type clientSentBuildAction = {
@@ -269,10 +290,14 @@ let openedFile = async (fileUri: string, fileContent: string) => {
         filesDiagnostics: {},
         namespaceName:
           namespaceName.kind === "success" ? namespaceName.result : null,
-        rescriptVersion: await utils.findReScriptVersionForProjectRoot(projectRootPath),
+        rescriptVersion: await utils.findReScriptVersionForProjectRoot(
+          projectRootPath
+        ),
         bsbWatcherByEditor: null,
         bscBinaryLocation: await utils.findBscExeBinary(projectRootPath),
-        editorAnalysisLocation: await utils.findEditorAnalysisBinary(projectRootPath),
+        editorAnalysisLocation: await utils.findEditorAnalysisBinary(
+          projectRootPath
+        ),
         hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
           projectRootPath
         )
@@ -297,7 +322,7 @@ let openedFile = async (fileUri: string, fileContent: string) => {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
-      if (await findRescriptBinary(projectRootPath) != null) {
+      if ((await findRescriptBinary(projectRootPath)) != null) {
         let payload: clientSentBuildAction = {
           title: c.startBuildAction,
           projectRootPath: projectRootPath,
@@ -536,10 +561,8 @@ async function references(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let result: typeof p.ReferencesRequest.type = await utils.getReferencesForPosition(
-    filePath,
-    params.position
-  );
+  let result: typeof p.ReferencesRequest.type =
+    await utils.getReferencesForPosition(filePath, params.position);
   let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
@@ -549,7 +572,9 @@ async function references(msg: p.RequestMessage) {
   return response;
 }
 
-async function prepareRename(msg: p.RequestMessage): Promise<p.ResponseMessage> {
+async function prepareRename(
+  msg: p.RequestMessage
+): Promise<p.ResponseMessage> {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
@@ -840,7 +865,10 @@ let updateDiagnosticSyntax = async (fileUri: string, fileContent: string) => {
   let compilerDiagnosticsForFile =
     getCurrentCompilerDiagnosticsForFile(fileUri);
   let syntaxDiagnosticsForFile: p.Diagnostic[] =
-    await utils.runAnalysisAfterSanityCheck(filePath, ["diagnosticSyntax", tmpname]);
+    await utils.runAnalysisAfterSanityCheck(filePath, [
+      "diagnosticSyntax",
+      tmpname,
+    ]);
 
   let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
@@ -1051,17 +1079,29 @@ async function onMessage(msg: p.Message) {
       const watchers = Array.from(workspaceFolders).flatMap(
         (projectRootPath) => [
           {
-            globPattern: path.join(projectRootPath, '**', c.compilerLogPartialPath),
+            globPattern: path.join(
+              projectRootPath,
+              "**",
+              c.compilerLogPartialPath
+            ),
             kind: p.WatchKind.Change | p.WatchKind.Create | p.WatchKind.Delete,
           },
           {
-            globPattern: path.join(projectRootPath, '**', c.buildNinjaPartialPath),
+            globPattern: path.join(
+              projectRootPath,
+              "**",
+              c.buildNinjaPartialPath
+            ),
             kind: p.WatchKind.Change | p.WatchKind.Create | p.WatchKind.Delete,
           },
           {
-            globPattern: `${path.join(projectRootPath, '**', c.compilerDirPartialPath)}/**/*.{cmt,cmi}`,
+            globPattern: `${path.join(
+              projectRootPath,
+              "**",
+              c.compilerDirPartialPath
+            )}/**/*.{cmt,cmi}`,
             kind: p.WatchKind.Change | p.WatchKind.Delete,
-          }
+          },
         ]
       );
       const registrationParams: p.RegistrationParams = {
@@ -1089,7 +1129,10 @@ async function onMessage(msg: p.Message) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       await openedFile(params.textDocument.uri, params.textDocument.text);
       await sendUpdatedDiagnostics();
-      await updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
+      await updateDiagnosticSyntax(
+        params.textDocument.uri,
+        params.textDocument.text
+      );
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
