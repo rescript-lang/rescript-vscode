@@ -12,6 +12,10 @@
 
 ## master
 
+#### :bug: Bug fix
+
+- Protect against trying to read non-existant `.compiler.log`. https://github.com/rescript-lang/rescript-vscode/pull/1116
+
 ## 1.64.0
 
 #### :rocket: New Feature

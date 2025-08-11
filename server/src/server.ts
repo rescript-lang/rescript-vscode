@@ -99,7 +99,12 @@ let sendUpdatedDiagnostics = async () => {
   for (const [projectRootPath, projectFile] of projectsFiles) {
     let { filesWithDiagnostics } = projectFile;
     let compilerLogPath = path.join(projectRootPath, c.compilerLogPartialPath);
-    let content = fs.readFileSync(compilerLogPath, { encoding: "utf-8" });
+    let content = "";
+    try {
+      content = fs.readFileSync(compilerLogPath, { encoding: "utf-8" });
+    } catch (e) {
+      console.error(`Error reading compiler log file ${compilerLogPath}: ${e}`);
+    }
     let {
       done,
       result: filesAndErrors,
