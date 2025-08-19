@@ -21,7 +21,7 @@ function debug() {
 const INCREMENTAL_FOLDER_NAME = "___incremental";
 const INCREMENTAL_FILE_FOLDER_LOCATION = path.join(
   c.compilerDirPartialPath,
-  INCREMENTAL_FOLDER_NAME
+  INCREMENTAL_FOLDER_NAME,
 );
 
 type RewatchCompilerArgs = {
@@ -110,7 +110,7 @@ export function incrementalCompilationFileChanged(changedPath: string) {
       }
       cleanUpIncrementalFiles(
         entry.file.sourceFilePath,
-        entry.project.rootPath
+        entry.project.rootPath,
       );
     }
   }
@@ -118,14 +118,14 @@ export function incrementalCompilationFileChanged(changedPath: string) {
 
 export function removeIncrementalFileFolder(
   projectRootPath: string,
-  onAfterRemove?: () => void
+  onAfterRemove?: () => void,
 ) {
   fs.rm(
     path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
     { force: true, recursive: true },
     (_) => {
       onAfterRemove?.();
-    }
+    },
   );
 }
 
@@ -137,14 +137,14 @@ export function recreateIncrementalFileFolder(projectRootPath: string) {
     fs.mkdir(
       path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
       { recursive: true },
-      (_) => {}
+      (_) => {},
     );
   });
 }
 
 export function cleanUpIncrementalFiles(
   filePath: string,
-  projectRootPath: string
+  projectRootPath: string,
 ) {
   const ext = filePath.endsWith(".resi") ? ".resi" : ".res";
   const namespace = utils.getNamespaceNameFromConfigFile(projectRootPath);
@@ -162,9 +162,9 @@ export function cleanUpIncrementalFiles(
     path.resolve(
       projectRootPath,
       INCREMENTAL_FILE_FOLDER_LOCATION,
-      path.basename(filePath)
+      path.basename(filePath),
     ),
-    (_) => {}
+    (_) => {},
   );
 
   [
@@ -176,24 +176,24 @@ export function cleanUpIncrementalFiles(
   ].forEach((file) => {
     fs.unlink(
       path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION, file),
-      (_) => {}
+      (_) => {},
     );
   });
 }
 function getBscArgs(
-  entry: IncrementallyCompiledFileInfo
+  entry: IncrementallyCompiledFileInfo,
 ): Promise<Array<string> | RewatchCompilerArgs | null> {
   const buildNinjaPath = path.resolve(
     entry.project.rootPath,
-    c.buildNinjaPartialPath
+    c.buildNinjaPartialPath,
   );
   const rewatchLockfile = path.resolve(
     entry.project.workspaceRootPath,
-    c.rewatchLockPartialPath
+    c.rewatchLockPartialPath,
   );
   const rescriptLockfile = path.resolve(
     entry.project.workspaceRootPath,
-    c.rescriptLockPartialPath
+    c.rescriptLockPartialPath,
   );
   let buildSystem: "bsb" | "rewatch" | null = null;
 
@@ -209,13 +209,14 @@ function getBscArgs(
   try {
     stat = fs.statSync(rescriptLockfile);
     buildSystem = "rewatch";
-  }
-  catch {}
+  } catch {}
   if (buildSystem == null) {
     console.log("Did not find build.ninja or rewatch.lock, cannot proceed..");
     return Promise.resolve(null);
   } else if (debug()) {
-    console.log(`Using build system: ${buildSystem} for ${entry.file.sourceFilePath}`);
+    console.log(
+      `Using build system: ${buildSystem} for ${entry.file.sourceFilePath}`,
+    );
   }
   const bsbCacheEntry = entry.buildNinja;
   const rewatchCacheEntry = entry.buildRewatch;
@@ -235,7 +236,7 @@ function getBscArgs(
   ) {
     return Promise.resolve(rewatchCacheEntry.compilerArgs);
   }
-  return new Promise(async(resolve, _reject) => {
+  return new Promise(async (resolve, _reject) => {
     function resolveResult(result: Array<string> | RewatchCompilerArgs) {
       if (stat != null && Array.isArray(result)) {
         entry.buildSystem = "bsb";
@@ -307,46 +308,67 @@ function getBscArgs(
         if (project?.rescriptVersion == null) return;
         let rewatchPath = path.resolve(
           entry.project.workspaceRootPath,
-          "node_modules/@rolandpeelen/rewatch/rewatch"
+          "node_modules/@rolandpeelen/rewatch/rewatch",
         );
         let rescriptRewatchPath = null;
-        if (semver.valid(project.rescriptVersion) &&
-          semver.satisfies(project.rescriptVersion as string, ">11", { includePrerelease: true })) {
-          rescriptRewatchPath = await utils.findRewatchBinary(entry.project.workspaceRootPath)
+        if (
+          semver.valid(project.rescriptVersion) &&
+          semver.satisfies(project.rescriptVersion as string, ">11", {
+            includePrerelease: true,
+          })
+        ) {
+          rescriptRewatchPath = await utils.findRewatchBinary(
+            entry.project.workspaceRootPath,
+          );
         }
 
-        if (semver.valid(project.rescriptVersion) &&
-          semver.satisfies(project.rescriptVersion as string, ">=12.0.0-beta.1", { includePrerelease: true })) {
-          rescriptRewatchPath = await utils.findRescriptExeBinary(entry.project.workspaceRootPath)
+        if (
+          semver.valid(project.rescriptVersion) &&
+          semver.satisfies(
+            project.rescriptVersion as string,
+            ">=12.0.0-beta.1",
+            { includePrerelease: true },
+          )
+        ) {
+          rescriptRewatchPath = await utils.findRescriptExeBinary(
+            entry.project.workspaceRootPath,
+          );
         }
 
         if (rescriptRewatchPath != null) {
           rewatchPath = rescriptRewatchPath;
           if (debug()) {
-            console.log(`Found rewatch binary bundled with v12: ${rescriptRewatchPath}`)
+            console.log(
+              `Found rewatch binary bundled with v12: ${rescriptRewatchPath}`,
+            );
           }
         } else {
           if (debug()) {
-            console.log("Did not find rewatch binary bundled with v12")
+            console.log("Did not find rewatch binary bundled with v12");
           }
         }
-        
-        const rewatchArguments = semver.satisfies(project.rescriptVersion, ">=12.0.0-beta.2", { includePrerelease: true }) ? [
-          "compiler-args",
-          entry.file.sourceFilePath,
-        ] : [
+
+        const rewatchArguments = semver.satisfies(
+          project.rescriptVersion,
+          ">=12.0.0-beta.2",
+          { includePrerelease: true },
+        )
+          ? ["compiler-args", entry.file.sourceFilePath]
+          : [
               "--rescript-version",
               project.rescriptVersion,
               "--compiler-args",
               entry.file.sourceFilePath,
             ];
-        const bscExe = await utils.findBscExeBinary(entry.project.workspaceRootPath);
+        const bscExe = await utils.findBscExeBinary(
+          entry.project.workspaceRootPath,
+        );
         const env = bscExe != null ? { RESCRIPT_BSC_EXE: bscExe } : undefined;
         const compilerArgs = JSON.parse(
           cp
             .execFileSync(rewatchPath, rewatchArguments, { env })
             .toString()
-            .trim()
+            .trim(),
         ) as RewatchCompilerArgs;
         resolveResult(compilerArgs);
       } catch (e) {
@@ -407,7 +429,7 @@ function triggerIncrementalCompilationOfFile(
   filePath: string,
   fileContent: string,
   send: send,
-  onCompilationFinished?: () => void
+  onCompilationFinished?: () => void,
 ) {
   let incrementalFileCacheEntry = incrementallyCompiledFileInfo.get(filePath);
   if (incrementalFileCacheEntry == null) {
@@ -426,7 +448,7 @@ function triggerIncrementalCompilationOfFile(
 
     const projectRewatchLockfile = path.resolve(
       projectRootPath,
-      c.rewatchLockPartialPath
+      c.rewatchLockPartialPath,
     );
 
     let foundRewatchLockfileInProjectRoot = false;
@@ -456,13 +478,13 @@ function triggerIncrementalCompilationOfFile(
 
     const incrementalFolderPath = path.join(
       projectRootPath,
-      INCREMENTAL_FILE_FOLDER_LOCATION
+      INCREMENTAL_FILE_FOLDER_LOCATION,
     );
 
     let originalTypeFileLocation = path.resolve(
       projectRootPath,
       c.compilerDirPartialPath,
-      path.relative(projectRootPath, filePath)
+      path.relative(projectRootPath, filePath),
     );
 
     const parsed = path.parse(originalTypeFileLocation);
@@ -496,11 +518,11 @@ function triggerIncrementalCompilationOfFile(
     };
 
     incrementalFileCacheEntry.project.callArgs = figureOutBscArgs(
-      incrementalFileCacheEntry
+      incrementalFileCacheEntry,
     );
     originalTypeFileToFilePath.set(
       incrementalFileCacheEntry.file.originalTypeFileLocation,
-      incrementalFileCacheEntry.file.sourceFilePath
+      incrementalFileCacheEntry.file.sourceFilePath,
     );
     incrementallyCompiledFileInfo.set(filePath, incrementalFileCacheEntry);
   }
@@ -539,7 +561,7 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
     if (debug()) {
       console.log(
         "Found no project (or ReScript version) for " +
-          entry.file.sourceFilePath
+          entry.file.sourceFilePath,
       );
     }
     return null;
@@ -562,7 +584,7 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   if (config.extensionConfiguration.incrementalTypechecking?.acrossFiles) {
     callArgs.push(
       "-I",
-      path.resolve(entry.project.rootPath, INCREMENTAL_FILE_FOLDER_LOCATION)
+      path.resolve(entry.project.rootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
     );
   }
 
@@ -571,14 +593,14 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
       if (isBsb) {
         callArgs.push(
           "-I",
-          path.resolve(entry.project.rootPath, c.compilerDirPartialPath, value)
+          path.resolve(entry.project.rootPath, c.compilerDirPartialPath, value),
         );
       } else {
         // TODO: once ReScript v12 is out we can remove this check for `.`
         if (value === ".") {
           callArgs.push(
             "-I",
-            path.resolve(entry.project.rootPath, c.compilerOcamlDirPartialPath)
+            path.resolve(entry.project.rootPath, c.compilerOcamlDirPartialPath),
           );
         } else {
           callArgs.push("-I", value);
@@ -607,7 +629,9 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   // Only available in v11+
   if (
     semver.valid(project.rescriptVersion) &&
-    semver.satisfies(project.rescriptVersion as string, ">=11", { includePrerelease: true })
+    semver.satisfies(project.rescriptVersion as string, ">=11", {
+      includePrerelease: true,
+    })
   ) {
     callArgs.push("-ignore-parse-errors");
   }
@@ -620,7 +644,7 @@ async function compileContents(
   entry: IncrementallyCompiledFileInfo,
   fileContent: string,
   send: (msg: p.Message) => void,
-  onCompilationFinished?: () => void
+  onCompilationFinished?: () => void,
 ) {
   const triggerToken = entry.compilation?.triggerToken;
   let callArgs = await entry.project.callArgs;
@@ -632,7 +656,7 @@ async function compileContents(
     } else {
       if (debug()) {
         console.log(
-          "Could not figure out call args. Maybe build.ninja does not exist yet?"
+          "Could not figure out call args. Maybe build.ninja does not exist yet?",
         );
       }
       return;
@@ -648,10 +672,17 @@ async function compileContents(
 
   try {
     fs.writeFileSync(entry.file.incrementalFilePath, fileContent);
-    let cwd = entry.buildSystem === "bsb" ? entry.project.rootPath : path.resolve(entry.project.rootPath, c.compilerDirPartialPath)
+    let cwd =
+      entry.buildSystem === "bsb"
+        ? entry.project.rootPath
+        : path.resolve(entry.project.rootPath, c.compilerDirPartialPath);
     if (debug()) {
-      console.log(`About to invoke bsc from \"${cwd}\", used ${entry.buildSystem}`);
-      console.log(`${entry.project.bscBinaryLocation} ${callArgs.map(c => `"${c}"`).join(" ")}`);
+      console.log(
+        `About to invoke bsc from \"${cwd}\", used ${entry.buildSystem}`,
+      );
+      console.log(
+        `${entry.project.bscBinaryLocation} ${callArgs.map((c) => `"${c}"`).join(" ")}`,
+      );
     }
     const process = cp.execFile(
       entry.project.bscBinaryLocation,
@@ -663,12 +694,12 @@ async function compileContents(
             console.log(
               `Recompiled ${entry.file.sourceFileName} in ${
                 (performance.now() - startTime) / 1000
-              }s`
+              }s`,
             );
         } else {
           if (debug())
             console.log(
-              `Compilation of ${entry.file.sourceFileName} was killed.`
+              `Compilation of ${entry.file.sourceFileName} was killed.`,
             );
         }
         let hasIgnoredErrorMessages = false;
@@ -683,7 +714,7 @@ async function compileContents(
           // Reset compilation status as this compilation finished
           entry.compilation = null;
           const { result, codeActions } = await utils.parseCompilerLogOutput(
-            `${stderr}\n#Done()`
+            `${stderr}\n#Done()`,
           );
 
           const actions = Object.values(codeActions)[0] ?? [];
@@ -715,10 +746,9 @@ async function compileContents(
             .filter((d) => {
               if (
                 !d.message.startsWith("Uninterpreted extension 'rescript.") &&
-                (
-                  !d.message.includes(
-                    `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`
-                  ) ||
+                (!d.message.includes(
+                  `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`,
+                ) ||
                   // The `Multiple definition of the <kind> name <name>` type error's
                   // message includes the filepath with LOC of the duplicate definition
                   d.message.startsWith("Multiple definition of the") ||
@@ -726,8 +756,7 @@ async function compileContents(
                   // type errors all include the filepath with LOC
                   d.message.startsWith("Signature mismatch") ||
                   d.message.startsWith("In this `with' constraint") ||
-                  d.message.startsWith("This `with' constraint on")
-                )
+                  d.message.startsWith("This `with' constraint on"))
               ) {
                 hasIgnoredErrorMessages = true;
                 return true;
@@ -745,13 +774,13 @@ async function compileContents(
               hasReportedFeatureFailedError.add(entry.project.rootPath);
               const logfile = path.resolve(
                 entry.project.incrementalFolderPath,
-                "error.log"
+                "error.log",
               );
               fs.writeFileSync(
                 logfile,
                 `== BSC ARGS ==\n${callArgs?.join(
-                  " "
-                )}\n\n== OUTPUT ==\n${stderr}`
+                  " ",
+                )}\n\n== OUTPUT ==\n${stderr}`,
               );
               let params: p.ShowMessageParams = {
                 type: p.MessageType.Warning,
@@ -779,7 +808,7 @@ async function compileContents(
           send(notification);
         }
         onCompilationFinished?.();
-      }
+      },
     );
     entry.killCompilationListeners.push(() => {
       process.kill("SIGKILL");
@@ -793,7 +822,7 @@ export function handleUpdateOpenedFile(
   filePath: string,
   fileContent: string,
   send: send,
-  onCompilationFinished?: () => void
+  onCompilationFinished?: () => void,
 ) {
   if (debug()) {
     console.log("Updated: " + filePath);
@@ -802,7 +831,7 @@ export function handleUpdateOpenedFile(
     filePath,
     fileContent,
     send,
-    onCompilationFinished
+    onCompilationFinished,
   );
 }
 
@@ -818,7 +847,7 @@ export function handleClosedFile(filePath: string) {
 }
 
 export function getCodeActionsFromIncrementalCompilation(
-  filePath: string
+  filePath: string,
 ): Array<fileCodeActions> | null {
   const entry = incrementallyCompiledFileInfo.get(filePath);
   if (entry != null) {

@@ -71,7 +71,7 @@ let classifyMessage = (msg: string) => {
 
 let resultsToDiagnostics = (
   results: DiagnosticsResultFormat,
-  diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap
+  diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
 ): {
   diagnosticsMap: Map<string, Diagnostic[]>;
 } => {
@@ -99,7 +99,7 @@ let resultsToDiagnostics = (
       let diagnostic = new Diagnostic(
         issueLocationRange,
         diagnosticText,
-        DiagnosticSeverity.Warning
+        DiagnosticSeverity.Warning,
       );
 
       // Don't show reports about optional arguments.
@@ -132,11 +132,11 @@ let resultsToDiagnostics = (
 
             new Range(
               new Position(line, character),
-              new Position(line, character)
+              new Position(line, character),
             ),
             // reanalyze seems to add two extra spaces at the start of the line
             // content to replace.
-            text
+            text,
           );
 
           codeAction.edit = codeActionEdit;
@@ -166,9 +166,9 @@ let resultsToDiagnostics = (
             Uri.parse(item.file),
             new Range(
               new Position(item.range[0], item.range[1]),
-              new Position(item.range[2], item.range[3])
+              new Position(item.range[2], item.range[3]),
             ),
-            ""
+            "",
           );
 
           codeAction.command = {
@@ -203,13 +203,13 @@ export const runCodeAnalysisWithReanalyze = (
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
   outputChannel: OutputChannel,
-  codeAnalysisRunningStatusBarItem: StatusBarItem
+  codeAnalysisRunningStatusBarItem: StatusBarItem,
 ) => {
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
   let projectRootPath: string | null = findProjectRootOfFileInDir(
-    currentDocument.uri.fsPath
+    currentDocument.uri.fsPath,
   );
 
   // This little weird lookup is because in the legacy setup reanalyze needs to be
@@ -250,11 +250,11 @@ export const runCodeAnalysisWithReanalyze = (
     // here.
     if (e.includes("End_of_file")) {
       window.showErrorMessage(
-        `Something went wrong trying to run reanalyze. Please try cleaning and rebuilding your ReScript project.`
+        `Something went wrong trying to run reanalyze. Please try cleaning and rebuilding your ReScript project.`,
       );
     } else {
       window.showErrorMessage(
-        `Something went wrong trying to run reanalyze: '${e}'`
+        `Something went wrong trying to run reanalyze: '${e}'`,
       );
     }
   });
@@ -270,7 +270,7 @@ export const runCodeAnalysisWithReanalyze = (
       window
         .showErrorMessage(
           `Something went wrong when running the code analyzer.`,
-          "See details in error log"
+          "See details in error log",
         )
         .then((_choice) => {
           outputChannel.show();
@@ -278,12 +278,12 @@ export const runCodeAnalysisWithReanalyze = (
 
       outputChannel.appendLine("\n\n>>>>");
       outputChannel.appendLine(
-        "Parsing JSON from reanalyze failed. The raw, invalid JSON can be reproduced by following the instructions below. Please run that command and report the issue + failing JSON on the extension bug tracker: https://github.com/rescript-lang/rescript-vscode/issues"
+        "Parsing JSON from reanalyze failed. The raw, invalid JSON can be reproduced by following the instructions below. Please run that command and report the issue + failing JSON on the extension bug tracker: https://github.com/rescript-lang/rescript-vscode/issues",
       );
       outputChannel.appendLine(
         `> To reproduce, run "${binaryPath} ${opts.join(
-          " "
-        )}" in directory: "${cwd}"`
+          " ",
+        )}" in directory: "${cwd}"`,
       );
       outputChannel.appendLine("\n");
     }
@@ -297,7 +297,7 @@ export const runCodeAnalysisWithReanalyze = (
 
     let { diagnosticsMap } = resultsToDiagnostics(
       json,
-      diagnosticsResultCodeActions
+      diagnosticsResultCodeActions,
     );
 
     // This smoothens the experience of the diagnostics updating a bit by

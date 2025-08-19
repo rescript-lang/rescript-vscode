@@ -68,7 +68,7 @@ function runDebugDump({
 
     p.stderr?.on("data", (e) => {
       window.showErrorMessage(
-        `Something went wrong trying to run debug dump: '${e}'`
+        `Something went wrong trying to run debug dump: '${e}'`,
       );
       resolve(e.toString());
     });
@@ -124,7 +124,7 @@ export const dumpDebugRetrigger = () => {
 
 export const dumpDebug = async (
   context: ExtensionContext,
-  statusBarItem: StatusBarItem
+  statusBarItem: StatusBarItem,
 ) => {
   const editor = window.activeTextEditor;
 
@@ -139,7 +139,7 @@ export const dumpDebug = async (
   let projectRootPath: string | null = findProjectRootOfFileInDir(filePath);
   const binaryPath = getBinaryPath(
     "rescript-editor-analysis.exe",
-    projectRootPath
+    projectRootPath,
   );
   if (binaryPath === null) {
     window.showErrorMessage("Binary executable not found.");
@@ -150,7 +150,7 @@ export const dumpDebug = async (
     debugCommands.map((d) => d.title),
     {
       title: "Select call type",
-    }
+    },
   );
   const callType = debugCommands.find((d) => d.title === callTypeTitle);
 
@@ -242,7 +242,7 @@ export const dumpDebug = async (
           character.toString(),
           endLine.toString(),
           endChar.toString(),
-          currentFile
+          currentFile,
         );
         break;
       }
@@ -251,7 +251,7 @@ export const dumpDebug = async (
           currentFile,
           line.toString(),
           character.toString(),
-          "add-missing-cases" // TODO: Make selectable
+          "add-missing-cases", // TODO: Make selectable
         );
         break;
       }

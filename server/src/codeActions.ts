@@ -22,7 +22,7 @@ interface findCodeActionsConfig {
 let wrapRangeInText = (
   range: p.Range,
   wrapStart: string,
-  wrapEnd: string
+  wrapEnd: string,
 ): p.TextEdit[] => {
   // We need to adjust the start of where we replace if this is a single
   // character on a single line.
@@ -68,7 +68,7 @@ let wrapRangeInText = (
 
 let insertBeforeEndingChar = (
   range: p.Range,
-  newText: string
+  newText: string,
 ): p.TextEdit[] => {
   let beforeEndingChar = {
     line: range.end.line,
@@ -196,7 +196,9 @@ interface codeActionExtractorConfig {
   codeActions: filesCodeActions;
 }
 
-type codeActionExtractor = (config: codeActionExtractorConfig) => Promise<boolean>;
+type codeActionExtractor = (
+  config: codeActionExtractorConfig,
+) => Promise<boolean>;
 
 // This action extracts hints the compiler emits for misspelled identifiers, and
 // offers to replace the misspelled name with the correct name suggested by the
@@ -271,13 +273,15 @@ let wrapInSome: codeActionExtractor = async ({
       let lineIndexWithType = restOfMessage.findIndex((l) =>
         l
           .trim()
-          .startsWith("but a pattern was expected which matches values of type")
+          .startsWith(
+            "but a pattern was expected which matches values of type",
+          ),
       );
 
       if (lineIndexWithType === -1) return false;
       // The type is either on this line or the next
       let [_, typ = ""] = restOfMessage[lineIndexWithType].split(
-        "but a pattern was expected which matches values of type"
+        "but a pattern was expected which matches values of type",
       );
 
       if (typ.trim() === "") {
@@ -319,14 +323,14 @@ let handleUndefinedRecordFieldsAction = ({
   file,
   range,
   diagnostic,
-  todoValue
+  todoValue,
 }: {
   recordFieldNames: string[];
   codeActions: filesCodeActions;
   file: string;
   range: p.Range;
   diagnostic: p.Diagnostic;
-  todoValue: string
+  todoValue: string;
 }) => {
   if (recordFieldNames != null) {
     codeActions[file] = codeActions[file] || [];
@@ -452,7 +456,7 @@ let addUndefinedRecordFieldsV10: codeActionExtractor = async ({
       diagnostic,
       file,
       range,
-      todoValue: `failwith("TODO")`
+      todoValue: `failwith("TODO")`,
     });
   }
 
@@ -499,7 +503,7 @@ let addUndefinedRecordFieldsV11: codeActionExtractor = async ({
       diagnostic,
       file,
       range,
-      todoValue: `%todo`
+      todoValue: `%todo`,
     });
   }
 
@@ -563,7 +567,7 @@ let applyUncurried: codeActionExtractor = async ({
 }) => {
   if (
     line.startsWith(
-      "This is an uncurried ReScript function. It must be applied with a dot."
+      "This is an uncurried ReScript function. It must be applied with a dot.",
     )
   ) {
     const locOfOpenFnParens = {
@@ -692,7 +696,7 @@ let simpleTypeMismatches: codeActionExtractor = async ({
   if (line.startsWith(lookFor)) {
     let thisHasTypeArr = takeUntil(
       [line.slice(lookFor.length), ...array.slice(index + 1)],
-      "Somewhere wanted:"
+      "Somewhere wanted:",
     );
     let somewhereWantedArr = array
       .slice(index + thisHasTypeArr.length)
@@ -734,7 +738,7 @@ let simpleTypeMismatches: codeActionExtractor = async ({
             [file]: wrapRangeInText(
               range,
               "switch ",
-              ` { | None => ${defaultValue} | Some(v) => v }`
+              ` { | None => ${defaultValue} | Some(v) => v }`,
             ),
           },
         },

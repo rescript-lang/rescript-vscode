@@ -27,7 +27,7 @@ export const replaceFileExtension = (filePath: string, ext: string): string => {
 // otherwise recursively check parent directories for it.
 export const findFilePathFromProjectRoot = (
   directory: p.DocumentUri | null, // This must be a directory and not a file!
-  filePartialPath: string
+  filePartialPath: string,
 ): null | p.DocumentUri => {
   if (directory == null) {
     return null;
@@ -54,7 +54,7 @@ export const readConfig = (projDir: p.DocumentUri): BuildSchema | null => {
 
     let configFile = fs.readFileSync(
       fs.existsSync(rescriptJson) ? rescriptJson : bsconfigJson,
-      { encoding: "utf-8" }
+      { encoding: "utf-8" },
     );
 
     let result: BuildSchema = JSON.parse(configFile);
@@ -110,7 +110,7 @@ export const getSuffixAndPathFragmentFromBsconfig = (bsconfig: BuildSchema) => {
 
 export const getFilenameFromBsconfig = (
   projDir: string,
-  partialFilePath: string
+  partialFilePath: string,
 ): string | null => {
   let bsconfig = readConfig(projDir);
 
@@ -128,17 +128,17 @@ export const getFilenameFromBsconfig = (
 // Monorepo helpers
 export const getFilenameFromRootBsconfig = (
   projDir: string,
-  partialFilePath: string
+  partialFilePath: string,
 ): string | null => {
   let rootConfigPath = findFilePathFromProjectRoot(
     path.join("..", projDir),
-    c.rescriptJsonPartialPath
+    c.rescriptJsonPartialPath,
   );
 
   if (!rootConfigPath) {
     rootConfigPath = findFilePathFromProjectRoot(
       path.join("..", projDir),
-      c.bsconfigPartialPath
+      c.bsconfigPartialPath,
     );
   }
 

@@ -25,7 +25,7 @@ export const createInterface = (client: LanguageClient) => {
       .showInformationMessage(
         "Interface file already exists. Do you want to overwrite it?",
         "Yes",
-        "No"
+        "No",
       )
       .then((answer) => {
         if (answer === "Yes") {

@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import server from "./server";
 
-const args = process.argv.slice(2)
+const args = process.argv.slice(2);
 
 const help = `ReScript Language Server
 
@@ -18,21 +18,23 @@ Options:
 
 (() => {
   switch (args[0]) {
-    case '--stdio':
+    case "--stdio":
       return server(true);
-    case '--node-ipc':
+    case "--node-ipc":
       return server(false);
-    case '--version':
-    case '-v':
-      const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json")).toString())
+    case "--version":
+    case "-v":
+      const { version } = JSON.parse(
+        fs.readFileSync(path.join(__dirname, "..", "package.json")).toString(),
+      );
       console.log(version);
       process.exit(0);
-    case '--help':
-    case '-h':
+    case "--help":
+    case "-h":
       console.log(help);
       process.exit(0);
     default:
       console.log(help);
-      process.exit(1)
+      process.exit(1);
   }
 })();

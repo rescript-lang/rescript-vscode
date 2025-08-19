@@ -68,7 +68,6 @@ If `dune` is present, run `make build` to build the OCaml projects and copy the 
   <img width="235" alt="image" src="https://user-images.githubusercontent.com/1909539/97448097-7d186a80-18ed-11eb-82d6-d55b70f54811.png">
 
   If you're getting some Promise-related error alert: this is a VSCode and/or template bug.
-
   - If that newly launched VSCode test instance has no project in its explorer view, drag in a random project.
   - Kill all your node processes.
   - Redo the launch.

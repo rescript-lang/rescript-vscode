@@ -28,7 +28,7 @@ export let createFileInTempDir = (extension = "") => {
 };
 
 let findProjectRootOfFileInDir = (
-  source: p.DocumentUri
+  source: p.DocumentUri,
 ): null | p.DocumentUri => {
   let dir = path.dirname(source);
   if (
@@ -50,7 +50,7 @@ let findProjectRootOfFileInDir = (
 // TODO: this doesn't handle file:/// scheme
 export let findProjectRootOfFile = (
   source: p.DocumentUri,
-  allowDir?: boolean
+  allowDir?: boolean,
 ): null | p.DocumentUri => {
   // First look in project files
   let foundRootFromProjectFiles: string | null = null;
@@ -71,7 +71,7 @@ export let findProjectRootOfFile = (
   } else {
     const isDir = path.extname(source) === "";
     return findProjectRootOfFileInDir(
-      isDir && !allowDir ? path.join(source, "dummy.res") : source
+      isDir && !allowDir ? path.join(source, "dummy.res") : source,
     );
   }
 };
@@ -81,7 +81,12 @@ export let findProjectRootOfFile = (
 // We won't know which version is in the project root until we read and parse `{project_root}/node_modules/rescript/package.json`
 let findBinary = async (
   projectRootPath: p.DocumentUri | null,
-  binary: "bsc.exe" | "rescript-editor-analysis.exe" | "rescript" | "rewatch.exe" | "rescript.exe"
+  binary:
+    | "bsc.exe"
+    | "rescript-editor-analysis.exe"
+    | "rescript"
+    | "rewatch.exe"
+    | "rescript.exe",
 ) => {
   if (config.extensionConfiguration.platformPath != null) {
     return path.join(config.extensionConfiguration.platformPath, binary);
@@ -89,54 +94,60 @@ let findBinary = async (
 
   const rescriptDir = lookup.findFilePathFromProjectRoot(
     projectRootPath,
-    path.join("node_modules", "rescript")
+    path.join("node_modules", "rescript"),
   );
   if (rescriptDir == null) {
     return null;
   }
 
   let rescriptVersion = null;
-  let rescriptJSWrapperPath = null
+  let rescriptJSWrapperPath = null;
   try {
     const rescriptPackageJSONPath = path.join(rescriptDir, "package.json");
-    const rescriptPackageJSON = JSON.parse(await fsAsync.readFile(rescriptPackageJSONPath, "utf-8"));
-    rescriptVersion = rescriptPackageJSON.version
-    rescriptJSWrapperPath = rescriptPackageJSON.bin.rescript
+    const rescriptPackageJSON = JSON.parse(
+      await fsAsync.readFile(rescriptPackageJSONPath, "utf-8"),
+    );
+    rescriptVersion = rescriptPackageJSON.version;
+    rescriptJSWrapperPath = rescriptPackageJSON.bin.rescript;
   } catch (error) {
-    return null
+    return null;
   }
 
-  let binaryPath: string | null = null
+  let binaryPath: string | null = null;
   if (binary == "rescript") {
     // Can't use the native bsb/rescript since we might need the watcher -w
     // flag, which is only in the JS wrapper
-    binaryPath = path.join(rescriptDir, rescriptJSWrapperPath)
+    binaryPath = path.join(rescriptDir, rescriptJSWrapperPath);
   } else if (semver.gte(rescriptVersion, "12.0.0-alpha.13")) {
     // TODO: export `binPaths` from `rescript` package so that we don't need to
     // copy the logic for figuring out `target`.
     const target = `${process.platform}-${process.arch}`;
-    const targetPackagePath = path.join(rescriptDir, "..", `@rescript/${target}/bin.js`)
+    const targetPackagePath = path.join(
+      rescriptDir,
+      "..",
+      `@rescript/${target}/bin.js`,
+    );
     const { binPaths } = await import(targetPackagePath);
 
     if (binary == "bsc.exe") {
-      binaryPath = binPaths.bsc_exe
+      binaryPath = binPaths.bsc_exe;
     } else if (binary == "rescript-editor-analysis.exe") {
-      binaryPath = binPaths.rescript_editor_analysis_exe
+      binaryPath = binPaths.rescript_editor_analysis_exe;
     } else if (binary == "rewatch.exe") {
-      binaryPath = binPaths.rewatch_exe
+      binaryPath = binPaths.rewatch_exe;
     } else if (binary == "rescript.exe") {
-      binaryPath = binPaths.rescript_exe
+      binaryPath = binPaths.rescript_exe;
     }
   } else {
-    binaryPath = path.join(rescriptDir, c.platformDir, binary)
+    binaryPath = path.join(rescriptDir, c.platformDir, binary);
   }
 
   if (binaryPath != null && fs.existsSync(binaryPath)) {
-    return binaryPath
+    return binaryPath;
   } else {
-    return null
+    return null;
   }
-}
+};
 
 export let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
   findBinary(projectRootPath, "rescript");
@@ -168,7 +179,7 @@ type formatCodeResult = execResult;
 export let formatCode = (
   bscPath: p.DocumentUri | null,
   filePath: string,
-  code: string
+  code: string,
 ): formatCodeResult => {
   let extension = path.extname(filePath);
   let formatTempFileFullPath = createFileInTempDir(extension);
@@ -203,12 +214,14 @@ export let formatCode = (
   }
 };
 
-export async function findReScriptVersionForProjectRoot(projectRootPath: string | null): Promise<string | undefined> {
-  if (projectRootPath == null)  {
+export async function findReScriptVersionForProjectRoot(
+  projectRootPath: string | null,
+): Promise<string | undefined> {
+  if (projectRootPath == null) {
     return undefined;
   }
 
-  const bscExe = await findBscExeBinary(projectRootPath)
+  const bscExe = await findBscExeBinary(projectRootPath);
 
   if (bscExe == null) {
     return undefined;
@@ -216,7 +229,10 @@ export async function findReScriptVersionForProjectRoot(projectRootPath: string 
 
   try {
     let version = childProcess.execSync(`${bscExe} -v`);
-    return version.toString().replace(/rescript/gi, "").trim();
+    return version
+      .toString()
+      .replace(/rescript/gi, "")
+      .trim();
   } catch (e) {
     return undefined;
   }
@@ -233,7 +249,7 @@ if (fs.existsSync(c.builtinAnalysisDevPath)) {
 export let runAnalysisAfterSanityCheck = async (
   filePath: p.DocumentUri,
   args: Array<any>,
-  projectRequired = false
+  projectRequired = false,
 ) => {
   let projectRootPath = findProjectRootOfFile(filePath);
   if (projectRootPath == null && projectRequired) {
@@ -241,7 +257,7 @@ export let runAnalysisAfterSanityCheck = async (
   }
   let rescriptVersion =
     projectsFiles.get(projectRootPath ?? "")?.rescriptVersion ??
-    await findReScriptVersionForProjectRoot(projectRootPath)
+    (await findReScriptVersionForProjectRoot(projectRootPath));
 
   let binaryPath = builtinBinaryPath;
 
@@ -304,9 +320,13 @@ export let runAnalysisCommand = async (
   filePath: p.DocumentUri,
   args: Array<any>,
   msg: RequestMessage,
-  projectRequired = true
+  projectRequired = true,
 ) => {
-  let result = await runAnalysisAfterSanityCheck(filePath, args, projectRequired);
+  let result = await runAnalysisAfterSanityCheck(
+    filePath,
+    args,
+    projectRequired,
+  );
   let response: ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
@@ -317,7 +337,7 @@ export let runAnalysisCommand = async (
 
 export let getReferencesForPosition = async (
   filePath: p.DocumentUri,
-  position: p.Position
+  position: p.Position,
 ) =>
   await runAnalysisAfterSanityCheck(filePath, [
     "references",
@@ -333,7 +353,7 @@ export const toCamelCase = (text: string): string => {
 };
 
 export const getNamespaceNameFromConfigFile = (
-  projDir: p.DocumentUri
+  projDir: p.DocumentUri,
 ): execResult => {
   let config = lookup.readConfig(projDir);
   let result = "";
@@ -359,7 +379,7 @@ export const getNamespaceNameFromConfigFile = (
 
 export let getCompiledFilePath = (
   filePath: string,
-  projDir: string
+  projDir: string,
 ): execResult => {
   let error: execResult = {
     kind: "error",
@@ -379,7 +399,7 @@ export let getCompiledFilePath = (
   if (!fs.existsSync(result)) {
     let compiledPath = lookup.getFilenameFromRootBsconfig(
       projDir,
-      partialFilePath
+      partialFilePath,
     );
 
     if (!compiledPath) {
@@ -397,7 +417,7 @@ export let getCompiledFilePath = (
 
 export let runBuildWatcherUsingValidBuildPath = (
   buildPath: p.DocumentUri,
-  projectRootPath: p.DocumentUri
+  projectRootPath: p.DocumentUri,
 ) => {
   let cwdEnv = {
     cwd: projectRootPath,
@@ -546,7 +566,7 @@ type parsedCompilerLogResult = {
   linesWithParseErrors: string[];
 };
 export let parseCompilerLogOutput = async (
-  content: string
+  content: string,
 ): Promise<parsedCompilerLogResult> => {
   type parsedDiagnostic = {
     code: number | undefined;
@@ -568,7 +588,9 @@ export let parseCompilerLogOutput = async (
         tag: undefined,
         content: [],
       });
-    } else if (line.startsWith("FAILED: cannot make progress due to previous errors.")) {
+    } else if (
+      line.startsWith("FAILED: cannot make progress due to previous errors.")
+    ) {
       // skip
     } else if (line.startsWith("FAILED: dependency cycle")) {
       // skip as we can't extract a filepath from this error message
@@ -674,7 +696,7 @@ export let parseCompilerLogOutput = async (
         linesWithParseErrors.push(line);
       } else {
         parsedDiagnostics[parsedDiagnostics.length - 1].content.push(
-          line.slice(2)
+          line.slice(2),
         );
       }
     } else if (line.trim() != "") {
@@ -704,7 +726,7 @@ export let parseCompilerLogOutput = async (
     }
 
     // remove start and end whitespaces/newlines
-    let message = diagnosticMessage.join("\n").trim()
+    let message = diagnosticMessage.join("\n").trim();
 
     // vscode.Diagnostic throws an error if `message` is a blank string
     if (message != "") {
@@ -740,7 +762,7 @@ export let parseCompilerLogOutput = async (
 
 export let rangeContainsRange = (
   range: p.Range,
-  otherRange: p.Range
+  otherRange: p.Range,
 ): boolean => {
   if (
     otherRange.start.line < range.start.line ||

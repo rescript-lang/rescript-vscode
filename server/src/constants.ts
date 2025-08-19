@@ -12,13 +12,13 @@ export let editorAnalysisName = "rescript-editor-analysis.exe";
 export let builtinAnalysisDevPath = path.join(
   path.dirname(__dirname),
   "..",
-  editorAnalysisName
+  editorAnalysisName,
 );
 export let builtinAnalysisProdPath = path.join(
   path.dirname(__dirname),
   "analysis_binaries",
   platformDir,
-  editorAnalysisName
+  editorAnalysisName,
 );
 
 export let rescriptBinName = "rescript";

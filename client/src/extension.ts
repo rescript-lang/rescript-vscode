@@ -82,13 +82,13 @@ let client: LanguageClient;
 export function activate(context: ExtensionContext) {
   let outputChannel = window.createOutputChannel(
     "ReScript Language Server",
-    "rescript"
+    "rescript",
   );
 
   function createLanguageClient() {
     // The server is implemented in node
     let serverModule = context.asAbsolutePath(
-      path.join("server", "out", "cli.js")
+      path.join("server", "out", "cli.js"),
     );
     // The debug options for the server
     // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
@@ -135,7 +135,7 @@ export function activate(context: ExtensionContext) {
       "ReScriptLSP",
       "ReScript Language Server",
       serverOptions,
-      clientOptions
+      clientOptions,
     );
 
     // This sets up a listener that, if we're in code analysis mode, triggers
@@ -155,13 +155,13 @@ export function activate(context: ExtensionContext) {
                   diagnosticsCollection,
                   diagnosticsResultCodeActions,
                   outputChannel,
-                  codeAnalysisRunningStatusBarItem
+                  codeAnalysisRunningStatusBarItem,
                 );
               }
-            })
+            }),
           );
         }
-      })
+      }),
     );
 
     return client;
@@ -181,11 +181,11 @@ export function activate(context: ExtensionContext) {
   // format that's cheap to look up.
   let diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap = new Map();
   let codeAnalysisRunningStatusBarItem = window.createStatusBarItem(
-    StatusBarAlignment.Right
+    StatusBarAlignment.Right,
   );
 
   let debugDumpStatusBarItem = window.createStatusBarItem(
-    StatusBarAlignment.Right
+    StatusBarAlignment.Right,
   );
 
   let inCodeAnalysisState: {
@@ -201,13 +201,13 @@ export function activate(context: ExtensionContext) {
         diagnosticsResultCodeActions.get(document.uri.fsPath) ?? [];
 
       const allRemoveActionEdits = availableActions.filter(
-        ({ codeAction }) => codeAction.title === "Remove unused"
+        ({ codeAction }) => codeAction.title === "Remove unused",
       );
 
       const actions: CodeAction[] = availableActions
         .filter(
           ({ range }) =>
-            range.contains(rangeOrSelection) || range.isEqual(rangeOrSelection)
+            range.contains(rangeOrSelection) || range.isEqual(rangeOrSelection),
         )
         .map(({ codeAction }) => codeAction);
 
@@ -245,7 +245,7 @@ export function activate(context: ExtensionContext) {
       const diagnostics = diagnosticsCollection.get(document.uri);
       const newDiagnostics = diagnostics.filter((d) => d !== diagnostic);
       diagnosticsCollection.set(document.uri, newDiagnostics);
-    }
+    },
   );
 
   commands.registerCommand("rescript-vscode.open_compiled", () => {
@@ -266,10 +266,10 @@ export function activate(context: ExtensionContext) {
       await window.showTextDocument(Uri.parse(fileUri), {
         selection: new Range(
           new Position(startLine, startCol),
-          new Position(startLine, startCol)
+          new Position(startLine, startCol),
         ),
       });
-    }
+    },
   );
 
   // Starts the code analysis mode.
@@ -286,7 +286,7 @@ export function activate(context: ExtensionContext) {
     // reanalyze will walk upwards looking for a bsconfig.json in order to find
     // the correct project root.
     inCodeAnalysisState.activatedFromDirectory = path.dirname(
-      currentDocument.uri.fsPath
+      currentDocument.uri.fsPath,
     );
 
     codeAnalysisRunningStatusBarItem.command =
@@ -299,7 +299,7 @@ export function activate(context: ExtensionContext) {
       diagnosticsCollection,
       diagnosticsResultCodeActions,
       outputChannel,
-      codeAnalysisRunningStatusBarItem
+      codeAnalysisRunningStatusBarItem,
     );
   });
 
@@ -354,7 +354,7 @@ export function activate(context: ExtensionContext) {
             window.showErrorMessage(String(err));
           });
       }
-    })
+    }),
   );
 }
 

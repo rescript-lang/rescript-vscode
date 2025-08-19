@@ -15,13 +15,13 @@ export const codeAnalysisWithReanalyze = (
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
   outputChannel: OutputChannel,
-  codeAnalysisRunningStatusBarItem: StatusBarItem
+  codeAnalysisRunningStatusBarItem: StatusBarItem,
 ) => {
   runCodeAnalysisWithReanalyze(
     targetDir,
     diagnosticsCollection,
     diagnosticsResultCodeActions,
     outputChannel,
-    codeAnalysisRunningStatusBarItem
+    codeAnalysisRunningStatusBarItem,
   );
 };
