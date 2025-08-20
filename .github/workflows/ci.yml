@@ -89,6 +89,9 @@ jobs:
       - name: Set dune profile according to platform
         run: echo "DUNE_PROFILE=${{ matrix.dune-profile }}" >> $GITHUB_ENV
 
+      - name: Install ocamlformat
+        run: opam install ocamlformat
+
       - name: Format check
         run: opam exec -- make checkformat
 
