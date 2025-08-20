@@ -48,9 +48,7 @@ val is_uppercase_exotic : string -> bool
 val unwrap_uppercase_exotic : string -> string
 
 val convert : string -> string
-(**
-   Invariant: if name is not converted, the reference should be equal
-*)
+(** Invariant: if name is not converted, the reference should be equal *)
 
 val is_js_or_global : Ident.t -> bool
 

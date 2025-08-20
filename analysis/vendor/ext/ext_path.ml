@@ -23,8 +23,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
 (* [@@@warning "-37"] *)
-type t = (* | File of string  *)
-  | Dir of string [@@unboxed]
+type t =
+  (* | File of string  *)
+  | Dir of string
+[@@unboxed]
 
 let simple_convert_node_path_to_os_path =
   if Sys.unix then fun x -> x
@@ -52,7 +54,6 @@ let split_by_sep_per_os : string -> string list =
 
     The other way
     {[
-
       "/bb/mbigc/mbig2899/bgit/rescript/jscomp/stdlib/ocaml_array.ml"
         "/bb/mbigc/mbig2899/bgit/rescript/jscomp/stdlib/external/pervasives.cmj"
     ]}
@@ -62,8 +63,7 @@ let split_by_sep_per_os : string -> string list =
     {[
       /a/b
       /c/d
-    ]}
-*)
+    ]} *)
 let node_relative_path ~from:(file_or_dir_2 : t) (file_or_dir_1 : t) =
   let relevant_dir1 =
     match file_or_dir_1 with
@@ -117,28 +117,23 @@ let ( // ) x y =
   else if y = Filename.current_dir_name then x
   else Filename.concat x y
 
-(**
-   {[
-     split_aux "//ghosg//ghsogh/";;
-     - : string * string list = ("/", ["ghosg"; "ghsogh"])
-   ]}
-   Note that
-   {[
-     Filename.dirname "/a/" = "/"
-       Filename.dirname "/a/b/" = Filename.dirname "/a/b" = "/a"
-   ]}
-   Special case:
-   {[
-     basename "//" = "/"
-       basename "///"  = "/"
-   ]}
-   {[
-     basename "" =  "."
-       basename "" = "."
-       dirname "" = "."
-       dirname "" =  "."
-   ]}
-*)
+(** {[
+      split_aux "//ghosg//ghsogh/";;
+      - : string * string list = ("/", ["ghosg"; "ghsogh"])
+    ]}
+    Note that
+    {[
+      Filename.dirname "/a/"
+      = "/" Filename.dirname "/a/b/"
+      = Filename.dirname "/a/b" = "/a"
+    ]}
+    Special case:
+    {[
+      basename "//" = "/" basename "///" = "/"
+    ]}
+    {[
+      basename "" = "." basename "" = "." dirname "" = "." dirname "" = "."
+    ]} *)
 let split_aux p =
   let rec go p acc =
     let dir = Filename.dirname p in
@@ -154,13 +149,11 @@ let split_aux p =
 
   go p []
 
-(**
-   TODO: optimization
-   if [from] and [to] resolve to the same path, a zero-length string is returned
+(** TODO: optimization if [from] and [to] resolve to the same path, a
+    zero-length string is returned
 
-   This function is useed in [es6-global] and
-   [amdjs-global] format and tailored for `rollup`
-*)
+    This function is useed in [es6-global] and [amdjs-global] format and
+    tailored for `rollup` *)
 let rel_normalized_absolute_path ~from to_ =
   let root1, paths1 = split_aux from in
   let root2, paths2 = split_aux to_ in

@@ -211,15 +211,10 @@ let rec add_max v = function
   | Leaf x -> unsafe_two_elements x v
   | Node n -> bal n.l n.v (add_max v n.r)
 
-(** 
-    Invariants:
-    1. l < v < r 
-    2. l and r are balanced 
+(** Invariants: 1. l < v < r 2. l and r are balanced
 
-    Proof by induction
-    The height of output will be ~~ (max (height l) (height r) + 2)
-    Also use the lemma from [bal]
-*)
+    Proof by induction The height of output will be ~~ (max (height l) (height
+    r) + 2) Also use the lemma from [bal] *)
 let rec internal_join l v r =
   match (l, r) with
   | Empty, _ -> add_min v r

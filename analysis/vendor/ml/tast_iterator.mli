@@ -13,9 +13,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(**
-Allows the implementation of typed tree inspection using open recursion
-*)
+(** Allows the implementation of typed tree inspection using open recursion *)
 
 open Asttypes
 open Typedtree

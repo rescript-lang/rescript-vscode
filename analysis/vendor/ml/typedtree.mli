@@ -16,9 +16,7 @@
 (** Abstract syntax tree after typing *)
 
 (** By comparison with {!Parsetree}:
-    - Every {!Longindent.t} is accompanied by a resolved {!Path.t}.
-
-*)
+    - Every {!Longindent.t} is accompanied by a resolved {!Path.t}. *)
 
 open Asttypes
 open Types
@@ -69,19 +67,13 @@ and pattern_desc =
   | Tpat_tuple of pattern list
       (** (P1, ..., Pn)
 
-            Invariant: n >= 2
-         *)
+          Invariant: n >= 2 *)
   | Tpat_construct of Longident.t loc * constructor_description * pattern list
-      (** C                []
-            C P              [P]
-            C (P1, ..., Pn)  [P1; ...; Pn]
-          *)
+      (** C [] C P [P] C (P1, ..., Pn) [P1; ...; Pn] *)
   | Tpat_variant of label * pattern option * row_desc ref
-      (** `A             (None)
-            `A P           (Some P)
+      (** `A (None) `A P (Some P)
 
-            See {!Types.row_desc} for an explanation of the last parameter.
-         *)
+          See {!Types.row_desc} for an explanation of the last parameter. *)
   | Tpat_record of
       (Longident.t loc * label_description * pattern) list * closed_flag
       (** { l1=P1; ...; ln=Pn }     (flag = Closed)
@@ -93,9 +85,8 @@ and pattern_desc =
   | Tpat_or of pattern * pattern * row_desc option
       (** P1 | P2
 
-            [row_desc] = [Some _] when translating [Ppat_type _],
-                         [None] otherwise.
-         *)
+          [row_desc] = [Some _] when translating [Ppat_type _], [None]
+          otherwise. *)
   | Tpat_lazy of pattern  (** lazy P *)
 
 and expression = {
@@ -110,75 +101,57 @@ and expression = {
 and exp_extra =
   | Texp_constraint of core_type  (** E : T *)
   | Texp_coerce of core_type option * core_type
-      (** E :> T           [Texp_coerce (None, T)]
-            E : T0 :> T      [Texp_coerce (Some T0, T)]
-         *)
+      (** E :> T [Texp_coerce (None, T)] E : T0 :> T [Texp_coerce (Some T0, T)]
+      *)
   | Texp_open of override_flag * Path.t * Longident.t loc * Env.t
-      (** let open[!] M in    [Texp_open (!, P, M, env)]
-                                where [env] is the environment after opening [P]
-         *)
+      (** let open[!] M in [Texp_open (!, P, M, env)] where [env] is the
+          environment after opening [P] *)
   | Texp_poly of core_type option  (** Used for method bodies. *)
-  | Texp_newtype of string  (** fun (type t) ->  *)
+  | Texp_newtype of string  (** fun (type t) -> *)
 
 and expression_desc =
   | Texp_ident of Path.t * Longident.t loc * Types.value_description
-      (** x
-            M.x
-         *)
+      (** x M.x *)
   | Texp_constant of constant  (** 1, 'a', "true", 1.0, 1l, 1L, 1n *)
   | Texp_let of rec_flag * value_binding list * expression
-      (** let P1 = E1 and ... and Pn = EN in E       (flag = Nonrecursive)
-            let rec P1 = E1 and ... and Pn = EN in E   (flag = Recursive)
-         *)
+      (** let P1 = E1 and ... and Pn = EN in E (flag = Nonrecursive) let rec P1
+          = E1 and ... and Pn = EN in E (flag = Recursive) *)
   | Texp_function of {
       arg_label: arg_label;
       param: Ident.t;
       cases: case list;
       partial: partial;
     }
-      (** [Pexp_fun] and [Pexp_function] both translate to [Texp_function].
-            See {!Parsetree} for more details.
+      (** [Pexp_fun] and [Pexp_function] both translate to [Texp_function]. See
+          {!Parsetree} for more details.
 
-            [param] is the identifier that is to be used to name the
-            parameter of the function.
+          [param] is the identifier that is to be used to name the parameter of
+          the function.
 
-            partial =
-              [Partial] if the pattern match is partial
-              [Total] otherwise.
-         *)
+          partial = [Partial] if the pattern match is partial [Total] otherwise.
+      *)
   | Texp_apply of expression * (arg_label * expression option) list
       (** E0 ~l1:E1 ... ~ln:En
 
-            The expression can be None if the expression is abstracted over
-            this argument. It currently appears when a label is applied.
+          The expression can be None if the expression is abstracted over this
+          argument. It currently appears when a label is applied.
 
-            For example:
-            let f x ~y = x + y in
-            f ~y:3
+          For example: let f x ~y = x + y in f ~y:3
 
-            The resulting typedtree for the application is:
-            Texp_apply (Texp_ident "f/1037",
-                        [(Nolabel, None);
-                         (Labelled "y", Some (Texp_constant Const_int 3))
-                        ])
-         *)
+          The resulting typedtree for the application is: Texp_apply (Texp_ident
+          "f/1037",
+          [(Nolabel, None); (Labelled "y", Some (Texp_constant Const_int 3)) ])
+      *)
   | Texp_match of expression * case list * case list * partial
-      (** match E0 with
-            | P1 -> E1
-            | P2 -> E2
-            | exception P3 -> E3
+      (** match E0 with | P1 -> E1 | P2 -> E2 | exception P3 -> E3
 
-            [Texp_match (E0, [(P1, E1); (P2, E2)], [(P3, E3)], _)]
-         *)
+          [Texp_match (E0, [(P1, E1); (P2, E2)], [(P3, E3)], _)] *)
   | Texp_try of expression * case list
       (** try E with P1 -> E1 | ... | PN -> EN *)
   | Texp_tuple of expression list  (** (E1, ..., EN) *)
   | Texp_construct of
       Longident.t loc * constructor_description * expression list
-      (** C                []
-            C E              [E]
-            C (E1, ..., En)  [E1;...;En]
-         *)
+      (** C [] C E [E] C (E1, ..., En) [E1;...;En] *)
   | Texp_variant of label * expression option
   | Texp_record of {
       fields: (Types.label_description * record_label_definition) array;
@@ -244,7 +217,8 @@ and module_expr = {
 (** Annotations for [Tmod_constraint]. *)
 and module_type_constraint =
   | Tmodtype_implicit
-      (** The module type constraint has been synthesized during typechecking. *)
+      (** The module type constraint has been synthesized during typechecking.
+      *)
   | Tmodtype_explicit of module_type
       (** The module type was in the source file. *)
 
@@ -255,9 +229,8 @@ and module_expr_desc =
   | Tmod_apply of module_expr * module_expr * module_coercion
   | Tmod_constraint of
       module_expr * Types.module_type * module_type_constraint * module_coercion
-      (** ME          (constraint = Tmodtype_implicit)
-        (ME : MT)   (constraint = Tmodtype_explicit MT)
-     *)
+      (** ME (constraint = Tmodtype_implicit) (ME : MT) (constraint =
+          Tmodtype_explicit MT) *)
   | Tmod_unpack of expression * Types.module_type
 
 and structure = {

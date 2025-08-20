@@ -22,8 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
-(** A utility module used when destructuring parsetree attributes, used for 
-    compiling FFI attributes and built-in ppx  *)
+(** A utility module used when destructuring parsetree attributes, used for
+    compiling FFI attributes and built-in ppx *)
 
 type t = Parsetree.payload
 
@@ -62,23 +62,27 @@ val as_ident : t -> Longident.t Asttypes.loc option
 (* val raw_string_payload : Location.t -> string -> t  *)
 val assert_strings : Location.t -> t -> string list
 
-(** as a record or empty 
-    it will accept 
+(** as a record or empty it will accept
 
-    {[ [@@@config ]]}
-    or 
-    {[ [@@@config no_export ] ]}
-    or 
-    {[ [@@@config { property  .. } ]]}    
-    Note that we only 
     {[
-      { flat_property}
+      [@@@config]
     ]}
-    below  is not allowed 
+    or
+    {[
+      [@@@config no_export]
+    ]}
+    or
+    {[
+      [@@@config { property  .. } ]
+    ]}
+    Note that we only
+    {[
+      {flat_property}
+    ]}
+    below is not allowed
     {[
       {M.flat_property}
-    ]}
-*)
+    ]} *)
 
 val ident_or_record_as_config : Location.t -> t -> action list
 
@@ -90,5 +94,6 @@ val table_dispatch :
   (Parsetree.expression option -> 'a) Map_string.t -> action -> 'a
 
 val unrecognized_config_record : Location.t -> string -> unit
-(** Report to the user, as a warning, that the bs-attribute parser is bailing out. (This is to allow
-    external ppx, like ppx_deriving, to pick up where the builtin ppx leave off.) *)
+(** Report to the user, as a warning, that the bs-attribute parser is bailing
+    out. (This is to allow external ppx, like ppx_deriving, to pick up where the
+    builtin ppx leave off.) *)

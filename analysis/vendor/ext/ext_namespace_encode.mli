@@ -23,7 +23,5 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
 val make : ?ns:string -> string -> string
-(** [make ~ns:"Ns" "a" ]
-    A typical example would return "a-Ns"
-    Note the namespace comes from the output of [namespace_of_package_name]
-*)
+(** [make ~ns:"Ns" "a" ] A typical example would return "a-Ns" Note the
+    namespace comes from the output of [namespace_of_package_name] *)

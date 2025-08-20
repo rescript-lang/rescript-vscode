@@ -32,13 +32,12 @@ end)
 
 type t = Edge_vec.t
 
-(** 
-    This graph is different the graph used in [scc] graph, since 
-    we need dynamic shrink the graph, so for each vector the first node is it self ,
-    it will also change the input.
+(** This graph is different the graph used in [scc] graph, since we need dynamic
+    shrink the graph, so for each vector the first node is it self , it will
+    also change the input.
 
-    TODO: error handling (cycle handling) and defensive bad input (missing edges etc)
-*)
+    TODO: error handling (cycle handling) and defensive bad input (missing edges
+    etc) *)
 
 let layered_dfs (g : t) =
   let queue = Queue.create () in

@@ -40,8 +40,8 @@ val docstring_loc : docstring -> Location.t
 
 (** {2 Set functions}
 
-   These functions are used by the lexer to associate docstrings to
-   the locations of tokens. *)
+    These functions are used by the lexer to associate docstrings to the
+    locations of tokens. *)
 
 val set_pre_docstrings : Lexing.position -> docstring list -> unit
 (** Docstrings immediately preceding a token *)
@@ -69,29 +69,28 @@ val empty_docs : docs
 val docs_attr : docstring -> Parsetree.attribute
 
 val add_docs_attrs : docs -> Parsetree.attributes -> Parsetree.attributes
-(** Convert item documentation to attributes and add them to an
-    attribute list *)
+(** Convert item documentation to attributes and add them to an attribute list
+*)
 
 val symbol_docs : unit -> docs
-(** Fetch the item documentation for the current symbol. This also
-    marks this documentation (for ambiguity warnings). *)
+(** Fetch the item documentation for the current symbol. This also marks this
+    documentation (for ambiguity warnings). *)
 
 val symbol_docs_lazy : unit -> docs Lazy.t
 
 val rhs_docs : int -> int -> docs
-(** Fetch the item documentation for the symbols between two
-    positions. This also marks this documentation (for ambiguity
-    warnings). *)
+(** Fetch the item documentation for the symbols between two positions. This
+    also marks this documentation (for ambiguity warnings). *)
 
 val rhs_docs_lazy : int -> int -> docs Lazy.t
 
 val mark_symbol_docs : unit -> unit
-(** Mark the item documentation for the current symbol (for ambiguity
-    warnings). *)
+(** Mark the item documentation for the current symbol (for ambiguity warnings).
+*)
 
 val mark_rhs_docs : int -> int -> unit
-(** Mark as associated the item documentation for the symbols between
-    two positions (for ambiguity warnings) *)
+(** Mark as associated the item documentation for the symbols between two
+    positions (for ambiguity warnings) *)
 
 (** {2 Fields and constructors}
 
@@ -105,8 +104,7 @@ val empty_info : info
 val info_attr : docstring -> Parsetree.attribute
 
 val add_info_attrs : info -> Parsetree.attributes -> Parsetree.attributes
-(** Convert field info to attributes and add them to an
-    attribute list *)
+(** Convert field info to attributes and add them to an attribute list *)
 
 val symbol_info : unit -> info
 (** Fetch the field info for the current symbol. *)
@@ -116,8 +114,8 @@ val rhs_info : int -> info
 
 (** {2 Unattached comments}
 
-    The {!text} type represents documentation which is not attached to
-    anything. *)
+    The {!text} type represents documentation which is not attached to anything.
+*)
 
 type text = docstring list
 
@@ -141,10 +139,9 @@ val rhs_text_lazy : int -> text Lazy.t
 
 (** {2 Extra text}
 
-    There may be additional text attached to the delimiters of a block
-    (e.g. [struct] and [end]). This is fetched by the following
-    functions, which are applied to the contents of the block rather
-    than the delimiters. *)
+    There may be additional text attached to the delimiters of a block (e.g.
+    [struct] and [end]). This is fetched by the following functions, which are
+    applied to the contents of the block rather than the delimiters. *)
 
 val symbol_pre_extra_text : unit -> text
 (** Fetch additional text preceding the current symbol *)

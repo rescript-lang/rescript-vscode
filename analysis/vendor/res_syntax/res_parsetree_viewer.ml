@@ -15,7 +15,7 @@ let arrow_type ?(arity = max_int) ct =
      ptyp_attributes = [({txt = "bs"}, _)];
     } ->
       (* stop here, the uncurried attribute always indicates the beginning of an arrow function
-         * e.g. `(. int) => (. int)` instead of `(. int, . int)` *)
+       * e.g. `(. int) => (. int)` instead of `(. int, . int)` *)
       (attrs_before, List.rev acc, typ)
     | {ptyp_desc = Ptyp_arrow (Nolabel, _typ1, _typ2); ptyp_attributes = _attrs}
       as return_type ->

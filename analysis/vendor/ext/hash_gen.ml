@@ -211,11 +211,9 @@ module type S = sig
   val find_opt : 'a t -> key -> 'a option
 
   val find_key_opt : 'a t -> key -> key option
-  (** return the key found in the hashtbl.
-      Use case: when you find the key existed in hashtbl, 
-      you want to use the one stored in the hashtbl. 
-      (they are semantically equivlanent, but may have other information different) 
-  *)
+  (** return the key found in the hashtbl. Use case: when you find the key
+      existed in hashtbl, you want to use the one stored in the hashtbl. (they
+      are semantically equivlanent, but may have other information different) *)
 
   val find_default : 'a t -> key -> 'a -> 'a
 

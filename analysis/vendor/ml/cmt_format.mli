@@ -15,19 +15,17 @@
 
 (** cmt and cmti files format. *)
 
-(** The layout of a cmt file is as follows:
-      <cmt> := \{<cmi>\} <cmt magic> \{cmt infos\} \{<source info>\}
-    where <cmi> is the cmi file format:
-      <cmi> := <cmi magic> <cmi info>.
-    More precisely, the optional <cmi> part must be present if and only if
-    the file is:
+(** The layout of a cmt file is as follows: <cmt> := \{<cmi>\} <cmt magic> \{cmt
+    infos\} \{<source info>\} where <cmi> is the cmi file format: <cmi> := <cmi
+    magic> <cmi info>. More precisely, the optional <cmi> part must be present
+    if and only if the file is:
     - a cmti, or
     - a cmt, for a ml file which has no corresponding mli (hence no
-    corresponding cmti).
+      corresponding cmti).
 
-    Thus, we provide a common reading function for cmi and cmt(i)
-    files which returns an option for each of the three parts: cmi
-    info, cmt info, source info. *)
+    Thus, we provide a common reading function for cmi and cmt(i) files which
+    returns an option for each of the three parts: cmi info, cmt info, source
+    info. *)
 
 open Typedtree
 
@@ -70,13 +68,12 @@ type error = Not_a_typedtree of string
 exception Error of error
 
 val read : string -> Cmi_format.cmi_infos option * cmt_infos option
-(** [read filename] opens filename, and extract both the cmi_infos, if
-    it exists, and the cmt_infos, if it exists. Thus, it can be used
-    with .cmi, .cmt and .cmti files.
+(** [read filename] opens filename, and extract both the cmi_infos, if it
+    exists, and the cmt_infos, if it exists. Thus, it can be used with .cmi,
+    .cmt and .cmti files.
 
-    .cmti files always contain a cmi_infos at the beginning. .cmt files
-    only contain a cmi_infos at the beginning if there is no associated
-    .cmti file.
+    .cmti files always contain a cmi_infos at the beginning. .cmt files only
+    contain a cmi_infos at the beginning if there is no associated .cmti file.
 *)
 
 val read_cmt : string -> cmt_infos
@@ -95,8 +92,8 @@ val save_cmt :
   Cmi_format.cmi_infos option ->
   (* if a .cmi was generated *)
   unit
-(** [save_cmt filename modname binary_annots sourcefile initial_env cmi]
-    writes a cmt(i) file.  *)
+(** [save_cmt filename modname binary_annots sourcefile initial_env cmi] writes
+    a cmt(i) file. *)
 
 (* Miscellaneous functions *)
 

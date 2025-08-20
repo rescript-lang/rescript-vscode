@@ -57,14 +57,13 @@ and collect_next buf s off len =
     | '.' | '-' -> collect_start buf s next len
     | _ -> collect_next buf s next len
 
-(** This is for a js exeternal module, we can change it when printing
-    for example
+(** This is for a js exeternal module, we can change it when printing for
+    example
     {[
       var React$1 = require('react');
       React$1.render(..)
     ]}
-    Given a name, if duplicated, they should  have the same id
-*)
+    Given a name, if duplicated, they should have the same id *)
 let js_id_name_of_hint_name module_name =
   let i = Ext_string.rindex_neg module_name '/' in
   if i >= 0 then (

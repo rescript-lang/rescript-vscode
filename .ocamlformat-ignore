@@ -13,3 +13,4 @@ analysis/vendor/ext/map.cppo.ml
 analysis/vendor/ext/ordered_hash_map.cppo.ml
 analysis/vendor/ext/set.cppo.ml
 analysis/vendor/ext/vec.cppo.ml
+**/node_modules/**

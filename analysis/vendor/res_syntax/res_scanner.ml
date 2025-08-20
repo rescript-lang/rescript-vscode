@@ -248,7 +248,7 @@ let scan_number scanner =
   in
   scan_digits scanner ~base;
 
-  (*  *)
+  (* *)
   let is_float =
     if '.' == scanner.ch then (
       next scanner;
@@ -559,8 +559,14 @@ let scan_single_line_comment scanner =
 
 let scan_multi_line_comment scanner =
   (* assumption: we're only ever using this helper in `scan` after detecting a comment *)
-  let doc_comment = peek2 scanner = '*' && peek3 scanner <> '/' (* no /**/ *) in
-  let standalone = doc_comment && peek3 scanner = '*' (* /*** *) in
+  let doc_comment =
+    peek2 scanner = '*' && peek3 scanner <> '/'
+    (* no /**/ *)
+  in
+  let standalone =
+    doc_comment && peek3 scanner = '*'
+    (* /*** *)
+  in
   let content_start_off =
     scanner.offset + if doc_comment then if standalone then 4 else 3 else 2
   in

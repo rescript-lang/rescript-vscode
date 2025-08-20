@@ -40,7 +40,7 @@ else if (semver.minor(release) - semver.minor(latestPublish) === 1) {
 // minor higher than the release version.
 else {
   throw new Error(
-    "Version number minors are more than off by one, check package.json and (pre-)published versions manually."
+    "Version number minors are more than off by one, check package.json and (pre-)published versions manually.",
   );
 }
 
@@ -50,5 +50,5 @@ if (!semver.valid(newVersion)) {
 
 fs.appendFileSync(
   process.env.GITHUB_OUTPUT,
-  `new_version=${newVersion}${os.EOL}`
+  `new_version=${newVersion}${os.EOL}`,
 );

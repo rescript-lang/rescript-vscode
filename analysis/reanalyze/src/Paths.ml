@@ -110,10 +110,8 @@ module Config = struct
       | None -> ())
 end
 
-(**
-  * Handle namespaces in cmt files.
-  * E.g. src/Module-Project.cmt becomes src/Module
-  *)
+(** * Handle namespaces in cmt files. * E.g. src/Module-Project.cmt becomes
+    src/Module *)
 let handleNamespace cmt =
   let cutAfterDash s =
     match String.index s '-' with

@@ -1,9 +1,7 @@
 type valid_input = Res | Resi | Intf_ast | Impl_ast | Mlmap | Cmi | Unknown
 
-(** This is per-file based, 
-    when [ocamlc] [-c -o another_dir/xx.cmi] 
-    it will return (another_dir/xx)
-*)
+(** This is per-file based, when [ocamlc] [-c -o another_dir/xx.cmi] it will
+    return (another_dir/xx) *)
 
 let classify_input ext =
   match () with

@@ -23,12 +23,10 @@ type t = Warnings.loc = {
   loc_ghost: bool;
 }
 
-(** Note on the use of Lexing.position in this module.
-   If [pos_fname = ""], then use [!input_name] instead.
-   If [pos_lnum = -1], then [pos_bol = 0]. Use [pos_cnum] and
-     re-parse the file to get the line and character numbers.
-   Else all fields are correct.
-*)
+(** Note on the use of Lexing.position in this module. If [pos_fname = ""], then
+    use [!input_name] instead. If [pos_lnum = -1], then [pos_bol = 0]. Use
+    [pos_cnum] and re-parse the file to get the line and character numbers. Else
+    all fields are correct. *)
 
 val none : t
 (** An arbitrary value of type [t]; describes an empty ghost range. *)
@@ -37,8 +35,8 @@ val in_file : string -> t
 (** Return an empty ghost range located in a given file. *)
 
 val init : Lexing.lexbuf -> string -> unit
-(** Set the file name and line number of the [lexbuf] to be the start
-    of the named file. *)
+(** Set the file name and line number of the [lexbuf] to be the start of the
+    named file. *)
 
 val curr : Lexing.lexbuf -> t
 (** Get the location of the current token from the [lexbuf]. *)
@@ -47,8 +45,8 @@ val symbol_rloc : unit -> t
 val symbol_gloc : unit -> t
 
 val rhs_loc : int -> t
-(** [rhs_loc n] returns the location of the symbol at position [n], starting
-  at 1, in the current parser rule. *)
+(** [rhs_loc n] returns the location of the symbol at position [n], starting at
+    1, in the current parser rule. *)
 
 val input_name : string ref
 val set_input_name : string -> unit
@@ -88,8 +86,8 @@ val print_filename : formatter -> string -> unit
 val absolute_path : string -> string
 
 val show_filename : string -> string
-(** In -absname mode, return the absolute path for this filename.
-        Otherwise, returns the filename unchanged. *)
+(** In -absname mode, return the absolute path for this filename. Otherwise,
+    returns the filename unchanged. *)
 
 val absname : bool ref
 
@@ -135,12 +133,11 @@ val error_of_printer_file : (formatter -> 'a -> unit) -> 'a -> error
 val error_of_exn : exn -> [`Ok of error | `Already_displayed] option
 
 val register_error_of_exn : (exn -> error option) -> unit
-(** Each compiler module which defines a custom type of exception
-    which can surface as a user-visible error should register
-    a "printer" for this exception using [register_error_of_exn].
-    The result of the printer is an [error] value containing
-    a location, a message, and optionally sub-messages (each of them
-    being located as well). *)
+(** Each compiler module which defines a custom type of exception which can
+    surface as a user-visible error should register a "printer" for this
+    exception using [register_error_of_exn]. The result of the printer is an
+    [error] value containing a location, a message, and optionally sub-messages
+    (each of them being located as well). *)
 
 val report_error : ?src:string option -> formatter -> error -> unit
 

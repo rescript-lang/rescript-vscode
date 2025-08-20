@@ -27,9 +27,8 @@
     library but rather specific to JS Module name convention.
 *)
 
-(** An extension module to calculate relative path follow node/npm style. 
-    TODO : this short name will have to change upon renaming the file.
-*)
+(** An extension module to calculate relative path follow node/npm style. TODO :
+    this short name will have to change upon renaming the file. *)
 
 val is_dir_sep : char -> bool
 

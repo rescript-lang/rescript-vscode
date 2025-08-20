@@ -21,15 +21,15 @@ module Rec_context = struct
   type access =
     | Dereferenced
         (** [Dereferenced] indicates that the value (not just the address) of a
-        variable is accessed *)
+            variable is accessed *)
     | Guarded
         (** [Guarded] indicates that the address of a variable is used in a
-        guarded context, i.e. under a constructor.  A variable that is
-        dereferenced within a function body or lazy context is also considered
-        guarded. *)
+            guarded context, i.e. under a constructor. A variable that is
+            dereferenced within a function body or lazy context is also
+            considered guarded. *)
     | Unguarded
         (** [Unguarded] indicates that the address of a variable is used in an
-        unguarded context, i.e. not under a constructor. *)
+            unguarded context, i.e. not under a constructor. *)
 
   (** [guard] represents guarded contexts such as [C -] and [{l = -}] *)
   let guard : access -> access = function
@@ -44,8 +44,8 @@ module Rec_context = struct
     | Guarded -> Dereferenced
     | Unguarded -> Dereferenced
 
-  (** [delay] represents contexts that delay evaluation such as [fun p -> -]
-      or [lazy -] *)
+  (** [delay] represents contexts that delay evaluation such as [fun p -> -] or
+      [lazy -] *)
   let delay : access -> access = function
     | Dereferenced -> Guarded
     | Guarded -> Guarded
@@ -61,7 +61,8 @@ module Rec_context = struct
     (** The address of a subexpression is not used, but may be bound *)
 
     val inspect : t -> t
-    (** The value of a subexpression is inspected with match, application, etc. *)
+    (** The value of a subexpression is inspected with match, application, etc.
+    *)
 
     val delay : t -> t
     (** An expression appears under 'fun p ->' or 'lazy' *)
@@ -73,8 +74,8 @@ module Rec_context = struct
     (** Combine the access information of two expressions *)
 
     val empty : t
-    (** No variables are accessed in an expression; it might be a
-        constant or a global identifier *)
+    (** No variables are accessed in an expression; it might be a constant or a
+        global identifier *)
 
     val unguarded : t -> Ident.t list
     (** The list of identifiers that are used in an unguarded context *)

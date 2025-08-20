@@ -19,7 +19,7 @@ export const switchImplIntf = async (client: LanguageClient) => {
 
   if (!(isIntf || isImpl)) {
     await window.showInformationMessage(
-      "This command only can run on *.res or *.resi files."
+      "This command only can run on *.res or *.resi files.",
     );
     return;
   }
@@ -37,7 +37,7 @@ export const switchImplIntf = async (client: LanguageClient) => {
     // if interface doesn't exist, ask the user before creating.
     const selection = await window.showInformationMessage(
       "Do you want to create an interface *.resi?",
-      ...["No", "Yes"]
+      ...["No", "Yes"],
     );
 
     if (selection !== "Yes") return;

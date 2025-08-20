@@ -30,12 +30,9 @@ type t = Lexing.position = {
 }
 
 val offset : t -> t -> t
-(** [offset pos newpos]
-    return a new position
-    here [newpos] is zero based, the use case is that
-    at position [pos], we get a string and Lexing from that string,
-    therefore, we get a [newpos] and we need rebase it on top of 
-    [pos]
+(** [offset pos newpos] return a new position here [newpos] is zero based, the
+    use case is that at position [pos], we get a string and Lexing from that
+    string, therefore, we get a [newpos] and we need rebase it on top of [pos]
 *)
 
 val lexbuf_from_channel_with_fname : in_channel -> string -> Lexing.lexbuf

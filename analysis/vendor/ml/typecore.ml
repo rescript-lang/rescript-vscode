@@ -382,7 +382,8 @@ let finalize_variant pat =
     (* Force check of well-formedness   WHY? *)
     (* unify_pat pat.pat_env pat
        (newty(Tvariant{row_fields=[]; row_more=newvar(); row_closed=false;
-                       row_bound=(); row_fixed=false; row_name=None})); *))
+                       row_bound=(); row_fixed=false; row_name=None})); *)
+    )
   | _ -> ()
 
 let rec iter_pattern f p =
@@ -750,8 +751,7 @@ let print_expr_type_clash ?type_clash_context env trace ppf =
     Printtyp.super_report_unification_error ppf env trace
       (function
         | ppf -> error_type_text ppf type_clash_context)
-      (function
-        | ppf -> error_expected_type_text ppf type_clash_context);
+      (function ppf -> error_expected_type_text ppf type_clash_context);
     print_extra_type_clash_help ppf trace type_clash_context;
     show_extra_help ppf env trace
 
@@ -4221,8 +4221,7 @@ let report_error env ppf = function
       (function
         | ppf ->
           fprintf ppf "The record field %a@ belongs to the type" longident lid)
-      (function
-        | ppf -> fprintf ppf "but is mixed here with fields of type")
+      (function ppf -> fprintf ppf "but is mixed here with fields of type")
   | Pattern_type_clash trace ->
     (* modified *)
     super_report_unification_error ppf env trace
@@ -4230,7 +4229,7 @@ let report_error env ppf = function
         | ppf -> fprintf ppf "This pattern matches values of type")
       (function
         | ppf ->
-          fprintf ppf "but a pattern was expected which matches values of type")
+        fprintf ppf "but a pattern was expected which matches values of type")
   | Or_pattern_type_clash (id, trace) ->
     (* modified *)
     super_report_unification_error ppf env trace
@@ -4239,8 +4238,7 @@ let report_error env ppf = function
           fprintf ppf
             "The variable %s on the left-hand side of this or-pattern has type"
             (Ident.name id))
-      (function
-        | ppf -> fprintf ppf "but on the right-hand side it has type")
+      (function ppf -> fprintf ppf "but on the right-hand side it has type")
   | Multiply_bound_variable name ->
     fprintf ppf "Variable %s is bound several times in this matching" name
   | Orpat_vars (id, valid_idents) ->
@@ -4373,7 +4371,7 @@ let report_error env ppf = function
             name longident lid kind)
       (function
         | ppf ->
-          fprintf ppf "but a %s was expected belonging to the %s type" name kind)
+        fprintf ppf "but a %s was expected belonging to the %s type" name kind)
   | Undefined_method (ty, me, valid_methods) -> (
     reset_and_mark_loops ty;
     fprintf ppf
@@ -4394,8 +4392,7 @@ let report_error env ppf = function
             "This expression cannot be coerced to type@;<1 2>%a;@ it has type"
             (Printtyp.type_expansion ty)
             ty')
-      (function
-        | ppf -> fprintf ppf "but is here used with type");
+      (function ppf -> fprintf ppf "but is here used with type");
     if b then
       fprintf ppf ".@.@[<hov>%s@ %s@]"
         "This simple coercion was not fully general."
@@ -4455,8 +4452,7 @@ let report_error env ppf = function
     super_report_unification_error ppf env trace
       (function
         | ppf -> fprintf ppf "Recursive local constraint when unifying")
-      (function
-        | ppf -> fprintf ppf "with")
+      (function ppf -> fprintf ppf "with")
   | Unexpected_existential -> fprintf ppf "Unexpected existential"
   | Unqualified_gadt_pattern (tpath, name) ->
     fprintf ppf "@[The GADT constructor %s of type %a@ %s.@]" name path tpath

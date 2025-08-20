@@ -22,12 +22,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
-(** Scope type to improve identifier name printing
-    Defines scope type [t], so that the pretty printer would 
-    print more beautiful code:     
-    print [identifer] instead of [identifier$1234] 
-    when it can
-*)
+(** Scope type to improve identifier name printing Defines scope type [t], so
+    that the pretty printer would print more beautiful code: print [identifer]
+    instead of [identifier$1234] when it can *)
 
 type t
 

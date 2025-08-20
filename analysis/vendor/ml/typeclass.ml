@@ -1070,8 +1070,7 @@ let report_error env ppf = function
     Printtyp.report_unification_error ppf env trace
       (function
         | ppf -> fprintf ppf "The %s %s@ has type" k m)
-      (function
-        | ppf -> fprintf ppf "but is expected to have type")
+      (function ppf -> fprintf ppf "but is expected to have type")
   | Structure_expected clty ->
     fprintf ppf
       "@[This class expression is not a class structure; it has type@ %a@]"
@@ -1097,8 +1096,7 @@ let report_error env ppf = function
     Printtyp.report_unification_error ppf env trace
       (function
         | ppf -> fprintf ppf "The expression \"new %s\" has type" c)
-      (function
-        | ppf -> fprintf ppf "but is used with type")
+      (function ppf -> fprintf ppf "but is used with type")
   | Virtual_class (cl, imm, mets, vals) ->
     let print_mets ppf mets =
       List.iter
@@ -1154,7 +1152,8 @@ let report_error env ppf = function
     Printtyp.reset ();
     fprintf ppf
       "@[<v>@[Some type variables are unbound in this type:@;\
-       <1 2>%t@]@ @[%a@]@]" printer print_reason reason
+       <1 2>%t@]@ @[%a@]@]"
+      printer print_reason reason
   | Non_generalizable_class (id, clty) ->
     fprintf ppf
       "@[The type of this class,@ %a,@ contains type variables that cannot be \

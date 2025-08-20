@@ -60,14 +60,20 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
-let findRescriptBinary = async (projectRootPath: p.DocumentUri | null): Promise<string | null> => {
-  if (config.extensionConfiguration.binaryPath != null &&
-    fs.existsSync(path.join(config.extensionConfiguration.binaryPath, "rescript"))) {
-      return path.join(config.extensionConfiguration.binaryPath, "rescript")
+let findRescriptBinary = async (
+  projectRootPath: p.DocumentUri | null,
+): Promise<string | null> => {
+  if (
+    config.extensionConfiguration.binaryPath != null &&
+    fs.existsSync(
+      path.join(config.extensionConfiguration.binaryPath, "rescript"),
+    )
+  ) {
+    return path.join(config.extensionConfiguration.binaryPath, "rescript");
   }
 
-  return utils.findRescriptBinary(projectRootPath)
-}
+  return utils.findRescriptBinary(projectRootPath);
+};
 
 let createInterfaceRequest = new v.RequestType<
   p.TextDocumentIdentifier,
@@ -82,7 +88,7 @@ let openCompiledFileRequest = new v.RequestType<
 >("textDocument/openCompiled");
 
 let getCurrentCompilerDiagnosticsForFile = (
-  fileUri: string
+  fileUri: string,
 ): p.Diagnostic[] => {
   let diagnostics: p.Diagnostic[] | null = null;
 
@@ -202,7 +208,10 @@ let debug = false;
 let syncProjectConfigCache = async (rootPath: string) => {
   try {
     if (debug) console.log("syncing project config cache for " + rootPath);
-    await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-project", rootPath]);
+    await utils.runAnalysisAfterSanityCheck(rootPath, [
+      "cache-project",
+      rootPath,
+    ]);
     if (debug) console.log("OK - synced project config cache for " + rootPath);
   } catch (e) {
     if (debug) console.error(e);
@@ -212,7 +221,10 @@ let syncProjectConfigCache = async (rootPath: string) => {
 let deleteProjectConfigCache = async (rootPath: string) => {
   try {
     if (debug) console.log("deleting project config cache for " + rootPath);
-    await utils.runAnalysisAfterSanityCheck(rootPath, ["cache-delete", rootPath]);
+    await utils.runAnalysisAfterSanityCheck(rootPath, [
+      "cache-delete",
+      rootPath,
+    ]);
     if (debug) console.log("OK - deleted project config cache for " + rootPath);
   } catch (e) {
     if (debug) console.error(e);
@@ -220,33 +232,37 @@ let deleteProjectConfigCache = async (rootPath: string) => {
 };
 
 async function onWorkspaceDidChangeWatchedFiles(
-  params: p.DidChangeWatchedFilesParams
+  params: p.DidChangeWatchedFilesParams,
 ) {
-  await Promise.all(params.changes.map(async (change) => {
-    if (change.uri.includes("build.ninja")) {
-      if (config.extensionConfiguration.cache?.projectConfig?.enable === true) {
-        let projectRoot = utils.findProjectRootOfFile(change.uri);
-        if (projectRoot != null) {
-          await syncProjectConfigCache(projectRoot);
+  await Promise.all(
+    params.changes.map(async (change) => {
+      if (change.uri.includes("build.ninja")) {
+        if (
+          config.extensionConfiguration.cache?.projectConfig?.enable === true
+        ) {
+          let projectRoot = utils.findProjectRootOfFile(change.uri);
+          if (projectRoot != null) {
+            await syncProjectConfigCache(projectRoot);
+          }
         }
+      } else if (change.uri.includes("compiler.log")) {
+        try {
+          await sendUpdatedDiagnostics();
+          sendCompilationFinishedMessage();
+          if (config.extensionConfiguration.inlayHints?.enable === true) {
+            sendInlayHintsRefresh();
+          }
+          if (config.extensionConfiguration.codeLens === true) {
+            sendCodeLensRefresh();
+          }
+        } catch {
+          console.log("Error while sending updated diagnostics");
+        }
+      } else {
+        ic.incrementalCompilationFileChanged(fileURLToPath(change.uri));
       }
-    } else if (change.uri.includes("compiler.log")) {
-      try {
-        await sendUpdatedDiagnostics();
-        sendCompilationFinishedMessage();
-        if (config.extensionConfiguration.inlayHints?.enable === true) {
-          sendInlayHintsRefresh();
-        }
-        if (config.extensionConfiguration.codeLens === true) {
-          sendCodeLensRefresh();
-        }
-      } catch {
-        console.log("Error while sending updated diagnostics");
-      }
-    } else {
-      ic.incrementalCompilationFileChanged(fileURLToPath(change.uri));
-    }
-  }));
+    }),
+  );
 }
 
 type clientSentBuildAction = {
@@ -274,12 +290,14 @@ let openedFile = async (fileUri: string, fileContent: string) => {
         filesDiagnostics: {},
         namespaceName:
           namespaceName.kind === "success" ? namespaceName.result : null,
-        rescriptVersion: await utils.findReScriptVersionForProjectRoot(projectRootPath),
+        rescriptVersion:
+          await utils.findReScriptVersionForProjectRoot(projectRootPath),
         bsbWatcherByEditor: null,
         bscBinaryLocation: await utils.findBscExeBinary(projectRootPath),
-        editorAnalysisLocation: await utils.findEditorAnalysisBinary(projectRootPath),
+        editorAnalysisLocation:
+          await utils.findEditorAnalysisBinary(projectRootPath),
         hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
-          projectRootPath
+          projectRootPath,
         )
           ? "never"
           : false,
@@ -302,7 +320,7 @@ let openedFile = async (fileUri: string, fileContent: string) => {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
-      if (await findRescriptBinary(projectRootPath) != null) {
+      if ((await findRescriptBinary(projectRootPath)) != null) {
         let payload: clientSentBuildAction = {
           title: c.startBuildAction,
           projectRootPath: projectRootPath,
@@ -333,7 +351,7 @@ let openedFile = async (fileUri: string, fileContent: string) => {
               config.extensionConfiguration.binaryPath == null
                 ? `Can't find ReScript binary in  ${path.join(
                     projectRootPath,
-                    c.nodeModulesBinDir
+                    c.nodeModulesBinDir,
                   )} or parent directories. Did you install it? It's required to use "rescript" > 9.1`
                 : `Can't find ReScript binary in the directory ${config.extensionConfiguration.binaryPath}`,
           },
@@ -430,7 +448,7 @@ async function hover(msg: p.RequestMessage) {
       tmpname,
       Boolean(extensionClientCapabilities.supportsMarkdownLinks),
     ],
-    msg
+    msg,
   );
   fs.unlink(tmpname, () => null);
   return response;
@@ -449,7 +467,7 @@ async function inlayHint(msg: p.RequestMessage) {
       params.range.end.line,
       config.extensionConfiguration.inlayHints?.maxLength,
     ],
-    msg
+    msg,
   );
   return response;
 }
@@ -470,7 +488,7 @@ async function codeLens(msg: p.RequestMessage) {
   const response = await utils.runAnalysisCommand(
     filePath,
     ["codeLens", filePath],
-    msg
+    msg,
   );
   return response;
 }
@@ -502,7 +520,7 @@ async function signatureHelp(msg: p.RequestMessage) {
         ? "true"
         : "false",
     ],
-    msg
+    msg,
   );
   fs.unlink(tmpname, () => null);
   return response;
@@ -515,7 +533,7 @@ async function definition(msg: p.RequestMessage) {
   let response = await utils.runAnalysisCommand(
     filePath,
     ["definition", filePath, params.position.line, params.position.character],
-    msg
+    msg,
   );
   return response;
 }
@@ -532,7 +550,7 @@ async function typeDefinition(msg: p.RequestMessage) {
       params.position.line,
       params.position.character,
     ],
-    msg
+    msg,
   );
   return response;
 }
@@ -541,10 +559,8 @@ async function references(msg: p.RequestMessage) {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_references
   let params = msg.params as p.ReferenceParams;
   let filePath = fileURLToPath(params.textDocument.uri);
-  let result: typeof p.ReferencesRequest.type = await utils.getReferencesForPosition(
-    filePath,
-    params.position
-  );
+  let result: typeof p.ReferencesRequest.type =
+    await utils.getReferencesForPosition(filePath, params.position);
   let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
@@ -554,13 +570,15 @@ async function references(msg: p.RequestMessage) {
   return response;
 }
 
-async function prepareRename(msg: p.RequestMessage): Promise<p.ResponseMessage> {
+async function prepareRename(
+  msg: p.RequestMessage,
+): Promise<p.ResponseMessage> {
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
   let locations: null | p.Location[] = await utils.getReferencesForPosition(
     filePath,
-    params.position
+    params.position,
   );
   let result: p.Range | null = null;
   if (locations !== null) {
@@ -625,7 +643,7 @@ async function documentSymbol(msg: p.RequestMessage) {
     filePath,
     ["documentSymbol", tmpname],
     msg,
-    /* projectRequired */ false
+    /* projectRequired */ false,
   );
   fs.unlink(tmpname, () => null);
   return response;
@@ -661,7 +679,7 @@ async function semanticTokens(msg: p.RequestMessage) {
     filePath,
     ["semanticTokens", tmpname],
     msg,
-    /* projectRequired */ false
+    /* projectRequired */ false,
   );
   fs.unlink(tmpname, () => null);
   return response;
@@ -683,7 +701,7 @@ async function completion(msg: p.RequestMessage) {
       params.position.character,
       tmpname,
     ],
-    msg
+    msg,
   );
   fs.unlink(tmpname, () => null);
   return response;
@@ -702,7 +720,7 @@ async function completionResolve(msg: p.RequestMessage) {
     let result = await utils.runAnalysisAfterSanityCheck(
       data.filePath,
       ["completionResolve", data.filePath, data.modulePath],
-      true
+      true,
     );
     item.documentation = { kind: "markdown", value: result };
   }
@@ -728,7 +746,7 @@ async function codeAction(msg: p.RequestMessage): Promise<p.ResponseMessage> {
       if (utils.rangeContainsRange(range, params.range)) {
         localResults.push(codeAction);
       }
-    }
+    },
   );
 
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
@@ -743,7 +761,7 @@ async function codeAction(msg: p.RequestMessage): Promise<p.ResponseMessage> {
       params.range.end.character,
       tmpname,
     ],
-    msg
+    msg,
   );
   fs.unlink(tmpname, () => null);
 
@@ -845,7 +863,10 @@ let updateDiagnosticSyntax = async (fileUri: string, fileContent: string) => {
   let compilerDiagnosticsForFile =
     getCurrentCompilerDiagnosticsForFile(fileUri);
   let syntaxDiagnosticsForFile: p.Diagnostic[] =
-    await utils.runAnalysisAfterSanityCheck(filePath, ["diagnosticSyntax", tmpname]);
+    await utils.runAnalysisAfterSanityCheck(filePath, [
+      "diagnosticSyntax",
+      tmpname,
+    ]);
 
   let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
@@ -922,7 +943,7 @@ async function createInterface(msg: p.RequestMessage): Promise<p.Message> {
 
   let cmiPartialPath = path.join(
     path.dirname(resPartialPath),
-    path.basename(resPartialPath, c.resExt) + suffixToAppend + c.cmiExt
+    path.basename(resPartialPath, c.resExt) + suffixToAppend + c.cmiExt,
   );
 
   let cmiPath = path.join(projDir, c.compilerDirPartialPath, cmiPartialPath);
@@ -946,7 +967,7 @@ async function createInterface(msg: p.RequestMessage): Promise<p.Message> {
   let response = await utils.runAnalysisCommand(
     filePath,
     ["createInterface", filePath, cmiPath],
-    msg
+    msg,
   );
   let result = typeof response.result === "string" ? response.result : "";
 
@@ -1056,18 +1077,26 @@ async function onMessage(msg: p.Message) {
       const watchers = Array.from(workspaceFolders).flatMap(
         (projectRootPath) => [
           {
-            globPattern: path.join(projectRootPath, '**', c.compilerLogPartialPath),
+            globPattern: path.join(
+              projectRootPath,
+              "**",
+              c.compilerLogPartialPath,
+            ),
             kind: p.WatchKind.Change | p.WatchKind.Create | p.WatchKind.Delete,
           },
           {
-            globPattern: path.join(projectRootPath, '**', c.buildNinjaPartialPath),
+            globPattern: path.join(
+              projectRootPath,
+              "**",
+              c.buildNinjaPartialPath,
+            ),
             kind: p.WatchKind.Change | p.WatchKind.Create | p.WatchKind.Delete,
           },
           {
-            globPattern: `${path.join(projectRootPath, '**', c.compilerDirPartialPath)}/**/*.{cmt,cmi}`,
+            globPattern: `${path.join(projectRootPath, "**", c.compilerDirPartialPath)}/**/*.{cmt,cmi}`,
             kind: p.WatchKind.Change | p.WatchKind.Delete,
-          }
-        ]
+          },
+        ],
       );
       const registrationParams: p.RegistrationParams = {
         registrations: [
@@ -1094,7 +1123,10 @@ async function onMessage(msg: p.Message) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       await openedFile(params.textDocument.uri, params.textDocument.text);
       await sendUpdatedDiagnostics();
-      await updateDiagnosticSyntax(params.textDocument.uri, params.textDocument.text);
+      await updateDiagnosticSyntax(
+        params.textDocument.uri,
+        params.textDocument.text,
+      );
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
       let extName = path.extname(params.textDocument.uri);
@@ -1106,11 +1138,11 @@ async function onMessage(msg: p.Message) {
           // we currently only support full changes
           updateOpenedFile(
             params.textDocument.uri,
-            changes[changes.length - 1].text
+            changes[changes.length - 1].text,
           );
           await updateDiagnosticSyntax(
             params.textDocument.uri,
-            changes[changes.length - 1].text
+            changes[changes.length - 1].text,
           );
         }
       }
@@ -1159,7 +1191,7 @@ async function onMessage(msg: p.Message) {
 
       extensionClientCapabilities.supportsSnippetSyntax = Boolean(
         initParams.capabilities.textDocument?.completion?.completionItem
-          ?.snippetSupport
+          ?.snippetSupport,
       );
 
       // send the list of features we support
@@ -1332,7 +1364,7 @@ async function onMessage(msg: p.Message) {
         // without their settings overriding eachother. Not a problem now though
         // as we'll likely only have "global" settings starting out.
         let [configuration] = msg.result as [
-          extensionConfiguration | null | undefined
+          extensionConfiguration | null | undefined,
         ];
         if (configuration != null) {
           config.extensionConfiguration = configuration;
@@ -1355,7 +1387,7 @@ async function onMessage(msg: p.Message) {
       if (rescriptBinaryPath != null) {
         let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
           rescriptBinaryPath,
-          projectRootPath
+          projectRootPath,
         );
         let root = projectsFiles.get(projectRootPath)!;
         root.bsbWatcherByEditor = bsbProcess;

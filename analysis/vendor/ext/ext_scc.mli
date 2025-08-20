@@ -25,18 +25,16 @@
 type node = Vec_int.t
 
 val graph : Vec_int.t array -> Int_vec_vec.t
-(** Assume input is int array with offset from 0 
-    Typical input 
+(** Assume input is int array with offset from 0 Typical input
     {[
       [|
-        [ 1 ; 2 ]; // 0 -> 1,  0 -> 2 
-                     [ 1 ];   // 0 -> 1 
-          [ 2 ]  // 0 -> 2 
+        [ 1 ; 2 ]; // 0 -> 1,  0 -> 2
+                     [ 1 ];   // 0 -> 1
+          [ 2 ]  // 0 -> 2
       |]
     ]}
-    Note that we can tell how many nodes by calculating 
-    [Array.length] of the input 
-*)
+    Note that we can tell how many nodes by calculating [Array.length] of the
+    input *)
 
 val graph_check : node array -> int * int list
 (** Used for unit test *)

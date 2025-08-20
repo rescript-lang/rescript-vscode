@@ -356,7 +356,8 @@ and completionType =
       fields: field list;
       definition:
         [ `NameOnly of string
-          (** When we only have the name, like when pulling the record from a declared type. *)
+          (** When we only have the name, like when pulling the record from a
+              declared type. *)
         | `TypeExpr of Types.type_expr
           (** When we have the full type expr from the compiler. *) ];
     }
@@ -573,7 +574,8 @@ module Completable = struct
   (** Additional context for nested completion where needed. *)
   type nestedContext =
     | RecordField of {seenFields: string list}
-        (** Completing for a record field, and we already saw the following fields... *)
+        (** Completing for a record field, and we already saw the following
+            fields... *)
     | CameFromRecordField of string
         (** We just came from this field (we leverage use this for better
             completion names etc) *)
@@ -656,11 +658,13 @@ module Completable = struct
     | CdecoratorPayload of decoratorPayload
     | CextensionNode of string  (** e.g. %todo *)
     | CnamedArg of contextPath * string * string list
-        (** e.g. (..., "label", ["l1", "l2"]) for ...(...~l1...~l2...~label...) *)
+        (** e.g. (..., "label", ["l1", "l2"]) for ...(...~l1...~l2...~label...)
+        *)
     | Cnone  (** e.g. don't complete inside strings *)
     | Cpath of contextPath
     | Cjsx of string list * string * string list
-        (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=... id2=... ... id *)
+        (** E.g. (["M", "Comp"], "id", ["id1", "id2"]) for <M.Comp id1=...
+            id2=... ... id *)
     | Cexpression of {
         contextPath: contextPath;
         nested: nestedPath list;

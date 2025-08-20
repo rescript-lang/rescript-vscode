@@ -12,7 +12,8 @@ let check_record_fields ?repr1 ?repr2 (fields1 : Types.label_declaration list)
     with
     | Some ld1 ->
       if field_is_optional ld1.ld_id repr1 <> field_is_optional ld2.ld_id repr2
-      then (* optional field can't be modified *)
+      then
+        (* optional field can't be modified *)
         violation := true;
       let get_as (({txt}, payload) : Parsetree.attribute) =
         if txt = "as" then Ast_payload.is_single_string payload else None

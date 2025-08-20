@@ -24,19 +24,19 @@ export const getLegacyBinaryProdPath = (b: binaryName) =>
     "server",
     "analysis_binaries",
     platformDir,
-    b
+    b,
   );
 
 export const getBinaryPath = (
   binaryName: "rescript-editor-analysis.exe" | "rescript-tools.exe",
-  projectRootPath: string | null = null
+  projectRootPath: string | null = null,
 ): string | null => {
   const binaryFromCompilerPackage = path.join(
     projectRootPath ?? "",
     "node_modules",
     "rescript",
     platformDir,
-    binaryName
+    binaryName,
   );
 
   if (projectRootPath != null && fs.existsSync(binaryFromCompilerPackage)) {
@@ -60,7 +60,7 @@ export const createFileInTempDir = (prefix = "", extension = "") => {
 };
 
 export let findProjectRootOfFileInDir = (
-  source: DocumentUri
+  source: DocumentUri,
 ): null | DocumentUri => {
   let dir = path.dirname(source);
   if (

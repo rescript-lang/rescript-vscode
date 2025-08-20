@@ -22,9 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
-(** Hash based datastrucure which does not support [remove], 
-    so that the adding order is strict and continous  
-*)
+(** Hash based datastrucure which does not support [remove], so that the adding
+    order is strict and continous *)
 
 module type S = sig
   type key

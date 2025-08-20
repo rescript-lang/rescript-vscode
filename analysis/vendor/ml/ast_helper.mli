@@ -30,8 +30,8 @@ val default_loc : loc ref
 (** Default value for all optional location arguments. *)
 
 val with_default_loc : loc -> (unit -> 'a) -> 'a
-(** Set the [default_loc] within the scope of the execution
-        of the provided function. *)
+(** Set the [default_loc] within the scope of the execution of the provided
+    function. *)
 
 (** {1 Constants} *)
 
@@ -78,13 +78,12 @@ module Typ : sig
   val force_poly : core_type -> core_type
 
   val varify_constructors : str list -> core_type -> core_type
-  (** [varify_constructors newtypes te] is type expression [te], of which
-        any of nullary type constructor [tc] is replaced by type variable of
-        the same name, if [tc]'s name appears in [newtypes].
-        Raise [Syntaxerr.Variable_in_scope] if any type variable inside [te]
-        appears in [newtypes].
-        @since 4.05
-     *)
+  (** [varify_constructors newtypes te] is type expression [te], of which any of
+      nullary type constructor [tc] is replaced by type variable of the same
+      name, if [tc]'s name appears in [newtypes]. Raise
+      [Syntaxerr.Variable_in_scope] if any type variable inside [te] appears in
+      [newtypes].
+      @since 4.05 *)
 end
 
 (** Patterns *)

@@ -22,8 +22,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
-(** Extension to standard library [Pervavives] module, safe to open 
-*)
+(** Extension to standard library [Pervavives] module, safe to open *)
 
 external reraise : exn -> 'a = "%reraise"
 
@@ -41,9 +40,7 @@ val max_int_option : int option -> int option -> int option
 
 (* external id : 'a -> 'a = "%identity" *)
 
-(** Copied from {!Btype.hash_variant}:
-    need sync up and add test case
-*)
+(** Copied from {!Btype.hash_variant}: need sync up and add test case *)
 (* val hash_variant : string -> int *)
 
 (* val todo : string -> 'a *)

@@ -13,6 +13,7 @@ See main CONTRIBUTING.md's repo structure. Additionally, `examples/` is a conven
 ## Usage
 
 At root:
+
 ```sh
 ./rescript-editor-analysis.exe --help
 

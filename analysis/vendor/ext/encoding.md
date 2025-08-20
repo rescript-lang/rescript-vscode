@@ -1,9 +1,3 @@
-
-
-
-
-
-
 ```c
 CAMLprim value caml_ml_string_length(value s)
 {
@@ -15,14 +9,15 @@ CAMLprim value caml_ml_string_length(value s)
 ```
 
 Like all heap blocks, strings contain a header defining the size of
-the string in machine words.  The actual block contents are:
+the string in machine words. The actual block contents are:
+
 - the characters of the string
 - padding bytes to align the block on a word boundary.  
   The padding is one of
-    00
-    00 01
-    00 00 02
-    00 00 00 03
+  00
+  00 01
+  00 00 02
+  00 00 00 03
   on a 32-bit machine, and up to 00 00 .... 07 on a 64-bit machine.
 
 Thus, the string is always zero-terminated, and its length can be
@@ -34,9 +29,9 @@ The null-termination comes handy when passing a string to C, but is
 not relied upon to compute the length (in Caml), allowing the string
 to contain nulls.
 
-so, suppose 
+so, suppose
 
 "" -> `8 - 7 - 1 `
 "a" -> `8 - 6 - 1`
 "0123456" -> `8 - 0 - 1`
-"01234567" ->  `2 * 8 - 7 - 1`
+"01234567" -> `2 * 8 - 7 - 1`

@@ -152,10 +152,8 @@ let not_equal (b : t) (s : string) =
   let s_len = String.length s in
   b_len <> s_len || not_equal_aux b.buffer s 0 s_len
 
-(**
-   It could be one byte, two bytes, three bytes and four bytes 
-   TODO: inline for better performance
-*)
+(** It could be one byte, two bytes, three bytes and four bytes TODO: inline for
+    better performance *)
 let add_int_1 (b : t) (x : int) =
   let c = Char.unsafe_chr (x land 0xff) in
   let pos = b.position in

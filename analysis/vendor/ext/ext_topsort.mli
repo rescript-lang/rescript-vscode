@@ -29,5 +29,4 @@ module Edge_vec : Vec_gen.S with type elt = edges
 type t = Edge_vec.t
 
 val layered_dfs : t -> Set_int.t Queue.t
-(** the input will be modified ,
-*)
+(** the input will be modified , *)

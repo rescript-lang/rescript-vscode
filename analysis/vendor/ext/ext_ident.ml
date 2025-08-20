@@ -150,10 +150,8 @@ let name_mangle name =
     done;
     Ext_buffer.contents buffer
 
-(**
-   [convert name] if [name] is a js keyword or js global, add "$$"
-   otherwise do the name mangling to make sure ocaml identifier it is
-   a valid js identifier
+(** [convert name] if [name] is a js keyword or js global, add "$$" otherwise do
+    the name mangling to make sure ocaml identifier it is a valid js identifier
 *)
 let convert (name : string) =
   let name = unwrap_uppercase_exotic name in
