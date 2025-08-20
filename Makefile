@@ -21,7 +21,7 @@ format:
 
 checkformat:
 	dune build @fmt
-	prettier --check --experimental-cli .
+	npx prettier --check --experimental-cli .
 
 .DEFAULT_GOAL := build
 
