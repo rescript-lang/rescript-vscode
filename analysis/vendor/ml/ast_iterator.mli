@@ -13,7 +13,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** {!iterator} allows to implement AST inspection using open recursion.  A
+(** {!iterator} allows to implement AST inspection using open recursion. A
     typical mapper would be based on {!default_iterator}, a trivial iterator,
     and will fall back on it for handling the syntax it does not modify. *)
 
@@ -61,10 +61,9 @@ type iterator = {
   value_description: iterator -> value_description -> unit;
   with_constraint: iterator -> with_constraint -> unit;
 }
-(** A [iterator] record implements one "method" per syntactic category,
-    using an open recursion style: each method takes as its first
-    argument the iterator to be applied to children in the syntax
-    tree. *)
+(** A [iterator] record implements one "method" per syntactic category, using an
+    open recursion style: each method takes as its first argument the iterator
+    to be applied to children in the syntax tree. *)
 
 val default_iterator : iterator
 (** A default iterator, which implements a "do not do anything" mapping. *)

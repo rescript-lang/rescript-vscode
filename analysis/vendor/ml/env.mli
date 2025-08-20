@@ -350,6 +350,6 @@ module Persistent_signature : sig
 
   val load : (unit_name:string -> t option) ref
   (** Function used to load a persistent signature. The default is to look for
-      the .cmi file in the load path. This function can be overridden to load
-      it from memory, for instance to build a self-contained toplevel. *)
+      the .cmi file in the load path. This function can be overridden to load it
+      from memory, for instance to build a self-contained toplevel. *)
 end

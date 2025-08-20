@@ -29,7 +29,5 @@ val compare : t -> t -> int
 val equal : t -> t -> bool
 
 val int32_unsigned_to_int : int32 -> int
-(** 
-   works on 64 bit platform only
-   given input as an uint32 and convert it io int64
-*)
+(** works on 64 bit platform only given input as an uint32 and convert it io
+    int64 *)

@@ -18,8 +18,7 @@
 (** [Types] defines the representation of types and declarations (that is, the
     content of module signatures).
 
-    CMI files are made of marshalled types.
-*)
+    CMI files are made of marshalled types. *)
 
 open Asttypes
 (** Asttypes exposes basic definitions shared both by Parsetree and Types. *)
@@ -31,13 +30,12 @@ type type_expr = {mutable desc: type_desc; mutable level: int; id: int}
     find in OCaml. [type_expr] wraps this with some annotations.
 
     The [level] field tracks the level of polymorphism associated to a type,
-    guiding the generalization algorithm.
-    Put shortly, when referring to a type in a given environment, both the type
-    and the environment have a level. If the type has an higher level, then it
-    can be considered fully polymorphic (type variables will be printed as
-    ['a]), otherwise it'll be weakly polymorphic, or non generalized (type
-    variables printed as ['_a]).
-    See [http://okmij.org/ftp/ML/generalization.html] for more information.
+    guiding the generalization algorithm. Put shortly, when referring to a type
+    in a given environment, both the type and the environment have a level. If
+    the type has an higher level, then it can be considered fully polymorphic
+    (type variables will be printed as ['a]), otherwise it'll be weakly
+    polymorphic, or non generalized (type variables printed as ['_a]). See
+    [http://okmij.org/ftp/ML/generalization.html] for more information.
 
     Note about [type_declaration]: one should not make the confusion between
     [type_expr] and [type_declaration].
@@ -50,63 +48,56 @@ type type_expr = {mutable desc: type_desc; mutable level: int; id: int}
 
     Also, as the type system of OCaml is generative, a [type_declaration] can
     have the side-effect of introducing a new type constructor, different from
-    all other known types.
-    Whereas [type_expr] is a pure construct which allows referring to existing
-    types.
+    all other known types. Whereas [type_expr] is a pure construct which allows
+    referring to existing types.
 
-    Note on mutability: TBD.
- *)
+    Note on mutability: TBD. *)
 
 and type_desc =
   | Tvar of string option
-      (** [Tvar (Some "a")] ==> ['a] or ['_a]
-      [Tvar None]       ==> [_] *)
+      (** [Tvar (Some "a")] ==> ['a] or ['_a] [Tvar None] ==> [_] *)
   | Tarrow of arg_label * type_expr * type_expr * commutable
       (** [Tarrow (Nolabel,      e1, e2, c)] ==> [e1    -> e2]
-      [Tarrow (Labelled "l", e1, e2, c)] ==> [l:e1  -> e2]
-      [Tarrow (Optional "l", e1, e2, c)] ==> [?l:e1 -> e2]
+          [Tarrow (Labelled "l", e1, e2, c)] ==> [l:e1  -> e2]
+          [Tarrow (Optional "l", e1, e2, c)] ==> [?l:e1 -> e2]
 
-      See [commutable] for the last argument. *)
+          See [commutable] for the last argument. *)
   | Ttuple of type_expr list  (** [Ttuple [t1;...;tn]] ==> [(t1 * ... * tn)] *)
   | Tconstr of Path.t * type_expr list * abbrev_memo ref
-      (** [Tconstr (`A.B.t', [t1;...;tn], _)] ==> [(t1,...,tn) A.B.t]
-      The last parameter keep tracks of known expansions, see [abbrev_memo]. *)
+      (** [Tconstr (`A.B.t', [t1;...;tn], _)] ==> [(t1,...,tn) A.B.t] The last
+          parameter keep tracks of known expansions, see [abbrev_memo]. *)
   | Tobject of type_expr * (Path.t * type_expr list) option ref
       (** [Tobject (`f1:t1;...;fn: tn', `None')] ==> [< f1: t1; ...; fn: tn >]
-      f1, fn are represented as a linked list of types using Tfield and Tnil
-      constructors.
+          f1, fn are represented as a linked list of types using Tfield and Tnil
+          constructors.
 
-      [Tobject (_, `Some (`A.ct', [t1;...;tn]')] ==> [(t1, ..., tn) A.ct].
-      where A.ct is the type of some class.
+          [Tobject (_, `Some (`A.ct', [t1;...;tn]')] ==> [(t1, ..., tn) A.ct].
+          where A.ct is the type of some class.
 
-      There are also special cases for so-called "class-types", cf. [Typeclass]
-      and [Ctype.set_object_name]:
+          There are also special cases for so-called "class-types", cf.
+          [Typeclass] and [Ctype.set_object_name]:
 
-        [Tobject (Tfield(_,_,...(Tfield(_,_,rv)...),
-                         Some(`A.#ct`, [rv;t1;...;tn])]
-             ==> [(t1, ..., tn) #A.ct]
-        [Tobject (_, Some(`A.#ct`, [Tnil;t1;...;tn])] ==> [(t1, ..., tn) A.ct]
+          [Tobject (Tfield(_,_,...(Tfield(_,_,rv)...), Some(`A.#ct`,
+           [rv;t1;...;tn])] ==> [(t1, ..., tn) #A.ct]
+          [Tobject (_, Some(`A.#ct`, [Tnil;t1;...;tn])] ==> [(t1, ..., tn) A.ct]
 
-      where [rv] is the hidden row variable.
-  *)
+          where [rv] is the hidden row variable. *)
   | Tfield of string * field_kind * type_expr * type_expr
       (** [Tfield ("foo", Fpresent, t, ts)] ==> [<...; foo : t; ts>] *)
   | Tnil  (** [Tnil] ==> [<...; >] *)
   | Tlink of type_expr  (** Indirection used by unification engine. *)
   | Tsubst of type_expr (* for copying *)
       (** [Tsubst] is used temporarily to store information in low-level
-      functions manipulating representation of types, such as
-      instantiation or copy.
-      This constructor should not appear outside of these cases. *)
+          functions manipulating representation of types, such as instantiation
+          or copy. This constructor should not appear outside of these cases. *)
   | Tvariant of row_desc
       (** Representation of polymorphic variants, see [row_desc]. *)
   | Tunivar of string option
-      (** Occurrence of a type variable introduced by a
-      forall quantifier / [Tpoly]. *)
+      (** Occurrence of a type variable introduced by a forall quantifier /
+          [Tpoly]. *)
   | Tpoly of type_expr * type_expr list
-      (** [Tpoly (ty,tyl)] ==> ['a1... 'an. ty],
-      where 'a1 ... 'an are names given to types in tyl
-      and occurrences of those types in ty. *)
+      (** [Tpoly (ty,tyl)] ==> ['a1... 'an. ty], where 'a1 ... 'an are names
+          given to types in tyl and occurrences of those types in ty. *)
   | Tpackage of Path.t * Longident.t list * type_expr list
       (** Type of a first-class module (a.k.a package). *)
 
@@ -157,24 +148,21 @@ and row_field =
     alias. This is done for performance purposes.
 
     For instance, when defining [type 'a pair = 'a * 'a], when one refers to an
-    ['a pair], it is just a shortcut for the ['a * 'a] type.
-    This expansion will be stored in the [abbrev_memo] of the corresponding
-    [Tconstr] node.
+    ['a pair], it is just a shortcut for the ['a * 'a] type. This expansion will
+    be stored in the [abbrev_memo] of the corresponding [Tconstr] node.
 
     In practice, [abbrev_memo] behaves like list of expansions with a mutable
     tail.
 
-    Note on marshalling: [abbrev_memo] must not appear in saved types.
-    [Btype], with [cleanup_abbrev] and [memo], takes care of tracking and
-    removing abbreviations.
-*)
+    Note on marshalling: [abbrev_memo] must not appear in saved types. [Btype],
+    with [cleanup_abbrev] and [memo], takes care of tracking and removing
+    abbreviations. *)
 and abbrev_memo =
   | Mnil  (** No known abbreviation *)
   | Mcons of private_flag * Path.t * type_expr * type_expr * abbrev_memo
-      (** Found one abbreviation.
-      A valid abbreviation should be at least as visible and reachable by the
-      same path.
-      The first expression is the abbreviation and the second the expansion. *)
+      (** Found one abbreviation. A valid abbreviation should be at least as
+          visible and reachable by the same path. The first expression is the
+          abbreviation and the second the expansion. *)
   | Mlink of abbrev_memo ref
       (** Abbreviations can be found after this indirection *)
 
@@ -182,25 +170,20 @@ and field_kind = Fvar of field_kind option ref | Fpresent | Fabsent
 
 (** [commutable] is a flag appended to every arrow type.
 
-    When typing an application, if the type of the functional is
-    known, its type is instantiated with [Cok] arrows, otherwise as
-    [Clink (ref Cunknown)].
+    When typing an application, if the type of the functional is known, its type
+    is instantiated with [Cok] arrows, otherwise as [Clink (ref Cunknown)].
 
-    When the type is not known, the application will be used to infer
-    the actual type.  This is fragile in presence of labels where
-    there is no principal type.
+    When the type is not known, the application will be used to infer the actual
+    type. This is fragile in presence of labels where there is no principal
+    type.
 
-    Two incompatible applications relying on [Cunknown] arrows will
-    trigger an error.
+    Two incompatible applications relying on [Cunknown] arrows will trigger an
+    error.
 
-    let f g =
-      g ~a:() ~b:();
-      g ~b:() ~a:();
+    let f g = g ~a:() ~b:(); g ~b:() ~a:();
 
-    Error: This function is applied to arguments
-    in an order different from other calls.
-    This is only allowed when the real type is known.
-*)
+    Error: This function is applied to arguments in an order different from
+    other calls. This is only allowed when the real type is known. *)
 and commutable = Cok | Cunknown | Clink of commutable ref
 
 module TypeOps : sig

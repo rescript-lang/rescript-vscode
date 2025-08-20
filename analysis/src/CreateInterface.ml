@@ -219,7 +219,9 @@ let printSignature ~extractor ~signature =
       :: rest
       when Ident.name makePropsId = Ident.name makeId ^ "Props"
            && ((* from implementation *) makePropsLoc.loc_ghost
-              || (* from interface *) makePropsLoc = makeValueDesc.val_loc)
+              ||
+              (* from interface *)
+              makePropsLoc = makeValueDesc.val_loc)
            && getComponentTypeV3 makeValueDesc.val_type <> None ->
       (*
         {"name": string} => retType  ~~>  (~name:string) => retType

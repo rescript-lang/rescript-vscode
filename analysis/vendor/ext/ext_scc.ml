@@ -24,16 +24,10 @@
 
 type node = Vec_int.t
 
-(** 
-   [int] as data for this algorithm
-   Pros:
-   1. Easy to eoncode algorithm (especially given that the capacity of node is known)
-   2. Algorithms itself are much more efficient
-   3. Node comparison semantics is clear
-   4. Easy to print output
-   Cons:
-   1. post processing input data  
-*)
+(** [int] as data for this algorithm Pros: 1. Easy to eoncode algorithm
+    (especially given that the capacity of node is known) 2. Algorithms itself
+    are much more efficient 3. Node comparison semantics is clear 4. Easy to
+    print output Cons: 1. post processing input data *)
 let min_int (x : int) y = if x < y then x else y
 
 let graph e =

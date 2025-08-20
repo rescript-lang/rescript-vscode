@@ -9,8 +9,9 @@ let toString (loc : t) =
 
 let hasPos ~pos loc = start loc <= pos && pos < end_ loc
 
-(** Allows the character after the end to be included. Ie when the cursor is at the 
-    end of the word, like `someIdentifier<cursor>`. Useful in some scenarios. *)
+(** Allows the character after the end to be included. Ie when the cursor is at
+    the end of the word, like `someIdentifier<cursor>`. Useful in some
+    scenarios. *)
 let hasPosInclusiveEnd ~pos loc = start loc <= pos && pos <= end_ loc
 
 let mkPosition (pos : Pos.t) =

@@ -29,9 +29,7 @@ val classify : char -> byte
 val follow : string -> int -> int -> int -> int * int
 
 val next : string -> remaining:int -> int -> int
-(** 
-   return [-1] if failed 
-*)
+(** return [-1] if failed *)
 
 exception Invalid_utf8 of string
 

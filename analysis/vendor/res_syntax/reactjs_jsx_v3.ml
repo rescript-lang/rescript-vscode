@@ -157,19 +157,19 @@ let get_props_attr payload =
   match payload with
   | Some
       (PStr
-        ({
-           pstr_desc =
-             Pstr_eval ({pexp_desc = Pexp_record (record_fields, None)}, _);
-         }
-        :: _rest)) ->
+         ({
+            pstr_desc =
+              Pstr_eval ({pexp_desc = Pexp_record (record_fields, None)}, _);
+          }
+         :: _rest)) ->
     List.fold_left get_props_name_value default_props record_fields
   | Some
       (PStr
-        ({
-           pstr_desc =
-             Pstr_eval ({pexp_desc = Pexp_ident {txt = Lident "props"}}, _);
-         }
-        :: _rest)) ->
+         ({
+            pstr_desc =
+              Pstr_eval ({pexp_desc = Pexp_ident {txt = Lident "props"}}, _);
+          }
+         :: _rest)) ->
     {props_name = "props"}
   | Some (PStr ({pstr_desc = Pstr_eval (_, _); pstr_loc} :: _rest)) ->
     Jsx_common.raise_error ~loc:pstr_loc

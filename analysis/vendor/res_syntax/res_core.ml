@@ -319,7 +319,7 @@ let is_es6_arrow_expression ~in_ternary p =
              *    || (&Clflags.classic && (l == Nolabel && !is_optional(l'))) => (t1, t2)
              * We'll arrive at the outer rparen just before the =>.
              * This is not an es6 arrow.
-             * *)
+             *)
             false
           | _ -> (
             Parser.next_unsafe state;
@@ -513,12 +513,10 @@ let wrap_type_annotation ~loc newtypes core_type body =
   in
   (exp, typ)
 
-(**
-  * process the occurrence of _ in the arguments of a function application
-  * replace _ with a new variable, currently __x, in the arguments
-  * return a wrapping function that wraps ((__x) => ...) around an expression
-  * e.g. foo(_, 3) becomes (__x) => foo(__x, 3)
-  *)
+(** * process the occurrence of _ in the arguments of a function application *
+    replace _ with a new variable, currently __x, in the arguments * return a
+    wrapping function that wraps ((__x) => ...) around an expression * e.g.
+    foo(_, 3) becomes (__x) => foo(__x, 3) *)
 let process_underscore_application (p : Parser.t) args =
   let exp_question = ref None in
   let hidden_var = "__x" in
@@ -2385,7 +2383,7 @@ and parse_template_expr ?prefix p =
  *  }
  *
  *  We want to give a nice error message in these cases
- * *)
+ *)
 and over_parse_constrained_or_coerced_or_arrow_expression p expr =
   match p.Parser.token with
   | ColonGreaterThan -> parse_coerced_expr ~expr p
@@ -4236,17 +4234,17 @@ and parse_type_alias p typ =
   | _ -> typ
 
 (* type_parameter ::=
-   *  | type_expr
-   *  | ~ident: type_expr
-   *  | ~ident: type_expr=?
-   *
-   * note:
-   *  | attrs ~ident: type_expr    -> attrs are on the arrow
-   *  | attrs type_expr            -> attrs are here part of the type_expr
-   *
-   * dotted_type_parameter ::=
-   *  | . type_parameter
-*)
+ *  | type_expr
+ *  | ~ident: type_expr
+ *  | ~ident: type_expr=?
+ *
+ * note:
+ *  | attrs ~ident: type_expr    -> attrs are on the arrow
+ *  | attrs type_expr            -> attrs are here part of the type_expr
+ *
+ * dotted_type_parameter ::=
+ *  | . type_parameter
+ *)
 and parse_type_parameter p =
   let doc_attr : Parsetree.attributes =
     match p.Parser.token with

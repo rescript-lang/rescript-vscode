@@ -23,6 +23,5 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
 include Ordered_hash_map_gen.S with type key = Ident.t
-(** Hash algorithm only hash 
-    stamp, this makes sense when  all identifiers are local (no global)
-*)
+(** Hash algorithm only hash stamp, this makes sense when all identifiers are
+    local (no global) *)

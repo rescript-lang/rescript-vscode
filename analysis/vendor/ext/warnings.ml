@@ -465,7 +465,8 @@ let message = function
     in
     Printf.sprintf
       "Ambiguous or-pattern variables under guard;\n\
-       %s may match different arguments. (See manual section 8.5)" msg
+       %s may match different arguments. (See manual section 8.5)"
+      msg
   | Unused_module s -> "unused module " ^ s ^ "."
   | Constraint_on_gadt ->
     "Type constraints do not apply to GADT cases of variant types."

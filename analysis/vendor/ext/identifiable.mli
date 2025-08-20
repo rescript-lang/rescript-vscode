@@ -52,13 +52,13 @@ module type Map = sig
     'a t ->
     'a t ->
     'a t
-  (** [disjoint_union m1 m2] contains all bindings from [m1] and
-      [m2]. If some binding is present in both and the associated
-      value is not equal, a Fatal_error is raised *)
+  (** [disjoint_union m1 m2] contains all bindings from [m1] and [m2]. If some
+      binding is present in both and the associated value is not equal, a
+      Fatal_error is raised *)
 
   val union_right : 'a t -> 'a t -> 'a t
-  (** [union_right m1 m2] contains all bindings from [m1] and [m2]. If
-      some binding is present in both, the one from [m2] is taken *)
+  (** [union_right m1 m2] contains all bindings from [m1] and [m2]. If some
+      binding is present in both, the one from [m2] is taken *)
 
   val union_left : 'a t -> 'a t -> 'a t
   (** [union_left m1 m2 = union_right m2 m1] *)

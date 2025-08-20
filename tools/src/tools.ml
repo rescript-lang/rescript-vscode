@@ -46,7 +46,8 @@ type docItem =
       deprecated: string option;
       detail: docItemDetail option;
       source: source;
-          (** Additional documentation for constructors and record fields, if available. *)
+          (** Additional documentation for constructors and record fields, if
+              available. *)
     }
   | Module of docsForModule
   | ModuleType of {

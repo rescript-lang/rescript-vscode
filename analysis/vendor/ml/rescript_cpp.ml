@@ -113,7 +113,10 @@ let () =
      we want to overwrite in some cases with the
      same stdlib
   *)
-  let version = Config.version (* so that it can be overridden*) in
+  let version =
+    Config.version
+    (* so that it can be overridden*)
+  in
   replace_directive_built_in_value "OCAML_VERSION" (Dir_string version);
   replace_directive_built_in_value "OS_TYPE" (Dir_string Sys.os_type)
 
@@ -155,16 +158,14 @@ let semantic_version_parse str start last_index =
   let additional = String.sub str patch_end (last_index - patch_end + 1) in
   ((major, minor, patch), additional)
 
-(** 
-     {[
-       semver Location.none "1.2.3" "~1.3.0" = false;;
-       semver Location.none "1.2.3" "^1.3.0" = true ;;
-       semver Location.none "1.2.3" ">1.3.0" = false ;;
-       semver Location.none "1.2.3" ">=1.3.0" = false ;;
-       semver Location.none "1.2.3" "<1.3.0" = true ;;
-       semver Location.none "1.2.3" "<=1.3.0" = true ;;
-     ]}
-  *)
+(** {[
+      semver Location.none "1.2.3" "~1.3.0" = false;;
+      semver Location.none "1.2.3" "^1.3.0" = true;;
+      semver Location.none "1.2.3" ">1.3.0" = false;;
+      semver Location.none "1.2.3" ">=1.3.0" = false;;
+      semver Location.none "1.2.3" "<1.3.0" = true;;
+      semver Location.none "1.2.3" "<=1.3.0" = true
+    ]} *)
 let semver loc lhs str =
   let last_index = String.length str - 1 in
   if last_index < 0 then raise (Pp_error (Illegal_semver str, loc))
@@ -321,7 +322,8 @@ let directive_parse (token_with_comments : Lexing.lexbuf -> Parser.token) lexbuf
                Location.curr lexbuf )))
     | e -> no e
   and parse_or calc : bool = parse_or_aux calc (parse_and calc)
-  and (* a || (b || (c || d))*)
+  and
+      (* a || (b || (c || d))*)
       parse_or_aux calc v : bool =
     (* let l = v  in *)
     match token () with

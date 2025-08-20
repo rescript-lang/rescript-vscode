@@ -182,11 +182,14 @@ type lid = string Asttypes.loc
 type label_expr = lid * Parsetree.expression
 
 type action = lid * Parsetree.expression option
-(** None means punning is hit 
-    {[ { x } ]}
-    otherwise it comes with a payload 
-    {[ { x = exp }]}
-*)
+(** None means punning is hit
+    {[
+      {x}
+    ]}
+    otherwise it comes with a payload
+    {[
+      {x = exp}
+    ]} *)
 
 let unrecognized_config_record loc text =
   Location.prerr_warning loc (Warnings.Bs_derive_warning text)

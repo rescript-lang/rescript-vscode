@@ -58,32 +58,32 @@ module Stdlib : sig
     type 'a t = 'a list
 
     val compare : ('a -> 'a -> int) -> 'a t -> 'a t -> int
-    (** The lexicographic order supported by the provided order.
-        There is no constraint on the relative lengths of the lists. *)
+    (** The lexicographic order supported by the provided order. There is no
+        constraint on the relative lengths of the lists. *)
 
     val equal : ('a -> 'a -> bool) -> 'a t -> 'a t -> bool
-    (** Returns [true] iff the given lists have the same length and content
-        with respect to the given equality function. *)
+    (** Returns [true] iff the given lists have the same length and content with
+        respect to the given equality function. *)
 
     val filter_map : ('a -> 'b option) -> 'a t -> 'b t
-    (** [filter_map f l] applies [f] to every element of [l], filters
-        out the [None] elements and returns the list of the arguments of
-        the [Some] elements. *)
+    (** [filter_map f l] applies [f] to every element of [l], filters out the
+        [None] elements and returns the list of the arguments of the [Some]
+        elements. *)
 
     val some_if_all_elements_are_some : 'a option t -> 'a t option
-    (** If all elements of the given list are [Some _] then [Some xs]
-        is returned with the [xs] being the contents of those [Some]s, with
-        order preserved.  Otherwise return [None]. *)
+    (** If all elements of the given list are [Some _] then [Some xs] is
+        returned with the [xs] being the contents of those [Some]s, with order
+        preserved. Otherwise return [None]. *)
 
     val map2_prefix : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t * 'b t
-    (** [let r1, r2 = map2_prefix f l1 l2]
-        If [l1] is of length n and [l2 = h2 @ t2] with h2 of length n,
-        r1 is [List.map2 f l1 h1] and r2 is t2. *)
+    (** [let r1, r2 = map2_prefix f l1 l2] If [l1] is of length n and
+        [l2 = h2 @ t2] with h2 of length n, r1 is [List.map2 f l1 h1] and r2 is
+        t2. *)
 
     val split_at : int -> 'a t -> 'a t * 'a t
-    (** [split_at n l] returns the pair [before, after] where [before] is
-        the [n] first elements of [l] and [after] the remaining ones.
-        If [l] has less than [n] elements, raises Invalid_argument. *)
+    (** [split_at n l] returns the pair [before, after] where [before] is the
+        [n] first elements of [l] and [after] the remaining ones. If [l] has
+        less than [n] elements, raises Invalid_argument. *)
   end
 
   module Option : sig
@@ -229,46 +229,42 @@ module LongString : sig
 end
 
 val edit_distance : string -> string -> int -> int option
-(** [edit_distance a b cutoff] computes the edit distance between
-    strings [a] and [b]. To help efficiency, it uses a cutoff: if the
-    distance [d] is smaller than [cutoff], it returns [Some d], else
-    [None].
+(** [edit_distance a b cutoff] computes the edit distance between strings [a]
+    and [b]. To help efficiency, it uses a cutoff: if the distance [d] is
+    smaller than [cutoff], it returns [Some d], else [None].
 
-    The distance algorithm currently used is Damerau-Levenshtein: it
-    computes the number of insertion, deletion, substitution of
-    letters, or swapping of adjacent letters to go from one word to the
-    other. The particular algorithm may change in the future.
-*)
+    The distance algorithm currently used is Damerau-Levenshtein: it computes
+    the number of insertion, deletion, substitution of letters, or swapping of
+    adjacent letters to go from one word to the other. The particular algorithm
+    may change in the future. *)
 
 val spellcheck : string list -> string -> string list
-(** [spellcheck env name] takes a list of names [env] that exist in
-    the current environment and an erroneous [name], and returns a
-    list of suggestions taken from [env], that are close enough to
-    [name] that it may be a typo for one of them. *)
+(** [spellcheck env name] takes a list of names [env] that exist in the current
+    environment and an erroneous [name], and returns a list of suggestions taken
+    from [env], that are close enough to [name] that it may be a typo for one of
+    them. *)
 
 val did_you_mean : Format.formatter -> (unit -> string list) -> unit
-(** [did_you_mean ppf get_choices] hints that the user may have meant
-    one of the option returned by calling [get_choices]. It does nothing
-    if the returned list is empty.
+(** [did_you_mean ppf get_choices] hints that the user may have meant one of the
+    option returned by calling [get_choices]. It does nothing if the returned
+    list is empty.
 
     The [unit -> ...] thunking is meant to delay any potentially-slow
-    computation (typically computing edit-distance with many things
-    from the current environment) to when the hint message is to be
-    printed. You should print an understandable error message before
-    calling [did_you_mean], so that users get a clear notification of
-    the failure even if producing the hint is slow.
-*)
+    computation (typically computing edit-distance with many things from the
+    current environment) to when the hint message is to be printed. You should
+    print an understandable error message before calling [did_you_mean], so that
+    users get a clear notification of the failure even if producing the hint is
+    slow. *)
 
 val cut_at : string -> char -> string * string
-(** [String.cut_at s c] returns a pair containing the sub-string before
-   the first occurrence of [c] in [s], and the sub-string after the
-   first occurrence of [c] in [s].
-   [let (before, after) = String.cut_at s c in
-    before ^ String.make 1 c ^ after] is the identity if [s] contains [c].
+(** [String.cut_at s c] returns a pair containing the sub-string before the
+    first occurrence of [c] in [s], and the sub-string after the first
+    occurrence of [c] in [s].
+    [let (before, after) = String.cut_at s c in before ^ String.make 1 c ^
+     after] is the identity if [s] contains [c].
 
-   Raise [Not_found] if the character does not appear in the string
-   @since 4.01
-*)
+    Raise [Not_found] if the character does not appear in the string
+    @since 4.01 *)
 
 module StringSet : Set.S with type elt = string
 module StringMap : Map.S with type key = string
@@ -308,32 +304,30 @@ end
 
 val normalise_eol : string -> string
 (** [normalise_eol s] returns a fresh copy of [s] with any '\r' characters
-   removed. Intended for pre-processing text which will subsequently be printed
-   on a channel which performs EOL transformations (i.e. Windows) *)
+    removed. Intended for pre-processing text which will subsequently be printed
+    on a channel which performs EOL transformations (i.e. Windows) *)
 
 val delete_eol_spaces : string -> string
-(** [delete_eol_spaces s] returns a fresh copy of [s] with any end of
-   line spaces removed. Intended to normalize the output of the
-   toplevel for tests. *)
+(** [delete_eol_spaces s] returns a fresh copy of [s] with any end of line
+    spaces removed. Intended to normalize the output of the toplevel for tests.
+*)
 
 (** {1 Hook machinery}
 
-    Hooks machinery:
-   [add_hook name f] will register a function that will be called on the
-    argument of a later call to [apply_hooks]. Hooks are applied in the
-    lexicographical order of their names.
-*)
+    Hooks machinery: [add_hook name f] will register a function that will be
+    called on the argument of a later call to [apply_hooks]. Hooks are applied
+    in the lexicographical order of their names. *)
 
 type hook_info = {sourcefile: string}
 
 exception
   HookExnWrapper of {error: exn; hook_name: string; hook_info: hook_info}
-(** An exception raised by a hook will be wrapped into a
-        [HookExnWrapper] constructor by the hook machinery.  *)
+(** An exception raised by a hook will be wrapped into a [HookExnWrapper]
+    constructor by the hook machinery. *)
 
 val raise_direct_hook_exn : exn -> 'a
 (** A hook can use [raise_unwrapped_hook_exn] to raise an exception that will
-      not be wrapped into a {!HookExnWrapper}. *)
+    not be wrapped into a {!HookExnWrapper}. *)
 
 module type HookSig = sig
   type t

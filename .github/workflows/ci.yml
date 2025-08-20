@@ -90,7 +90,7 @@ jobs:
         run: echo "DUNE_PROFILE=${{ matrix.dune-profile }}" >> $GITHUB_ENV
 
       - name: Install ocamlformat
-        run: opam install ocamlformat
+        run: opam install ocamlformat.0.27.0
 
       - name: Format check
         run: opam exec -- make checkformat

@@ -48,39 +48,32 @@ let add_ident ~mangled:name (stamp : int) (cxt : t) : int * t =
       (v, Map_string.add cxt name (Map_int.add imap stamp v))
     | Some i -> (i, cxt))
 
-(**
-   same as {!Js_dump.ident} except it generates a string instead of doing the printing
-   For fast/debug mode, we can generate the name as 
-       [Printf.sprintf "%s$%d" name id.stamp] which is 
-       not relevant to the context       
+(** same as {!Js_dump.ident} except it generates a string instead of doing the
+    printing For fast/debug mode, we can generate the name as
+    [Printf.sprintf "%s$%d" name id.stamp] which is not relevant to the context
 
-   Attention: 
-   - $$Array.length, due to the fact that global module is 
-       always printed in the begining(via imports), so you get a gurantee, 
-       (global modules will not be printed as [List$1]) 
+    Attention:
+    - $$Array.length, due to the fact that global module is always printed in
+      the begining(via imports), so you get a gurantee, (global modules will not
+      be printed as [List$1])
 
-       However, this means we loose the ability of dynamic loading, is it a big 
-       deal? we can fix this by a scanning first, since we already know which 
-       modules are global
+    However, this means we loose the ability of dynamic loading, is it a big
+    deal? we can fix this by a scanning first, since we already know which
+    modules are global
 
-       check [test/test_global_print.ml] for regression
-   - collision
-      It is obvious that for the same identifier that they 
-      print the same name.
+    check [test/test_global_print.ml] for regression
+    - collision It is obvious that for the same identifier that they print the
+      same name.
 
-      It also needs to be hold that for two different identifiers,  
-      they print different names:
-   - This happens when they escape to the same name and 
-        share the  same stamp
-      So the key has to be mangled name  + stamp
-      otherwise, if two identifier happens to have same mangled name,
-      if we use the original name as key, they can have same id (like 0).
-      then it caused a collision
+    It also needs to be hold that for two different identifiers, they print
+    different names:
+    - This happens when they escape to the same name and share the same stamp So
+      the key has to be mangled name + stamp otherwise, if two identifier
+      happens to have same mangled name, if we use the original name as key,
+      they can have same id (like 0). then it caused a collision
 
-      Here we can guarantee that if mangled name and stamp are not all the same
-      they can not have a collision
-
-*)
+    Here we can guarantee that if mangled name and stamp are not all the same
+    they can not have a collision *)
 let str_of_ident (cxt : t) (id : Ident.t) : string * t =
   if Ext_ident.is_js id then (* reserved by compiler *)
     (id.name, cxt)

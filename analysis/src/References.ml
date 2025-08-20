@@ -209,7 +209,8 @@ let definedForLoc ~file ~package locKind =
           maybeLog "Yes!! got it";
           Some res)))
 
-(** Find alternative declaration: from res in case of interface, or from resi in case of implementation  *)
+(** Find alternative declaration: from res in case of interface, or from resi in
+    case of implementation *)
 let alternateDeclared ~(file : File.t) ~package (declared : _ Declared.t) tip =
   match Hashtbl.find_opt package.pathsForModule file.moduleName with
   | None -> None

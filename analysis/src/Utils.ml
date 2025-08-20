@@ -1,7 +1,5 @@
-(**
- * `startsWith(string, prefix)`
- * true if the string starts with the prefix
- *)
+(** * `startsWith(string, prefix)` * true if the string starts with the prefix
+*)
 let startsWith s prefix =
   if prefix = "" then true
   else

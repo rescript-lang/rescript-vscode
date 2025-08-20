@@ -79,8 +79,7 @@ let classify_exp (prog : _ Flow_ast.Expression.t) : Js_raw_info.exp =
 
 (** It seems we do the parse twice
     - in parsing
-    - in code generation
-*)
+    - in code generation *)
 let classify ?(check : (Location.t * int) option) (prog : string) :
     Js_raw_info.exp =
   let prog, errors =

@@ -25,15 +25,12 @@
 type t
 (** A simple pretty printer
 
-    Advantage compared with [Format], 
-    [P.newline] does not screw the layout, have better control when do a newline (sicne JS has ASI)
-    Easy to tweak
+    Advantage compared with [Format], [P.newline] does not screw the layout,
+    have better control when do a newline (sicne JS has ASI) Easy to tweak
 
-    {ul 
-    {- be a little smarter}
-    {- buffer the last line, so that  we can do a smart newline, when it's really safe to do so}
-    }
-*)
+    - be a little smarter
+    - buffer the last line, so that we can do a smart newline, when it's really
+      safe to do so *)
 
 val indent_length : int
 
@@ -44,9 +41,7 @@ val space : t -> unit
 val nspace : t -> int -> unit
 
 val group : t -> int -> (unit -> 'a) -> 'a
-(** [group] will record current indentation 
-    and indent futher
-*)
+(** [group] will record current indentation and indent futher *)
 
 val vgroup : t -> int -> (unit -> 'a) -> 'a
 

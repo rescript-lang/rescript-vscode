@@ -35,10 +35,8 @@ let scrape_ty env ty =
 
 let scrape env ty = (scrape_ty env ty).desc
 
-(**  [Types.constructor_description]
-     records the type at the definition type so for ['a option]
-     it will always be [Tvar]
-*)
+(** [Types.constructor_description] records the type at the definition type so
+    for ['a option] it will always be [Tvar] *)
 let rec type_cannot_contain_undefined (typ : Types.type_expr) (env : Env.t) =
   match scrape env typ with
   | Tconstr (p, _, _) -> (
@@ -145,15 +143,15 @@ let classify env ty =
     | Tarrow _ | Ttuple _ | Tpackage _ | Tobject _ | Tnil | Tvariant _ -> Addr
     | Tlink _ | Tsubst _ | Tpoly _ | Tfield _ -> assert false
 
-(** Whether a forward block is needed for a lazy thunk on a value, i.e.
-    if the value can be represented as a float/forward/lazy *)
+(** Whether a forward block is needed for a lazy thunk on a value, i.e. if the
+    value can be represented as a float/forward/lazy *)
 let lazy_val_requires_forward env ty =
   match classify env ty with
   | Any | Lazy -> true
   | Float (*-> Config.flat_float_array*) | Addr | Int -> false
 
 (** The compilation of the expression [lazy e] depends on the form of e:
-    constants, floats and identifiers are optimized.  The optimization must be
+    constants, floats and identifiers are optimized. The optimization must be
     taken into account when determining whether a recursive binding is safe. *)
 let classify_lazy_argument :
     Typedtree.expression ->

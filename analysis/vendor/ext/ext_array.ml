@@ -159,18 +159,16 @@ let of_list_map a f =
     in
     fill 5 tl
 
-(**
-   {[
-     # rfind_with_index [|1;2;3|] (=) 2;;
-     - : int = 1
-               # rfind_with_index [|1;2;3|] (=) 1;;
-     - : int = 0
-               # rfind_with_index [|1;2;3|] (=) 3;;
-     - : int = 2
-               # rfind_with_index [|1;2;3|] (=) 4;;
-     - : int = -1
-   ]}
-*)
+(** {[
+      # rfind_with_index [|1;2;3|] (=) 2;;
+      - : int = 1
+                # rfind_with_index [|1;2;3|] (=) 1;;
+      - : int = 0
+                # rfind_with_index [|1;2;3|] (=) 3;;
+      - : int = 2
+                # rfind_with_index [|1;2;3|] (=) 4;;
+      - : int = -1
+    ]} *)
 let rfind_with_index arr cmp v =
   let len = Array.length arr in
   let rec aux i =

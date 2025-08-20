@@ -1183,10 +1183,11 @@ let transformCompletionToPipeCompletion ?(synthetic = false) ~env ?posOfDot
         | Some posOfDot -> Some (makeAdditionalTextEditsForRemovingDot posOfDot));
     }
 
-(** This takes a type expr and the env that type expr was found in, and produces a globally unique 
-    id for that specific type. The globally unique id is the full path to the type as seen from the root
-    of the project. Example: type x in module SomeModule in file SomeFile would get the globally 
-    unique id `SomeFile.SomeModule.x`.*)
+(** This takes a type expr and the env that type expr was found in, and produces
+    a globally unique id for that specific type. The globally unique id is the
+    full path to the type as seen from the root of the project. Example: type x
+    in module SomeModule in file SomeFile would get the globally unique id
+    `SomeFile.SomeModule.x`.*)
 let rec findRootTypeId ~full ~env (t : Types.type_expr) =
   let debug = false in
   match t.desc with

@@ -459,9 +459,7 @@ let split_at_last (x : 'a list) =
     let rev, last = split_at_last_aux [] rest in
     (a0 :: a1 :: a2 :: a3 :: a4 :: rev, last)
 
-(**
-   can not do loop unroll due to state combination
-*)
+(** can not do loop unroll due to state combination *)
 let filter_mapi xs f =
   let rec aux i xs =
     match xs with
@@ -487,10 +485,8 @@ let rec rev_map_append l1 l2 f =
   | [] -> l2
   | a :: l -> rev_map_append l (f a :: l2) f
 
-(** It is not worth loop unrolling, 
-    it is already tail-call, and we need to be careful 
-    about evaluation order when unroll
-*)
+(** It is not worth loop unrolling, it is already tail-call, and we need to be
+    careful about evaluation order when unroll *)
 let rec flat_map_aux f acc append lx =
   match lx with
   | [] -> rev_append acc append
@@ -522,9 +518,9 @@ let rec length_ge l n =
     | [] -> false
   else true
 
-(**
-   {[length xs = length ys + n ]}
-*)
+(** {[
+      length xs = length ys + n
+    ]} *)
 let rec length_larger_than_n xs ys n =
   match (xs, ys) with
   | _, [] -> length_compare xs n = `Eq
