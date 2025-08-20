@@ -77,9 +77,9 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - run: npm ci
+      - run: opam install dune cppo
       - name: Format check
         run: make checkformat
-      - run: opam install dune cppo
       - run: npm run compile
       - run: npm run bundle
 
