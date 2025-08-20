@@ -78,8 +78,6 @@ jobs:
 
       - run: npm ci
       - run: opam install dune cppo
-      - name: Format check
-        run: make checkformat
       - run: npm run compile
       - run: npm run bundle
 
@@ -96,6 +94,9 @@ jobs:
 
       - name: Test
         run: opam exec -- make test
+
+      - name: Format check
+        run: make checkformat
 
       - name: Strip binaries
         if: matrix.os != 'windows-latest'
