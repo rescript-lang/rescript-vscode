@@ -17,9 +17,11 @@ clean:
 
 format:
 	dune build @fmt --auto-promote
+	npx prettier --write --experimental-cli .
 
 checkformat:
 	dune build @fmt
+	prettier --check --experimental-cli .
 
 .DEFAULT_GOAL := build
 
