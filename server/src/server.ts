@@ -60,6 +60,36 @@ let codeActionsFromDiagnostics: codeActions.filesCodeActions = {};
 // will be properly defined later depending on the mode (stdio/node-rpc)
 let send: (msg: p.Message) => void = (_) => {};
 
+type ProjectCompilationState = {
+  active: boolean;
+  startAt: number | null;
+  lastSent: {
+    status: "compiling" | "success" | "error" | "warning";
+    errorCount: number;
+    warningCount: number;
+  } | null;
+  timer: NodeJS.Timeout | null;
+};
+const projectCompilationStates: Map<string, ProjectCompilationState> =
+  new Map();
+
+type CompilationStatusPayload = {
+  project: string;
+  projectRootPath: string;
+  status: "compiling" | "success" | "error" | "warning";
+  errorCount: number;
+  warningCount: number;
+};
+
+const sendCompilationStatus = (payload: CompilationStatusPayload) => {
+  const message: p.NotificationMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: "rescript/compilationStatus",
+    params: payload,
+  };
+  send(message);
+};
+
 let findRescriptBinary = async (
   projectRootPath: p.DocumentUri | null,
 ): Promise<string | null> => {
@@ -168,6 +198,86 @@ let sendUpdatedDiagnostics = async () => {
         }
       });
     }
+
+    try {
+      const state = projectCompilationStates.get(projectRootPath) ?? {
+        active: false,
+        startAt: null,
+        lastSent: null,
+        timer: null,
+      };
+
+      const lastStart = content.lastIndexOf("#Start");
+      const lastDone = content.lastIndexOf("#Done");
+      const isActive = lastStart > lastDone;
+
+      let errorCount = 0;
+      let warningCount = 0;
+      for (const [fileUri, diags] of Object.entries(filesAndErrors)) {
+        const filePath = fileURLToPath(fileUri);
+        if (filePath.startsWith(projectRootPath)) {
+          for (const d of diags as v.Diagnostic[]) {
+            if (d.severity === v.DiagnosticSeverity.Error) errorCount++;
+            else if (d.severity === v.DiagnosticSeverity.Warning)
+              warningCount++;
+          }
+        }
+      }
+
+      const projectName = path.basename(projectRootPath);
+
+      const sendIfChanged = (
+        status: "compiling" | "success" | "error" | "warning",
+      ) => {
+        const last = state.lastSent;
+        if (
+          last == null ||
+          last.status !== status ||
+          last.errorCount !== errorCount ||
+          last.warningCount !== warningCount
+        ) {
+          sendCompilationStatus({
+            project: projectName,
+            projectRootPath,
+            status,
+            errorCount,
+            warningCount,
+          });
+          state.lastSent = { status, errorCount, warningCount };
+        }
+      };
+
+      if (isActive) {
+        if (!state.active) {
+          state.active = true;
+          state.startAt = Date.now();
+          if (state.timer) clearTimeout(state.timer);
+          state.timer = setTimeout(() => {
+            const cur = projectCompilationStates.get(projectRootPath);
+            if (cur && cur.active) {
+              sendIfChanged("compiling");
+            }
+          }, 100);
+        }
+      } else {
+        if (state.timer) {
+          clearTimeout(state.timer);
+          state.timer = null;
+        }
+        state.active = false;
+        state.startAt = null;
+
+        if (errorCount > 0) {
+          sendIfChanged("error");
+        } else if (warningCount > 0) {
+          sendIfChanged("warning");
+        } else {
+          sendIfChanged("success");
+        }
+      }
+
+      projectCompilationStates.set(projectRootPath, state);
+    } catch {}
   }
 };
 
@@ -188,6 +298,7 @@ let deleteProjectDiagnostics = (projectRootPath: string) => {
     });
 
     projectsFiles.delete(projectRootPath);
+    projectCompilationStates.delete(projectRootPath);
     if (config.extensionConfiguration.incrementalTypechecking?.enable) {
       ic.removeIncrementalFileFolder(projectRootPath);
     }
