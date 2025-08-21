@@ -16,6 +16,10 @@
 
 - Protect against trying to read non-existant `.compiler.log`. https://github.com/rescript-lang/rescript-vscode/pull/1116
 
+#### :rocket: New Feature
+
+- Add status bar item tracking compilation state. https://github.com/rescript-lang/rescript-vscode/pull/1119
+
 ## 1.64.0
 
 #### :rocket: New Feature
