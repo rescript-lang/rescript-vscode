@@ -14,6 +14,7 @@ import {
   CodeActionKind,
   Diagnostic,
 } from "vscode";
+import { ThemeColor } from "vscode";
 
 import {
   LanguageClient,
@@ -188,6 +189,120 @@ export function activate(context: ExtensionContext) {
     StatusBarAlignment.Right,
   );
 
+  let compilationStatusBarItem = window.createStatusBarItem(
+    StatusBarAlignment.Right,
+  );
+  context.subscriptions.push(compilationStatusBarItem);
+
+  let compileStatusEnabled: boolean = workspace
+    .getConfiguration("rescript.settings")
+    .get<boolean>("compileStatus.enable", true);
+
+  type ClientCompileStatus = {
+    status: "compiling" | "success" | "error" | "warning";
+    project: string;
+    errorCount: number;
+    warningCount: number;
+  };
+  const projectStatuses: Map<string, ClientCompileStatus> = new Map();
+
+  const refreshCompilationStatusItem = () => {
+    if (!compileStatusEnabled) {
+      compilationStatusBarItem.hide();
+      compilationStatusBarItem.tooltip = undefined;
+      compilationStatusBarItem.backgroundColor = undefined;
+      compilationStatusBarItem.command = undefined;
+      return;
+    }
+    const entries = [...projectStatuses.values()];
+    const compiling = entries.filter((e) => e.status === "compiling");
+    const errors = entries.filter((e) => e.status === "error");
+    const warnings = entries.filter((e) => e.status === "warning");
+
+    if (compiling.length > 0) {
+      compilationStatusBarItem.text = `$(loading~spin) ReScript`;
+      compilationStatusBarItem.tooltip = compiling
+        .map((e) => e.project)
+        .join(", ");
+      compilationStatusBarItem.backgroundColor = undefined;
+      compilationStatusBarItem.command = undefined;
+      compilationStatusBarItem.show();
+      return;
+    }
+
+    if (errors.length > 0) {
+      compilationStatusBarItem.text = `$(alert) ReScript: Failed`;
+      compilationStatusBarItem.backgroundColor = new ThemeColor(
+        "statusBarItem.errorBackground",
+      );
+      compilationStatusBarItem.command = "rescript-vscode.showProblems";
+      const byProject = errors.map((e) => `${e.project} (${e.errorCount})`);
+      compilationStatusBarItem.tooltip = `Failed: ${byProject.join(", ")}`;
+      compilationStatusBarItem.show();
+      return;
+    }
+
+    if (warnings.length > 0) {
+      compilationStatusBarItem.text = `$(warning) ReScript: Warnings`;
+      compilationStatusBarItem.backgroundColor = undefined;
+      compilationStatusBarItem.color = new ThemeColor(
+        "statusBarItem.warningBackground",
+      );
+      compilationStatusBarItem.command = "rescript-vscode.showProblems";
+      const byProject = warnings.map((e) => `${e.project} (${e.warningCount})`);
+      compilationStatusBarItem.tooltip = `Warnings: ${byProject.join(", ")}`;
+      compilationStatusBarItem.show();
+      return;
+    }
+
+    const successes = entries.filter((e) => e.status === "success");
+    if (successes.length > 0) {
+      // Compact success display: project label plus a green check emoji
+      compilationStatusBarItem.text = `$(check) ReScript: Ok`;
+      compilationStatusBarItem.backgroundColor = undefined;
+      compilationStatusBarItem.color = null;
+      compilationStatusBarItem.command = undefined;
+      const projects = successes.map((e) => e.project).join(", ");
+      compilationStatusBarItem.tooltip = projects
+        ? `Compilation Succeeded: ${projects}`
+        : `Compilation Succeeded`;
+      compilationStatusBarItem.show();
+      return;
+    }
+
+    compilationStatusBarItem.hide();
+    compilationStatusBarItem.tooltip = undefined;
+    compilationStatusBarItem.backgroundColor = undefined;
+    compilationStatusBarItem.command = undefined;
+  };
+
+  context.subscriptions.push(
+    client.onDidChangeState(({ newState }) => {
+      if (newState === State.Running) {
+        context.subscriptions.push(
+          client.onNotification(
+            "rescript/compilationStatus",
+            (payload: {
+              project: string;
+              projectRootPath: string;
+              status: "compiling" | "success" | "error" | "warning";
+              errorCount: number;
+              warningCount: number;
+            }) => {
+              projectStatuses.set(payload.projectRootPath, {
+                status: payload.status,
+                project: payload.project,
+                errorCount: payload.errorCount,
+                warningCount: payload.warningCount,
+              });
+              refreshCompilationStatusItem();
+            },
+          ),
+        );
+      }
+    }),
+  );
+
   let inCodeAnalysisState: {
     active: boolean;
     activatedFromDirectory: string | null;
@@ -254,6 +369,14 @@ export function activate(context: ExtensionContext) {
 
   commands.registerCommand("rescript-vscode.debug-dump-start", () => {
     customCommands.dumpDebug(context, debugDumpStatusBarItem);
+  });
+
+  commands.registerCommand("rescript-vscode.showProblems", async () => {
+    try {
+      await commands.executeCommand("workbench.actions.view.problems");
+    } catch {
+      outputChannel.show();
+    }
   });
 
   commands.registerCommand("rescript-vscode.debug-dump-retrigger", () => {
@@ -346,6 +469,12 @@ export function activate(context: ExtensionContext) {
       ) {
         commands.executeCommand("rescript-vscode.restart_language_server");
       } else {
+        if (affectsConfiguration("rescript.settings.compileStatus.enable")) {
+          compileStatusEnabled = workspace
+            .getConfiguration("rescript.settings")
+            .get<boolean>("compileStatus.enable", true);
+          refreshCompilationStatusItem();
+        }
         // Send a general message that configuration has updated. Clients
         // interested can then pull the new configuration as they see fit.
         client
