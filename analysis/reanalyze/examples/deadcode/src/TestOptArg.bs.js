@@ -9,7 +9,7 @@ function foo(xOpt, y) {
   return x + y | 0;
 }
 
-function bar(param) {
+function bar() {
   var x = 12;
   return x + 3 | 0;
 }
