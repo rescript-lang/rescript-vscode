@@ -15,6 +15,7 @@
 #### :bug: Bug fix
 
 - Protect against trying to read non-existant `.compiler.log`. https://github.com/rescript-lang/rescript-vscode/pull/1116
+- Detected quoted paths in bsb arguments on Windows. https://github.com/rescript-lang/rescript-vscode/pull/1120
 
 #### :rocket: New Feature
 
