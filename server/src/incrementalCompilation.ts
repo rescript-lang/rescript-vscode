@@ -7,6 +7,7 @@ import { performance } from "perf_hooks";
 import * as p from "vscode-languageserver-protocol";
 import * as cp from "node:child_process";
 import semver from "semver";
+import * as os from "os";
 import config, { send } from "./config";
 import * as c from "./constants";
 import { fileCodeActions } from "./codeActions";
@@ -555,6 +556,9 @@ function verifyTriggerToken(filePath: string, triggerToken: number): boolean {
     triggerToken
   );
 }
+
+const isWindows = os.platform() === "win32";
+
 async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   const project = projectsFiles.get(entry.project.rootPath);
   if (project?.rescriptVersion == null) {
@@ -591,10 +595,23 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   buildArgs.forEach(([key, value]: Array<string>) => {
     if (key === "-I") {
       if (isBsb) {
-        callArgs.push(
-          "-I",
-          path.resolve(entry.project.rootPath, c.compilerDirPartialPath, value),
-        );
+        /*build.ninja could have quoted paths on Windows
+        Example:
+rule mij
+  command = "C:\Users\moi\Projects\my-project\node_modules\rescript\win32\bsc.exe" -I src -I "C:\Users\moi\Projects\my-project\node_modules\@rescript\core\lib\ocaml" -open RescriptCore  -uncurried -bs-package-name rewindow -bs-package-output esmodule:$in_d:.res.mjs -bs-v $g_finger $i
+        */
+        if (isWindows && value.startsWith('"') && value.endsWith('"')) {
+          callArgs.push("-I", value.substring(1, value.length - 1));
+        } else {
+          callArgs.push(
+            "-I",
+            path.resolve(
+              entry.project.rootPath,
+              c.compilerDirPartialPath,
+              value,
+            ),
+          );
+        }
       } else {
         // TODO: once ReScript v12 is out we can remove this check for `.`
         if (value === ".") {
