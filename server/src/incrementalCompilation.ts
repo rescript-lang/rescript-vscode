@@ -596,7 +596,10 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
     if (key === "-I") {
       if (isBsb) {
         // On Windows, the value could be wrapped in quotes.
-        value = value.startsWith('"') && value.endsWith('"') ? value.substring(1, value.length - 1) : value;
+        value =
+          value.startsWith('"') && value.endsWith('"')
+            ? value.substring(1, value.length - 1)
+            : value;
         /*build.ninja could have quoted full paths
         Example:
 rule mij
