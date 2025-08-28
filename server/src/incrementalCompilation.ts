@@ -595,13 +595,15 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
   buildArgs.forEach(([key, value]: Array<string>) => {
     if (key === "-I") {
       if (isBsb) {
-        /*build.ninja could have quoted paths on Windows
+        // On Windows, the value could be wrapped in quotes.
+        value = value.startsWith('"') && value.endsWith('"') ? value.substring(1, value.length - 1) : value;
+        /*build.ninja could have quoted full paths
         Example:
 rule mij
   command = "C:\Users\moi\Projects\my-project\node_modules\rescript\win32\bsc.exe" -I src -I "C:\Users\moi\Projects\my-project\node_modules\@rescript\core\lib\ocaml" -open RescriptCore  -uncurried -bs-package-name rewindow -bs-package-output esmodule:$in_d:.res.mjs -bs-v $g_finger $i
         */
-        if (isWindows && value.startsWith('"') && value.endsWith('"')) {
-          callArgs.push("-I", value.substring(1, value.length - 1));
+        if (isWindows && value.includes(":\\")) {
+          callArgs.push("-I", value);
         } else {
           callArgs.push(
             "-I",
