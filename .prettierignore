@@ -3,3 +3,4 @@ server/out
 analysis/examples
 analysis/reanalyze/examples
 tools/tests
+.history/
