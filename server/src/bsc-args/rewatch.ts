@@ -92,6 +92,8 @@ export async function getRewatchBscArgs(
 
     // TODO: We should check a potential configured value
     // Users should be able to provide this themselves if they like.
+
+	// TODO: We should also cache this value if we found it.
     const rescriptRuntimes = await findRuntime(entry.project.workspaceRootPath);
 
     if (debug()) {
