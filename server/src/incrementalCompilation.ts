@@ -12,8 +12,10 @@ import config, { send } from "./config";
 import * as c from "./constants";
 import { fileCodeActions } from "./codeActions";
 import { projectsFiles } from "./projectFiles";
+import { getRewatchBscArgs, RewatchCompilerArgs } from "./bsc-args/rewatch";
+import { BsbCompilerArgs, getBsbBscArgs } from "./bsc-args/bsb";
 
-function debug() {
+export function debug() {
   return (
     config.extensionConfiguration.incrementalTypechecking?.debugLogging ?? false
   );
@@ -25,12 +27,7 @@ const INCREMENTAL_FILE_FOLDER_LOCATION = path.join(
   INCREMENTAL_FOLDER_NAME,
 );
 
-type RewatchCompilerArgs = {
-  compiler_args: Array<string>;
-  parser_args: Array<string>;
-};
-
-type IncrementallyCompiledFileInfo = {
+export type IncrementallyCompiledFileInfo = {
   file: {
     /** File type. */
     extension: ".res" | ".resi";
@@ -53,7 +50,7 @@ type IncrementallyCompiledFileInfo = {
     /** When build.ninja was last modified. Used as a cache key. */
     fileMtime: number;
     /** The raw, extracted needed info from build.ninja. Needs processing. */
-    rawExtracted: Array<string>;
+    rawExtracted: BsbCompilerArgs;
   } | null;
   /** Cache for rewatch compiler args. */
   buildRewatch: {
@@ -181,202 +178,13 @@ export function cleanUpIncrementalFiles(
     );
   });
 }
-function getBscArgs(
+
+export async function getBscArgs(
   entry: IncrementallyCompiledFileInfo,
-): Promise<Array<string> | RewatchCompilerArgs | null> {
-  const buildNinjaPath = path.resolve(
-    entry.project.rootPath,
-    c.buildNinjaPartialPath,
-  );
-  const rewatchLockfile = path.resolve(
-    entry.project.workspaceRootPath,
-    c.rewatchLockPartialPath,
-  );
-  const rescriptLockfile = path.resolve(
-    entry.project.workspaceRootPath,
-    c.rescriptLockPartialPath,
-  );
-  let buildSystem: "bsb" | "rewatch" | null = null;
-
-  let stat: fs.Stats | null = null;
-  try {
-    stat = fs.statSync(buildNinjaPath);
-    buildSystem = "bsb";
-  } catch {}
-  try {
-    stat = fs.statSync(rewatchLockfile);
-    buildSystem = "rewatch";
-  } catch {}
-  try {
-    stat = fs.statSync(rescriptLockfile);
-    buildSystem = "rewatch";
-  } catch {}
-  if (buildSystem == null) {
-    console.log("Did not find build.ninja or rewatch.lock, cannot proceed..");
-    return Promise.resolve(null);
-  } else if (debug()) {
-    console.log(
-      `Using build system: ${buildSystem} for ${entry.file.sourceFilePath}`,
-    );
-  }
-  const bsbCacheEntry = entry.buildNinja;
-  const rewatchCacheEntry = entry.buildRewatch;
-
-  if (
-    buildSystem === "bsb" &&
-    bsbCacheEntry != null &&
-    stat != null &&
-    bsbCacheEntry.fileMtime >= stat.mtimeMs
-  ) {
-    return Promise.resolve(bsbCacheEntry.rawExtracted);
-  }
-  if (
-    buildSystem === "rewatch" &&
-    rewatchCacheEntry != null &&
-    rewatchCacheEntry.lastFile === entry.file.sourceFilePath
-  ) {
-    return Promise.resolve(rewatchCacheEntry.compilerArgs);
-  }
-  return new Promise(async (resolve, _reject) => {
-    function resolveResult(result: Array<string> | RewatchCompilerArgs) {
-      if (stat != null && Array.isArray(result)) {
-        entry.buildSystem = "bsb";
-        entry.buildNinja = {
-          fileMtime: stat.mtimeMs,
-          rawExtracted: result,
-        };
-      } else if (!Array.isArray(result)) {
-        entry.buildSystem = "rewatch";
-        entry.buildRewatch = {
-          lastFile: entry.file.sourceFilePath,
-          compilerArgs: result,
-        };
-      }
-      resolve(result);
-    }
-
-    if (buildSystem === "bsb") {
-      const fileStream = fs.createReadStream(buildNinjaPath, {
-        encoding: "utf8",
-      });
-      fileStream.on("error", (err) => {
-        console.error("File stream error:", err);
-        resolveResult([]);
-      });
-      const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity,
-      });
-      let captureNextLine = false;
-      let done = false;
-      let stopped = false;
-      const captured: Array<string> = [];
-      rl.on("line", (line) => {
-        line = line.trim(); // Normalize line endings
-        if (stopped) {
-          return;
-        }
-        if (captureNextLine) {
-          captured.push(line);
-          captureNextLine = false;
-        }
-        if (done) {
-          // Not sure if fileStream.destroy is necessary, rl.close() will handle it gracefully.
-          // fileStream.destroy();
-          rl.close();
-          resolveResult(captured);
-          stopped = true;
-          return;
-        }
-        if (line.startsWith("rule astj")) {
-          captureNextLine = true;
-        }
-        if (line.startsWith("rule mij")) {
-          captureNextLine = true;
-          done = true;
-        }
-      });
-      rl.on("error", (err) => {
-        console.error("Readline error:", err);
-        resolveResult([]);
-      });
-      rl.on("close", () => {
-        resolveResult(captured);
-      });
-    } else if (buildSystem === "rewatch") {
-      try {
-        const project = projectsFiles.get(entry.project.rootPath);
-        if (project?.rescriptVersion == null) return;
-        let rewatchPath = path.resolve(
-          entry.project.workspaceRootPath,
-          "node_modules/@rolandpeelen/rewatch/rewatch",
-        );
-        let rescriptRewatchPath = null;
-        if (
-          semver.valid(project.rescriptVersion) &&
-          semver.satisfies(project.rescriptVersion as string, ">11", {
-            includePrerelease: true,
-          })
-        ) {
-          rescriptRewatchPath = await utils.findRewatchBinary(
-            entry.project.workspaceRootPath,
-          );
-        }
-
-        if (
-          semver.valid(project.rescriptVersion) &&
-          semver.satisfies(
-            project.rescriptVersion as string,
-            ">=12.0.0-beta.1",
-            { includePrerelease: true },
-          )
-        ) {
-          rescriptRewatchPath = await utils.findRescriptExeBinary(
-            entry.project.workspaceRootPath,
-          );
-        }
-
-        if (rescriptRewatchPath != null) {
-          rewatchPath = rescriptRewatchPath;
-          if (debug()) {
-            console.log(
-              `Found rewatch binary bundled with v12: ${rescriptRewatchPath}`,
-            );
-          }
-        } else {
-          if (debug()) {
-            console.log("Did not find rewatch binary bundled with v12");
-          }
-        }
-
-        const rewatchArguments = semver.satisfies(
-          project.rescriptVersion,
-          ">=12.0.0-beta.2",
-          { includePrerelease: true },
-        )
-          ? ["compiler-args", entry.file.sourceFilePath]
-          : [
-              "--rescript-version",
-              project.rescriptVersion,
-              "--compiler-args",
-              entry.file.sourceFilePath,
-            ];
-        const bscExe = await utils.findBscExeBinary(
-          entry.project.workspaceRootPath,
-        );
-        const env = bscExe != null ? { RESCRIPT_BSC_EXE: bscExe } : undefined;
-        const compilerArgs = JSON.parse(
-          cp
-            .execFileSync(rewatchPath, rewatchArguments, { env })
-            .toString()
-            .trim(),
-        ) as RewatchCompilerArgs;
-        resolveResult(compilerArgs);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  });
+): Promise<BsbCompilerArgs | RewatchCompilerArgs | null> {
+  return entry.buildSystem === "bsb"
+    ? await getBsbBscArgs(entry)
+    : await getRewatchBscArgs(projectsFiles, entry);
 }
 
 function argCouples(argList: string[]): string[][] {
