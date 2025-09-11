@@ -255,14 +255,18 @@ function triggerIncrementalCompilationOfFile(
       return;
     }
 
-    const projectRewatchLockfile = path.resolve(
-      projectRootPath,
-      c.rewatchLockPartialPath,
-    );
+    const projectRewatchLockfiles = [
+      path.resolve(projectRootPath, c.rewatchLockPartialPath),
+      path.resolve(projectRootPath, c.rescriptLockPartialPath),
+    ];
 
     let foundRewatchLockfileInProjectRoot = false;
-    if (fs.existsSync(projectRewatchLockfile)) {
+    if (projectRewatchLockfiles.some((lockFile) => fs.existsSync(lockFile))) {
       foundRewatchLockfileInProjectRoot = true;
+    } else if (debug()) {
+      console.log(
+        `Did not find ${projectRewatchLockfiles.join(" or ")} in project root, assuming bsb`,
+      );
     }
 
     // if we find a rewatch.lock in the project root, it's a compilation of a local package
