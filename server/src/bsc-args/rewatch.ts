@@ -7,7 +7,7 @@ import {
   IncrementallyCompiledFileInfo,
 } from "../incrementalCompilation";
 import type { projectFiles } from "../projectFiles";
-import { findRuntime } from "../find-runtime";
+import { findRescriptRuntimesInProject } from "../find-runtime";
 
 export type RewatchCompilerArgs = {
   compiler_args: Array<string>;
@@ -93,8 +93,9 @@ export async function getRewatchBscArgs(
     // TODO: We should check a potential configured value
     // Users should be able to provide this themselves if they like.
 
-	// TODO: We should also cache this value if we found it.
-    const rescriptRuntimes = await findRuntime(entry.project.workspaceRootPath);
+    const rescriptRuntimes = await findRescriptRuntimesInProject(
+      entry.project.workspaceRootPath,
+    );
 
     if (debug()) {
       if (rescriptRuntimes.length === 0) {

@@ -19,9 +19,9 @@ Examples:
 
 const project = args[args.length - 1];
 
-import { findRuntime } from "../server/src/find-runtime.ts";
+import { findRescriptRuntimesInProject } from "../server/src/find-runtime.ts";
 
-const runtimes = await findRuntime(project);
+const runtimes = await findRescriptRuntimesInProject(project);
 
 console.log("Found @rescript/runtime directories:", runtimes);
 

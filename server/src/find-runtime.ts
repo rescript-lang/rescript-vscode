@@ -1,5 +1,5 @@
 import { readdir, stat as statAsync } from "fs/promises";
-import { join } from "path";
+import { join, resolve } from "path";
 
 // Efficient parallel folder traversal to find node_modules directories
 async function findNodeModulesDirs(
@@ -88,7 +88,7 @@ async function findDenoRescriptRuntime(nodeModulesPath: string) {
   return results;
 }
 
-export async function findRuntime(project: string) {
+async function findRuntimePath(project: string) {
   // Find all node_modules directories using efficient traversal
   const node_modules = await findNodeModulesDirs(project);
 
@@ -117,5 +117,24 @@ export async function findRuntime(project: string) {
     }),
   ).then((results) => results.flatMap((x) => x));
 
-  return rescriptRuntimeDirs;
+  return rescriptRuntimeDirs.map((runtime) => resolve(runtime));
 }
+
+function findRuntimeCached() {
+  const cache = new Map<string, string[]>();
+  return async (project: string) => {
+    if (cache.has(project)) {
+      return cache.get(project)!;
+    }
+    const runtimes = await findRuntimePath(project);
+    cache.set(project, runtimes);
+    return runtimes;
+  };
+}
+
+/**
+ * Find all installed @rescript/runtime directories in the given project path.
+ * In a perfect world, there should be exactly one.
+ * This function is cached per project path.
+ */
+export const findRescriptRuntimesInProject = findRuntimeCached();
