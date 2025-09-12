@@ -5,9 +5,6 @@ import { buildNinjaPartialPath } from "../constants";
 
 export type BsbCompilerArgs = string[];
 
-// TODO: I guess somewhere in here, when the version is v12 beta 10 or later,
-// We need to pass -rescript-runtime as argument as well.
-
 export async function getBsbBscArgs(
   entry: IncrementallyCompiledFileInfo,
 ): Promise<BsbCompilerArgs | null> {
