@@ -5,7 +5,7 @@ export type filesDiagnostics = {
   [key: string]: p.Diagnostic[];
 };
 
-interface projectFiles {
+export interface projectFiles {
   openFiles: Set<string>;
   filesWithDiagnostics: Set<string>;
   filesDiagnostics: filesDiagnostics;

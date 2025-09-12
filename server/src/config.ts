@@ -11,6 +11,7 @@ export interface extensionConfiguration {
   codeLens?: boolean;
   binaryPath?: string | null;
   platformPath?: string | null;
+  runtimePath?: string | null;
   signatureHelp?: {
     enabled?: boolean;
     forConstructorPayloads?: boolean;

@@ -207,6 +207,14 @@
           "default": null,
           "description": "Path to the directory where platform-specific ReScript binaries are. You can use it if you haven't or don't want to use the installed ReScript from node_modules in your project."
         },
+        "rescript.settings.runtimePath": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Optional path to the directory containing the @rescript/runtime package. Set this if your tooling is unable to automatically locate the package in your project."
+        },
         "rescript.settings.compileStatus.enable": {
           "type": "boolean",
           "default": true,
@@ -259,7 +267,7 @@
     "bundle": "npm run bundle-server && npm run bundle-client"
   },
   "devDependencies": {
-    "@types/node": "^14.14.41",
+    "@types/node": "^20.19.13",
     "@types/semver": "^7.7.0",
     "@types/vscode": "1.68.0",
     "esbuild": "^0.20.1",
@@ -268,5 +276,6 @@
   },
   "dependencies": {
     "semver": "^7.7.2"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
