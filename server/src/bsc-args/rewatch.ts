@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as utils from "../utils";
 import * as cp from "node:child_process";
+import * as p from "vscode-languageserver-protocol";
 import semver from "semver";
 import {
   debug,
@@ -9,6 +10,7 @@ import {
 import type { projectFiles } from "../projectFiles";
 import config from "../config";
 import { findRescriptRuntimesInProject } from "../find-runtime";
+import { jsonrpcVersion } from "../constants";
 
 export type RewatchCompilerArgs = {
   compiler_args: Array<string>;
@@ -54,6 +56,7 @@ async function getRuntimePath(
 }
 
 export async function getRewatchBscArgs(
+  send: (msg: p.Message) => void,
   projectsFiles: Map<string, projectFiles>,
   entry: IncrementallyCompiledFileInfo,
 ): Promise<RewatchCompilerArgs | null> {
@@ -129,17 +132,33 @@ export async function getRewatchBscArgs(
       (env as any)["RESCRIPT_BSC_EXE"] = bscExe;
     }
 
-    let rescriptRuntime: string | null = await getRuntimePath(entry);
-
+    // For ReScript >= 12.0.0-beta.11 we need to set RESCRIPT_RUNTIME
     if (
-      rescriptRuntime !== null &&
       semver.satisfies(project.rescriptVersion, ">=12.0.0-beta.11", {
         includePrerelease: true,
       })
     ) {
-      (env as any)["RESCRIPT_RUNTIME"] = rescriptRuntime;
-    } else {
-      // TODO: if no runtime was found, we should let the user know
+      let rescriptRuntime: string | null = await getRuntimePath(entry);
+
+      if (rescriptRuntime !== null) {
+        (env as any)["RESCRIPT_RUNTIME"] = rescriptRuntime;
+      } else {
+        // If no runtime was found, we should let the user know.
+        let params: p.ShowMessageParams = {
+          type: p.MessageType.Error,
+          message:
+            `[Incremental type checking] The @rescript/runtime package was not found in your project. ` +
+            `It is normally included with ReScript, but either it's missing or could not be detected. ` +
+            `Check that it exists in your dependencies, or configure 'rescript.settings.runtimePath' to point to it. ` +
+            `Without this package, incremental type checking may not work as expected.`,
+        };
+        let message: p.NotificationMessage = {
+          jsonrpc: jsonrpcVersion,
+          method: "window/showMessage",
+          params: params,
+        };
+        send(message);
+      }
     }
 
     const compilerArgs = JSON.parse(

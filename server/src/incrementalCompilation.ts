@@ -180,11 +180,12 @@ export function cleanUpIncrementalFiles(
 }
 
 export async function getBscArgs(
+  send: (msg: p.Message) => void,
   entry: IncrementallyCompiledFileInfo,
 ): Promise<BsbCompilerArgs | RewatchCompilerArgs | null> {
   return entry.buildSystem === "bsb"
     ? await getBsbBscArgs(entry)
-    : await getRewatchBscArgs(projectsFiles, entry);
+    : await getRewatchBscArgs(send, projectsFiles, entry);
 }
 
 function argCouples(argList: string[]): string[][] {
@@ -331,6 +332,7 @@ function triggerIncrementalCompilationOfFile(
     };
 
     incrementalFileCacheEntry.project.callArgs = figureOutBscArgs(
+      send,
       incrementalFileCacheEntry,
     );
     originalTypeFileToFilePath.set(
@@ -371,7 +373,10 @@ function verifyTriggerToken(filePath: string, triggerToken: number): boolean {
 
 const isWindows = os.platform() === "win32";
 
-async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
+async function figureOutBscArgs(
+  send: (msg: p.Message) => void,
+  entry: IncrementallyCompiledFileInfo,
+) {
   const project = projectsFiles.get(entry.project.rootPath);
   if (project?.rescriptVersion == null) {
     if (debug()) {
@@ -382,7 +387,7 @@ async function figureOutBscArgs(entry: IncrementallyCompiledFileInfo) {
     }
     return null;
   }
-  const res = await getBscArgs(entry);
+  const res = await getBscArgs(send, entry);
   if (res == null) return null;
   let astArgs: Array<Array<string>> = [];
   let buildArgs: Array<Array<string>> = [];
@@ -483,7 +488,7 @@ async function compileContents(
   const triggerToken = entry.compilation?.triggerToken;
   let callArgs = await entry.project.callArgs;
   if (callArgs == null) {
-    const callArgsRetried = await figureOutBscArgs(entry);
+    const callArgsRetried = await figureOutBscArgs(send, entry);
     if (callArgsRetried != null) {
       callArgs = callArgsRetried;
       entry.project.callArgs = Promise.resolve(callArgsRetried);
