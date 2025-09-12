@@ -3,6 +3,7 @@ import * as p from "vscode-languageserver-protocol";
 import * as v from "vscode-languageserver";
 import * as rpc from "vscode-jsonrpc/node";
 import * as path from "path";
+import semver from "semver";
 import fs from "fs";
 import {
   DidChangeWatchedFilesNotification,
@@ -687,6 +688,37 @@ async function prepareRename(
   // https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_prepareRename
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
+
+  // `prepareRename` was introduced in 12.0.0-beta.10
+  let projectRootPath = utils.findProjectRootOfFile(filePath);
+  let rescriptVersion =
+    (projectRootPath && projectsFiles.get(projectRootPath)?.rescriptVersion) ||
+    (await utils.findReScriptVersionForProjectRoot(projectRootPath ?? null));
+
+  let shouldUsePrepareRenameCommand = false;
+  if (rescriptVersion != null) {
+    shouldUsePrepareRenameCommand =
+      semver.valid(rescriptVersion) != null &&
+      semver.satisfies(rescriptVersion, ">=12.0.0-beta.10", {
+        includePrerelease: true,
+      });
+  }
+
+  if (shouldUsePrepareRenameCommand) {
+    let analysisResult = await utils.runAnalysisAfterSanityCheck(filePath, [
+      "prepareRename",
+      filePath,
+      params.position.line,
+      params.position.character,
+    ]);
+
+    return {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: analysisResult as p.PrepareRenameResult,
+    };
+  }
+
   let locations: null | p.Location[] = await utils.getReferencesForPosition(
     filePath,
     params.position,
