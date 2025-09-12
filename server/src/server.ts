@@ -689,8 +689,7 @@ async function prepareRename(
   let params = msg.params as p.PrepareRenameParams;
   let filePath = fileURLToPath(params.textDocument.uri);
 
-  // Gate analysis prepareRename behind >= 12.0.0-beta.9
-  // This needs to be adjusted to the actual version prepareRename is released in
+  // `prepareRename` was introduced in 12.0.0-beta.10
   let projectRootPath = utils.findProjectRootOfFile(filePath);
   let rescriptVersion =
     (projectRootPath && projectsFiles.get(projectRootPath)?.rescriptVersion) ||
@@ -700,7 +699,7 @@ async function prepareRename(
   if (rescriptVersion != null) {
     shouldUsePrepareRenameCommand =
       semver.valid(rescriptVersion) != null &&
-      semver.satisfies(rescriptVersion, ">=12.0.0-beta.9", {
+      semver.satisfies(rescriptVersion, ">=12.0.0-beta.10", {
         includePrerelease: true,
       });
   }
