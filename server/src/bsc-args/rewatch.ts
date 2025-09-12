@@ -127,9 +127,9 @@ export async function getRewatchBscArgs(
     const bscExe = await utils.findBscExeBinary(
       entry.project.workspaceRootPath,
     );
-    const env = {};
+    const env: NodeJS.ProcessEnv = {};
     if (bscExe != null) {
-      (env as any)["RESCRIPT_BSC_EXE"] = bscExe;
+      env["RESCRIPT_BSC_EXE"] = bscExe;
     }
 
     // For ReScript >= 12.0.0-beta.11 we need to set RESCRIPT_RUNTIME
@@ -141,7 +141,7 @@ export async function getRewatchBscArgs(
       let rescriptRuntime: string | null = await getRuntimePath(entry);
 
       if (rescriptRuntime !== null) {
-        (env as any)["RESCRIPT_RUNTIME"] = rescriptRuntime;
+        env["RESCRIPT_RUNTIME"] = rescriptRuntime;
       } else {
         // If no runtime was found, we should let the user know.
         let params: p.ShowMessageParams = {
