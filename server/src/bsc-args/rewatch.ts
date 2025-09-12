@@ -131,7 +131,12 @@ export async function getRewatchBscArgs(
 
     let rescriptRuntime: string | null = await getRuntimePath(entry);
 
-    if (rescriptRuntime !== null) {
+    if (
+      rescriptRuntime !== null &&
+      semver.satisfies(project.rescriptVersion, ">=12.0.0-beta.11", {
+        includePrerelease: true,
+      })
+    ) {
       (env as any)["RESCRIPT_RUNTIME"] = rescriptRuntime;
     } else {
       // TODO: if no runtime was found, we should let the user know
