@@ -21,6 +21,10 @@
 
 - Add status bar item tracking compilation state. https://github.com/rescript-lang/rescript-vscode/pull/1119
 
+#### :house: Internal
+
+- Find `@rescript/runtime` for Rewatch compiler-args call. https://github.com/rescript-lang/rescript-vscode/pull/1125
+
 ## 1.64.0
 
 #### :rocket: New Feature
