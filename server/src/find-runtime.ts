@@ -51,14 +51,17 @@ async function findNodeModulesDirs(
   return nodeModulesDirs;
 }
 
-// Custom function to find Deno vendorized @rescript/runtime directories
-async function findDenoRescriptRuntime(nodeModulesPath: string) {
+// Custom function to find Deno or pnpm vendorized @rescript/runtime directories
+async function findRescriptRuntimeInAlternativeLayout(
+  subfolder: ".deno" | ".pnpm",
+  nodeModulesPath: string,
+) {
   // We only care about the Deno vendorized layout:
   // <nodeModulesPath>/.deno/@rescript+runtime@<version>/node_modules/@rescript/runtime
-  const denoRoot = join(nodeModulesPath, ".deno");
+  const alternativeRoot = join(nodeModulesPath, subfolder);
   let entries: string[];
   try {
-    entries = await readdir(denoRoot);
+    entries = await readdir(alternativeRoot);
   } catch {
     return [];
   }
@@ -71,7 +74,7 @@ async function findDenoRescriptRuntime(nodeModulesPath: string) {
   const results: string[] = [];
   for (const dir of vendorDirs) {
     const runtimePath = join(
-      denoRoot,
+      alternativeRoot,
       dir,
       "node_modules",
       "@rescript",
@@ -102,15 +105,28 @@ async function findRuntimePath(project: string) {
         const stat = await statAsync(standardPath);
         if (stat.isDirectory()) {
           results.push(standardPath);
-          // If we found standard layout, no need to search for Deno layouts
+          // If we found standard layout, no need to search for pnpm or Deno layouts
           return results;
         }
       } catch (e) {
         // Directory doesn't exist, continue
       }
 
+      // Only check for pnpm vendorized layouts if standard layout wasn't found
+      const pnpmResults = await findRescriptRuntimeInAlternativeLayout(
+        ".pnpm",
+        nm,
+      );
+      results.push(...pnpmResults);
+      if (results.length > 0) {
+        return results;
+      }
+
       // Only check for Deno vendorized layouts if standard layout wasn't found
-      const denoResults = await findDenoRescriptRuntime(nm);
+      const denoResults = await findRescriptRuntimeInAlternativeLayout(
+        ".deno",
+        nm,
+      );
       results.push(...denoResults);
 
       return results;
