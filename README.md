@@ -10,19 +10,20 @@
 
 ## Contents
 
+- [Contents](#contents)
 - [📝 Prerequisite](#-prerequisite)
 - [🌈 Supported Themes](#-supported-themes)
 - [💡 Features](#-features)
 - [📥 Installation](#-installation)
+  - [Pre-release channel](#pre-release-channel)
 - [📦 Commands](#-commands)
 - [🔨 Settings](#-settings)
 - [🚀 Code Analyzer](#-code-analyzer)
   - [Configuring the Code Analyzer](#configuring-the-code-analyzer)
   - [Usage](#usage)
   - [Caveats](#caveats)
-- [🪄 Tips & Tricks](#-tips--tricks)
+- [🪄 Tips \& Tricks](#-tips--tricks)
   - [Hide generated files](#hide-generated-files)
-- [⌨️ Use with Other Editors](#️-use-with-other-editors)
 - [📰 Changelog](#-changelog)
 - [👏 How to Contribute](#-how-to-contribute)
 - [📄 License](#-license)
@@ -102,6 +103,7 @@ You'll find all ReScript specific settings under the scope `rescript.settings`.
 | Prompt to Start Build      | If there's no ReScript build running already in the opened project, the extension will prompt you and ask if you want to start a build automatically. You can turn off this automatic prompt via the setting `rescript.settings.askToStartBuild`.                                                                                                                                                                                                                                                                                |
 | ReScript Binary Path       | The extension will look for the existence of a `node_modules/.bin/rescript` file and use its directory as the `binaryPath`. If it does not find it at the project root (which is where the nearest `rescript.json` resides), it goes up folders in the filesystem recursively until it either finds it (often the case in monorepos) or hits the top level. To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.binaryPath`                                              |
 | ReScript Platform Path     | The extension will look for the existence of a `node_modules/rescript` directory and use the subdirectory corresponding to the current platform as the `platformPath`. If it does not find it at the project root (which is where the nearest `rescript.json` resides), it goes up folders in the filesystem recursively until it either finds it (often the case in monorepos) or hits the top level. To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.platformPath` |
+| ReScript Runtime Path      | The extension will look for the existence of a `node_modules/@rescript/runtime` directory (ReScript v12 beta 11+). To override this lookup process, the path can be configured explicitly using the setting `rescript.settings.runtimePath`.                                                                                                                                                                                                                                                                                     |
 | Inlay Hints (experimental) | This allows an editor to place annotations inline with text to display type hints. Enable using `rescript.settings.inlayHints.enable: true`                                                                                                                                                                                                                                                                                                                                                                                      |
 | Code Lens (experimental)   | This tells the editor to add code lenses to function definitions, showing its full type above the definition. Enable using `rescript.settings.codeLens: true`                                                                                                                                                                                                                                                                                                                                                                    |
 | Signature Help             | This tells the editor to show signature help when you're writing function calls. Enable using `rescript.settings.signatureHelp.enabled: true`                                                                                                                                                                                                                                                                                                                                                                                    |

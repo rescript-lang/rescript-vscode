@@ -7,12 +7,51 @@ import {
   IncrementallyCompiledFileInfo,
 } from "../incrementalCompilation";
 import type { projectFiles } from "../projectFiles";
+import config from "../config";
 import { findRescriptRuntimesInProject } from "../find-runtime";
 
 export type RewatchCompilerArgs = {
   compiler_args: Array<string>;
   parser_args: Array<string>;
 };
+
+async function getRuntimePath(
+  entry: IncrementallyCompiledFileInfo,
+): Promise<string | null> {
+  let rescriptRuntime: string | null =
+    config.extensionConfiguration.runtimePath ?? null;
+
+  if (rescriptRuntime !== null) {
+    if (debug()) {
+      console.log(
+        `Using configured runtime path as RESCRIPT_RUNTIME: ${rescriptRuntime}`,
+      );
+    }
+    return rescriptRuntime;
+  }
+
+  const rescriptRuntimes = await findRescriptRuntimesInProject(
+    entry.project.workspaceRootPath,
+  );
+
+  if (debug()) {
+    if (rescriptRuntimes.length === 0) {
+      console.log(
+        `Did not find @rescript/runtime directory for ${entry.project.workspaceRootPath}`,
+      );
+    } else if (rescriptRuntimes.length > 1) {
+      console.warn(
+        `Found multiple @rescript/runtime directories, using the first one as RESCRIPT_RUNTIME: ${rescriptRuntimes.join(", ")}`,
+      );
+    } else {
+      console.log(
+        `Found @rescript/runtime directory: ${rescriptRuntimes.join(", ")}`,
+      );
+    }
+  }
+
+  return rescriptRuntimes.at(0) ?? null;
+}
 
 export async function getRewatchBscArgs(
   projectsFiles: Map<string, projectFiles>,
@@ -90,31 +129,10 @@ export async function getRewatchBscArgs(
       (env as any)["RESCRIPT_BSC_EXE"] = bscExe;
     }
 
-    // TODO: We should check a potential configured value
-    // Users should be able to provide this themselves if they like.
+    let rescriptRuntime: string | null = await getRuntimePath(entry);
 
-    const rescriptRuntimes = await findRescriptRuntimesInProject(
-      entry.project.workspaceRootPath,
-    );
-
-    if (debug()) {
-      if (rescriptRuntimes.length === 0) {
-        console.log(
-          `Did not find @rescript/runtime directory for ${entry.project.workspaceRootPath}`,
-        );
-      } else if (rescriptRuntimes.length > 1) {
-        console.warn(
-          `Found multiple @rescript/runtime directories, using the first one as RESCRIPT_RUNTIME: ${rescriptRuntimes.join(", ")}`,
-        );
-      } else {
-        console.log(
-          `Found @rescript/runtime directory: ${rescriptRuntimes.join(", ")}`,
-        );
-      }
-    }
-
-    if (rescriptRuntimes.length > 0) {
-      (env as any)["RESCRIPT_RUNTIME"] = rescriptRuntimes[0];
+    if (rescriptRuntime !== null) {
+      (env as any)["RESCRIPT_RUNTIME"] = rescriptRuntime;
     } else {
       // TODO: if no runtime was found, we should let the user know
     }
