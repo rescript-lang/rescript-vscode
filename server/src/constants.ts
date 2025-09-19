@@ -33,6 +33,11 @@ export let rescriptJsonPartialPath = "rescript.json";
 export let compilerDirPartialPath = path.join("lib", "bs");
 export let compilerOcamlDirPartialPath = path.join("lib", "ocaml");
 export let compilerLogPartialPath = path.join("lib", "bs", ".compiler.log");
+export let compilerInfoPartialPath = path.join(
+  "lib",
+  "bs",
+  "compiler-info.json",
+);
 export let buildNinjaPartialPath = path.join("lib", "bs", "build.ninja");
 export let rewatchLockPartialPath = path.join("lib", "rewatch.lock");
 export let rescriptLockPartialPath = path.join("lib", "rescript.lock");

@@ -92,6 +92,20 @@ let findBinary = async (
     return path.join(config.extensionConfiguration.platformPath, binary);
   }
 
+  if (projectRootPath !== null && binary === "bsc.exe") {
+    try {
+      const compilerInfo = path.resolve(
+        projectRootPath,
+        c.compilerInfoPartialPath,
+      );
+      const contents = await fsAsync.readFile(compilerInfo, "utf8");
+      const compileInfo = JSON.parse(contents);
+      if (compileInfo && compileInfo.runtime_path) {
+        return compileInfo.runtime_path;
+      }
+    } catch {}
+  }
+
   const rescriptDir = lookup.findFilePathFromProjectRoot(
     projectRootPath,
     path.join("node_modules", "rescript"),
