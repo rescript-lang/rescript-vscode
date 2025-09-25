@@ -57,6 +57,7 @@ async function getRuntimePath(
 
 export async function getRewatchBscArgs(
   send: (msg: p.Message) => void,
+  bscBinaryLocation: string | null,
   projectsFiles: Map<string, projectFiles>,
   entry: IncrementallyCompiledFileInfo,
 ): Promise<RewatchCompilerArgs | null> {
@@ -124,12 +125,10 @@ export async function getRewatchBscArgs(
           "--compiler-args",
           entry.file.sourceFilePath,
         ];
-    const bscExe = await utils.findBscExeBinary(
-      entry.project.workspaceRootPath,
-    );
+
     const env: NodeJS.ProcessEnv = {};
-    if (bscExe != null) {
-      env["RESCRIPT_BSC_EXE"] = bscExe;
+    if (bscBinaryLocation != null) {
+      env["RESCRIPT_BSC_EXE"] = bscBinaryLocation;
     }
 
     // For ReScript >= 12.0.0-beta.11 we need to set RESCRIPT_RUNTIME

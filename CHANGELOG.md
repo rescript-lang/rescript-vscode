@@ -25,6 +25,7 @@
 
 - Find `@rescript/runtime` for Rewatch compiler-args call. https://github.com/rescript-lang/rescript-vscode/pull/1125
 - Use `prepareRename` command (when a new enough ReScript version is used) to speed up the `rename` command. https://github.com/rescript-lang/rescript-vscode/pull/1124
+- Use `compiler-info.json` to find the `@rescript/runtime` and `bsc.exe` if available.
 
 ## 1.64.0
 

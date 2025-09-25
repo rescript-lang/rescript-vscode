@@ -185,7 +185,12 @@ export async function getBscArgs(
 ): Promise<BsbCompilerArgs | RewatchCompilerArgs | null> {
   return entry.buildSystem === "bsb"
     ? await getBsbBscArgs(entry)
-    : await getRewatchBscArgs(send, projectsFiles, entry);
+    : await getRewatchBscArgs(
+        send,
+        entry.project.bscBinaryLocation,
+        projectsFiles,
+        entry,
+      );
 }
 
 function argCouples(argList: string[]): string[][] {

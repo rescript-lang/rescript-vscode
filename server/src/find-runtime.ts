@@ -1,5 +1,6 @@
-import { readdir, stat as statAsync } from "fs/promises";
+import { readdir, stat as statAsync, readFile } from "fs/promises";
 import { join, resolve } from "path";
+import { compilerInfoPartialPath } from "./constants";
 
 // Efficient parallel folder traversal to find node_modules directories
 async function findNodeModulesDirs(
@@ -91,7 +92,19 @@ async function findRescriptRuntimeInAlternativeLayout(
   return results;
 }
 
-async function findRuntimePath(project: string) {
+async function findRuntimePath(project: string): Promise<string[]> {
+  // Try a compiler-info.json file first
+  const compilerInfo = resolve(project, compilerInfoPartialPath);
+  try {
+    const contents = await readFile(compilerInfo, "utf8");
+    const compileInfo: { runtime_path?: string } = JSON.parse(contents);
+    if (compileInfo && compileInfo.runtime_path) {
+      return [compileInfo.runtime_path];
+    }
+  } catch {
+    // Ignore errors, fallback to node_modules search
+  }
+
   // Find all node_modules directories using efficient traversal
   const node_modules = await findNodeModulesDirs(project);
 
@@ -136,7 +149,7 @@ async function findRuntimePath(project: string) {
   return rescriptRuntimeDirs.map((runtime) => resolve(runtime));
 }
 
-function findRuntimeCached() {
+function findRuntimeCached(): (project: string) => Promise<string[]> {
   const cache = new Map<string, string[]>();
   return async (project: string) => {
     if (cache.has(project)) {
