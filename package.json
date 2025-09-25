@@ -25,7 +25,8 @@
     "vscode": "^1.68.0"
   },
   "activationEvents": [
-    "onLanguage:rescript"
+    "onLanguage:rescript",
+    "onLanguage:json"
   ],
   "main": "./client/out/extension",
   "contributes": {
@@ -43,15 +44,6 @@
             "support.type.primitive"
           ]
         }
-      }
-    ],
-    "jsonValidation": [
-      {
-        "fileMatch": [
-          "bsconfig.json",
-          "rescript.json"
-        ],
-        "url": "https://raw.githubusercontent.com/rescript-lang/rescript-compiler/master/docs/docson/build-schema.json"
       }
     ],
     "commands": [
