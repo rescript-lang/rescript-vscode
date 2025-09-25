@@ -6,7 +6,12 @@ import { findProjectRootOfFileInDir } from "./utils";
 export async function registerDynamicJsonValidation(
   outputChannel?: vscode.OutputChannel,
 ): Promise<vscode.Disposable> {
-  // Use workspace text document change events to detect when ReScript config files are opened
+  // Ensure JSON extension is activated (so jsonDefaults is available)
+  const jsonExt = vscode.extensions.getExtension(
+    "vscode.json-language-features",
+  );
+  await jsonExt?.activate();
+
   const disposable = vscode.workspace.onDidOpenTextDocument(
     async (document) => {
       if (document.languageId === "json") {
@@ -18,9 +23,8 @@ export async function registerDynamicJsonValidation(
     },
   );
 
-  // Also check for already open documents
-  const openDocuments = vscode.workspace.textDocuments;
-  for (const document of openDocuments) {
+  // Also check already open documents
+  for (const document of vscode.workspace.textDocuments) {
     if (document.languageId === "json") {
       const fileName = path.basename(document.uri.fsPath);
       if (fileName === "rescript.json" || fileName === "bsconfig.json") {
@@ -38,60 +42,80 @@ async function tryEnableValidationForFile(
 ): Promise<void> {
   try {
     const projectRootDir = findProjectRootOfFileInDir(uri.fsPath);
+    if (!projectRootDir) {
+      return;
+    }
 
-    if (projectRootDir) {
-      const schemaPath = path.join(
-        projectRootDir,
-        "node_modules",
-        "rescript",
-        "docs",
-        "docson",
-        "build-schema.json",
-      );
+    const schemaPath = path.join(
+      projectRootDir,
+      "node_modules",
+      "rescript",
+      "docs",
+      "docson",
+      "build-schema.json",
+    );
 
-      if (fs.existsSync(schemaPath)) {
-        const absoluteSchemaPath = "file://" + schemaPath;
-        const fileName = path.basename(uri.fsPath);
+    if (!fs.existsSync(schemaPath)) {
+      return;
+    }
 
-        // Add this schema to the user's JSON validation settings
-        const config = vscode.workspace.getConfiguration();
-        const jsonSchemas =
-          config.get<Array<{ fileMatch: string[]; url: string }>>(
-            "json.schemas",
-          ) || [];
+    const absoluteSchemaPath = "file://" + schemaPath;
+    const fileName = path.basename(uri.fsPath);
 
-        // Remove existing ReScript schemas for this specific file
-        const filteredSchemas = jsonSchemas.filter(
-          (schema) => !schema.fileMatch || !schema.fileMatch.includes(fileName),
-        );
+    const jsonExt = vscode.extensions.getExtension(
+      "vscode.json-language-features",
+    );
 
-        // Add our new schema configuration
-        const updatedSchemas = [
-          ...filteredSchemas,
+    const jsonApi: any = await jsonExt?.activate();
+
+    if (jsonApi?.jsonDefaults) {
+      // Preferred path: directly update JSON diagnostics options
+      jsonApi.jsonDefaults.setDiagnosticsOptions({
+        validate: true,
+        schemas: [
           {
             fileMatch: [fileName],
-            url: absoluteSchemaPath,
+            uri: absoluteSchemaPath,
           },
-        ];
+        ],
+      });
 
-        // Update the configuration globally to avoid workspace pollution
-        await config.update(
+      outputChannel?.appendLine(
+        `Dynamic JSON schema applied for ${fileName}: ${absoluteSchemaPath}`,
+      );
+    } else {
+      // Fallback: update workspace settings if jsonDefaults not available
+      const config = vscode.workspace.getConfiguration();
+      const jsonSchemas =
+        config.get<Array<{ fileMatch: string[]; url: string }>>(
           "json.schemas",
-          updatedSchemas,
-          vscode.ConfigurationTarget.Global,
-        );
+        ) || [];
 
-        if (outputChannel) {
-          outputChannel.appendLine(`JSON validation enabled for ${fileName}`);
-        }
-      }
-    }
-  } catch (error) {
-    // Silently ignore errors to avoid annoying the user
-    if (outputChannel) {
-      outputChannel.appendLine(
-        `Failed to enable JSON validation for ${uri.fsPath}: ${error}`,
+      const filteredSchemas = jsonSchemas.filter(
+        (schema) => !schema.fileMatch || !schema.fileMatch.includes(fileName),
+      );
+
+      const updatedSchemas = [
+        ...filteredSchemas,
+        {
+          fileMatch: [fileName],
+          url: absoluteSchemaPath,
+        },
+      ];
+
+      await config.update(
+        "json.schemas",
+        updatedSchemas,
+        vscode.ConfigurationTarget.Workspace,
+      );
+
+      outputChannel?.appendLine(
+        `Fallback JSON schema configured for ${fileName} via settings: ${absoluteSchemaPath}`,
       );
     }
+  } catch (error) {
+    outputChannel?.appendLine(
+      `Failed to enable JSON validation for ${uri.fsPath}: ${error}`,
+    );
   }
 }
