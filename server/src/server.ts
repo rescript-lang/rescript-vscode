@@ -1485,6 +1485,50 @@ async function onMessage(msg: p.Message) {
       if (extName === c.resExt) {
         send(await signatureHelp(msg));
       }
+    } else if (msg.method === "rescript/dumpServerState") {
+      // Custom debug endpoint: dump current server state (config + projectsFiles)
+      try {
+        const projects = Array.from(projectsFiles.entries()).map(
+          ([projectRootPath, pf]) => ({
+            projectRootPath,
+            openFiles: Array.from(pf.openFiles),
+            filesWithDiagnostics: Array.from(pf.filesWithDiagnostics),
+            filesDiagnostics: pf.filesDiagnostics,
+            rescriptVersion: pf.rescriptVersion,
+            bscBinaryLocation: pf.bscBinaryLocation,
+            editorAnalysisLocation: pf.editorAnalysisLocation,
+            namespaceName: pf.namespaceName,
+            hasPromptedToStartBuild: pf.hasPromptedToStartBuild,
+            bsbWatcherByEditor:
+              pf.bsbWatcherByEditor != null
+                ? { pid: pf.bsbWatcherByEditor.pid ?? null }
+                : null,
+          }),
+        );
+
+        const result = {
+          config: config.extensionConfiguration,
+          projects,
+          workspaceFolders: Array.from(workspaceFolders),
+        };
+
+        let response: p.ResponseMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: msg.id,
+          result,
+        };
+        send(response);
+      } catch (e) {
+        let response: p.ResponseMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: msg.id,
+          error: {
+            code: p.ErrorCodes.InternalError,
+            message: `Failed to dump server state: ${String(e)}`,
+          },
+        };
+        send(response);
+      }
     } else {
       let response: p.ResponseMessage = {
         jsonrpc: c.jsonrpcVersion,

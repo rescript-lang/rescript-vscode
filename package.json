@@ -88,6 +88,10 @@
       {
         "command": "rescript-vscode.debug-dump-start",
         "title": "DEBUG ReScript: Dump analysis info"
+      },
+      {
+        "command": "rescript-vscode.dump-server-state",
+        "title": "DEBUG ReScript: Dump LSP Server State"
       }
     ],
     "keybindings": [
