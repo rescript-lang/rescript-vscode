@@ -371,6 +371,10 @@ export function activate(context: ExtensionContext) {
     customCommands.dumpDebug(context, debugDumpStatusBarItem);
   });
 
+  commands.registerCommand("rescript-vscode.dump-server-state", () => {
+    customCommands.dumpServerState(client, context, debugDumpStatusBarItem);
+  });
+
   commands.registerCommand("rescript-vscode.showProblems", async () => {
     try {
       await commands.executeCommand("workbench.actions.view.problems");
