@@ -29,6 +29,7 @@ import {
   DiagnosticsResultCodeActionsMap,
   statusBarItem,
 } from "./commands/code_analysis";
+import { registerDynamicJsonValidation } from "./jsonValidation";
 
 let client: LanguageClient;
 
@@ -453,6 +454,10 @@ export function activate(context: ExtensionContext) {
 
   // Start the client. This will also launch the server
   client.start();
+
+  registerDynamicJsonValidation(outputChannel).then((disposable) => {
+    context.subscriptions.push(disposable);
+  });
 
   // Restart the language client automatically when certain configuration
   // changes. These are typically settings that affect the capabilities of the
