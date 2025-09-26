@@ -100,8 +100,8 @@ let findBinary = async (
       );
       const contents = await fsAsync.readFile(compilerInfo, "utf8");
       const compileInfo = JSON.parse(contents);
-      if (compileInfo && compileInfo.runtime_path) {
-        return compileInfo.runtime_path;
+      if (compileInfo && compileInfo.bsc_path) {
+        return compileInfo.bsc_path;
       }
     } catch {}
   }
