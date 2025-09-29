@@ -29,11 +29,8 @@ interface SchemaInfo {
 const schemaCache = new Map<string, SchemaInfo>();
 
 function loadReScriptSchema(projectRoot: string): SchemaInfo | null {
-  console.log(`[JSON_CONFIG] Loading schema for project: ${projectRoot}`);
-
   // Check cache first
   if (schemaCache.has(projectRoot)) {
-    console.log(`[JSON_CONFIG] Schema found in cache`);
     return schemaCache.get(projectRoot)!;
   }
 
@@ -46,18 +43,12 @@ function loadReScriptSchema(projectRoot: string): SchemaInfo | null {
     "build-schema.json",
   );
 
-  console.log(`[JSON_CONFIG] Looking for schema at: ${schemaPath}`);
-
   if (!fs.existsSync(schemaPath)) {
-    console.log(`[JSON_CONFIG] Schema file does not exist`);
     return null;
   }
 
   try {
     const schemaContent = fs.readFileSync(schemaPath, "utf8");
-    console.log(
-      `[JSON_CONFIG] Schema content preview: ${schemaContent.substring(0, 500)}...`,
-    );
     const schema = JSON.parse(schemaContent);
 
     const schemaInfo: SchemaInfo = {
@@ -81,43 +72,30 @@ export function isConfigFile(filePath: string): boolean {
 
 export function validateConfig(document: TextDocument): Diagnostic[] {
   const filePath = document.uri;
-  console.log(`[JSON_CONFIG] Validating config: ${filePath}`);
 
   // Convert file URI to filesystem path for project root detection
   let fsPath: string;
   try {
     fsPath = fileURLToPath(filePath);
-    console.log(`[JSON_CONFIG] Converted to filesystem path: ${fsPath}`);
   } catch (error) {
-    console.log(`[JSON_CONFIG] Failed to convert file URI to path: ${error}`);
+    console.error(`[JSON_CONFIG] Failed to convert file URI to path: ${error}`);
     return [];
   }
 
   const projectRoot = findProjectRootOfFile(fsPath);
-  console.log(`[JSON_CONFIG] Found project root: ${projectRoot}`);
 
   if (!projectRoot) {
-    console.log(
-      `[JSON_CONFIG] No project root found, returning empty diagnostics`,
-    );
     return [];
   }
 
   const schemaInfo = loadReScriptSchema(projectRoot);
-  console.log(
-    `[JSON_CONFIG] Schema info: ${schemaInfo ? "found" : "not found"}`,
-  );
 
   if (!schemaInfo) {
-    console.log(`[JSON_CONFIG] No schema found, returning empty diagnostics`);
     return [];
   }
 
   try {
     const jsonContent = document.getText();
-    console.log(
-      `[JSON_CONFIG] JSON content: ${jsonContent.substring(0, 200)}...`,
-    );
     const config = JSON.parse(jsonContent);
 
     let validate;
@@ -129,17 +107,15 @@ export function validateConfig(document: TextDocument): Diagnostic[] {
     }
 
     const valid = validate(config);
-    console.log(`[JSON_CONFIG] Validation result: ${valid}`);
 
     if (!valid && validate.errors) {
-      console.log(
+      console.error(
         `[JSON_CONFIG] Validation errors:`,
         JSON.stringify(validate.errors, null, 2),
       );
     }
 
     if (valid) {
-      console.log(`[JSON_CONFIG] Valid JSON, returning empty diagnostics`);
       return [];
     }
 
@@ -166,9 +142,6 @@ export function validateConfig(document: TextDocument): Diagnostic[] {
             line = i;
             column = match.index;
             endColumn = column + match[0].length;
-            console.log(
-              `[JSON_CONFIG] Found property "${propertyName}" at line ${line}, col ${column}, match: "${match[0]}"`,
-            );
             break;
           }
         }
@@ -179,9 +152,6 @@ export function validateConfig(document: TextDocument): Diagnostic[] {
       ) {
         // Handle additionalProperties error - extract the invalid property name
         propertyName = error.params.additionalProperty;
-        console.log(
-          `[JSON_CONFIG] Found additionalProperties error for property: "${propertyName}"`,
-        );
 
         // Find the line containing the invalid property
         for (let i = 0; i < lines.length; i++) {
@@ -192,9 +162,6 @@ export function validateConfig(document: TextDocument): Diagnostic[] {
             line = i;
             column = match.index;
             endColumn = column + match[0].length;
-            console.log(
-              `[JSON_CONFIG] Found invalid property "${propertyName}" at line ${line}, col ${column}, match: "${match[0]}"`,
-            );
             break;
           }
         }
@@ -218,22 +185,8 @@ export function validateConfig(document: TextDocument): Diagnostic[] {
         message,
         source: "rescript-json-config-schema",
       };
-      console.log(
-        `[JSON_CONFIG] Created diagnostic for property "${propertyName}":`,
-        diagnostic,
-      );
-      console.log(
-        `[JSON_CONFIG] Diagnostic details - Line: ${line}, Column: ${column}, EndColumn: ${endColumn}, Message: ${message}`,
-      );
       return diagnostic;
     });
-
-    console.log(
-      `[JSON_CONFIG] Total diagnostics created: ${diagnostics.length}`,
-    );
-    if (diagnostics.length > 0) {
-      console.log(`[JSON_CONFIG] First diagnostic:`, diagnostics[0]);
-    }
 
     return diagnostics;
   } catch (error) {
@@ -293,9 +246,6 @@ export function getConfigCompletions(document: TextDocument): CompletionItem[] {
   try {
     fsPath = fileURLToPath(filePath);
   } catch (error) {
-    console.log(
-      `[JSON_CONFIG] Failed to convert file URI to path for completions: ${error}`,
-    );
     return [];
   }
   const projectRoot = findProjectRootOfFile(fsPath);
@@ -340,9 +290,6 @@ export function getConfigHover(
   try {
     fsPath = fileURLToPath(filePath);
   } catch (error) {
-    console.log(
-      `[JSON_CONFIG] Failed to convert file URI to path for hover: ${error}`,
-    );
     return null;
   }
   const projectRoot = findProjectRootOfFile(fsPath);

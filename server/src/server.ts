@@ -527,6 +527,127 @@ let getOpenedFileContent = (fileUri: string) => {
   return content;
 };
 
+// Helper functions for JSON config handling
+function createJsonTextDocument(
+  uri: string,
+  content: string,
+  version: number = 1,
+) {
+  return {
+    uri,
+    languageId: "json",
+    version,
+    getText: () => content,
+    positionAt: (offset: number) => {
+      const text = content;
+      const lines = text.split("\n");
+      let currentOffset = 0;
+      for (let i = 0; i < lines.length; i++) {
+        const lineLength = lines[i].length + 1; // +1 for newline
+        if (offset < currentOffset + lineLength) {
+          return { line: i, character: offset - currentOffset };
+        }
+        currentOffset += lineLength;
+      }
+      return {
+        line: lines.length - 1,
+        character: lines[lines.length - 1].length,
+      };
+    },
+    offsetAt: (position: any) => {
+      const text = content;
+      const lines = text.split("\n");
+      let offset = 0;
+      for (let i = 0; i < position.line; i++) {
+        offset += lines[i].length + 1; // +1 for newline
+      }
+      return offset + position.character;
+    },
+    lineCount: content.split("\n").length,
+  };
+}
+
+function sendJsonDiagnostics(uri: string, diagnostics: any[]): void {
+  let notification: p.NotificationMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: "textDocument/publishDiagnostics",
+    params: {
+      uri,
+      diagnostics,
+    },
+  };
+  send(notification);
+}
+
+async function handleJsonConfigOpen(
+  params: p.DidOpenTextDocumentParams,
+): Promise<void> {
+  const filePath = fileURLToPath(params.textDocument.uri);
+  stupidFileContentCache.set(filePath, params.textDocument.text);
+
+  const document = createJsonTextDocument(
+    params.textDocument.uri,
+    params.textDocument.text,
+    params.textDocument.version,
+  );
+  const diagnostics = jsonConfig.validateConfig(document);
+  sendJsonDiagnostics(params.textDocument.uri, diagnostics);
+}
+
+async function handleJsonConfigChange(
+  params: p.DidChangeTextDocumentParams,
+): Promise<void> {
+  const filePath = fileURLToPath(params.textDocument.uri);
+  let changes = params.contentChanges;
+  if (changes.length > 0) {
+    const newContent = changes[changes.length - 1].text;
+    stupidFileContentCache.set(filePath, newContent);
+    const document = createJsonTextDocument(
+      params.textDocument.uri,
+      newContent,
+      params.textDocument.version,
+    );
+    const diagnostics = jsonConfig.validateConfig(document);
+    sendJsonDiagnostics(params.textDocument.uri, diagnostics);
+  }
+}
+
+async function handleJsonConfigClose(
+  params: p.DidCloseTextDocumentParams,
+): Promise<void> {
+  const filePath = fileURLToPath(params.textDocument.uri);
+  stupidFileContentCache.delete(filePath);
+  sendJsonDiagnostics(params.textDocument.uri, []);
+}
+
+async function handleJsonConfigHover(msg: p.RequestMessage): Promise<void> {
+  const params = msg.params as p.HoverParams;
+  const content = getOpenedFileContent(params.textDocument.uri);
+  const document = createJsonTextDocument(params.textDocument.uri, content, 1);
+  const hoverResult = jsonConfig.getConfigHover(document, params.position);
+  let response: p.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: hoverResult,
+  };
+  send(response);
+}
+
+async function handleJsonConfigCompletion(
+  msg: p.RequestMessage,
+): Promise<void> {
+  const params = msg.params as p.CompletionParams;
+  const content = getOpenedFileContent(params.textDocument.uri);
+  const document = createJsonTextDocument(params.textDocument.uri, content, 1);
+  const completions = jsonConfig.getConfigCompletions(document);
+  let response: p.ResponseMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: completions,
+  };
+  send(response);
+}
+
 export default function listen(useStdio = false) {
   // Start listening now!
   // We support two modes: the regular node RPC mode for VSCode, and the --stdio
@@ -1266,59 +1387,10 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      
+
       // Handle JSON config files
       if (jsonConfig.isConfigFile(filePath)) {
-        // Cache JSON config content
-        stupidFileContentCache.set(filePath, params.textDocument.text);
-        // Validate JSON config on open
-        const document = {
-          uri: params.textDocument.uri,
-          languageId: "json",
-          version: params.textDocument.version,
-          getText: () => params.textDocument.text,
-          positionAt: (offset: number) => {
-            const text = params.textDocument.text;
-            const lines = text.split('\n');
-            let currentOffset = 0;
-            for (let i = 0; i < lines.length; i++) {
-              const lineLength = lines[i].length + 1; // +1 for newline
-              if (offset < currentOffset + lineLength) {
-                return { line: i, character: offset - currentOffset };
-              }
-              currentOffset += lineLength;
-            }
-            return { line: lines.length - 1, character: lines[lines.length - 1].length };
-          },
-          offsetAt: (position: any) => {
-            const text = params.textDocument.text;
-            const lines = text.split('\n');
-            let offset = 0;
-            for (let i = 0; i < position.line; i++) {
-              offset += lines[i].length + 1; // +1 for newline
-            }
-            return offset + position.character;
-          },
-          lineCount: params.textDocument.text.split('\n').length,
-        };
-        
-        // Debug: log that we're handling a JSON config file
-        console.log(`[DEBUG] Handling JSON config file: ${filePath}`);
-        
-        const diagnostics = jsonConfig.validateConfig(document);
-        console.log(`[DEBUG] Validation produced ${diagnostics.length} diagnostics`);
-        
-        // Always send diagnostics (even empty array) to clear previous errors
-        let notification: p.NotificationMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          method: "textDocument/publishDiagnostics",
-          params: {
-            uri: params.textDocument.uri,
-            diagnostics,
-          },
-        };
-        send(notification);
-        console.log(`[DEBUG] Sent diagnostics for ${params.textDocument.uri}`);
+        await handleJsonConfigOpen(params);
       } else {
         // Handle ReScript files
         await openedFile(params.textDocument.uri, params.textDocument.text);
@@ -1331,58 +1403,10 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      
+
       // Handle JSON config files
       if (jsonConfig.isConfigFile(filePath)) {
-        let changes = params.contentChanges;
-        if (changes.length > 0) {
-          // we currently only support full changes
-          const newContent = changes[changes.length - 1].text;
-          stupidFileContentCache.set(filePath, newContent);
-          const document = {
-            uri: params.textDocument.uri,
-            languageId: "json",
-            version: params.textDocument.version,
-            getText: () => newContent,
-            positionAt: (offset: number) => {
-              const text = newContent;
-              const lines = text.split('\n');
-              let currentOffset = 0;
-              for (let i = 0; i < lines.length; i++) {
-                const lineLength = lines[i].length + 1; // +1 for newline
-                if (offset < currentOffset + lineLength) {
-                  return { line: i, character: offset - currentOffset };
-                }
-                currentOffset += lineLength;
-              }
-              return { line: lines.length - 1, character: lines[lines.length - 1].length };
-            },
-            offsetAt: (position: any) => {
-              const text = newContent;
-              const lines = text.split('\n');
-              let offset = 0;
-              for (let i = 0; i < position.line; i++) {
-                offset += lines[i].length + 1; // +1 for newline
-              }
-              return offset + position.character;
-            },
-            lineCount: newContent.split('\n').length,
-          };
-          const diagnostics = jsonConfig.validateConfig(document);
-          console.log(`[DEBUG] Change validation produced ${diagnostics.length} diagnostics for ${filePath}`);
-          
-          // Always send diagnostics (even empty array) to clear previous errors
-          let notification: p.NotificationMessage = {
-            jsonrpc: c.jsonrpcVersion,
-            method: "textDocument/publishDiagnostics",
-            params: {
-              uri: params.textDocument.uri,
-              diagnostics,
-            },
-          };
-          send(notification);
-          console.log(`[DEBUG] Sent change diagnostics for ${params.textDocument.uri}`);
-        }
+        await handleJsonConfigChange(params);
       } else {
         // Handle ReScript files
         let extName = path.extname(params.textDocument.uri);
@@ -1406,20 +1430,10 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === DidCloseTextDocumentNotification.method) {
       let params = msg.params as p.DidCloseTextDocumentParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      
+
       // Handle JSON config files
       if (jsonConfig.isConfigFile(filePath)) {
-        stupidFileContentCache.delete(filePath);
-        // Clear diagnostics for JSON config files
-        let notification: p.NotificationMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          method: "textDocument/publishDiagnostics",
-          params: {
-            uri: params.textDocument.uri,
-            diagnostics: [],
-          },
-        };
-        send(notification);
+        await handleJsonConfigClose(params);
       } else {
         await closedFile(params.textDocument.uri);
       }
@@ -1572,46 +1586,10 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.HoverRequest.method) {
       let params = msg.params as p.HoverParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      
+
       // Handle JSON config files
       if (jsonConfig.isConfigFile(filePath)) {
-        const content = getOpenedFileContent(params.textDocument.uri);
-        const document = {
-          uri: params.textDocument.uri,
-          languageId: "json",
-          version: 1,
-          getText: () => content,
-          positionAt: (offset: number) => {
-            const text = content;
-            const lines = text.split('\n');
-            let currentOffset = 0;
-            for (let i = 0; i < lines.length; i++) {
-              const lineLength = lines[i].length + 1; // +1 for newline
-              if (offset < currentOffset + lineLength) {
-                return { line: i, character: offset - currentOffset };
-              }
-              currentOffset += lineLength;
-            }
-            return { line: lines.length - 1, character: lines[lines.length - 1].length };
-          },
-          offsetAt: (position: any) => {
-            const text = content;
-            const lines = text.split('\n');
-            let offset = 0;
-            for (let i = 0; i < position.line; i++) {
-              offset += lines[i].length + 1; // +1 for newline
-            }
-            return offset + position.character;
-          },
-          lineCount: content.split('\n').length,
-        };
-        const hoverResult = jsonConfig.getConfigHover(document, params.position);
-        let response: p.ResponseMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          id: msg.id,
-          result: hoverResult,
-        };
-        send(response);
+        await handleJsonConfigHover(msg);
       } else {
         send(await hover(msg));
       }
@@ -1630,46 +1608,10 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.CompletionRequest.method) {
       let params = msg.params as p.CompletionParams;
       let filePath = fileURLToPath(params.textDocument.uri);
-      
+
       // Handle JSON config files
       if (jsonConfig.isConfigFile(filePath)) {
-        const content = getOpenedFileContent(params.textDocument.uri);
-        const document = {
-          uri: params.textDocument.uri,
-          languageId: "json",
-          version: 1,
-          getText: () => content,
-          positionAt: (offset: number) => {
-            const text = content;
-            const lines = text.split('\n');
-            let currentOffset = 0;
-            for (let i = 0; i < lines.length; i++) {
-              const lineLength = lines[i].length + 1; // +1 for newline
-              if (offset < currentOffset + lineLength) {
-                return { line: i, character: offset - currentOffset };
-              }
-              currentOffset += lineLength;
-            }
-            return { line: lines.length - 1, character: lines[lines.length - 1].length };
-          },
-          offsetAt: (position: any) => {
-            const text = content;
-            const lines = text.split('\n');
-            let offset = 0;
-            for (let i = 0; i < position.line; i++) {
-              offset += lines[i].length + 1; // +1 for newline
-            }
-            return offset + position.character;
-          },
-          lineCount: content.split('\n').length,
-        };
-        const completions = jsonConfig.getConfigCompletions(document);
-        let response: p.ResponseMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          id: msg.id,
-          result: completions,
-        };
-        send(response);
+        await handleJsonConfigCompletion(msg);
       } else {
         send(await completion(msg));
       }
