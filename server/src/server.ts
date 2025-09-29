@@ -28,6 +28,7 @@ import { onErrorReported } from "./errorReporter";
 import * as ic from "./incrementalCompilation";
 import config, { extensionConfiguration } from "./config";
 import { projectsFiles } from "./projectFiles";
+import * as jsonConfig from "./jsonConfig";
 
 // Absolute paths to all the workspace folders
 // Configured during the initialize request
@@ -1264,34 +1265,164 @@ async function onMessage(msg: p.Message) {
       await onWorkspaceDidChangeWatchedFiles(params);
     } else if (msg.method === DidOpenTextDocumentNotification.method) {
       let params = msg.params as p.DidOpenTextDocumentParams;
-      await openedFile(params.textDocument.uri, params.textDocument.text);
-      await sendUpdatedDiagnostics();
-      await updateDiagnosticSyntax(
-        params.textDocument.uri,
-        params.textDocument.text,
-      );
+      let filePath = fileURLToPath(params.textDocument.uri);
+      
+      // Handle JSON config files
+      if (jsonConfig.isConfigFile(filePath)) {
+        // Cache JSON config content
+        stupidFileContentCache.set(filePath, params.textDocument.text);
+        // Validate JSON config on open
+        const document = {
+          uri: params.textDocument.uri,
+          languageId: "json",
+          version: params.textDocument.version,
+          getText: () => params.textDocument.text,
+          positionAt: (offset: number) => {
+            const text = params.textDocument.text;
+            const lines = text.split('\n');
+            let currentOffset = 0;
+            for (let i = 0; i < lines.length; i++) {
+              const lineLength = lines[i].length + 1; // +1 for newline
+              if (offset < currentOffset + lineLength) {
+                return { line: i, character: offset - currentOffset };
+              }
+              currentOffset += lineLength;
+            }
+            return { line: lines.length - 1, character: lines[lines.length - 1].length };
+          },
+          offsetAt: (position: any) => {
+            const text = params.textDocument.text;
+            const lines = text.split('\n');
+            let offset = 0;
+            for (let i = 0; i < position.line; i++) {
+              offset += lines[i].length + 1; // +1 for newline
+            }
+            return offset + position.character;
+          },
+          lineCount: params.textDocument.text.split('\n').length,
+        };
+        
+        // Debug: log that we're handling a JSON config file
+        console.log(`[DEBUG] Handling JSON config file: ${filePath}`);
+        
+        const diagnostics = jsonConfig.validateConfig(document);
+        console.log(`[DEBUG] Validation produced ${diagnostics.length} diagnostics`);
+        
+        // Always send diagnostics (even empty array) to clear previous errors
+        let notification: p.NotificationMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          method: "textDocument/publishDiagnostics",
+          params: {
+            uri: params.textDocument.uri,
+            diagnostics,
+          },
+        };
+        send(notification);
+        console.log(`[DEBUG] Sent diagnostics for ${params.textDocument.uri}`);
+      } else {
+        // Handle ReScript files
+        await openedFile(params.textDocument.uri, params.textDocument.text);
+        await sendUpdatedDiagnostics();
+        await updateDiagnosticSyntax(
+          params.textDocument.uri,
+          params.textDocument.text,
+        );
+      }
     } else if (msg.method === DidChangeTextDocumentNotification.method) {
       let params = msg.params as p.DidChangeTextDocumentParams;
-      let extName = path.extname(params.textDocument.uri);
-      if (extName === c.resExt || extName === c.resiExt) {
+      let filePath = fileURLToPath(params.textDocument.uri);
+      
+      // Handle JSON config files
+      if (jsonConfig.isConfigFile(filePath)) {
         let changes = params.contentChanges;
-        if (changes.length === 0) {
-          // no change?
-        } else {
+        if (changes.length > 0) {
           // we currently only support full changes
-          updateOpenedFile(
-            params.textDocument.uri,
-            changes[changes.length - 1].text,
-          );
-          await updateDiagnosticSyntax(
-            params.textDocument.uri,
-            changes[changes.length - 1].text,
-          );
+          const newContent = changes[changes.length - 1].text;
+          stupidFileContentCache.set(filePath, newContent);
+          const document = {
+            uri: params.textDocument.uri,
+            languageId: "json",
+            version: params.textDocument.version,
+            getText: () => newContent,
+            positionAt: (offset: number) => {
+              const text = newContent;
+              const lines = text.split('\n');
+              let currentOffset = 0;
+              for (let i = 0; i < lines.length; i++) {
+                const lineLength = lines[i].length + 1; // +1 for newline
+                if (offset < currentOffset + lineLength) {
+                  return { line: i, character: offset - currentOffset };
+                }
+                currentOffset += lineLength;
+              }
+              return { line: lines.length - 1, character: lines[lines.length - 1].length };
+            },
+            offsetAt: (position: any) => {
+              const text = newContent;
+              const lines = text.split('\n');
+              let offset = 0;
+              for (let i = 0; i < position.line; i++) {
+                offset += lines[i].length + 1; // +1 for newline
+              }
+              return offset + position.character;
+            },
+            lineCount: newContent.split('\n').length,
+          };
+          const diagnostics = jsonConfig.validateConfig(document);
+          console.log(`[DEBUG] Change validation produced ${diagnostics.length} diagnostics for ${filePath}`);
+          
+          // Always send diagnostics (even empty array) to clear previous errors
+          let notification: p.NotificationMessage = {
+            jsonrpc: c.jsonrpcVersion,
+            method: "textDocument/publishDiagnostics",
+            params: {
+              uri: params.textDocument.uri,
+              diagnostics,
+            },
+          };
+          send(notification);
+          console.log(`[DEBUG] Sent change diagnostics for ${params.textDocument.uri}`);
+        }
+      } else {
+        // Handle ReScript files
+        let extName = path.extname(params.textDocument.uri);
+        if (extName === c.resExt || extName === c.resiExt) {
+          let changes = params.contentChanges;
+          if (changes.length === 0) {
+            // no change?
+          } else {
+            // we currently only support full changes
+            updateOpenedFile(
+              params.textDocument.uri,
+              changes[changes.length - 1].text,
+            );
+            await updateDiagnosticSyntax(
+              params.textDocument.uri,
+              changes[changes.length - 1].text,
+            );
+          }
         }
       }
     } else if (msg.method === DidCloseTextDocumentNotification.method) {
       let params = msg.params as p.DidCloseTextDocumentParams;
-      await closedFile(params.textDocument.uri);
+      let filePath = fileURLToPath(params.textDocument.uri);
+      
+      // Handle JSON config files
+      if (jsonConfig.isConfigFile(filePath)) {
+        stupidFileContentCache.delete(filePath);
+        // Clear diagnostics for JSON config files
+        let notification: p.NotificationMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          method: "textDocument/publishDiagnostics",
+          params: {
+            uri: params.textDocument.uri,
+            diagnostics: [],
+          },
+        };
+        send(notification);
+      } else {
+        await closedFile(params.textDocument.uri);
+      }
     } else if (msg.method === DidChangeConfigurationNotification.type.method) {
       // Can't seem to get this notification to trigger, but if it does this will be here and ensure we're synced up at the server.
       askForAllCurrentConfiguration();
@@ -1439,7 +1570,51 @@ async function onMessage(msg: p.Message) {
         send(response);
       }
     } else if (msg.method === p.HoverRequest.method) {
-      send(await hover(msg));
+      let params = msg.params as p.HoverParams;
+      let filePath = fileURLToPath(params.textDocument.uri);
+      
+      // Handle JSON config files
+      if (jsonConfig.isConfigFile(filePath)) {
+        const content = getOpenedFileContent(params.textDocument.uri);
+        const document = {
+          uri: params.textDocument.uri,
+          languageId: "json",
+          version: 1,
+          getText: () => content,
+          positionAt: (offset: number) => {
+            const text = content;
+            const lines = text.split('\n');
+            let currentOffset = 0;
+            for (let i = 0; i < lines.length; i++) {
+              const lineLength = lines[i].length + 1; // +1 for newline
+              if (offset < currentOffset + lineLength) {
+                return { line: i, character: offset - currentOffset };
+              }
+              currentOffset += lineLength;
+            }
+            return { line: lines.length - 1, character: lines[lines.length - 1].length };
+          },
+          offsetAt: (position: any) => {
+            const text = content;
+            const lines = text.split('\n');
+            let offset = 0;
+            for (let i = 0; i < position.line; i++) {
+              offset += lines[i].length + 1; // +1 for newline
+            }
+            return offset + position.character;
+          },
+          lineCount: content.split('\n').length,
+        };
+        const hoverResult = jsonConfig.getConfigHover(document, params.position);
+        let response: p.ResponseMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: msg.id,
+          result: hoverResult,
+        };
+        send(response);
+      } else {
+        send(await hover(msg));
+      }
     } else if (msg.method === p.DefinitionRequest.method) {
       send(await definition(msg));
     } else if (msg.method === p.TypeDefinitionRequest.method) {
@@ -1453,7 +1628,51 @@ async function onMessage(msg: p.Message) {
     } else if (msg.method === p.DocumentSymbolRequest.method) {
       send(await documentSymbol(msg));
     } else if (msg.method === p.CompletionRequest.method) {
-      send(await completion(msg));
+      let params = msg.params as p.CompletionParams;
+      let filePath = fileURLToPath(params.textDocument.uri);
+      
+      // Handle JSON config files
+      if (jsonConfig.isConfigFile(filePath)) {
+        const content = getOpenedFileContent(params.textDocument.uri);
+        const document = {
+          uri: params.textDocument.uri,
+          languageId: "json",
+          version: 1,
+          getText: () => content,
+          positionAt: (offset: number) => {
+            const text = content;
+            const lines = text.split('\n');
+            let currentOffset = 0;
+            for (let i = 0; i < lines.length; i++) {
+              const lineLength = lines[i].length + 1; // +1 for newline
+              if (offset < currentOffset + lineLength) {
+                return { line: i, character: offset - currentOffset };
+              }
+              currentOffset += lineLength;
+            }
+            return { line: lines.length - 1, character: lines[lines.length - 1].length };
+          },
+          offsetAt: (position: any) => {
+            const text = content;
+            const lines = text.split('\n');
+            let offset = 0;
+            for (let i = 0; i < position.line; i++) {
+              offset += lines[i].length + 1; // +1 for newline
+            }
+            return offset + position.character;
+          },
+          lineCount: content.split('\n').length,
+        };
+        const completions = jsonConfig.getConfigCompletions(document);
+        let response: p.ResponseMessage = {
+          jsonrpc: c.jsonrpcVersion,
+          id: msg.id,
+          result: completions,
+        };
+        send(response);
+      } else {
+        send(await completion(msg));
+      }
     } else if (msg.method === p.CompletionResolveRequest.method) {
       send(await completionResolve(msg));
     } else if (msg.method === p.SemanticTokensRequest.method) {
