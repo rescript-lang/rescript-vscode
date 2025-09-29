@@ -100,7 +100,14 @@ export function validateConfig(document: TextDocument): Diagnostic[] {
 
     let validate;
     try {
-      validate = ajv.compile(schemaInfo.schema);
+      // Create a copy of the schema and modify $ref to use Draft 07 instead of Draft 04
+      const modifiedSchema = JSON.parse(JSON.stringify(schemaInfo.schema));
+      if (
+        modifiedSchema.$schema === "http://json-schema.org/draft-04/schema#"
+      ) {
+        modifiedSchema.$schema = "http://json-schema.org/draft-07/schema#";
+      }
+      validate = ajv.compile(modifiedSchema);
     } catch (schemaError) {
       console.error(`[JSON_CONFIG] Failed to compile schema:`, schemaError);
       return [];
@@ -281,6 +288,33 @@ export function getConfigCompletions(document: TextDocument): CompletionItem[] {
   );
 }
 
+// Helper function to detect if JSON is minified (single line without meaningful whitespace)
+function isMinifiedJson(jsonContent: string): boolean {
+  const lineCount = jsonContent.split("\n").length;
+  const trimmed = jsonContent.trim();
+
+  // Consider it minified if it's just one line, or if it's very compact
+  return lineCount === 1 || (lineCount <= 3 && trimmed.length < 200);
+}
+
+// Helper function to normalize JSON content for position calculations
+// Only formats if the JSON appears to be truly minified (single line)
+function normalizeJsonContent(jsonContent: string): string {
+  try {
+    // Only format if it's clearly minified (single line with no meaningful line breaks)
+    if (isMinifiedJson(jsonContent)) {
+      const parsed = JSON.parse(jsonContent);
+      return JSON.stringify(parsed, null, 2);
+    }
+
+    // Otherwise, use original content to preserve manual formatting
+    return jsonContent;
+  } catch {
+    // If parsing fails, return original content
+    return jsonContent;
+  }
+}
+
 export function getConfigHover(
   document: TextDocument,
   position: Position,
@@ -303,16 +337,62 @@ export function getConfigHover(
     return null;
   }
 
-  const line = document.getText(
-    Range.create(position.line, 0, position.line, 1000),
-  );
-  const match = line.match(/"([^"]+)"/);
+  // Normalize the JSON content for position calculations
+  const originalContent = document.getText();
+  const normalizedContent = normalizeJsonContent(originalContent);
 
-  if (!match) {
+  // Split into lines for position calculation
+  const formattedLines = normalizedContent.split("\n");
+
+  // Make sure the position is valid
+  if (position.line >= formattedLines.length) {
     return null;
   }
 
-  const propertyName = match[1];
+  const line = formattedLines[position.line];
+
+  // Find all quoted strings on the line with their positions
+  const quotes = [];
+  const regex = /"([^"]+)"/g;
+  let match;
+  while ((match = regex.exec(line)) !== null) {
+    quotes.push({
+      text: match[0],
+      value: match[1],
+      start: match.index,
+      end: match.index + match[0].length,
+    });
+  }
+
+  // Find which quote contains the cursor position
+  const cursorQuote = quotes.find(
+    (q) => position.character >= q.start && position.character <= q.end,
+  );
+
+  if (!cursorQuote) {
+    return null;
+  }
+
+  // Check if this is a property key (followed by colon) or property value
+  const isPropertyKey = line.substring(cursorQuote.end).trim().startsWith(":");
+
+  let propertyName;
+  if (isPropertyKey) {
+    // This is a property key, use it directly
+    propertyName = cursorQuote.value;
+  } else {
+    // This is a property value, try to find the corresponding key
+    // Look backwards to find the property key
+    const beforeCursor = line.substring(0, cursorQuote.start);
+    const keyMatch = beforeCursor.match(/"([^"]+)"\s*:\s*[^:]*$/);
+    if (keyMatch) {
+      propertyName = keyMatch[1];
+    } else {
+      // If we can't find the key, this might be an array value or nested property
+      return null;
+    }
+  }
+
   const property = schemaInfo.schema.properties[propertyName];
 
   if (property?.description) {
