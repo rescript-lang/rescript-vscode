@@ -8,7 +8,7 @@
   "name": "sample-typescript-app",
   "bsc-flags": ["-bs-super-errors -w a"],
   "jsx": { "version": 3 },
-  "bs-dependencies": ["@rescript/react", "@glennsl/bs-json"],
+  "bs-dependencies": ["@rescript/react", "@glennsl/rescript-json-combinators"],
   "sources": [
     {
       "dir": "src",
@@ -16,7 +16,7 @@
     }
   ],
   "package-specs": {
-    "module": "es6",
+    "module": "esmodule",
     "in-source": true
   },
   "suffix": ".bs.js"
