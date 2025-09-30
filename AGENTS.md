@@ -103,7 +103,7 @@ The project has several test suites:
 
 - The extension supports both `.res` (implementation) and `.resi` (interface) files
 - Uses VSCode Language Client protocol for communication between client and server
-- Native binaries are cross-platform (darwin, linux, win32) and included in the extension
+- Native binaries are cross-platform (darwin, linux, win32) and included in the extension. The rescript-editor-analysis is invoked by the LSP Server in a one-shot mode. Dumping JSON to stdout and the LSP picks that up.
 - Supports workspace configurations and monorepo structures
 - Incremental type checking can be enabled for better performance on large projects
-- As mentioned above the native OCaml binaries here are only here for backwards-compatibility with ReScript versions 11 or below. Since ReScript 12 both `analysis` and `tools` are part of the ReScript compiler monorepo, thus refrain from changing them too much (bugfixes that need to be ported are ok).
+- As mentioned above the native OCaml binaries here are only here for backwards-compatibility with ReScript versions 11 or below. Since ReScript 12 both `analysis` and `tools` are part of the [ReScript compiler monorepo](https://github.com/rescript-lang/rescript), thus refrain from changing them too much (bugfixes that need to be ported are ok).
