@@ -20,6 +20,7 @@ This is the official ReScript VSCode extension, providing language support for R
 ### Build System
 
 The project uses:
+
 - **dune**: For building OCaml components (analysis & tools)
 - **esbuild**: For bundling TypeScript client/server
 - **npm**: For JavaScript/TypeScript dependencies
@@ -28,6 +29,7 @@ The project uses:
 ## Development Commands
 
 ### Initial Setup
+
 ```bash
 npm install                    # Install all dependencies including client/server
 opam switch 5.2.0             # Install OCaml switch (if not already done)
@@ -35,6 +37,7 @@ opam install . --deps-only    # Install OCaml dependencies
 ```
 
 ### Building
+
 ```bash
 make build                    # Build OCaml binaries and copy to root
 npm run compile               # Compile TypeScript (client & server)
@@ -43,6 +46,7 @@ npm run vscode:prepublish     # Clean and bundle (used for publishing)
 ```
 
 ### Development
+
 ```bash
 npm run watch                 # Watch TypeScript compilation
 make -C analysis test         # Run analysis tests
@@ -51,6 +55,7 @@ make test                     # Run all tests
 ```
 
 ### Code Quality
+
 ```bash
 make format                   # Format OCaml (dune) and JS/TS (prettier)
 make checkformat              # Check formatting without modifying
@@ -58,6 +63,7 @@ make clean                    # Clean build artifacts
 ```
 
 ### Running the Extension in Development
+
 1. Open the project in VSCode
 2. Press F5 to launch a new VSCode window (Extension Development Host)
 3. Open a ReScript project to test the extension
@@ -65,6 +71,7 @@ make clean                    # Clean build artifacts
 ## Key Files
 
 ### Configuration
+
 - `package.json`: Extension manifest, commands, settings, and scripts
 - `rescript.configuration.json`: Editor configuration for ReScript files
 - `client/src/extension.ts`: Extension entry point and client initialization
@@ -72,10 +79,12 @@ make clean                    # Clean build artifacts
 - `server/src/cli.ts`: CLI entry point for the language server
 
 ### OCaml Components
+
 - `analysis/`: Code analysis binary (hover, autocomplete, etc.)
 - `tools/`: ReScript tools binary (interface generation, etc.)
 
 ### Language Features
+
 - **LSP Features**: hover, goto definition, find references, rename, autocomplete
 - **Code Analysis**: dead code detection, exception analysis (via reanalyze)
 - **Build Integration**: compile diagnostics, status indicators
@@ -84,6 +93,7 @@ make clean                    # Clean build artifacts
 ## Testing
 
 The project has several test suites:
+
 - `analysis/tests/`: Tests for the analysis binary
 - `tools/tests/`: Tests for ReScript tools
 - `analysis/tests-incremental-typechecking/`: Incremental typechecking tests
