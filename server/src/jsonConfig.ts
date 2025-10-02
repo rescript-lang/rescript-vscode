@@ -277,7 +277,7 @@ export function getConfigCompletions(
 
   const content = document.getText();
   const offset = document.offsetAt(position);
-  
+
   // Parse the document with jsonc-parser (handles incomplete JSON)
   const errors: jsoncParser.ParseError[] = [];
   const root = jsoncParser.parseTree(content, errors);
@@ -287,7 +287,7 @@ export function getConfigCompletions(
 
   // Get the location at the cursor
   const location = jsoncParser.getLocation(content, offset);
-  
+
   // Find the nearest object node that contains the cursor
   const currentObjectNode = findContainingObjectNode(root, offset);
   if (!currentObjectNode) {
@@ -331,12 +331,17 @@ export function getConfigCompletions(
       return item;
     });
 
-  return completions.length > 0 ? completions : getTopLevelCompletions(schemaInfo);
+  return completions.length > 0
+    ? completions
+    : getTopLevelCompletions(schemaInfo);
 }
 
 // Helper functions for jsonc-parser based completion
 
-function findContainingObjectNode(node: jsoncParser.Node | undefined, offset: number): jsoncParser.Node | undefined {
+function findContainingObjectNode(
+  node: jsoncParser.Node | undefined,
+  offset: number,
+): jsoncParser.Node | undefined {
   if (!node) {
     return undefined;
   }
@@ -344,7 +349,11 @@ function findContainingObjectNode(node: jsoncParser.Node | undefined, offset: nu
   let bestMatch: jsoncParser.Node | undefined = undefined;
 
   // If this node is an object and contains the offset, it's a potential match
-  if (node.type === 'object' && node.offset <= offset && node.offset + node.length >= offset) {
+  if (
+    node.type === "object" &&
+    node.offset <= offset &&
+    node.offset + node.length >= offset
+  ) {
     bestMatch = node;
   }
 
@@ -354,7 +363,10 @@ function findContainingObjectNode(node: jsoncParser.Node | undefined, offset: nu
       const result = findContainingObjectNode(child, offset);
       if (result) {
         // Prefer deeper/more specific matches
-        if (!bestMatch || (result.offset > bestMatch.offset && result.length < bestMatch.length)) {
+        if (
+          !bestMatch ||
+          (result.offset > bestMatch.offset && result.length < bestMatch.length)
+        ) {
           bestMatch = result;
         }
       }
@@ -364,8 +376,14 @@ function findContainingObjectNode(node: jsoncParser.Node | undefined, offset: nu
   return bestMatch;
 }
 
-function getPathToNode(root: jsoncParser.Node, targetNode: jsoncParser.Node): string[] | undefined {
-  function buildPath(node: jsoncParser.Node, currentPath: string[]): string[] | undefined {
+function getPathToNode(
+  root: jsoncParser.Node,
+  targetNode: jsoncParser.Node,
+): string[] | undefined {
+  function buildPath(
+    node: jsoncParser.Node,
+    currentPath: string[],
+  ): string[] | undefined {
     if (node === targetNode) {
       return currentPath;
     }
@@ -373,13 +391,17 @@ function getPathToNode(root: jsoncParser.Node, targetNode: jsoncParser.Node): st
     if (node.children) {
       for (const child of node.children) {
         let newPath = [...currentPath];
-        
+
         // If this child is a property node, add its key to the path
-        if (child.type === 'property' && child.children && child.children.length >= 2) {
+        if (
+          child.type === "property" &&
+          child.children &&
+          child.children.length >= 2
+        ) {
           const keyNode = child.children[0];
-          if (keyNode.type === 'string') {
+          if (keyNode.type === "string") {
             const key = jsoncParser.getNodeValue(keyNode);
-            if (typeof key === 'string') {
+            if (typeof key === "string") {
               newPath = [...newPath, key];
             }
           }
@@ -400,14 +422,18 @@ function getPathToNode(root: jsoncParser.Node, targetNode: jsoncParser.Node): st
 
 function getExistingKeys(objectNode: jsoncParser.Node): string[] {
   const keys: string[] = [];
-  
-  if (objectNode.type === 'object' && objectNode.children) {
+
+  if (objectNode.type === "object" && objectNode.children) {
     for (const child of objectNode.children) {
-      if (child.type === 'property' && child.children && child.children.length >= 1) {
+      if (
+        child.type === "property" &&
+        child.children &&
+        child.children.length >= 1
+      ) {
         const keyNode = child.children[0];
-        if (keyNode.type === 'string') {
+        if (keyNode.type === "string") {
           const key = jsoncParser.getNodeValue(keyNode);
-          if (typeof key === 'string') {
+          if (typeof key === "string") {
             keys.push(key);
           }
         }
@@ -420,11 +446,11 @@ function getExistingKeys(objectNode: jsoncParser.Node): string[] {
 
 function resolveSchemaForPath(schema: any, path: string[]): any {
   let current = schema;
-  
+
   for (const segment of path) {
     if (current.properties && current.properties[segment]) {
       const prop = current.properties[segment];
-      
+
       // Handle $ref
       if (prop.$ref) {
         const refPath = prop.$ref.replace("#/", "").split("/");
@@ -445,7 +471,7 @@ function resolveSchemaForPath(schema: any, path: string[]): any {
       return null;
     }
   }
-  
+
   return current;
 }
 

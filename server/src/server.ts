@@ -639,7 +639,10 @@ async function handleJsonConfigCompletion(
   const params = msg.params as p.CompletionParams;
   const content = getOpenedFileContent(params.textDocument.uri);
   const document = createJsonTextDocument(params.textDocument.uri, content, 1);
-  const completions = jsonConfig.getConfigCompletions(document, params.position);
+  const completions = jsonConfig.getConfigCompletions(
+    document,
+    params.position,
+  );
   let response: p.ResponseMessage = {
     jsonrpc: c.jsonrpcVersion,
     id: msg.id,
