@@ -92,7 +92,7 @@ let findBinary = async (
     return path.join(config.extensionConfiguration.platformPath, binary);
   }
 
-  if (projectRootPath !== null && binary === "bsc.exe") {
+  if (projectRootPath !== null) {
     try {
       const compilerInfo = path.resolve(
         projectRootPath,
@@ -101,7 +101,13 @@ let findBinary = async (
       const contents = await fsAsync.readFile(compilerInfo, "utf8");
       const compileInfo = JSON.parse(contents);
       if (compileInfo && compileInfo.bsc_path) {
-        return compileInfo.bsc_path;
+        const bsc_path = compileInfo.bsc_path;
+        if (binary === "bsc.exe") {
+          return bsc_path;
+        } else {
+          const binary_path = path.join(path.dirname(bsc_path), binary);
+          return binary_path;
+        }
       }
     } catch {}
   }
