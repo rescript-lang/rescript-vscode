@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import * as jsoncParser from "jsonc-parser";
 import {
   Diagnostic,
   DiagnosticSeverity,
@@ -247,7 +248,10 @@ export function validateConfig(document: TextDocument): Diagnostic[] {
   }
 }
 
-export function getConfigCompletions(document: TextDocument): CompletionItem[] {
+export function getConfigCompletions(
+  document: TextDocument,
+  position?: Position,
+): CompletionItem[] {
   const filePath = document.uri;
   let fsPath: string;
   try {
@@ -266,6 +270,189 @@ export function getConfigCompletions(document: TextDocument): CompletionItem[] {
     return [];
   }
 
+  // If no position provided, fall back to top-level completions
+  if (!position) {
+    return getTopLevelCompletions(schemaInfo);
+  }
+
+  const content = document.getText();
+  const offset = document.offsetAt(position);
+  
+  // Parse the document with jsonc-parser (handles incomplete JSON)
+  const errors: jsoncParser.ParseError[] = [];
+  const root = jsoncParser.parseTree(content, errors);
+  if (!root) {
+    return getTopLevelCompletions(schemaInfo);
+  }
+
+  // Get the location at the cursor
+  const location = jsoncParser.getLocation(content, offset);
+  
+  // Find the nearest object node that contains the cursor
+  const currentObjectNode = findContainingObjectNode(root, offset);
+  if (!currentObjectNode) {
+    return getTopLevelCompletions(schemaInfo);
+  }
+
+  // Get the JSON path to this object
+  const path = getPathToNode(root, currentObjectNode);
+  if (!path) {
+    return getTopLevelCompletions(schemaInfo);
+  }
+
+  // Resolve the schema for this path
+  const schemaAtPath = resolveSchemaForPath(schemaInfo.schema, path);
+  if (!schemaAtPath || !schemaAtPath.properties) {
+    return getTopLevelCompletions(schemaInfo);
+  }
+
+  // Get existing keys in the current object
+  const existingKeys = getExistingKeys(currentObjectNode);
+
+  // Build completion items for available properties
+  const completions = Object.entries(schemaAtPath.properties)
+    .filter(([key]) => !existingKeys.includes(key))
+    .map(([key, prop]: [string, any]) => {
+      const item: CompletionItem = {
+        label: key,
+        kind: CompletionItemKind.Property,
+        detail: prop.description || key,
+        insertText: `"${key}": `,
+      };
+
+      if (prop.type === "boolean") {
+        item.insertText = `"${key}": ${prop.default !== undefined ? prop.default : false}`;
+      } else if (prop.type === "array" && prop.items?.enum) {
+        item.insertText = `"${key}": [\n  ${prop.items.enum.map((v: string) => `"${v}"`).join(",\n  ")}\n]`;
+      } else if (prop.enum) {
+        item.insertText = `"${key}": "${prop.default || prop.enum[0]}"`;
+      }
+
+      return item;
+    });
+
+  return completions.length > 0 ? completions : getTopLevelCompletions(schemaInfo);
+}
+
+// Helper functions for jsonc-parser based completion
+
+function findContainingObjectNode(node: jsoncParser.Node | undefined, offset: number): jsoncParser.Node | undefined {
+  if (!node) {
+    return undefined;
+  }
+
+  let bestMatch: jsoncParser.Node | undefined = undefined;
+
+  // If this node is an object and contains the offset, it's a potential match
+  if (node.type === 'object' && node.offset <= offset && node.offset + node.length >= offset) {
+    bestMatch = node;
+  }
+
+  // If this node has children, search them recursively
+  if (node.children) {
+    for (const child of node.children) {
+      const result = findContainingObjectNode(child, offset);
+      if (result) {
+        // Prefer deeper/more specific matches
+        if (!bestMatch || (result.offset > bestMatch.offset && result.length < bestMatch.length)) {
+          bestMatch = result;
+        }
+      }
+    }
+  }
+
+  return bestMatch;
+}
+
+function getPathToNode(root: jsoncParser.Node, targetNode: jsoncParser.Node): string[] | undefined {
+  function buildPath(node: jsoncParser.Node, currentPath: string[]): string[] | undefined {
+    if (node === targetNode) {
+      return currentPath;
+    }
+
+    if (node.children) {
+      for (const child of node.children) {
+        let newPath = [...currentPath];
+        
+        // If this child is a property node, add its key to the path
+        if (child.type === 'property' && child.children && child.children.length >= 2) {
+          const keyNode = child.children[0];
+          if (keyNode.type === 'string') {
+            const key = jsoncParser.getNodeValue(keyNode);
+            if (typeof key === 'string') {
+              newPath = [...newPath, key];
+            }
+          }
+        }
+
+        const result = buildPath(child, newPath);
+        if (result) {
+          return result;
+        }
+      }
+    }
+
+    return undefined;
+  }
+
+  return buildPath(root, []);
+}
+
+function getExistingKeys(objectNode: jsoncParser.Node): string[] {
+  const keys: string[] = [];
+  
+  if (objectNode.type === 'object' && objectNode.children) {
+    for (const child of objectNode.children) {
+      if (child.type === 'property' && child.children && child.children.length >= 1) {
+        const keyNode = child.children[0];
+        if (keyNode.type === 'string') {
+          const key = jsoncParser.getNodeValue(keyNode);
+          if (typeof key === 'string') {
+            keys.push(key);
+          }
+        }
+      }
+    }
+  }
+
+  return keys;
+}
+
+function resolveSchemaForPath(schema: any, path: string[]): any {
+  let current = schema;
+  
+  for (const segment of path) {
+    if (current.properties && current.properties[segment]) {
+      const prop = current.properties[segment];
+      
+      // Handle $ref
+      if (prop.$ref) {
+        const refPath = prop.$ref.replace("#/", "").split("/");
+        let resolved = schema;
+        for (const refSegment of refPath) {
+          resolved = resolved[refSegment];
+          if (!resolved) {
+            return null;
+          }
+        }
+        current = resolved;
+      } else if (prop.type === "object" && prop.properties) {
+        current = prop;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+  
+  return current;
+}
+
+function getTopLevelCompletions(schemaInfo: SchemaInfo): CompletionItem[] {
+  if (!schemaInfo.schema.properties) {
+    return [];
+  }
   return Object.entries(schemaInfo.schema.properties).map(
     ([key, prop]: [string, any]) => {
       const item: CompletionItem = {
