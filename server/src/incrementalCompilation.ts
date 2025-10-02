@@ -14,6 +14,7 @@ import { fileCodeActions } from "./codeActions";
 import { projectsFiles } from "./projectFiles";
 import { getRewatchBscArgs, RewatchCompilerArgs } from "./bsc-args/rewatch";
 import { BsbCompilerArgs, getBsbBscArgs } from "./bsc-args/bsb";
+import { workspaceFolders } from "./server";
 
 export function debug() {
   return (
@@ -262,6 +263,12 @@ function triggerIncrementalCompilationOfFile(
     }
 
     const projectRewatchLockfiles = [
+      ...Array.from(workspaceFolders).map((w) =>
+        path.resolve(w, c.rewatchLockPartialPath),
+      ),
+      ...Array.from(workspaceFolders).map((w) =>
+        path.resolve(w, c.rescriptLockPartialPath),
+      ),
       path.resolve(projectRootPath, c.rewatchLockPartialPath),
       path.resolve(projectRootPath, c.rescriptLockPartialPath),
     ];

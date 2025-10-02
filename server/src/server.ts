@@ -31,7 +31,7 @@ import { projectsFiles } from "./projectFiles";
 
 // Absolute paths to all the workspace folders
 // Configured during the initialize request
-const workspaceFolders = new Set<string>();
+export const workspaceFolders = new Set<string>();
 
 // This holds client capabilities specific to our extension, and not necessarily
 // related to the LS protocol. It's for enabling/disabling features that might
