@@ -10,7 +10,7 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
-## master
+## 1.66.0
 
 #### :bug: Bug fix
 
