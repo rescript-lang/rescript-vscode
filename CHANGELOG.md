@@ -20,6 +20,7 @@
 #### :rocket: New Feature
 
 - Add status bar item tracking compilation state. https://github.com/rescript-lang/rescript-vscode/pull/1119
+- Add our own `rescript.json` validation that understands which compiler version is actually in use. https://github.com/rescript-lang/rescript-vscode/pull/1131
 
 #### :house: Internal
 
