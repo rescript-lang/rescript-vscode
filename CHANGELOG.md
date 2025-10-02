@@ -27,6 +27,8 @@
 - Use `prepareRename` command (when a new enough ReScript version is used) to speed up the `rename` command. https://github.com/rescript-lang/rescript-vscode/pull/1124
 - Use `compiler-info.json` to find the `@rescript/runtime` and `bsc.exe` if available. https://github.com/rescript-lang/rescript-vscode/pull/1129
 - Add `Dump LSP Server State` command to client. https://github.com/rescript-lang/rescript-vscode/pull/1130
+- Use `compiler-info.json` to locate other binaries as well. https://github.com/rescript-lang/rescript-vscode/pull/1135
+- Detect Rewatch from workspace root. https://github.com/rescript-lang/rescript-vscode/pull/1135
 
 ## 1.64.0
 
