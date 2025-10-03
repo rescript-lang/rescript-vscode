@@ -17,8 +17,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [
-            macos-13, # x64
-            macos-14, # ARM
+            macos-15-intel, # x64
+            macos-15, # ARM
             ubuntu-24.04, # x64
             ubuntu-24.04-arm, # ARM
             windows-latest,
@@ -26,11 +26,11 @@ jobs:
         # syntax explanation:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         include:
-          - os: macos-13
+          - os: macos-15-intel
             ocaml-compiler: 5.2.1
             dune-profile: release
             artifact-folder: darwin
-          - os: macos-14
+          - os: macos-15
             ocaml-compiler: 5.2.1
             dune-profile: release
             artifact-folder: darwinarm64
