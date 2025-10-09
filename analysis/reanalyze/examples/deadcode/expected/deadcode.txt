@@ -15,15 +15,13 @@
   addValueReference BucklescriptAnnotations.res:25:4 --> BucklescriptAnnotations.res:26:6
   Scanning ComponentAsProp.cmt Source:ComponentAsProp.res
   addValueDeclaration +make ComponentAsProp.res:6:4 path:+ComponentAsProp
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: ComponentAsProp.res:7:3
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: ComponentAsProp.res:8:5
   addValueReference ComponentAsProp.res:9:6 --> ComponentAsProp.res:6:12
   addValueReference ComponentAsProp.res:10:6 --> ComponentAsProp.res:6:20
   addValueReference ComponentAsProp.res:12:24 --> ComponentAsProp.res:12:13
   addValueReference ComponentAsProp.res:13:16 --> React.res:3:0
   addValueReference ComponentAsProp.res:11:14 --> ComponentAsProp.res:6:34
-  addValueReference ComponentAsProp.res:8:5 --> ReactDOMRe.res:8:0
-  addValueReference ComponentAsProp.res:7:3 --> ReactDOMRe.res:8:0
+  addValueReference ComponentAsProp.res:8:5 --> ReactDOMRe.res:7:0
+  addValueReference ComponentAsProp.res:7:3 --> ReactDOMRe.res:7:0
   Scanning CreateErrorHandler1.cmt Source:CreateErrorHandler1.res
   addValueDeclaration +notification CreateErrorHandler1.res:3:6 path:+CreateErrorHandler1.Error1
   addValueReference CreateErrorHandler1.res:3:6 --> CreateErrorHandler1.res:3:21
@@ -159,12 +157,12 @@
   addValueReference DeadTest.res:115:6 --> DeadTest.res:111:6
   addValueReference DeadTest.res:115:6 --> BootloaderResource.res:3:0
   addValueReference DeadTest.res:115:6 --> DeadTest.res:115:13
-  addValueReference DeadTest.res:115:6 --> React.res:18:0
+  addValueReference DeadTest.res:115:6 --> React.res:17:0
   addValueDeclaration +a1 DeadTest.res:128:6 path:+DeadTest
   addValueDeclaration +a2 DeadTest.res:129:6 path:+DeadTest
   addValueDeclaration +a3 DeadTest.res:130:6 path:+DeadTest
   addValueReference DeadTest.res:133:17 --> DynamicallyLoadedComponent.res:2:4
-  addValueReference DeadTest.res:133:17 --> React.res:18:0
+  addValueReference DeadTest.res:133:17 --> React.res:17:0
   addValueReference DeadTest.res:136:4 --> DeadTest.res:135:4
   addValueReference DeadTest.res:141:32 --> DeadTest.res:141:12
   addValueReference DeadTest.res:141:19 --> React.res:7:0
@@ -340,10 +338,9 @@
   addValueReference DynamicallyLoadedComponent.res:2:19 --> React.res:7:0
   Scanning EmptyArray.cmt Source:EmptyArray.res
   addValueDeclaration +make EmptyArray.res:5:6 path:+EmptyArray.Z
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: EmptyArray.res:6:5
-  addValueReference EmptyArray.res:6:5 --> ReactDOMRe.res:8:0
+  addValueReference EmptyArray.res:6:5 --> ReactDOMRe.res:7:0
   addValueReference EmptyArray.res:10:9 --> EmptyArray.res:5:6
-  addValueReference EmptyArray.res:10:9 --> React.res:18:0
+  addValueReference EmptyArray.res:10:9 --> React.res:17:0
   Scanning ErrorHandler.cmt Source:ErrorHandler.res
   addValueDeclaration +notify ErrorHandler.res:7:6 path:+ErrorHandler.Make
   addValueDeclaration +x ErrorHandler.res:12:4 path:+ErrorHandler
@@ -410,133 +407,101 @@
   addTypeReference FirstClassModulesInterface.resi:3:2 --> FirstClassModulesInterface.res:2:2
   Scanning Hooks.cmt Source:Hooks.res
   addValueDeclaration +make Hooks.res:4:4 path:+Hooks
-  addValueDeclaration +default Hooks.res:25:4 path:+Hooks
-  addValueDeclaration +anotherComponent Hooks.res:28:4 path:+Hooks
-  addValueDeclaration +make Hooks.res:35:6 path:+Hooks.Inner
-  addValueDeclaration +anotherComponent Hooks.res:38:6 path:+Hooks.Inner
-  addValueDeclaration +make Hooks.res:42:8 path:+Hooks.Inner.Inner2
-  addValueDeclaration +anotherComponent Hooks.res:45:8 path:+Hooks.Inner.Inner2
-  addValueDeclaration +make Hooks.res:52:6 path:+Hooks.NoProps
-  addValueDeclaration +functionWithRenamedArgs Hooks.res:58:4 path:+Hooks
-  addValueDeclaration +componentWithRenamedArgs Hooks.res:64:4 path:+Hooks
-  addValueDeclaration +makeWithRef Hooks.res:70:4 path:+Hooks
-  addValueDeclaration +testForwardRef Hooks.res:80:4 path:+Hooks
-  addValueDeclaration +input Hooks.res:85:4 path:+Hooks
-  addValueDeclaration +polymorphicComponent Hooks.res:100:4 path:+Hooks
-  addValueDeclaration +functionReturningReactElement Hooks.res:103:4 path:+Hooks
-  addValueDeclaration +make Hooks.res:107:6 path:+Hooks.RenderPropRequiresConversion
-  addValueDeclaration +aComponentWithChildren Hooks.res:114:4 path:+Hooks
+  addValueDeclaration +default Hooks.res:27:4 path:+Hooks
+  addValueDeclaration +anotherComponent Hooks.res:30:4 path:+Hooks
+  addValueDeclaration +make Hooks.res:37:6 path:+Hooks.Inner
+  addValueDeclaration +anotherComponent Hooks.res:40:6 path:+Hooks.Inner
+  addValueDeclaration +make Hooks.res:44:8 path:+Hooks.Inner.Inner2
+  addValueDeclaration +anotherComponent Hooks.res:47:8 path:+Hooks.Inner.Inner2
+  addValueDeclaration +make Hooks.res:54:6 path:+Hooks.NoProps
+  addValueDeclaration +functionWithRenamedArgs Hooks.res:60:4 path:+Hooks
+  addValueDeclaration +componentWithRenamedArgs Hooks.res:66:4 path:+Hooks
+  addValueDeclaration +polymorphicComponent Hooks.res:81:4 path:+Hooks
+  addValueDeclaration +functionReturningReactElement Hooks.res:84:4 path:+Hooks
+  addValueDeclaration +make Hooks.res:88:6 path:+Hooks.RenderPropRequiresConversion
+  addValueDeclaration +aComponentWithChildren Hooks.res:95:4 path:+Hooks
   addRecordLabelDeclaration name Hooks.res:1:16 path:+Hooks.vehicle
-  addValueReference Hooks.res:5:26 --> React.res:167:0
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:7:3
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:8:5
+  addValueReference Hooks.res:5:26 --> React.res:145:0
   addTypeReference Hooks.res:10:29 --> Hooks.res:1:16
   addValueReference Hooks.res:10:29 --> Hooks.res:4:12
   addValueReference Hooks.res:10:76 --> Hooks.res:5:7
   addValueReference Hooks.res:9:7 --> React.res:7:0
-  addValueReference Hooks.res:8:5 --> ReactDOMRe.res:8:0
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames:props argNamesMaybe: Hooks.res:13:5
+  addValueReference Hooks.res:8:5 --> ReactDOMRe.res:7:0
   addValueReference Hooks.res:13:40 --> Hooks.res:5:7
   addValueReference Hooks.res:13:26 --> Hooks.res:5:14
   addValueReference Hooks.res:13:54 --> React.res:7:0
-  addValueReference Hooks.res:13:5 --> ReactDOMRe.res:8:0
+  addValueReference Hooks.res:13:5 --> ReactDOMRe.res:7:0
   addValueReference Hooks.res:14:5 --> ImportHooks.res:13:0
   DeadOptionalArgs.addReferences ImportHooks.makeProps called with optional argNames: argNamesMaybe: Hooks.res:14:5
   addValueReference Hooks.res:14:5 --> React.res:3:0
+  addValueReference Hooks.res:14:76 --> Hooks.res:14:57
   addValueReference Hooks.res:14:63 --> React.res:7:0
   addValueReference Hooks.res:14:5 --> ImportHooks.res:13:0
   addValueReference Hooks.res:15:7 --> React.res:7:0
-  addValueReference Hooks.res:15:32 --> React.res:7:0
-  addValueReference Hooks.res:14:5 --> React.res:24:0
-  addValueReference Hooks.res:17:5 --> ImportHookDefault.res:6:0
-  DeadOptionalArgs.addReferences ImportHookDefault.makeProps called with optional argNames: argNamesMaybe: Hooks.res:17:5
-  addValueReference Hooks.res:17:5 --> React.res:3:0
-  addValueReference Hooks.res:18:61 --> React.res:7:0
-  addValueReference Hooks.res:17:5 --> ImportHookDefault.res:6:0
-  addValueReference Hooks.res:19:7 --> React.res:7:0
-  addValueReference Hooks.res:19:32 --> React.res:7:0
-  addValueReference Hooks.res:17:5 --> React.res:24:0
-  addValueReference Hooks.res:7:3 --> ReactDOMRe.res:8:0
-  addValueReference Hooks.res:25:4 --> Hooks.res:4:4
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:30:3
-  addTypeReference Hooks.res:30:41 --> Hooks.res:1:16
-  addValueReference Hooks.res:30:41 --> Hooks.res:28:24
-  addValueReference Hooks.res:30:9 --> React.res:7:0
-  addValueReference Hooks.res:30:3 --> ReactDOMRe.res:8:0
-  addValueReference Hooks.res:29:2 --> Hooks.res:28:34
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:35:28
-  addTypeReference Hooks.res:35:66 --> Hooks.res:1:16
-  addValueReference Hooks.res:35:66 --> Hooks.res:35:14
-  addValueReference Hooks.res:35:34 --> React.res:7:0
-  addValueReference Hooks.res:35:28 --> ReactDOMRe.res:8:0
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:38:40
-  addTypeReference Hooks.res:38:78 --> Hooks.res:1:16
-  addValueReference Hooks.res:38:78 --> Hooks.res:38:26
-  addValueReference Hooks.res:38:46 --> React.res:7:0
-  addValueReference Hooks.res:38:40 --> ReactDOMRe.res:8:0
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:42:30
-  addTypeReference Hooks.res:42:68 --> Hooks.res:1:16
-  addValueReference Hooks.res:42:68 --> Hooks.res:42:16
-  addValueReference Hooks.res:42:36 --> React.res:7:0
-  addValueReference Hooks.res:42:30 --> ReactDOMRe.res:8:0
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:46:7
-  addTypeReference Hooks.res:46:45 --> Hooks.res:1:16
-  addValueReference Hooks.res:46:45 --> Hooks.res:45:28
-  addValueReference Hooks.res:46:13 --> React.res:7:0
-  addValueReference Hooks.res:46:7 --> ReactDOMRe.res:8:0
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:52:20
-  addValueReference Hooks.res:52:25 --> React.res:3:0
-  addValueReference Hooks.res:52:20 --> ReactDOMRe.res:8:0
-  addTypeReference Hooks.res:60:2 --> Hooks.res:1:16
-  addValueReference Hooks.res:58:4 --> Hooks.res:58:31
-  addTypeReference Hooks.res:60:14 --> Hooks.res:1:16
-  addValueReference Hooks.res:58:4 --> Hooks.res:58:37
-  addValueReference Hooks.res:58:4 --> Hooks.res:58:31
-  addValueReference Hooks.res:58:4 --> Hooks.res:58:45
-  addTypeReference Hooks.res:66:15 --> Hooks.res:1:16
-  addValueReference Hooks.res:66:15 --> Hooks.res:64:32
-  addTypeReference Hooks.res:66:27 --> Hooks.res:1:16
-  addValueReference Hooks.res:66:27 --> Hooks.res:64:38
-  addValueReference Hooks.res:66:2 --> React.res:7:0
-  addValueReference Hooks.res:65:6 --> Hooks.res:64:32
-  addValueReference Hooks.res:65:2 --> Hooks.res:64:46
-  addValueDeclaration +_ Hooks.res:71:2 path:+Hooks
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames:props argNamesMaybe: Hooks.res:74:20
-  addValueReference Hooks.res:74:52 --> Hooks.res:74:11
-  addValueReference Hooks.res:74:32 --> ReactDOM.res:47:2
-  addTypeReference Hooks.res:74:73 --> Hooks.res:1:16
-  addValueReference Hooks.res:74:73 --> Hooks.res:70:19
-  addValueReference Hooks.res:74:60 --> React.res:7:0
-  addValueReference Hooks.res:74:20 --> ReactDOMRe.res:8:0
-  addValueReference Hooks.res:75:14 --> React.res:3:0
-  addValueReference Hooks.res:73:11 --> Hooks.res:72:2
-  addValueReference Hooks.res:80:4 --> Hooks.res:70:4
-  addValueReference Hooks.res:80:4 --> React.res:90:0
-  addRecordLabelDeclaration x Hooks.res:82:10 path:+Hooks.r
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames:props argNamesMaybe: Hooks.res:85:47
-  addValueReference Hooks.res:85:66 --> Hooks.res:85:38
-  addTypeReference Hooks.res:85:87 --> Hooks.res:82:10
-  addValueReference Hooks.res:85:87 --> Hooks.res:85:30
-  addValueReference Hooks.res:85:74 --> React.res:7:0
-  addValueReference Hooks.res:85:47 --> ReactDOMRe.res:8:0
-  addValueReference Hooks.res:85:4 --> React.res:90:0
-  addTypeReference Hooks.res:100:58 --> Hooks.res:1:16
-  addValueReference Hooks.res:100:58 --> Hooks.res:100:35
-  addValueReference Hooks.res:100:45 --> React.res:7:0
-  addValueReference Hooks.res:103:60 --> Hooks.res:103:37
-  addValueReference Hooks.res:103:47 --> React.res:7:0
-  addValueDeclaration +car Hooks.res:108:8 path:+Hooks.RenderPropRequiresConversion
-  addValueReference Hooks.res:109:30 --> Hooks.res:108:8
-  addValueReference Hooks.res:109:18 --> Hooks.res:109:18
-  addValueReference Hooks.res:109:4 --> Hooks.res:107:14
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:115:3
-  addTypeReference Hooks.res:115:41 --> Hooks.res:1:16
-  addValueReference Hooks.res:115:41 --> Hooks.res:114:30
-  addValueReference Hooks.res:115:9 --> React.res:7:0
-  DeadOptionalArgs.addReferences ReactDOMRe.createDOMElementVariadic called with optional argNames: argNamesMaybe: Hooks.res:115:57
-  addValueReference Hooks.res:115:62 --> Hooks.res:114:40
-  addValueReference Hooks.res:115:57 --> ReactDOMRe.res:8:0
-  addValueReference Hooks.res:115:3 --> ReactDOMRe.res:8:0
+  addValueReference Hooks.res:16:7 --> React.res:7:0
+  addValueReference Hooks.res:14:5 --> React.res:26:0
+  addValueReference Hooks.res:18:5 --> ImportHookDefault.res:6:0
+  DeadOptionalArgs.addReferences ImportHookDefault.makeProps called with optional argNames: argNamesMaybe: Hooks.res:18:5
+  addValueReference Hooks.res:18:5 --> React.res:3:0
+  addValueReference Hooks.res:19:74 --> Hooks.res:19:55
+  addValueReference Hooks.res:19:61 --> React.res:7:0
+  addValueReference Hooks.res:18:5 --> ImportHookDefault.res:6:0
+  addValueReference Hooks.res:20:7 --> React.res:7:0
+  addValueReference Hooks.res:21:7 --> React.res:7:0
+  addValueReference Hooks.res:18:5 --> React.res:26:0
+  addValueReference Hooks.res:7:3 --> ReactDOMRe.res:7:0
+  addValueReference Hooks.res:27:4 --> Hooks.res:4:4
+  addTypeReference Hooks.res:32:41 --> Hooks.res:1:16
+  addValueReference Hooks.res:32:41 --> Hooks.res:30:24
+  addValueReference Hooks.res:32:9 --> React.res:7:0
+  addValueReference Hooks.res:32:3 --> ReactDOMRe.res:7:0
+  addValueReference Hooks.res:31:2 --> Hooks.res:30:34
+  addTypeReference Hooks.res:37:66 --> Hooks.res:1:16
+  addValueReference Hooks.res:37:66 --> Hooks.res:37:14
+  addValueReference Hooks.res:37:34 --> React.res:7:0
+  addValueReference Hooks.res:37:28 --> ReactDOMRe.res:7:0
+  addTypeReference Hooks.res:40:78 --> Hooks.res:1:16
+  addValueReference Hooks.res:40:78 --> Hooks.res:40:26
+  addValueReference Hooks.res:40:46 --> React.res:7:0
+  addValueReference Hooks.res:40:40 --> ReactDOMRe.res:7:0
+  addTypeReference Hooks.res:44:68 --> Hooks.res:1:16
+  addValueReference Hooks.res:44:68 --> Hooks.res:44:16
+  addValueReference Hooks.res:44:36 --> React.res:7:0
+  addValueReference Hooks.res:44:30 --> ReactDOMRe.res:7:0
+  addTypeReference Hooks.res:48:45 --> Hooks.res:1:16
+  addValueReference Hooks.res:48:45 --> Hooks.res:47:28
+  addValueReference Hooks.res:48:13 --> React.res:7:0
+  addValueReference Hooks.res:48:7 --> ReactDOMRe.res:7:0
+  addValueReference Hooks.res:54:25 --> React.res:3:0
+  addValueReference Hooks.res:54:20 --> ReactDOMRe.res:7:0
+  addTypeReference Hooks.res:62:2 --> Hooks.res:1:16
+  addValueReference Hooks.res:60:4 --> Hooks.res:60:31
+  addTypeReference Hooks.res:62:14 --> Hooks.res:1:16
+  addValueReference Hooks.res:60:4 --> Hooks.res:60:37
+  addValueReference Hooks.res:60:4 --> Hooks.res:60:31
+  addValueReference Hooks.res:60:4 --> Hooks.res:60:45
+  addTypeReference Hooks.res:68:15 --> Hooks.res:1:16
+  addValueReference Hooks.res:68:15 --> Hooks.res:66:32
+  addTypeReference Hooks.res:68:27 --> Hooks.res:1:16
+  addValueReference Hooks.res:68:27 --> Hooks.res:66:38
+  addValueReference Hooks.res:68:2 --> React.res:7:0
+  addValueReference Hooks.res:67:6 --> Hooks.res:66:32
+  addValueReference Hooks.res:67:2 --> Hooks.res:66:46
+  addTypeReference Hooks.res:81:58 --> Hooks.res:1:16
+  addValueReference Hooks.res:81:58 --> Hooks.res:81:35
+  addValueReference Hooks.res:81:45 --> React.res:7:0
+  addValueReference Hooks.res:84:60 --> Hooks.res:84:37
+  addValueReference Hooks.res:84:47 --> React.res:7:0
+  addValueDeclaration +car Hooks.res:89:8 path:+Hooks.RenderPropRequiresConversion
+  addValueReference Hooks.res:90:30 --> Hooks.res:89:8
+  addValueReference Hooks.res:90:18 --> Hooks.res:90:18
+  addValueReference Hooks.res:90:4 --> Hooks.res:88:14
+  addTypeReference Hooks.res:97:37 --> Hooks.res:1:16
+  addValueReference Hooks.res:97:37 --> Hooks.res:95:30
+  addValueReference Hooks.res:97:5 --> React.res:7:0
+  addValueReference Hooks.res:98:10 --> Hooks.res:95:40
+  addValueReference Hooks.res:98:5 --> ReactDOMRe.res:7:0
+  addValueReference Hooks.res:96:3 --> ReactDOMRe.res:7:0
   Scanning IgnoreInterface.cmt Source:IgnoreInterface.res
   Scanning IgnoreInterface.cmti Source:IgnoreInterface.resi
   Scanning ImmutableArray.cmt Source:ImmutableArray.res
@@ -1219,9 +1184,7 @@
   addValueReference OptArg.res:1:4 --> OptArg.res:1:29
   addValueReference OptArg.res:3:4 --> OptArg.res:3:17
   addValueReference OptArg.res:3:4 --> OptArg.res:3:27
-  DeadOptionalArgs.addReferences foo called with optional argNames:x argNamesMaybe: OptArg.res:5:7
   addValueReference OptArg.res:5:7 --> OptArg.res:1:4
-  DeadOptionalArgs.addReferences bar called with optional argNames: argNamesMaybe: OptArg.res:7:7
   addValueReference OptArg.res:7:7 --> OptArg.res:3:4
   addValueReference OptArg.res:9:4 --> OptArg.res:9:20
   addValueReference OptArg.res:9:4 --> OptArg.res:9:26
@@ -1230,25 +1193,20 @@
   addValueReference OptArg.res:9:4 --> OptArg.res:9:23
   addValueReference OptArg.res:9:4 --> OptArg.res:9:29
   addValueReference OptArg.res:9:4 --> OptArg.res:9:35
-  DeadOptionalArgs.addReferences threeArgs called with optional argNames:c, a argNamesMaybe: OptArg.res:11:7
   addValueReference OptArg.res:11:7 --> OptArg.res:9:4
-  DeadOptionalArgs.addReferences threeArgs called with optional argNames:a argNamesMaybe: OptArg.res:12:7
   addValueReference OptArg.res:12:7 --> OptArg.res:9:4
   addValueReference OptArg.res:14:4 --> OptArg.res:14:18
   addValueReference OptArg.res:14:4 --> OptArg.res:14:24
   addValueReference OptArg.res:14:4 --> OptArg.res:14:15
   addValueReference OptArg.res:14:4 --> OptArg.res:14:21
   addValueReference OptArg.res:14:4 --> OptArg.res:14:27
-  DeadOptionalArgs.addReferences twoArgs called with optional argNames: argNamesMaybe: OptArg.res:16:12
   addValueReference OptArg.res:16:12 --> OptArg.res:14:4
   addValueReference OptArg.res:18:4 --> OptArg.res:18:17
   addValueReference OptArg.res:18:4 --> OptArg.res:18:14
   addValueReference OptArg.res:18:4 --> OptArg.res:18:24
-  DeadOptionalArgs.addReferences oneArg called with optional argNames:a argNamesMaybe:a OptArg.res:20:30
   addValueReference OptArg.res:20:4 --> OptArg.res:20:18
   addValueReference OptArg.res:20:4 --> OptArg.res:20:24
   addValueReference OptArg.res:20:4 --> OptArg.res:18:4
-  DeadOptionalArgs.addReferences wrapOneArg called with optional argNames:a argNamesMaybe: OptArg.res:22:7
   addValueReference OptArg.res:22:7 --> OptArg.res:20:4
   addValueReference OptArg.res:24:4 --> OptArg.res:24:19
   addValueReference OptArg.res:24:4 --> OptArg.res:24:25
@@ -1259,20 +1217,15 @@
   addValueReference OptArg.res:24:4 --> OptArg.res:24:28
   addValueReference OptArg.res:24:4 --> OptArg.res:24:34
   addValueReference OptArg.res:24:4 --> OptArg.res:24:40
-  DeadOptionalArgs.addReferences fourArgs called with optional argNames:c, b, a argNamesMaybe:c, b, a OptArg.res:26:44
   addValueReference OptArg.res:26:4 --> OptArg.res:26:20
   addValueReference OptArg.res:26:4 --> OptArg.res:26:26
   addValueReference OptArg.res:26:4 --> OptArg.res:26:32
   addValueReference OptArg.res:26:4 --> OptArg.res:26:38
   addValueReference OptArg.res:26:4 --> OptArg.res:24:4
-  DeadOptionalArgs.addReferences wrapfourArgs called with optional argNames:c, a argNamesMaybe: OptArg.res:28:7
   addValueReference OptArg.res:28:7 --> OptArg.res:26:4
-  DeadOptionalArgs.addReferences wrapfourArgs called with optional argNames:c, b argNamesMaybe: OptArg.res:29:7
   addValueReference OptArg.res:29:7 --> OptArg.res:26:4
   addValueReference OptArg.resi:1:0 --> OptArg.res:1:4
-  OptionalArgs.addFunctionReference OptArg.resi:1:0 OptArg.res:1:4
   addValueReference OptArg.resi:2:0 --> OptArg.res:3:4
-  OptionalArgs.addFunctionReference OptArg.resi:2:0 OptArg.res:3:4
   Scanning OptArg.cmti Source:OptArg.resi
   addValueDeclaration +foo OptArg.resi:1:0 path:OptArg
   addValueDeclaration +bar OptArg.resi:2:0 path:OptArg
@@ -1474,12 +1427,10 @@
   addValueDeclaration +bar TestOptArg.res:5:4 path:+TestOptArg
   addValueDeclaration +notSuppressesOptArgs TestOptArg.res:9:4 path:+TestOptArg
   addValueDeclaration +liveSuppressesOptArgs TestOptArg.res:14:4 path:+TestOptArg
-  DeadOptionalArgs.addReferences OptArg.bar called with optional argNames:z argNamesMaybe: TestOptArg.res:1:7
   addValueReference TestOptArg.res:1:7 --> OptArg.resi:2:0
   addValueReference TestOptArg.res:3:4 --> TestOptArg.res:3:14
   addValueReference TestOptArg.res:3:4 --> TestOptArg.res:3:11
   addValueReference TestOptArg.res:3:4 --> TestOptArg.res:3:17
-  DeadOptionalArgs.addReferences foo called with optional argNames:x argNamesMaybe: TestOptArg.res:5:16
   addValueReference TestOptArg.res:5:4 --> TestOptArg.res:3:4
   addValueReference TestOptArg.res:7:7 --> TestOptArg.res:5:4
   addValueReference TestOptArg.res:9:4 --> TestOptArg.res:9:31
@@ -1489,7 +1440,6 @@
   addValueReference TestOptArg.res:9:4 --> TestOptArg.res:9:34
   addValueReference TestOptArg.res:9:4 --> TestOptArg.res:9:40
   addValueReference TestOptArg.res:9:4 --> TestOptArg.res:9:46
-  DeadOptionalArgs.addReferences notSuppressesOptArgs called with optional argNames: argNamesMaybe: TestOptArg.res:11:8
   addValueReference TestOptArg.res:11:8 --> TestOptArg.res:9:4
   addValueReference TestOptArg.res:14:4 --> TestOptArg.res:14:32
   addValueReference TestOptArg.res:14:4 --> TestOptArg.res:14:38
@@ -1498,7 +1448,6 @@
   addValueReference TestOptArg.res:14:4 --> TestOptArg.res:14:35
   addValueReference TestOptArg.res:14:4 --> TestOptArg.res:14:41
   addValueReference TestOptArg.res:14:4 --> TestOptArg.res:14:47
-  DeadOptionalArgs.addReferences liveSuppressesOptArgs called with optional argNames:x argNamesMaybe: TestOptArg.res:16:8
   addValueReference TestOptArg.res:16:8 --> TestOptArg.res:14:4
   Scanning TestPromise.cmt Source:TestPromise.res
   addValueDeclaration +convert TestPromise.res:14:4 path:+TestPromise
@@ -1690,16 +1639,16 @@
   addValueReference Unison.res:26:8 --> Unison.res:26:20
   addValueReference Unison.res:26:8 --> Unison.res:28:23
   addValueReference Unison.res:26:8 --> Unison.res:19:8
-  addValueReference Unison.res:26:8 --> Unison.res:28:23
   addValueReference Unison.res:26:8 --> Unison.res:26:20
+  addValueReference Unison.res:26:8 --> Unison.res:28:23
   addValueReference Unison.res:26:8 --> Unison.res:26:8
   addValueReference Unison.res:26:8 --> Unison.res:28:17
-  addValueReference Unison.res:26:8 --> Unison.res:28:23
   addValueReference Unison.res:26:8 --> Unison.res:26:20
+  addValueReference Unison.res:26:8 --> Unison.res:28:23
   addValueReference Unison.res:26:8 --> Unison.res:26:8
   addValueReference Unison.res:26:8 --> Unison.res:28:17
-  addValueReference Unison.res:26:8 --> Unison.res:28:23
   addValueReference Unison.res:26:8 --> Unison.res:26:20
+  addValueReference Unison.res:26:8 --> Unison.res:28:23
   addValueReference Unison.res:26:8 --> Unison.res:26:8
   addValueReference Unison.res:26:8 --> Unison.res:28:10
   addTypeReference Unison.res:28:9 --> Unison.res:9:2
@@ -1708,13 +1657,11 @@
   addTypeReference Unison.res:37:20 --> Unison.res:14:2
   addValueReference Unison.res:37:0 --> Unison.res:26:8
   addTypeReference Unison.res:38:20 --> Unison.res:15:2
-  DeadOptionalArgs.addReferences group called with optional argNames:break argNamesMaybe: Unison.res:38:25
   addTypeReference Unison.res:38:38 --> Unison.res:5:2
   addValueReference Unison.res:38:25 --> Unison.res:17:4
   addTypeReference Unison.res:38:53 --> Unison.res:14:2
   addValueReference Unison.res:38:0 --> Unison.res:26:8
   addTypeReference Unison.res:39:20 --> Unison.res:15:2
-  DeadOptionalArgs.addReferences group called with optional argNames:break argNamesMaybe: Unison.res:39:25
   addTypeReference Unison.res:39:38 --> Unison.res:6:2
   addValueReference Unison.res:39:25 --> Unison.res:17:4
   addTypeReference Unison.res:39:52 --> Unison.res:14:2
@@ -1844,7 +1791,7 @@ File References
   FirstClassModules.res -->> 
   FirstClassModulesInterface.res -->> 
   FirstClassModulesInterface.resi -->> FirstClassModulesInterface.res
-  Hooks.res -->> React.res, ReactDOM.res, ReactDOMRe.res, ImportHookDefault.res, ImportHooks.res
+  Hooks.res -->> React.res, ReactDOMRe.res, ImportHookDefault.res, ImportHooks.res
   IgnoreInterface.res -->> 
   IgnoreInterface.resi -->> 
   ImmutableArray.res -->> 
@@ -2043,15 +1990,10 @@ File References
   Dead RecordLabel FirstClassModulesInterface.record.y: 0 references () [0]
   Dead RecordLabel FirstClassModulesInterface.record.x: 0 references () [0]
   Live Value +Hooks.+aComponentWithChildren: 0 references () [0]
-  Live Value +Hooks.RenderPropRequiresConversion.+car: 1 references (Hooks.res:109:30) [0]
+  Live Value +Hooks.RenderPropRequiresConversion.+car: 1 references (Hooks.res:90:30) [0]
   Live Value +Hooks.RenderPropRequiresConversion.+make: 0 references () [0]
   Live Value +Hooks.+functionReturningReactElement: 0 references () [0]
   Live Value +Hooks.+polymorphicComponent: 0 references () [0]
-  Live Value +Hooks.+input: 0 references () [0]
-  Live RecordLabel +Hooks.r.x: 1 references (Hooks.res:85:87) [0]
-  Live Value +Hooks.+testForwardRef: 0 references () [0]
-  Dead Value +Hooks.+_: 0 references () [0]
-  Live Value +Hooks.+makeWithRef: 1 references (Hooks.res:80:4) [0]
   Live Value +Hooks.+componentWithRenamedArgs: 0 references () [0]
   Live Value +Hooks.+functionWithRenamedArgs: 0 references () [0]
   Live Value +Hooks.NoProps.+make: 0 references () [0]
@@ -2061,8 +2003,8 @@ File References
   Live Value +Hooks.Inner.+make: 0 references () [0]
   Live Value +Hooks.+anotherComponent: 0 references () [0]
   Live Value +Hooks.+default: 0 references () [0]
-  Live Value +Hooks.+make: 1 references (Hooks.res:25:4) [0]
-  Live RecordLabel +Hooks.vehicle.name: 13 references (Hooks.res:10:29, Hooks.res:30:41, Hooks.res:35:66, Hooks.res:38:78, Hooks.res:42:68, Hooks.res:46:45, Hooks.res:60:2, Hooks.res:60:14, Hooks.res:66:15, Hooks.res:66:27, Hooks.res:74:73, Hooks.res:100:58, Hooks.res:115:41) [0]
+  Live Value +Hooks.+make: 1 references (Hooks.res:27:4) [0]
+  Live RecordLabel +Hooks.vehicle.name: 12 references (Hooks.res:10:29, Hooks.res:32:41, Hooks.res:37:66, Hooks.res:40:78, Hooks.res:44:68, Hooks.res:48:45, Hooks.res:62:2, Hooks.res:62:14, Hooks.res:68:15, Hooks.res:68:27, Hooks.res:81:58, Hooks.res:97:37) [0]
   Live Value +ImportIndex.+make: 0 references () [0]
   Dead Value +ImportMyBanner.+make: 0 references () [0]
   Live Value +ImportMyBanner.+make: 0 references () [0]
@@ -2435,7 +2377,7 @@ File References
   Live Value ImmutableArray.+fromArray: 1 references (DeadTest.res:1:15) [0]
   Live Value ImmutableArray.Array.+get: 1 references (TestImmutableArray.res:2:4) [0]
   Live Value +ImportHookDefault.+make2: 0 references () [0]
-  Live Value +ImportHookDefault.+make: 1 references (Hooks.res:17:5) [0]
+  Live Value +ImportHookDefault.+make: 1 references (Hooks.res:18:5) [0]
   Dead RecordLabel +ImportHookDefault.person.age: 0 references () [0]
   Dead RecordLabel +ImportHookDefault.person.name: 0 references () [0]
   Live Value +ImportHooks.+foo: 0 references () [0]
@@ -2541,72 +2483,8 @@ File References
   Live Value +OptArg.+foo: 1 references (OptArg.res:5:7) [0]
 
   Incorrect Dead Annotation
-  DeadTest.res:178:1-22
+  DeadTest.res:177:1-28
   deadIncorrect  is annotated @dead but is live
-
-  Warning Unused Argument
-  TestOptArg.res:9:1-65
-  optional argument x of function notSuppressesOptArgs is never used
-
-  Warning Unused Argument
-  TestOptArg.res:9:1-65
-  optional argument y of function notSuppressesOptArgs is never used
-
-  Warning Unused Argument
-  TestOptArg.res:9:1-65
-  optional argument z of function notSuppressesOptArgs is never used
-
-  Warning Redundant Optional Argument
-  TestOptArg.res:3:1-28
-  optional argument x of function foo is always supplied (1 calls)
-
-  Warning Redundant Optional Argument
-  Unison.res:17:1-60
-  optional argument break of function group is always supplied (2 calls)
-
-  Warning Unused Argument
-  OptArg.resi:2:1-50
-  optional argument x of function bar is never used
-
-  Warning Redundant Optional Argument
-  OptArg.res:26:1-70
-  optional argument c of function wrapfourArgs is always supplied (2 calls)
-
-  Warning Unused Argument
-  OptArg.res:24:1-63
-  optional argument d of function fourArgs is never used
-
-  Warning Redundant Optional Argument
-  OptArg.res:20:1-51
-  optional argument a of function wrapOneArg is always supplied (1 calls)
-
-  Warning Unused Argument
-  OptArg.res:14:1-42
-  optional argument a of function twoArgs is never used
-
-  Warning Unused Argument
-  OptArg.res:14:1-42
-  optional argument b of function twoArgs is never used
-
-  Warning Unused Argument
-  OptArg.res:9:1-54
-  optional argument b of function threeArgs is never used
-
-  Warning Redundant Optional Argument
-  OptArg.res:9:1-54
-  optional argument a of function threeArgs is always supplied (2 calls)
-
-  Warning Unused Argument
-  OptArg.res:3:1-38
-  optional argument x of function bar is never used
-
-  Warning Unused Argument
-  OptArg.res:1:1-48
-  optional argument y of function foo is never used
-
-  Warning Unused Argument
-  OptArg.res:1:1-48
-  optional argument z of function foo is never used
 
   Warning Dead Module
   AutoAnnotate.res:0:1
@@ -2796,11 +2674,9 @@ File References
   <-- line 136
   @dead("minute") let minute = Int64.mul(60L, second)
 
-  Warning Dead Value
+  Warning Dead Value With Side Effects
   DeadTest.res:138:1-21
-  deadRef is never used
-  <-- line 138
-  @dead("deadRef") let deadRef = ref(12)
+  deadRef is never used and could have side effects
 
   Warning Dead Value With Side Effects
   DeadTest.res:145:1-40
@@ -2921,10 +2797,10 @@ File References
   ErrorHandler is a dead module as all its items are dead.
 
   Warning Dead Value
-  ErrorHandler.res:12:1-10
+  ErrorHandler.res:11:1-19
   x is never used
   <-- line 12
-  @dead("x") let x = 42
+  @dead("x") @genType
 
   Warning Dead Module
   ErrorHandler.resi:0:1
@@ -3087,10 +2963,10 @@ File References
     @dead("makeByU") let makeByU = (c, f) => Array.makeByU(c, f)->toT
 
   Warning Dead Value
-  ImmutableArray.res:47:3-48
+  ImmutableArray.res:47:3-49
   makeBy is never used
   <-- line 47
-    @dead("makeBy") let makeBy = (c, f) => Array.makeBy(c, f)->toT
+    @dead("makeBy") let makeBy = (c, f) => Array.makeByU(c, f)->toT
 
   Warning Dead Value
   ImmutableArray.res:49:3-70
@@ -3099,10 +2975,10 @@ File References
     @dead("makeByAndShuffleU") let makeByAndShuffleU = (c, f) => Array.makeByAndShuffleU(c, f)->toT
 
   Warning Dead Value
-  ImmutableArray.res:50:3-68
+  ImmutableArray.res:50:3-69
   makeByAndShuffle is never used
   <-- line 50
-    @dead("makeByAndShuffle") let makeByAndShuffle = (c, f) => Array.makeByAndShuffle(c, f)->toT
+    @dead("makeByAndShuffle") let makeByAndShuffle = (c, f) => Array.makeByAndShuffleU(c, f)->toT
 
   Warning Dead Value
   ImmutableArray.res:52:3-61
@@ -3117,10 +2993,10 @@ File References
     @dead("zipByU") let zipByU = (a1, a2, f) => Array.zipByU(fromT(a1), fromT(a2), f)->toT
 
   Warning Dead Value
-  ImmutableArray.res:55:3-70
+  ImmutableArray.res:55:3-71
   zipBy is never used
   <-- line 55
-    @dead("zipBy") let zipBy = (a1, a2, f) => Array.zipBy(fromT(a1), fromT(a2), f)->toT
+    @dead("zipBy") let zipBy = (a1, a2, f) => Array.zipByU(fromT(a1), fromT(a2), f)->toT
 
   Warning Dead Value
   ImmutableArray.res:57:3-47
@@ -3165,10 +3041,10 @@ File References
     @dead("forEachU") let forEachU = (a, f) => Array.forEachU(a->fromT, f)
 
   Warning Dead Value
-  ImmutableArray.res:70:3-52
+  ImmutableArray.res:70:3-53
   forEach is never used
   <-- line 70
-    @dead("forEach") let forEach = (a, f) => Array.forEach(a->fromT, f)
+    @dead("forEach") let forEach = (a, f) => Array.forEachU(a->fromT, f)
 
   Warning Dead Value
   ImmutableArray.res:72:3-51
@@ -3177,10 +3053,10 @@ File References
     @dead("mapU") let mapU = (a, f) => Array.mapU(a->fromT, f)->toT
 
   Warning Dead Value
-  ImmutableArray.res:73:3-49
+  ImmutableArray.res:73:3-50
   map is never used
   <-- line 73
-    @dead("map") let map = (a, f) => Array.map(a->fromT, f)->toT
+    @dead("map") let map = (a, f) => Array.mapU(a->fromT, f)->toT
 
   Warning Dead Value
   ImmutableArray.res:75:3-71
@@ -3189,10 +3065,10 @@ File References
     @dead("keepWithIndexU") let keepWithIndexU = (a, f) => Array.keepWithIndexU(a->fromT, f)->toT
 
   Warning Dead Value
-  ImmutableArray.res:76:3-69
+  ImmutableArray.res:76:3-70
   keepWithIndex is never used
   <-- line 76
-    @dead("keepWithIndex") let keepWithIndex = (a, f) => Array.keepWithIndex(a->fromT, f)->toT
+    @dead("keepWithIndex") let keepWithIndex = (a, f) => Array.keepWithIndexU(a->fromT, f)->toT
 
   Warning Dead Value
   ImmutableArray.res:78:3-59
@@ -3201,10 +3077,10 @@ File References
     @dead("keepMapU") let keepMapU = (a, f) => Array.keepMapU(a->fromT, f)->toT
 
   Warning Dead Value
-  ImmutableArray.res:79:3-57
+  ImmutableArray.res:79:3-58
   keepMap is never used
   <-- line 79
-    @dead("keepMap") let keepMap = (a, f) => Array.keepMap(a->fromT, f)->toT
+    @dead("keepMap") let keepMap = (a, f) => Array.keepMapU(a->fromT, f)->toT
 
   Warning Dead Value
   ImmutableArray.res:81:3-72
@@ -3213,10 +3089,10 @@ File References
     @dead("forEachWithIndexU") let forEachWithIndexU = (a, f) => Array.forEachWithIndexU(a->fromT, f)
 
   Warning Dead Value
-  ImmutableArray.res:82:3-70
+  ImmutableArray.res:82:3-71
   forEachWithIndex is never used
   <-- line 82
-    @dead("forEachWithIndex") let forEachWithIndex = (a, f) => Array.forEachWithIndex(a->fromT, f)
+    @dead("forEachWithIndex") let forEachWithIndex = (a, f) => Array.forEachWithIndexU(a->fromT, f)
 
   Warning Dead Value
   ImmutableArray.res:84:3-69
@@ -3225,10 +3101,10 @@ File References
     @dead("mapWithIndexU") let mapWithIndexU = (a, f) => Array.mapWithIndexU(a->fromT, f)->toT
 
   Warning Dead Value
-  ImmutableArray.res:85:3-67
+  ImmutableArray.res:85:3-68
   mapWithIndex is never used
   <-- line 85
-    @dead("mapWithIndex") let mapWithIndex = (a, f) => Array.mapWithIndex(a->fromT, f)->toT
+    @dead("mapWithIndex") let mapWithIndex = (a, f) => Array.mapWithIndexU(a->fromT, f)->toT
 
   Warning Dead Value
   ImmutableArray.res:87:3-64
@@ -3237,10 +3113,10 @@ File References
     @dead("partitionU") let partitionU = (a, f) => Array.partitionU(a->fromT, f)->toT2
 
   Warning Dead Value
-  ImmutableArray.res:88:3-62
+  ImmutableArray.res:88:3-63
   partition is never used
   <-- line 88
-    @dead("partition") let partition = (a, f) => Array.partition(a->fromT, f)->toT2
+    @dead("partition") let partition = (a, f) => Array.partitionU(a->fromT, f)->toT2
 
   Warning Dead Value
   ImmutableArray.res:90:3-58
@@ -3249,10 +3125,10 @@ File References
     @dead("reduceU") let reduceU = (a, b, f) => Array.reduceU(a->fromT, b, f)
 
   Warning Dead Value
-  ImmutableArray.res:91:3-56
+  ImmutableArray.res:91:3-57
   reduce is never used
   <-- line 91
-    @dead("reduce") let reduce = (a, b, f) => Array.reduce(a->fromT, b, f)
+    @dead("reduce") let reduce = (a, b, f) => Array.reduceU(a->fromT, b, f)
 
   Warning Dead Value
   ImmutableArray.res:93:3-72
@@ -3261,10 +3137,10 @@ File References
     @dead("reduceReverseU") let reduceReverseU = (a, b, f) => Array.reduceReverseU(a->fromT, b, f)
 
   Warning Dead Value
-  ImmutableArray.res:94:3-70
+  ImmutableArray.res:94:3-71
   reduceReverse is never used
   <-- line 94
-    @dead("reduceReverse") let reduceReverse = (a, b, f) => Array.reduceReverse(a->fromT, b, f)
+    @dead("reduceReverse") let reduceReverse = (a, b, f) => Array.reduceReverseU(a->fromT, b, f)
 
   Warning Dead Value
   ImmutableArray.res:96:3-91
@@ -3273,10 +3149,10 @@ File References
     @dead("reduceReverse2U") let reduceReverse2U = (a1, a2, c, f) => Array.reduceReverse2U(fromT(a1), fromT(a2), c, f)
 
   Warning Dead Value
-  ImmutableArray.res:97:3-89
+  ImmutableArray.res:97:3-90
   reduceReverse2 is never used
   <-- line 97
-    @dead("reduceReverse2") let reduceReverse2 = (a1, a2, c, f) => Array.reduceReverse2(fromT(a1), fromT(a2), c, f)
+    @dead("reduceReverse2") let reduceReverse2 = (a1, a2, c, f) => Array.reduceReverse2U(fromT(a1), fromT(a2), c, f)
 
   Warning Dead Value
   ImmutableArray.res:99:3-48
@@ -3285,10 +3161,10 @@ File References
     @dead("someU") let someU = (a, f) => Array.someU(a->fromT, f)
 
   Warning Dead Value
-  ImmutableArray.res:100:3-46
+  ImmutableArray.res:100:3-47
   some is never used
   <-- line 100
-    @dead("some") let some = (a, f) => Array.some(a->fromT, f)
+    @dead("some") let some = (a, f) => Array.someU(a->fromT, f)
 
   Warning Dead Value
   ImmutableArray.res:102:3-50
@@ -3297,10 +3173,10 @@ File References
     @dead("everyU") let everyU = (a, f) => Array.everyU(a->fromT, f)
 
   Warning Dead Value
-  ImmutableArray.res:103:3-48
+  ImmutableArray.res:103:3-49
   every is never used
   <-- line 103
-    @dead("every") let every = (a, f) => Array.every(a->fromT, f)
+    @dead("every") let every = (a, f) => Array.everyU(a->fromT, f)
 
   Warning Dead Value
   ImmutableArray.res:105:3-69
@@ -3309,10 +3185,10 @@ File References
     @dead("every2U") let every2U = (a1, a2, f) => Array.every2U(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  ImmutableArray.res:106:3-67
+  ImmutableArray.res:106:3-68
   every2 is never used
   <-- line 106
-    @dead("every2") let every2 = (a1, a2, f) => Array.every2(fromT(a1), fromT(a2), f)
+    @dead("every2") let every2 = (a1, a2, f) => Array.every2U(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
   ImmutableArray.res:108:3-67
@@ -3321,10 +3197,10 @@ File References
     @dead("some2U") let some2U = (a1, a2, f) => Array.some2U(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  ImmutableArray.res:109:3-65
+  ImmutableArray.res:109:3-66
   some2 is never used
   <-- line 109
-    @dead("some2") let some2 = (a1, a2, f) => Array.some2(fromT(a1), fromT(a2), f)
+    @dead("some2") let some2 = (a1, a2, f) => Array.some2U(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
   ImmutableArray.res:111:3-63
@@ -3333,10 +3209,10 @@ File References
     @dead("cmpU") let cmpU = (a1, a2, f) => Array.cmpU(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  ImmutableArray.res:112:3-61
+  ImmutableArray.res:112:3-62
   cmp is never used
   <-- line 112
-    @dead("cmp") let cmp = (a1, a2, f) => Array.cmp(fromT(a1), fromT(a2), f)
+    @dead("cmp") let cmp = (a1, a2, f) => Array.cmpU(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
   ImmutableArray.res:114:3-61
@@ -3345,10 +3221,10 @@ File References
     @dead("eqU") let eqU = (a1, a2, f) => Array.eqU(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
-  ImmutableArray.res:115:3-59
+  ImmutableArray.res:115:3-60
   eq is never used
   <-- line 115
-    @dead("eq") let eq = (a1, a2, f) => Array.eq(fromT(a1), fromT(a2), f)
+    @dead("eq") let eq = (a1, a2, f) => Array.eqU(fromT(a1), fromT(a2), f)
 
   Warning Dead Value
   ImmutableArray.resi:12:1-31
@@ -3435,10 +3311,10 @@ File References
   @dead("rangeBy") let rangeBy: (int, int, ~step: int) => t<int>
 
   Warning Dead Value
-  ImmutableArray.resi:41:1-42
+  ImmutableArray.resi:41:1-38
   makeByU is never used
   <-- line 41
-  @dead("makeByU") let makeByU: (int, (. int) => 'a) => t<'a>
+  @dead("makeByU") let makeByU: (int, int => 'a) => t<'a>
 
   Warning Dead Value
   ImmutableArray.resi:42:1-37
@@ -3447,10 +3323,10 @@ File References
   @dead("makeBy") let makeBy: (int, int => 'a) => t<'a>
 
   Warning Dead Value
-  ImmutableArray.resi:44:1-52
+  ImmutableArray.resi:44:1-48
   makeByAndShuffleU is never used
   <-- line 44
-  @dead("makeByAndShuffleU") let makeByAndShuffleU: (int, (. int) => 'a) => t<'a>
+  @dead("makeByAndShuffleU") let makeByAndShuffleU: (int, int => 'a) => t<'a>
 
   Warning Dead Value
   ImmutableArray.resi:45:1-47
@@ -3465,10 +3341,10 @@ File References
   @dead("zip") let zip: (t<'a>, t<'b>) => t<('a, 'b)>
 
   Warning Dead Value
-  ImmutableArray.resi:49:1-53
+  ImmutableArray.resi:49:1-51
   zipByU is never used
   <-- line 49
-  @dead("zipByU") let zipByU: (t<'a>, t<'b>, (. 'a, 'b) => 'c) => t<'c>
+  @dead("zipByU") let zipByU: (t<'a>, t<'b>, ('a, 'b) => 'c) => t<'c>
 
   Warning Dead Value
   ImmutableArray.resi:50:1-50
@@ -3513,10 +3389,10 @@ File References
   @dead("copy") let copy: t<'a> => t<'a>
 
   Warning Dead Value
-  ImmutableArray.resi:64:1-45
+  ImmutableArray.resi:64:1-41
   forEachU is never used
   <-- line 64
-  @dead("forEachU") let forEachU: (t<'a>, (. 'a) => unit) => unit
+  @dead("forEachU") let forEachU: (t<'a>, 'a => unit) => unit
 
   Warning Dead Value
   ImmutableArray.resi:65:1-40
@@ -3525,10 +3401,10 @@ File References
   @dead("forEach") let forEach: (t<'a>, 'a => unit) => unit
 
   Warning Dead Value
-  ImmutableArray.resi:67:1-40
+  ImmutableArray.resi:67:1-36
   mapU is never used
   <-- line 67
-  @dead("mapU") let mapU: (t<'a>, (. 'a) => 'b) => t<'b>
+  @dead("mapU") let mapU: (t<'a>, 'a => 'b) => t<'b>
 
   Warning Dead Value
   ImmutableArray.resi:68:1-35
@@ -3537,10 +3413,10 @@ File References
   @dead("map") let map: (t<'a>, 'a => 'b) => t<'b>
 
   Warning Dead Value
-  ImmutableArray.resi:70:1-57
+  ImmutableArray.resi:70:1-55
   keepWithIndexU is never used
   <-- line 70
-  @dead("keepWithIndexU") let keepWithIndexU: (t<'a>, (. 'a, int) => bool) => t<'a>
+  @dead("keepWithIndexU") let keepWithIndexU: (t<'a>, ('a, int) => bool) => t<'a>
 
   Warning Dead Value
   ImmutableArray.resi:71:1-54
@@ -3549,10 +3425,10 @@ File References
   @dead("keepWithIndex") let keepWithIndex: (t<'a>, ('a, int) => bool) => t<'a>
 
   Warning Dead Value
-  ImmutableArray.resi:73:1-52
+  ImmutableArray.resi:73:1-48
   keepMapU is never used
   <-- line 73
-  @dead("keepMapU") let keepMapU: (t<'a>, (. 'a) => option<'b>) => t<'b>
+  @dead("keepMapU") let keepMapU: (t<'a>, 'a => option<'b>) => t<'b>
 
   Warning Dead Value
   ImmutableArray.resi:74:1-47
@@ -3561,10 +3437,10 @@ File References
   @dead("keepMap") let keepMap: (t<'a>, 'a => option<'b>) => t<'b>
 
   Warning Dead Value
-  ImmutableArray.resi:76:1-59
+  ImmutableArray.resi:76:1-57
   forEachWithIndexU is never used
   <-- line 76
-  @dead("forEachWithIndexU") let forEachWithIndexU: (t<'a>, (. int, 'a) => unit) => unit
+  @dead("forEachWithIndexU") let forEachWithIndexU: (t<'a>, (int, 'a) => unit) => unit
 
   Warning Dead Value
   ImmutableArray.resi:77:1-56
@@ -3573,10 +3449,10 @@ File References
   @dead("forEachWithIndex") let forEachWithIndex: (t<'a>, (int, 'a) => unit) => unit
 
   Warning Dead Value
-  ImmutableArray.resi:79:1-54
+  ImmutableArray.resi:79:1-52
   mapWithIndexU is never used
   <-- line 79
-  @dead("mapWithIndexU") let mapWithIndexU: (t<'a>, (. int, 'a) => 'b) => t<'b>
+  @dead("mapWithIndexU") let mapWithIndexU: (t<'a>, (int, 'a) => 'b) => t<'b>
 
   Warning Dead Value
   ImmutableArray.resi:80:1-51
@@ -3585,10 +3461,10 @@ File References
   @dead("mapWithIndex") let mapWithIndex: (t<'a>, (int, 'a) => 'b) => t<'b>
 
   Warning Dead Value
-  ImmutableArray.resi:82:1-57
+  ImmutableArray.resi:82:1-53
   partitionU is never used
   <-- line 82
-  @dead("partitionU") let partitionU: (t<'a>, (. 'a) => bool) => (t<'a>, t<'a>)
+  @dead("partitionU") let partitionU: (t<'a>, 'a => bool) => (t<'a>, t<'a>)
 
   Warning Dead Value
   ImmutableArray.resi:83:1-52
@@ -3597,10 +3473,10 @@ File References
   @dead("partition") let partition: (t<'a>, 'a => bool) => (t<'a>, t<'a>)
 
   Warning Dead Value
-  ImmutableArray.resi:85:1-48
+  ImmutableArray.resi:85:1-46
   reduceU is never used
   <-- line 85
-  @dead("reduceU") let reduceU: (t<'a>, 'b, (. 'b, 'a) => 'b) => 'b
+  @dead("reduceU") let reduceU: (t<'a>, 'b, ('b, 'a) => 'b) => 'b
 
   Warning Dead Value
   ImmutableArray.resi:86:1-45
@@ -3609,10 +3485,10 @@ File References
   @dead("reduce") let reduce: (t<'a>, 'b, ('b, 'a) => 'b) => 'b
 
   Warning Dead Value
-  ImmutableArray.resi:88:1-55
+  ImmutableArray.resi:88:1-53
   reduceReverseU is never used
   <-- line 88
-  @dead("reduceReverseU") let reduceReverseU: (t<'a>, 'b, (. 'b, 'a) => 'b) => 'b
+  @dead("reduceReverseU") let reduceReverseU: (t<'a>, 'b, ('b, 'a) => 'b) => 'b
 
   Warning Dead Value
   ImmutableArray.resi:89:1-52
@@ -3621,10 +3497,10 @@ File References
   @dead("reduceReverse") let reduceReverse: (t<'a>, 'b, ('b, 'a) => 'b) => 'b
 
   Warning Dead Value
-  ImmutableArray.resi:91:1-67
+  ImmutableArray.resi:91:1-65
   reduceReverse2U is never used
   <-- line 91
-  @dead("reduceReverse2U") let reduceReverse2U: (t<'a>, t<'b>, 'c, (. 'c, 'a, 'b) => 'c) => 'c
+  @dead("reduceReverse2U") let reduceReverse2U: (t<'a>, t<'b>, 'c, ('c, 'a, 'b) => 'c) => 'c
 
   Warning Dead Value
   ImmutableArray.resi:92:1-64
@@ -3633,10 +3509,10 @@ File References
   @dead("reduceReverse2") let reduceReverse2: (t<'a>, t<'b>, 'c, ('c, 'a, 'b) => 'c) => 'c
 
   Warning Dead Value
-  ImmutableArray.resi:94:1-42
+  ImmutableArray.resi:94:1-38
   someU is never used
   <-- line 94
-  @dead("someU") let someU: (t<'a>, (. 'a) => bool) => bool
+  @dead("someU") let someU: (t<'a>, 'a => bool) => bool
 
   Warning Dead Value
   ImmutableArray.resi:95:1-37
@@ -3645,10 +3521,10 @@ File References
   @dead("some") let some: (t<'a>, 'a => bool) => bool
 
   Warning Dead Value
-  ImmutableArray.resi:97:1-43
+  ImmutableArray.resi:97:1-39
   everyU is never used
   <-- line 97
-  @dead("everyU") let everyU: (t<'a>, (. 'a) => bool) => bool
+  @dead("everyU") let everyU: (t<'a>, 'a => bool) => bool
 
   Warning Dead Value
   ImmutableArray.resi:98:1-38
@@ -3657,10 +3533,10 @@ File References
   @dead("every") let every: (t<'a>, 'a => bool) => bool
 
   Warning Dead Value
-  ImmutableArray.resi:100:1-55
+  ImmutableArray.resi:100:1-53
   every2U is never used
   <-- line 100
-  @dead("every2U") let every2U: (t<'a>, t<'b>, (. 'a, 'b) => bool) => bool
+  @dead("every2U") let every2U: (t<'a>, t<'b>, ('a, 'b) => bool) => bool
 
   Warning Dead Value
   ImmutableArray.resi:101:1-52
@@ -3669,10 +3545,10 @@ File References
   @dead("every2") let every2: (t<'a>, t<'b>, ('a, 'b) => bool) => bool
 
   Warning Dead Value
-  ImmutableArray.resi:103:1-54
+  ImmutableArray.resi:103:1-52
   some2U is never used
   <-- line 103
-  @dead("some2U") let some2U: (t<'a>, t<'b>, (. 'a, 'b) => bool) => bool
+  @dead("some2U") let some2U: (t<'a>, t<'b>, ('a, 'b) => bool) => bool
 
   Warning Dead Value
   ImmutableArray.resi:104:1-51
@@ -3681,10 +3557,10 @@ File References
   @dead("some2") let some2: (t<'a>, t<'b>, ('a, 'b) => bool) => bool
 
   Warning Dead Value
-  ImmutableArray.resi:106:1-50
+  ImmutableArray.resi:106:1-48
   cmpU is never used
   <-- line 106
-  @dead("cmpU") let cmpU: (t<'a>, t<'a>, (. 'a, 'a) => int) => int
+  @dead("cmpU") let cmpU: (t<'a>, t<'a>, ('a, 'a) => int) => int
 
   Warning Dead Value
   ImmutableArray.resi:107:1-47
@@ -3693,10 +3569,10 @@ File References
   @dead("cmp") let cmp: (t<'a>, t<'a>, ('a, 'a) => int) => int
 
   Warning Dead Value
-  ImmutableArray.resi:109:1-51
+  ImmutableArray.resi:109:1-49
   eqU is never used
   <-- line 109
-  @dead("eqU") let eqU: (t<'a>, t<'a>, (. 'a, 'a) => bool) => bool
+  @dead("eqU") let eqU: (t<'a>, t<'a>, ('a, 'a) => bool) => bool
 
   Warning Dead Value
   ImmutableArray.resi:110:1-48
@@ -4294,4 +4170,4 @@ File References
   <-- line 96
   type variant1Object = | @dead("variant1Object.R") R(payload)
   
-  Analysis reported 306 issues (Incorrect Dead Annotation:1, Warning Dead Exception:2, Warning Dead Module:22, Warning Dead Type:86, Warning Dead Value:177, Warning Dead Value With Side Effects:2, Warning Redundant Optional Argument:5, Warning Unused Argument:11)
+  Analysis reported 290 issues (Incorrect Dead Annotation:1, Warning Dead Exception:2, Warning Dead Module:22, Warning Dead Type:86, Warning Dead Value:176, Warning Dead Value With Side Effects:3)
