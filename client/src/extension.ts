@@ -113,7 +113,11 @@ export function activate(context: ExtensionContext) {
 
     // Options to control the language client
     let clientOptions: LanguageClientOptions = {
-      documentSelector: [{ scheme: "file", language: "rescript" }],
+      documentSelector: [
+        { scheme: "file", language: "rescript" },
+        { scheme: "file", pattern: "**/rescript.json" },
+        { scheme: "file", pattern: "**/bsconfig.json" },
+      ],
       // We'll send the initial configuration in here, but this might be
       // problematic because every consumer of the LS will need to mimic this.
       // We'll leave it like this for now, but might be worth revisiting later on.
