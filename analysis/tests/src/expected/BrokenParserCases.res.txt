@@ -28,3 +28,7 @@ ContextPath Value[None]
 Path None
 []
 
+Complete src/BrokenParserCases.res 14:18
+posCursor:[14:18] posNoWhite:[14:17] Found expr:[14:12->14:28]
+[]
+
