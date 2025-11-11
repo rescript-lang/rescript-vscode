@@ -35,6 +35,7 @@ import {
   convertPlainTextToJsonT,
   buildInsertionText,
 } from "./commands/paste_as_rescript_json";
+import { convertPlainTextToRescriptJsx } from "./commands/paste_as_rescript_jsx";
 
 let client: LanguageClient;
 
@@ -393,9 +394,13 @@ export function activate(context: ExtensionContext) {
     customCommands.dumpDebugRetrigger();
   });
 
-  const pasteEditKind = DocumentDropOrPasteEditKind.Text.append(
+  const pasteJsonEditKind = DocumentDropOrPasteEditKind.Text.append(
     "rescript",
     "json",
+  );
+  const pasteJsxEditKind = DocumentDropOrPasteEditKind.Text.append(
+    "rescript",
+    "jsx",
   );
 
   context.subscriptions.push(
@@ -421,32 +426,54 @@ export function activate(context: ExtensionContext) {
           }
 
           const text = await candidateItem.asString();
-          const conversion = convertPlainTextToJsonT(text);
-          if (conversion.kind !== "success") {
-            return;
-          }
-
           const targetRange = ranges[0];
           if (!targetRange) {
             return;
           }
 
-          const insertText = buildInsertionText(
-            document,
-            targetRange.start,
-            conversion.formatted,
-          );
-          const edit = new DocumentPasteEdit(
-            insertText,
-            "Paste as ReScript JSON.t",
-            pasteEditKind,
-          );
+          const edits: DocumentPasteEdit[] = [];
 
-          return [edit];
+          const jsonConversion = convertPlainTextToJsonT(text);
+          if (jsonConversion.kind === "success") {
+            const insertText = buildInsertionText(
+              document,
+              targetRange.start,
+              jsonConversion.formatted,
+            );
+            edits.push(
+              new DocumentPasteEdit(
+                insertText,
+                "Paste as ReScript JSON.t",
+                pasteJsonEditKind,
+              ),
+            );
+          }
+
+          const jsxConversion = convertPlainTextToRescriptJsx(text);
+          if (jsxConversion.kind === "success") {
+            const insertText = buildInsertionText(
+              document,
+              targetRange.start,
+              jsxConversion.formatted,
+            );
+            edits.push(
+              new DocumentPasteEdit(
+                insertText,
+                "Paste as ReScript JSX",
+                pasteJsxEditKind,
+              ),
+            );
+          }
+
+          if (edits.length === 0) {
+            return;
+          }
+
+          return edits;
         },
       },
       {
-        providedPasteEditKinds: [pasteEditKind],
+        providedPasteEditKinds: [pasteJsonEditKind, pasteJsxEditKind],
         pasteMimeTypes: ["text/plain", "application/json"],
       },
     ),
