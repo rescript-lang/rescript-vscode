@@ -16,6 +16,9 @@ export const convertPlainTextToRescriptJsx = (
   }
 
   try {
+    // If you ever need to fix a bug in transformJsx,
+    // please do so in https://github.com/nojaf/vanilla-jsx-to-rescript-jsx/blob/main/index.ts
+    // and then copy the changes to transform-jsx.ts
     const formatted = transformJsx(text);
     return { kind: "success", formatted };
   } catch (error) {
