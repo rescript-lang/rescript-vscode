@@ -13,6 +13,8 @@ import {
   WorkspaceEdit,
   CodeActionKind,
   Diagnostic,
+  DocumentDropOrPasteEditKind,
+  DocumentPasteEdit,
 } from "vscode";
 import { ThemeColor } from "vscode";
 
@@ -29,6 +31,10 @@ import {
   DiagnosticsResultCodeActionsMap,
   statusBarItem,
 } from "./commands/code_analysis";
+import {
+  convertPlainTextToJsonT,
+  buildInsertionText,
+} from "./commands/paste_as_rescript_json";
 
 let client: LanguageClient;
 
@@ -386,6 +392,65 @@ export function activate(context: ExtensionContext) {
   commands.registerCommand("rescript-vscode.debug-dump-retrigger", () => {
     customCommands.dumpDebugRetrigger();
   });
+
+  const pasteEditKind = DocumentDropOrPasteEditKind.Text.append(
+    "rescript",
+    "json",
+  );
+
+  context.subscriptions.push(
+    languages.registerDocumentPasteEditProvider(
+      { language: "rescript" },
+      {
+        async provideDocumentPasteEdits(
+          document,
+          ranges,
+          dataTransfer,
+          _context,
+          token,
+        ) {
+          if (token.isCancellationRequested) {
+            return;
+          }
+
+          const candidateItem =
+            dataTransfer.get("text/plain") ??
+            dataTransfer.get("application/json");
+          if (!candidateItem) {
+            return;
+          }
+
+          const text = await candidateItem.asString();
+          const conversion = convertPlainTextToJsonT(text);
+          if (conversion.kind !== "success") {
+            return;
+          }
+
+          const targetRange = ranges[0];
+          if (!targetRange) {
+            return;
+          }
+
+          const insertText = buildInsertionText(
+            document,
+            targetRange.start,
+            conversion.formatted,
+          );
+          const edit = new DocumentPasteEdit(
+            insertText,
+            "Paste as ReScript JSON.t",
+            pasteEditKind,
+          );
+
+          return [edit];
+        },
+      },
+      {
+        providedPasteEditKinds: [pasteEditKind],
+        pasteMimeTypes: ["text/plain", "application/json"],
+      },
+    ),
+  );
 
   commands.registerCommand(
     "rescript-vscode.go_to_location",

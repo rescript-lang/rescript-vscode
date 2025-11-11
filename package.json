@@ -22,7 +22,7 @@
     "language-server"
   ],
   "engines": {
-    "vscode": "^1.68.0"
+    "vscode": "^1.97.0"
   },
   "activationEvents": [
     "onLanguage:rescript"
@@ -273,7 +273,7 @@
   "devDependencies": {
     "@types/node": "^20.19.13",
     "@types/semver": "^7.7.0",
-    "@types/vscode": "1.68.0",
+    "@types/vscode": "1.97.0",
     "esbuild": "^0.20.1",
     "prettier": "^3.6.2",
     "typescript": "^5.8.3"
