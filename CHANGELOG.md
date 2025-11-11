@@ -10,6 +10,12 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## master
+
+#### :rocket: New Feature
+
+- Paste as JSON.t or ReScript JSX in VSCode. https://github.com/rescript-lang/rescript-vscode/pull/1141
+
 ## 1.66.0
 
 #### :bug: Bug fix
