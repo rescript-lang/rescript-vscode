@@ -267,7 +267,7 @@
     "watch": "tsc -b -w",
     "postinstall": "cd server && npm i && cd ../client && npm i && cd ../tools && npm i && cd ../tools/tests && npm i && cd ../../analysis/tests && npm i && cd ../reanalyze/examples/deadcode && npm i && cd ../termination && npm i",
     "bundle-server": "esbuild server/src/cli.ts --bundle --sourcemap --outfile=server/out/cli.js --format=cjs --platform=node --loader:.node=file --minify",
-    "bundle-client": "esbuild client/src/extension.ts --bundle --external:vscode --external:oxc-parser --external:oxc-walker --sourcemap --outfile=client/out/extension.js --format=cjs --platform=node --loader:.node=file --minify",
+    "bundle-client": "esbuild client/src/extension.ts --bundle --external:vscode --external:oxc-parser --sourcemap --outfile=client/out/extension.js --format=cjs --platform=node --loader:.node=file --minify",
     "bundle": "npm run bundle-server && npm run bundle-client"
   },
   "devDependencies": {
