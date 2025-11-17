@@ -215,15 +215,18 @@ jobs:
 
       - name: Package Extension
         if: github.ref != 'refs/heads/master'
-        run: npx vsce package -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
+        run: npx vsce package --no-yarn -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
 
       - name: Package Extension pre-release version
         if: github.ref == 'refs/heads/master'
-        run: npx vsce package -o rescript-vscode-latest-master.vsix ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
+        run: npx vsce package --no-yarn -o rescript-vscode-latest-master.vsix ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
 
       - name: Package Extension release version
         if: startsWith(github.ref, 'refs/tags/')
-        run: npx vsce package -o rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
+        run: npx vsce package --no-yarn -o rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
+
+      - name: Verify Package Contents
+        run: npm run verify-package
 
       - uses: actions/upload-artifact@v4
         if: github.ref != 'refs/heads/master'
