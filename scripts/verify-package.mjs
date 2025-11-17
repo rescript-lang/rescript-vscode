@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Script to verify that the WASM binding and required dependencies
+ * Script to verify that platform-specific native bindings and required dependencies
  * are included in the packaged .vsix file
  */
 
@@ -42,44 +42,47 @@ try {
   });
   
   const extensionDir = path.join(tempDir, 'extension');
+  const oxcParserDir = path.join(extensionDir, 'node_modules', '@oxc-parser');
   
-  // Check for WASM binding
-  const wasmBindingPath = path.join(extensionDir, 'node_modules', '@oxc-parser', 'binding-wasm32-wasi');
-  const wasmRuntimePath = path.join(extensionDir, 'node_modules', '@napi-rs', 'wasm-runtime');
-  const oxcParserPath = path.join(extensionDir, 'node_modules', 'oxc-parser');
+  // Platform-specific bindings that should be included
+  const platformBindings = [
+    '@oxc-parser/binding-darwin-arm64',
+    '@oxc-parser/binding-darwin-x64',
+    '@oxc-parser/binding-linux-x64-gnu',
+    '@oxc-parser/binding-win32-x64-msvc',
+  ];
   
   const checks = [
     {
-      name: 'WASM binding',
-      path: wasmBindingPath,
-      required: true
-    },
-    {
-      name: 'WASM runtime',
-      path: wasmRuntimePath,
-      required: true
-    },
-    {
       name: 'oxc-parser',
-      path: oxcParserPath,
+      path: path.join(extensionDir, 'node_modules', 'oxc-parser'),
       required: true
-    }
+    },
+    ...platformBindings.map(binding => ({
+      name: binding,
+      path: path.join(oxcParserDir, binding.replace('@oxc-parser/', '')),
+      required: true
+    }))
   ];
   
   let allGood = true;
+  let foundCount = 0;
+  
   for (const check of checks) {
     const exists = fs.existsSync(check.path);
     const status = exists ? '✓' : '✗';
     console.log(`${status} ${check.name}: ${exists ? 'FOUND' : 'MISSING'}`);
     
     if (exists) {
-      // Check for key files
-      if (check.name === 'WASM binding') {
-        const parserFile = path.join(check.path, 'parser.wasi.cjs');
-        if (fs.existsSync(parserFile)) {
-          console.log(`  ✓ parser.wasi.cjs found`);
+      foundCount++;
+      // Check for key files in bindings
+      if (check.name.startsWith('@oxc-parser/binding-')) {
+        // Look for .node files (native bindings) or package.json
+        const packageJson = path.join(check.path, 'package.json');
+        if (fs.existsSync(packageJson)) {
+          console.log(`  ✓ package.json found`);
         } else {
-          console.log(`  ✗ parser.wasi.cjs missing`);
+          console.log(`  ✗ package.json missing`);
           allGood = false;
         }
       }
@@ -89,10 +92,16 @@ try {
   }
   
   console.log('');
-  if (allGood) {
+  console.log(`Found ${foundCount}/${checks.length} required packages`);
+  
+  if (allGood && foundCount === checks.length) {
     console.log('✓ All required files are included in the package!');
   } else {
     console.log('✗ Some required files are missing!');
+    if (foundCount < platformBindings.length) {
+      console.log(`  Warning: Only ${foundCount - 1} platform bindings found, expected ${platformBindings.length}`);
+      console.log('  The extension may not work on all platforms.');
+    }
     process.exit(1);
   }
 } finally {

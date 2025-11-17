@@ -1,4 +1,4 @@
-import { parseSync, type Node } from "oxc-parser/src-js/wasm.js";
+import { parseSync, type Node } from "oxc-parser";
 import { walk } from "oxc-walker";
 import MagicString from "magic-string";
 

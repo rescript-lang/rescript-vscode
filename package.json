@@ -262,7 +262,7 @@
   },
   "scripts": {
     "clean": "rm -rf client/out server/out",
-    "vscode:prepublish": "npm run clean && node scripts/install-platform-bindings.mjs && npm run bundle",
+    "vscode:prepublish": "npm run clean && npm run bundle",
     "verify-package": "node scripts/verify-package.mjs",
     "compile": "tsc -b",
     "watch": "tsc -b -w",
@@ -280,7 +280,6 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@napi-rs/wasm-runtime": "^1.0.7",
     "magic-string": "^0.30.21",
     "oxc-parser": "0.97.0",
     "oxc-walker": "^0.5.2",
