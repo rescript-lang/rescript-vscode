@@ -77,6 +77,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - run: npm ci
+      - run: npm install --include=optional
       - run: opam install dune cppo
       - run: npm run compile
       - run: npm run bundle
@@ -114,10 +115,19 @@ jobs:
           mv rescript-tools.exe ${{matrix.artifact-folder}}
           tar -cvf binary.tar ${{matrix.artifact-folder}}
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
         with:
           name: ${{matrix.artifact-folder}}
           path: binary.tar
+
+      - name: Upload platform bindings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{matrix.artifact-folder}}
+          path: node_modules/@oxc-parser/
+          retention-days: 1
 
   package:
     needs:
@@ -134,6 +144,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - run: npm ci
+      - run: npm install --include=optional
       - run: npm run compile
 
       - name: Download MacOS binaries
@@ -180,6 +191,13 @@ jobs:
         run: rm binary.tar
         working-directory: binaries
 
+      - name: Download platform bindings from all platforms
+        uses: actions/download-artifact@v4
+        with:
+          pattern: bindings-*
+          path: bindings
+          merge-multiple: true
+
       - name: Move binaries to folders
         run: |
           declare -a platforms=("darwin" "darwinarm64" "linux" "linuxarm64" "win32")
@@ -193,6 +211,16 @@ jobs:
               mkdir tools/binaries/"$platform"
               mv binaries/"$platform"/rescript-tools.exe tools/binaries/"$platform"
           done
+
+      - name: Merge platform bindings into node_modules
+        run: |
+          mkdir -p node_modules/@oxc-parser
+          # Copy all bindings from downloaded artifacts
+          if [ -d "bindings" ]; then
+            find bindings -type d -name "binding-*" -exec cp -r {} node_modules/@oxc-parser/ \;
+          fi
+          # Ensure we have the Linux binding from current platform
+          npm install --include=optional || true
 
       - name: Store short commit SHA for filename
         id: vars
@@ -215,15 +243,18 @@ jobs:
 
       - name: Package Extension
         if: github.ref != 'refs/heads/master'
-        run: npx vsce package -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
+        run: npx vsce package --no-yarn -o rescript-vscode-${{ steps.vars.outputs.sha_short }}.vsix
 
       - name: Package Extension pre-release version
         if: github.ref == 'refs/heads/master'
-        run: npx vsce package -o rescript-vscode-latest-master.vsix ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
+        run: npx vsce package --no-yarn -o rescript-vscode-latest-master.vsix ${{ steps.increment_pre_release.outputs.new_version }} --no-git-tag-version
 
       - name: Package Extension release version
         if: startsWith(github.ref, 'refs/tags/')
-        run: npx vsce package -o rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
+        run: npx vsce package --no-yarn -o rescript-vscode-${{ steps.tag_name.outputs.tag }}.vsix ${{ steps.tag_name.outputs.tag }} --no-git-tag-version
+
+      - name: Verify Package Contents
+        run: npm run verify-package
 
       - uses: actions/upload-artifact@v4
         if: github.ref != 'refs/heads/master'

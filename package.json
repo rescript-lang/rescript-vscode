@@ -263,6 +263,7 @@
   "scripts": {
     "clean": "rm -rf client/out server/out",
     "vscode:prepublish": "npm run clean && npm run bundle",
+    "verify-package": "node scripts/verify-package.mjs",
     "compile": "tsc -b",
     "watch": "tsc -b -w",
     "postinstall": "cd server && npm i && cd ../client && npm i && cd ../tools && npm i && cd ../tools/tests && npm i && cd ../../analysis/tests && npm i && cd ../reanalyze/examples/deadcode && npm i && cd ../termination && npm i",
@@ -280,7 +281,7 @@
   },
   "dependencies": {
     "magic-string": "^0.30.21",
-    "oxc-parser": "^0.97.0",
+    "oxc-parser": "0.97.0",
     "oxc-walker": "^0.5.2",
     "semver": "^7.7.2"
   },
