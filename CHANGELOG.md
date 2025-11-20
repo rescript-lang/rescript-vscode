@@ -16,6 +16,10 @@
 
 - Paste as JSON.t or ReScript JSX in VSCode. https://github.com/rescript-lang/rescript-vscode/pull/1141
 
+#### :bug: Bug fix
+
+- Pass RESCRIPT_RUNTIME to analysis process. https://github.com/rescript-lang/rescript-vscode/pull/1145
+
 ## 1.66.0
 
 #### :bug: Bug fix
