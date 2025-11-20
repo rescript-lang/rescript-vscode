@@ -262,32 +262,29 @@ function triggerIncrementalCompilationOfFile(
       return;
     }
 
-    const projectRewatchLockfiles = [
-      ...Array.from(workspaceFolders).map((w) =>
-        path.resolve(w, c.rewatchLockPartialPath),
-      ),
-      ...Array.from(workspaceFolders).map((w) =>
-        path.resolve(w, c.rescriptLockPartialPath),
-      ),
-      path.resolve(projectRootPath, c.rewatchLockPartialPath),
-      path.resolve(projectRootPath, c.rescriptLockPartialPath),
-    ];
+    // computeWorkspaceRootPathFromLockfile returns null if lockfile found (local package) or if no parent found
+    const computedWorkspaceRoot =
+      utils.computeWorkspaceRootPathFromLockfile(projectRootPath);
+    // If null, it means either a lockfile was found (local package) or no parent project root exists
+    // In both cases, we default to projectRootPath
+    const workspaceRootPath = computedWorkspaceRoot ?? projectRootPath;
 
-    let foundRewatchLockfileInProjectRoot = false;
-    if (projectRewatchLockfiles.some((lockFile) => fs.existsSync(lockFile))) {
-      foundRewatchLockfileInProjectRoot = true;
-    } else if (debug()) {
+    // Determine if lockfile was found for debug logging
+    // If computedWorkspaceRoot is null and projectRootPath is not null, check if parent exists
+    const foundRewatchLockfileInProjectRoot =
+      computedWorkspaceRoot == null &&
+      projectRootPath != null &&
+      utils.findProjectRootOfFile(projectRootPath, true) != null;
+
+    if (foundRewatchLockfileInProjectRoot && debug()) {
       console.log(
-        `Did not find ${projectRewatchLockfiles.join(" or ")} in project root, assuming bsb`,
+        `Found rewatch/rescript lockfile in project root, treating as local package in workspace`,
+      );
+    } else if (!foundRewatchLockfileInProjectRoot && debug()) {
+      console.log(
+        `Did not find rewatch/rescript lockfile in project root, assuming bsb`,
       );
     }
-
-    // if we find a rewatch.lock in the project root, it's a compilation of a local package
-    // in the workspace.
-    const workspaceRootPath =
-      projectRootPath && !foundRewatchLockfileInProjectRoot
-        ? utils.findProjectRootOfFile(projectRootPath, true)
-        : null;
 
     const bscBinaryLocation = project.bscBinaryLocation;
     if (bscBinaryLocation == null) {

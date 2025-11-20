@@ -8,8 +8,6 @@ import {
   IncrementallyCompiledFileInfo,
 } from "../incrementalCompilation";
 import type { projectFiles } from "../projectFiles";
-import config from "../config";
-import { findRescriptRuntimesInProject } from "../find-runtime";
 import { jsonrpcVersion } from "../constants";
 
 export type RewatchCompilerArgs = {
@@ -20,39 +18,7 @@ export type RewatchCompilerArgs = {
 async function getRuntimePath(
   entry: IncrementallyCompiledFileInfo,
 ): Promise<string | null> {
-  let rescriptRuntime: string | null =
-    config.extensionConfiguration.runtimePath ?? null;
-
-  if (rescriptRuntime !== null) {
-    if (debug()) {
-      console.log(
-        `Using configured runtime path as RESCRIPT_RUNTIME: ${rescriptRuntime}`,
-      );
-    }
-    return rescriptRuntime;
-  }
-
-  const rescriptRuntimes = await findRescriptRuntimesInProject(
-    entry.project.workspaceRootPath,
-  );
-
-  if (debug()) {
-    if (rescriptRuntimes.length === 0) {
-      console.log(
-        `Did not find @rescript/runtime directory for ${entry.project.workspaceRootPath}`,
-      );
-    } else if (rescriptRuntimes.length > 1) {
-      console.warn(
-        `Found multiple @rescript/runtime directories, using the first one as RESCRIPT_RUNTIME: ${rescriptRuntimes.join(", ")}`,
-      );
-    } else {
-      console.log(
-        `Found @rescript/runtime directory: ${rescriptRuntimes.join(", ")}`,
-      );
-    }
-  }
-
-  return rescriptRuntimes.at(0) ?? null;
+  return utils.getRuntimePathFromWorkspaceRoot(entry.project.workspaceRootPath);
 }
 
 export async function getRewatchBscArgs(

@@ -17,6 +17,9 @@ import * as lookup from "./lookup";
 import { reportError } from "./errorReporter";
 import config from "./config";
 import { filesDiagnostics, projectsFiles } from "./projectFiles";
+import { workspaceFolders } from "./server";
+import { rewatchLockPartialPath, rescriptLockPartialPath } from "./constants";
+import { findRescriptRuntimesInProject } from "./find-runtime";
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -301,6 +304,12 @@ export let runAnalysisAfterSanityCheck = async (
     binaryPath = builtinBinaryPath;
   }
 
+  let runtime: string | undefined = undefined;
+  if (semver.gt(rescriptVersion as string, "12.0.0-rc.1")) {
+    const runtimePath = await getRuntimePathFromProjectRoot(projectRootPath);
+    runtime = runtimePath ?? undefined;
+  }
+
   let options: childProcess.ExecFileSyncOptions = {
     cwd: projectRootPath || undefined,
     maxBuffer: Infinity,
@@ -315,6 +324,7 @@ export let runAnalysisAfterSanityCheck = async (
         config.extensionConfiguration.cache?.projectConfig?.enable === true
           ? "true"
           : undefined,
+      RESCRIPT_RUNTIME: runtime,
     },
   };
 
@@ -371,6 +381,110 @@ export const toCamelCase = (text: string): string => {
     .replace(/(?:^\w|[A-Z]|\b\w)/g, (s: string) => s.toUpperCase())
     .replace(/(\s|-)+/g, "");
 };
+
+/**
+ * Computes the workspace root path from a project root path by checking for rewatch/rescript lockfiles.
+ * In a monorepo, this finds the parent project root that contains the workspace.
+ * If a rewatch/rescript lockfile is found in the project root, it's a local package
+ * in the workspace, so we return null (which will default to projectRootPath).
+ */
+export function computeWorkspaceRootPathFromLockfile(
+  projectRootPath: string | null,
+): string | null {
+  if (projectRootPath == null) {
+    return null;
+  }
+
+  const projectRewatchLockfiles = [
+    ...Array.from(workspaceFolders).map((w) =>
+      path.resolve(w, rewatchLockPartialPath),
+    ),
+    ...Array.from(workspaceFolders).map((w) =>
+      path.resolve(w, rescriptLockPartialPath),
+    ),
+    path.resolve(projectRootPath, rewatchLockPartialPath),
+    path.resolve(projectRootPath, rescriptLockPartialPath),
+  ];
+
+  const foundRewatchLockfileInProjectRoot = projectRewatchLockfiles.some(
+    (lockFile) => fs.existsSync(lockFile),
+  );
+
+  // if we find a rewatch.lock in the project root, it's a compilation of a local package
+  // in the workspace.
+  return !foundRewatchLockfileInProjectRoot
+    ? findProjectRootOfFile(projectRootPath, true)
+    : null;
+}
+
+// Shared cache: key is either workspace root path or project root path
+const runtimePathCache = new Map<string, string | null>();
+
+/**
+ * Gets the runtime path from a workspace root path.
+ * This function is cached per workspace root path.
+ */
+export async function getRuntimePathFromWorkspaceRoot(
+  workspaceRootPath: string,
+): Promise<string | null> {
+  // Check cache first
+  if (runtimePathCache.has(workspaceRootPath)) {
+    return runtimePathCache.get(workspaceRootPath)!;
+  }
+
+  // Compute and cache
+  let rescriptRuntime: string | null =
+    config.extensionConfiguration.runtimePath ?? null;
+
+  if (rescriptRuntime !== null) {
+    runtimePathCache.set(workspaceRootPath, rescriptRuntime);
+    return rescriptRuntime;
+  }
+
+  const rescriptRuntimes =
+    await findRescriptRuntimesInProject(workspaceRootPath);
+
+  const result = rescriptRuntimes.at(0) ?? null;
+  runtimePathCache.set(workspaceRootPath, result);
+  return result;
+}
+
+/**
+ * Gets the runtime path from a project root path.
+ * Computes the workspace root path and then resolves the runtime.
+ * This function is cached per project root path.
+ */
+export async function getRuntimePathFromProjectRoot(
+  projectRootPath: string | null,
+): Promise<string | null> {
+  if (projectRootPath == null) {
+    return null;
+  }
+
+  // Check cache first (keyed by projectRootPath)
+  if (runtimePathCache.has(projectRootPath)) {
+    return runtimePathCache.get(projectRootPath)!;
+  }
+
+  // Compute workspace root and resolve runtime
+  const workspaceRootPath =
+    computeWorkspaceRootPathFromLockfile(projectRootPath) ?? projectRootPath;
+
+  // Check cache again with workspace root (might have been cached from a previous call)
+  if (runtimePathCache.has(workspaceRootPath)) {
+    const result = runtimePathCache.get(workspaceRootPath)!;
+    // Cache it under projectRootPath too for faster lookup next time
+    runtimePathCache.set(projectRootPath, result);
+    return result;
+  }
+
+  // Compute and cache
+  const result = await getRuntimePathFromWorkspaceRoot(workspaceRootPath);
+  // Cache it under both keys
+  runtimePathCache.set(workspaceRootPath, result);
+  runtimePathCache.set(projectRootPath, result);
+  return result;
+}
 
 export const getNamespaceNameFromConfigFile = (
   projDir: p.DocumentUri,
