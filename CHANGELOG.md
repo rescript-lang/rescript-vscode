@@ -10,6 +10,12 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## [Unreleased]
+
+#### :bug: Bug fix
+
+- Only paste objects/arrays are JSON.t https://github.com/rescript-lang/rescript-vscode/pull/1148
+
 ## 1.68.0
 
 #### :rocket: New Feature

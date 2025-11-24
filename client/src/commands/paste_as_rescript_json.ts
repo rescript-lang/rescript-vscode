@@ -11,20 +11,7 @@ const isLikelyJson = (text: string): boolean => {
     return false;
   }
   const first = trimmed[0];
-  if (first === "{" || first === "[" || first === '"' || first === "-") {
-    return true;
-  }
-  if (first >= "0" && first <= "9") {
-    return true;
-  }
-  if (
-    trimmed.startsWith("true") ||
-    trimmed.startsWith("false") ||
-    trimmed.startsWith("null")
-  ) {
-    return true;
-  }
-  return false;
+  return first === "{" || first === "[";
 };
 
 const ensureFloatString = (value: number): string => {
@@ -99,6 +86,10 @@ export const convertPlainTextToJsonT = (text: string): JsonConversionResult => {
 
   try {
     const parsed = JSON.parse(text);
+    // Only convert objects and arrays, not primitive values
+    if (typeof parsed !== "object" || parsed === null) {
+      return { kind: "notJson" };
+    }
     return { kind: "success", formatted: formatJsonValue(parsed) };
   } catch {
     return {
