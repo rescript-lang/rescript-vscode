@@ -13,8 +13,6 @@ import {
   WorkspaceEdit,
   CodeActionKind,
   Diagnostic,
-  DocumentDropOrPasteEditKind,
-  DocumentPasteEdit,
 } from "vscode";
 import { ThemeColor } from "vscode";
 
@@ -31,11 +29,8 @@ import {
   DiagnosticsResultCodeActionsMap,
   statusBarItem,
 } from "./commands/code_analysis";
-import {
-  convertPlainTextToJsonT,
-  buildInsertionText,
-} from "./commands/paste_as_rescript_json";
-import { convertPlainTextToRescriptJsx } from "./commands/paste_as_rescript_jsx";
+import { pasteAsRescriptJson } from "./commands/paste_as_rescript_json";
+import { pasteAsRescriptJsx } from "./commands/paste_as_rescript_jsx";
 
 let client: LanguageClient;
 
@@ -394,90 +389,13 @@ export function activate(context: ExtensionContext) {
     customCommands.dumpDebugRetrigger();
   });
 
-  const pasteJsonEditKind = DocumentDropOrPasteEditKind.Text.append(
-    "rescript",
-    "json",
-  );
-  const pasteJsxEditKind = DocumentDropOrPasteEditKind.Text.append(
-    "rescript",
-    "jsx",
-  );
+  commands.registerCommand("rescript-vscode.paste_as_rescript_json", () => {
+    pasteAsRescriptJson();
+  });
 
-  context.subscriptions.push(
-    languages.registerDocumentPasteEditProvider(
-      { language: "rescript" },
-      {
-        async provideDocumentPasteEdits(
-          document,
-          ranges,
-          dataTransfer,
-          _context,
-          token,
-        ) {
-          if (token.isCancellationRequested) {
-            return;
-          }
-
-          const candidateItem =
-            dataTransfer.get("text/plain") ??
-            dataTransfer.get("application/json");
-          if (!candidateItem) {
-            return;
-          }
-
-          const text = await candidateItem.asString();
-          const targetRange = ranges[0];
-          if (!targetRange) {
-            return;
-          }
-
-          const edits: DocumentPasteEdit[] = [];
-
-          const jsonConversion = convertPlainTextToJsonT(text);
-          if (jsonConversion.kind === "success") {
-            const insertText = buildInsertionText(
-              document,
-              targetRange.start,
-              jsonConversion.formatted,
-            );
-            edits.push(
-              new DocumentPasteEdit(
-                insertText,
-                "Paste as ReScript JSON.t",
-                pasteJsonEditKind,
-              ),
-            );
-          }
-
-          const jsxConversion = convertPlainTextToRescriptJsx(text);
-          if (jsxConversion.kind === "success") {
-            const insertText = buildInsertionText(
-              document,
-              targetRange.start,
-              jsxConversion.formatted,
-            );
-            edits.push(
-              new DocumentPasteEdit(
-                insertText,
-                "Paste as ReScript JSX",
-                pasteJsxEditKind,
-              ),
-            );
-          }
-
-          if (edits.length === 0) {
-            return;
-          }
-
-          return edits;
-        },
-      },
-      {
-        providedPasteEditKinds: [pasteJsonEditKind, pasteJsxEditKind],
-        pasteMimeTypes: ["text/plain", "application/json"],
-      },
-    ),
-  );
+  commands.registerCommand("rescript-vscode.paste_as_rescript_jsx", () => {
+    pasteAsRescriptJsx();
+  });
 
   commands.registerCommand(
     "rescript-vscode.go_to_location",

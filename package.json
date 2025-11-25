@@ -92,6 +92,16 @@
       {
         "command": "rescript-vscode.dump-server-state",
         "title": "DEBUG ReScript: Dump LSP Server State"
+      },
+      {
+        "command": "rescript-vscode.paste_as_rescript_json",
+        "category": "ReScript",
+        "title": "Paste as ReScript JSON.t"
+      },
+      {
+        "command": "rescript-vscode.paste_as_rescript_jsx",
+        "category": "ReScript",
+        "title": "Paste as ReScript JSX"
       }
     ],
     "keybindings": [
