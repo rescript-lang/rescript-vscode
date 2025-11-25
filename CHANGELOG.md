@@ -14,6 +14,7 @@
 
 #### :bug: Bug fix
 
+- Remove automatic paste provider that interfered with default paste behavior. Paste as ReScript JSON/JSX commands are now explicit commands only. https://github.com/rescript-lang/rescript-vscode/pull/1150
 - Only paste objects/arrays are JSON.t https://github.com/rescript-lang/rescript-vscode/pull/1148
 
 ## 1.68.0
