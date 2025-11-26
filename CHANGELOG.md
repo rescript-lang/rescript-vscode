@@ -10,7 +10,7 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
-## [Unreleased]
+## 1.70.0
 
 #### :bug: Bug fix
 
