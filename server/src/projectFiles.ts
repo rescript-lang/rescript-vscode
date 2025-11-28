@@ -1,16 +1,17 @@
 import * as cp from "node:child_process";
 import * as p from "vscode-languageserver-protocol";
+import { NormalizedPath, FileURI } from "./utils";
 
 export type filesDiagnostics = {
-  [key: string]: p.Diagnostic[];
+  [key: FileURI]: p.Diagnostic[];
 };
 
 export interface projectFiles {
-  openFiles: Set<string>;
-  filesWithDiagnostics: Set<string>;
+  openFiles: Set<NormalizedPath>;
+  filesWithDiagnostics: Set<FileURI>;
   filesDiagnostics: filesDiagnostics;
   rescriptVersion: string | undefined;
-  bscBinaryLocation: string | null;
+  bscBinaryLocation: NormalizedPath | null;
   editorAnalysisLocation: string | null;
   namespaceName: string | null;
 
@@ -24,5 +25,11 @@ export interface projectFiles {
   hasPromptedToStartBuild: boolean | "never";
 }
 
-export let projectsFiles: Map<string, projectFiles> = // project root path
-  new Map();
+/**
+ * Map of project root paths to their project state.
+ *
+ * Keys are normalized paths (NormalizedPath) to ensure consistent lookups
+ * and prevent path format mismatches. All paths should be normalized using
+ * `normalizePath()` before being used as keys.
+ */
+export let projectsFiles: Map<NormalizedPath, projectFiles> = new Map();

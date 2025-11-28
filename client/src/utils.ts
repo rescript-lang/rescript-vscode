@@ -59,9 +59,7 @@ export const createFileInTempDir = (prefix = "", extension = "") => {
   return path.join(os.tmpdir(), tempFileName);
 };
 
-export let findProjectRootOfFileInDir = (
-  source: DocumentUri,
-): null | DocumentUri => {
+export let findProjectRootOfFileInDir = (source: string): null | string => {
   let dir = path.dirname(source);
   if (
     fs.existsSync(path.join(dir, "rescript.json")) ||

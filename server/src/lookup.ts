@@ -1,9 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as p from "vscode-languageserver-protocol";
 
 import { BuildSchema, ModuleFormat, ModuleFormatObject } from "./buildSchema";
 import * as c from "./constants";
+import { NormalizedPath, normalizePath } from "./utils";
 
 const getCompiledFolderName = (moduleFormat: ModuleFormat): string => {
   switch (moduleFormat) {
@@ -18,36 +18,47 @@ const getCompiledFolderName = (moduleFormat: ModuleFormat): string => {
   }
 };
 
-export const replaceFileExtension = (filePath: string, ext: string): string => {
+export const replaceFileExtension = <T extends string>(
+  filePath: T,
+  ext: string,
+): T => {
   let name = path.basename(filePath, path.extname(filePath));
-  return path.format({ dir: path.dirname(filePath), name, ext });
+  const result = path.format({ dir: path.dirname(filePath), name, ext });
+  // If input was NormalizedPath, result is still normalized
+  // If input was string, result is string
+  return result as T;
 };
 
 // Check if filePartialPath exists at directory and return the joined path,
 // otherwise recursively check parent directories for it.
 export const findFilePathFromProjectRoot = (
-  directory: p.DocumentUri | null, // This must be a directory and not a file!
+  directory: NormalizedPath | null, // This must be a directory and not a file!
   filePartialPath: string,
-): null | p.DocumentUri => {
+): NormalizedPath | null => {
   if (directory == null) {
     return null;
   }
 
-  let filePath: p.DocumentUri = path.join(directory, filePartialPath);
+  let filePath = path.join(directory, filePartialPath);
   if (fs.existsSync(filePath)) {
-    return filePath;
+    return normalizePath(filePath);
   }
 
-  let parentDir: p.DocumentUri = path.dirname(directory);
-  if (parentDir === directory) {
+  let parentDirStr = path.dirname(directory);
+  if (parentDirStr === directory) {
     // reached the top
+    return null;
+  }
+
+  const parentDir = normalizePath(parentDirStr);
+  if (parentDir == null) {
     return null;
   }
 
   return findFilePathFromProjectRoot(parentDir, filePartialPath);
 };
 
-export const readConfig = (projDir: p.DocumentUri): BuildSchema | null => {
+export const readConfig = (projDir: NormalizedPath): BuildSchema | null => {
   try {
     let rescriptJson = path.join(projDir, c.rescriptJsonPartialPath);
     let bsconfigJson = path.join(projDir, c.bsconfigPartialPath);
@@ -109,9 +120,9 @@ export const getSuffixAndPathFragmentFromBsconfig = (bsconfig: BuildSchema) => {
 };
 
 export const getFilenameFromBsconfig = (
-  projDir: string,
+  projDir: NormalizedPath,
   partialFilePath: string,
-): string | null => {
+): NormalizedPath | null => {
   let bsconfig = readConfig(projDir);
 
   if (!bsconfig) {
@@ -122,22 +133,29 @@ export const getFilenameFromBsconfig = (
 
   let compiledPartialPath = replaceFileExtension(partialFilePath, suffix);
 
-  return path.join(projDir, pathFragment, compiledPartialPath);
+  const result = path.join(projDir, pathFragment, compiledPartialPath);
+  return normalizePath(result);
 };
 
 // Monorepo helpers
 export const getFilenameFromRootBsconfig = (
-  projDir: string,
+  projDir: NormalizedPath,
   partialFilePath: string,
-): string | null => {
+): NormalizedPath | null => {
+  // Start searching from the parent directory of projDir to find the workspace root
+  const parentDir = normalizePath(path.dirname(projDir));
+  if (parentDir == null) {
+    return null;
+  }
+
   let rootConfigPath = findFilePathFromProjectRoot(
-    path.join("..", projDir),
+    parentDir,
     c.rescriptJsonPartialPath,
   );
 
   if (!rootConfigPath) {
     rootConfigPath = findFilePathFromProjectRoot(
-      path.join("..", projDir),
+      parentDir,
       c.bsconfigPartialPath,
     );
   }
@@ -146,7 +164,11 @@ export const getFilenameFromRootBsconfig = (
     return null;
   }
 
-  let rootConfig = readConfig(path.dirname(rootConfigPath));
+  const rootConfigDir = normalizePath(path.dirname(rootConfigPath));
+  if (rootConfigDir == null) {
+    return null;
+  }
+  let rootConfig = readConfig(rootConfigDir);
 
   if (!rootConfig) {
     return null;
@@ -156,5 +178,6 @@ export const getFilenameFromRootBsconfig = (
 
   let compiledPartialPath = replaceFileExtension(partialFilePath, suffix);
 
-  return path.join(projDir, pathFragment, compiledPartialPath);
+  const result = path.join(projDir, pathFragment, compiledPartialPath);
+  return normalizePath(result);
 };

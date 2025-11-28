@@ -10,16 +10,66 @@ import fs from "fs";
 import fsAsync from "fs/promises";
 import * as os from "os";
 import semver from "semver";
+import { fileURLToPath } from "url";
 
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
 import * as lookup from "./lookup";
 import { reportError } from "./errorReporter";
 import config from "./config";
-import { filesDiagnostics, projectsFiles } from "./projectFiles";
+import { filesDiagnostics, projectsFiles, projectFiles } from "./projectFiles";
 import { workspaceFolders } from "./server";
 import { rewatchLockPartialPath, rescriptLockPartialPath } from "./constants";
 import { findRescriptRuntimesInProject } from "./find-runtime";
+
+/**
+ * Branded type for normalized file paths.
+ *
+ * All paths stored as keys in `projectsFiles` are normalized to ensure
+ * consistent lookups and prevent path format mismatches (e.g., trailing
+ * slashes, symlinks, relative vs absolute paths).
+ *
+ * Use `normalizePath()` to convert a regular path to a `NormalizedPath`.
+ */
+export type NormalizedPath = string & { __brand: "NormalizedPath" };
+
+/**
+ * Branded type for file URIs (e.g., `file:///path/to/file.res`).
+ *
+ * This represents a URI as used in the Language Server Protocol.
+ * Use `uriToNormalizedPath()` to convert a URI to a normalized file path.
+ */
+export type FileURI = string & { __brand: "FileURI" };
+
+/**
+ * Normalizes a file path and returns it as a `NormalizedPath`.
+ *
+ * This function should be used whenever storing a path as a key in `projectsFiles`
+ * or when comparing paths that need to match exactly.
+ *
+ * @param filePath - The path to normalize (can be null)
+ * @returns The normalized path, or null if input was null
+ */
+export function normalizePath(filePath: string | null): NormalizedPath | null {
+  return filePath != null ? (path.normalize(filePath) as NormalizedPath) : null;
+}
+
+/**
+ * Converts a file URI (e.g., `file:///path/to/file.res`) to a normalized file path.
+ *
+ * This is the preferred way to convert LSP DocumentUri values to file paths,
+ * as it ensures the resulting path is normalized for consistent use throughout
+ * the codebase.
+ *
+ * @param uri - The file URI to convert
+ * @returns The normalized file path
+ * @throws If the URI cannot be converted to a file path
+ */
+export function uriToNormalizedPath(uri: FileURI): NormalizedPath {
+  const filePath = fileURLToPath(uri);
+  // fileURLToPath always returns a string (throws on invalid URI), so we can directly normalize
+  return path.normalize(filePath) as NormalizedPath;
+}
 
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
@@ -31,9 +81,13 @@ export let createFileInTempDir = (extension = "") => {
 };
 
 let findProjectRootOfFileInDir = (
-  source: p.DocumentUri,
-): null | p.DocumentUri => {
-  let dir = path.dirname(source);
+  source: NormalizedPath,
+): NormalizedPath | null => {
+  let dirStr = path.dirname(source);
+  const dir = normalizePath(dirStr);
+  if (dir == null) {
+    return null;
+  }
   if (
     fs.existsSync(path.join(dir, c.rescriptJsonPartialPath)) ||
     fs.existsSync(path.join(dir, c.bsconfigPartialPath))
@@ -52,13 +106,20 @@ let findProjectRootOfFileInDir = (
 // TODO: races here?
 // TODO: this doesn't handle file:/// scheme
 export let findProjectRootOfFile = (
-  source: p.DocumentUri,
+  source: NormalizedPath,
   allowDir?: boolean,
-): null | p.DocumentUri => {
-  // First look in project files
-  let foundRootFromProjectFiles: string | null = null;
+): NormalizedPath | null => {
+  // source is already normalized
+  const normalizedSource = source;
+
+  // First look in project files (keys are already normalized)
+  let foundRootFromProjectFiles: NormalizedPath | null = null;
   for (const rootPath of projectsFiles.keys()) {
-    if (source.startsWith(rootPath) && (!allowDir || source !== rootPath)) {
+    // Both are normalized, so direct comparison works
+    if (
+      normalizedSource.startsWith(rootPath) &&
+      (!allowDir || normalizedSource !== rootPath)
+    ) {
       // Prefer the longest path (most nested)
       if (
         foundRootFromProjectFiles == null ||
@@ -73,26 +134,54 @@ export let findProjectRootOfFile = (
     return foundRootFromProjectFiles;
   } else {
     const isDir = path.extname(source) === "";
-    return findProjectRootOfFileInDir(
-      isDir && !allowDir ? path.join(source, "dummy.res") : source,
-    );
+    const searchPath =
+      isDir && !allowDir ? path.join(source, "dummy.res") : source;
+    const normalizedSearchPath = normalizePath(searchPath);
+    if (normalizedSearchPath == null) {
+      return null;
+    }
+    const foundPath = findProjectRootOfFileInDir(normalizedSearchPath);
+    return foundPath;
   }
+};
+
+/**
+ * Gets the project file for a given project root path.
+ *
+ * All keys in `projectsFiles` are normalized (see `openedFile` in server.ts),
+ * so this function accepts either a normalized or non-normalized path and
+ * normalizes it before lookup.
+ *
+ * @param projectRootPath - The project root path to look up (can be null or already normalized)
+ * @returns The project file if found, null otherwise
+ */
+export let getProjectFile = (
+  projectRootPath: NormalizedPath | null,
+): projectFiles | null => {
+  if (projectRootPath == null) {
+    return null;
+  }
+  return projectsFiles.get(projectRootPath) ?? null;
 };
 
 // If ReScript < 12.0.0-alpha.13, then we want `{project_root}/node_modules/rescript/{c.platformDir}/{binary}`.
 // Otherwise, we want to dynamically import `{project_root}/node_modules/rescript` and from `binPaths` get the relevant binary.
 // We won't know which version is in the project root until we read and parse `{project_root}/node_modules/rescript/package.json`
 let findBinary = async (
-  projectRootPath: p.DocumentUri | null,
+  projectRootPath: NormalizedPath | null,
   binary:
     | "bsc.exe"
     | "rescript-editor-analysis.exe"
     | "rescript"
     | "rewatch.exe"
     | "rescript.exe",
-) => {
+): Promise<NormalizedPath | null> => {
   if (config.extensionConfiguration.platformPath != null) {
-    return path.join(config.extensionConfiguration.platformPath, binary);
+    const result = path.join(
+      config.extensionConfiguration.platformPath,
+      binary,
+    );
+    return normalizePath(result);
   }
 
   if (projectRootPath !== null) {
@@ -106,10 +195,10 @@ let findBinary = async (
       if (compileInfo && compileInfo.bsc_path) {
         const bsc_path = compileInfo.bsc_path;
         if (binary === "bsc.exe") {
-          return bsc_path;
+          return normalizePath(bsc_path);
         } else {
           const binary_path = path.join(path.dirname(bsc_path), binary);
-          return binary_path;
+          return normalizePath(binary_path);
         }
       }
     } catch {}
@@ -166,38 +255,39 @@ let findBinary = async (
   }
 
   if (binaryPath != null && fs.existsSync(binaryPath)) {
-    return binaryPath;
+    return normalizePath(binaryPath);
   } else {
     return null;
   }
 };
 
-export let findRescriptBinary = (projectRootPath: p.DocumentUri | null) =>
+export let findRescriptBinary = (projectRootPath: NormalizedPath | null) =>
   findBinary(projectRootPath, "rescript");
 
-export let findBscExeBinary = (projectRootPath: p.DocumentUri | null) =>
+export let findBscExeBinary = (projectRootPath: NormalizedPath | null) =>
   findBinary(projectRootPath, "bsc.exe");
 
-export let findEditorAnalysisBinary = (projectRootPath: p.DocumentUri | null) =>
-  findBinary(projectRootPath, "rescript-editor-analysis.exe");
+export let findEditorAnalysisBinary = (
+  projectRootPath: NormalizedPath | null,
+) => findBinary(projectRootPath, "rescript-editor-analysis.exe");
 
-export let findRewatchBinary = (projectRootPath: p.DocumentUri | null) =>
+export let findRewatchBinary = (projectRootPath: NormalizedPath | null) =>
   findBinary(projectRootPath, "rewatch.exe");
 
-export let findRescriptExeBinary = (projectRootPath: p.DocumentUri | null) =>
+export let findRescriptExeBinary = (projectRootPath: NormalizedPath | null) =>
   findBinary(projectRootPath, "rescript.exe");
 
-type execResult =
+type execResult<T = string> =
   | {
       kind: "success";
-      result: string;
+      result: T;
     }
   | {
       kind: "error";
       error: string;
     };
 
-type formatCodeResult = execResult;
+type formatCodeResult = execResult<string>;
 
 export let formatCode = (
   bscPath: p.DocumentUri | null,
@@ -238,7 +328,7 @@ export let formatCode = (
 };
 
 export async function findReScriptVersionForProjectRoot(
-  projectRootPath: string | null,
+  projectRootPath: NormalizedPath | null,
 ): Promise<string | undefined> {
   if (projectRootPath == null) {
     return undefined;
@@ -270,7 +360,7 @@ if (fs.existsSync(c.builtinAnalysisDevPath)) {
 }
 
 export let runAnalysisAfterSanityCheck = async (
-  filePath: p.DocumentUri,
+  filePath: NormalizedPath,
   args: Array<any>,
   projectRequired = false,
 ) => {
@@ -279,8 +369,9 @@ export let runAnalysisAfterSanityCheck = async (
     return null;
   }
   let rescriptVersion =
-    projectsFiles.get(projectRootPath ?? "")?.rescriptVersion ??
-    (await findReScriptVersionForProjectRoot(projectRootPath));
+    (projectRootPath
+      ? projectsFiles.get(projectRootPath)?.rescriptVersion
+      : null) ?? (await findReScriptVersionForProjectRoot(projectRootPath));
 
   let binaryPath = builtinBinaryPath;
 
@@ -347,7 +438,7 @@ export let runAnalysisAfterSanityCheck = async (
 };
 
 export let runAnalysisCommand = async (
-  filePath: p.DocumentUri,
+  filePath: NormalizedPath,
   args: Array<any>,
   msg: RequestMessage,
   projectRequired = true,
@@ -366,7 +457,7 @@ export let runAnalysisCommand = async (
 };
 
 export let getReferencesForPosition = async (
-  filePath: p.DocumentUri,
+  filePath: NormalizedPath,
   position: p.Position,
 ) =>
   await runAnalysisAfterSanityCheck(filePath, [
@@ -389,8 +480,8 @@ export const toCamelCase = (text: string): string => {
  * in the workspace, so we return null (which will default to projectRootPath).
  */
 export function computeWorkspaceRootPathFromLockfile(
-  projectRootPath: string | null,
-): string | null {
+  projectRootPath: NormalizedPath | null,
+): NormalizedPath | null {
   if (projectRootPath == null) {
     return null;
   }
@@ -425,7 +516,7 @@ const runtimePathCache = new Map<string, string | null>();
  * This function is cached per workspace root path.
  */
 export async function getRuntimePathFromWorkspaceRoot(
-  workspaceRootPath: string,
+  workspaceRootPath: NormalizedPath,
 ): Promise<string | null> {
   // Check cache first
   if (runtimePathCache.has(workspaceRootPath)) {
@@ -455,7 +546,7 @@ export async function getRuntimePathFromWorkspaceRoot(
  * This function is cached per project root path.
  */
 export async function getRuntimePathFromProjectRoot(
-  projectRootPath: string | null,
+  projectRootPath: NormalizedPath | null,
 ): Promise<string | null> {
   if (projectRootPath == null) {
     return null;
@@ -467,7 +558,7 @@ export async function getRuntimePathFromProjectRoot(
   }
 
   // Compute workspace root and resolve runtime
-  const workspaceRootPath =
+  const workspaceRootPath: NormalizedPath =
     computeWorkspaceRootPathFromLockfile(projectRootPath) ?? projectRootPath;
 
   // Check cache again with workspace root (might have been cached from a previous call)
@@ -487,8 +578,8 @@ export async function getRuntimePathFromProjectRoot(
 }
 
 export const getNamespaceNameFromConfigFile = (
-  projDir: p.DocumentUri,
-): execResult => {
+  projDir: NormalizedPath,
+): execResult<string> => {
   let config = lookup.readConfig(projDir);
   let result = "";
 
@@ -513,9 +604,9 @@ export const getNamespaceNameFromConfigFile = (
 
 export let getCompiledFilePath = (
   filePath: string,
-  projDir: string,
-): execResult => {
-  let error: execResult = {
+  projDir: NormalizedPath,
+): execResult<NormalizedPath> => {
+  let error: execResult<NormalizedPath> = {
     kind: "error",
     error: "Could not read ReScript config file",
   };
@@ -543,9 +634,15 @@ export let getCompiledFilePath = (
     result = compiledPath;
   }
 
+  // Normalize the path before returning
+  const normalizedResult = normalizePath(result);
+  if (normalizedResult == null) {
+    return error;
+  }
+
   return {
     kind: "success",
-    result,
+    result: normalizedResult,
   };
 };
 
@@ -617,8 +714,10 @@ export let runBuildWatcherUsingValidBuildPath = (
 */
 
 // parser helpers
-export let pathToURI = (file: string) => {
-  return process.platform === "win32" ? `file:\\\\\\${file}` : `file://${file}`;
+export let pathToURI = (file: NormalizedPath): FileURI => {
+  return (
+    process.platform === "win32" ? `file:\\\\\\${file}` : `file://${file}`
+  ) as FileURI;
 };
 let parseFileAndRange = (fileAndRange: string) => {
   // https://github.com/rescript-lang/rescript-compiler/blob/0a3f4bb32ca81e89cefd5a912b8795878836f883/jscomp/super_errors/super_location.ml#L15-L25
@@ -641,8 +740,18 @@ let parseFileAndRange = (fileAndRange: string) => {
   let match = trimmedFileAndRange.match(regex);
   if (match === null) {
     // no location! Though LSP insist that we provide at least a dummy location
+    const normalizedPath = normalizePath(trimmedFileAndRange);
+    if (normalizedPath == null) {
+      return {
+        file: pathToURI(normalizePath("")!),
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: 0, character: 0 },
+        },
+      };
+    }
     return {
-      file: pathToURI(trimmedFileAndRange),
+      file: pathToURI(normalizedPath),
       range: {
         start: { line: 0, character: 0 },
         end: { line: 0, character: 0 },
@@ -686,8 +795,15 @@ let parseFileAndRange = (fileAndRange: string) => {
       end: { line: parseInt(endLine) - 1, character: parseInt(endChar) },
     };
   }
+  const normalizedFile = normalizePath(file);
+  if (normalizedFile == null) {
+    return {
+      file: pathToURI(normalizePath("")!),
+      range,
+    };
+  }
   return {
-    file: pathToURI(file),
+    file: pathToURI(normalizedFile),
     range,
   };
 };
@@ -854,9 +970,10 @@ export let parseCompilerLogOutput = async (
   for (const parsedDiagnostic of parsedDiagnostics) {
     let [fileAndRangeLine, ...diagnosticMessage] = parsedDiagnostic.content;
     let { file, range } = parseFileAndRange(fileAndRangeLine);
+    const fileUri = file as FileURI;
 
-    if (result[file] == null) {
-      result[file] = [];
+    if (result[fileUri] == null) {
+      result[fileUri] = [];
     }
 
     // remove start and end whitespaces/newlines
@@ -882,7 +999,7 @@ export let parseCompilerLogOutput = async (
         range,
       });
 
-      result[file].push(diagnostic);
+      result[fileUri].push(diagnostic);
     }
   }
 
