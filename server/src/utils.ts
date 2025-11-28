@@ -104,22 +104,15 @@ let findProjectRootOfFileInDir = (
 };
 
 // TODO: races here?
-// TODO: this doesn't handle file:/// scheme
 export let findProjectRootOfFile = (
   source: NormalizedPath,
   allowDir?: boolean,
 ): NormalizedPath | null => {
-  // source is already normalized
-  const normalizedSource = source;
-
   // First look in project files (keys are already normalized)
   let foundRootFromProjectFiles: NormalizedPath | null = null;
   for (const rootPath of projectsFiles.keys()) {
     // Both are normalized, so direct comparison works
-    if (
-      normalizedSource.startsWith(rootPath) &&
-      (!allowDir || normalizedSource !== rootPath)
-    ) {
+    if (source.startsWith(rootPath) && (!allowDir || source !== rootPath)) {
       // Prefer the longest path (most nested)
       if (
         foundRootFromProjectFiles == null ||
@@ -742,13 +735,9 @@ let parseFileAndRange = (fileAndRange: string) => {
     // no location! Though LSP insist that we provide at least a dummy location
     const normalizedPath = normalizePath(trimmedFileAndRange);
     if (normalizedPath == null) {
-      return {
-        file: pathToURI(normalizePath("")!),
-        range: {
-          start: { line: 0, character: 0 },
-          end: { line: 0, character: 0 },
-        },
-      };
+      // If we can't normalize the file path, throw an error
+      // This should never happen in practice, but we need to handle it
+      throw new Error(`Failed to normalize file path: ${trimmedFileAndRange}`);
     }
     return {
       file: pathToURI(normalizedPath),
@@ -797,10 +786,9 @@ let parseFileAndRange = (fileAndRange: string) => {
   }
   const normalizedFile = normalizePath(file);
   if (normalizedFile == null) {
-    return {
-      file: pathToURI(normalizePath("")!),
-      range,
-    };
+    // If we can't normalize the file path, throw an error
+    // This should never happen in practice, but we need to handle it
+    throw new Error(`Failed to normalize file path: ${file}`);
   }
   return {
     file: pathToURI(normalizedFile),

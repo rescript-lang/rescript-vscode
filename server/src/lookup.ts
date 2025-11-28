@@ -18,15 +18,24 @@ const getCompiledFolderName = (moduleFormat: ModuleFormat): string => {
   }
 };
 
-export const replaceFileExtension = <T extends string>(
-  filePath: T,
+export const replaceFileExtension = (filePath: string, ext: string): string => {
+  let name = path.basename(filePath, path.extname(filePath));
+  return path.format({ dir: path.dirname(filePath), name, ext });
+};
+
+export const replaceFileExtensionWithNormalizedPath = (
+  filePath: NormalizedPath,
   ext: string,
-): T => {
+): NormalizedPath => {
   let name = path.basename(filePath, path.extname(filePath));
   const result = path.format({ dir: path.dirname(filePath), name, ext });
-  // If input was NormalizedPath, result is still normalized
-  // If input was string, result is string
-  return result as T;
+  // path.format() doesn't preserve normalization, so we need to normalize the result
+  const normalized = normalizePath(result);
+  if (normalized == null) {
+    // Should never happen, but handle gracefully
+    return result as NormalizedPath;
+  }
+  return normalized;
 };
 
 // Check if filePartialPath exists at directory and return the joined path,

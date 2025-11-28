@@ -1181,7 +1181,10 @@ async function createInterface(msg: p.RequestMessage): Promise<p.Message> {
   let result = typeof response.result === "string" ? response.result : "";
 
   try {
-    let resiPath = lookup.replaceFileExtension(filePath, c.resiExt);
+    let resiPath = lookup.replaceFileExtensionWithNormalizedPath(
+      filePath,
+      c.resiExt,
+    );
     fs.writeFileSync(resiPath, result, { encoding: "utf-8" });
     let response: p.ResponseMessage = {
       jsonrpc: c.jsonrpcVersion,

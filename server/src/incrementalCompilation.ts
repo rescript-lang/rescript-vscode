@@ -263,24 +263,21 @@ function triggerIncrementalCompilationOfFile(
       if (debug()) console.log("Did not find open project for " + filePath);
       return;
     }
-    // projectRootPath is already the correct normalized key format
-    const actualProjectRootPath = projectRootPath;
 
     // computeWorkspaceRootPathFromLockfile returns null if lockfile found (local package) or if no parent found
-    const computedWorkspaceRoot = utils.computeWorkspaceRootPathFromLockfile(
-      actualProjectRootPath,
-    );
+    const computedWorkspaceRoot =
+      utils.computeWorkspaceRootPathFromLockfile(projectRootPath);
     // If null, it means either a lockfile was found (local package) or no parent project root exists
     // In both cases, we default to actualProjectRootPath
     const workspaceRootPath: NormalizedPath =
-      computedWorkspaceRoot ?? actualProjectRootPath;
+      computedWorkspaceRoot ?? projectRootPath;
 
     // Determine if lockfile was found for debug logging
     // If computedWorkspaceRoot is null and actualProjectRootPath is not null, check if parent exists
     const foundRewatchLockfileInProjectRoot =
       computedWorkspaceRoot == null &&
-      actualProjectRootPath != null &&
-      utils.findProjectRootOfFile(actualProjectRootPath, true) != null;
+      projectRootPath != null &&
+      utils.findProjectRootOfFile(projectRootPath, true) != null;
 
     if (foundRewatchLockfileInProjectRoot && debug()) {
       console.log(
@@ -306,14 +303,14 @@ function triggerIncrementalCompilationOfFile(
         : moduleName;
 
     const incrementalFolderPath: NormalizedPath = path.join(
-      actualProjectRootPath,
+      projectRootPath,
       INCREMENTAL_FILE_FOLDER_LOCATION,
     ) as NormalizedPath;
 
     let originalTypeFileLocation = path.resolve(
-      actualProjectRootPath,
+      projectRootPath,
       c.compilerDirPartialPath,
-      path.relative(actualProjectRootPath, filePath),
+      path.relative(projectRootPath, filePath),
     );
 
     const parsed = path.parse(originalTypeFileLocation);
@@ -333,7 +330,7 @@ function triggerIncrementalCompilationOfFile(
       },
       project: {
         workspaceRootPath,
-        rootPath: actualProjectRootPath,
+        rootPath: projectRootPath,
         callArgs: Promise.resolve([]),
         bscBinaryLocation,
         incrementalFolderPath,

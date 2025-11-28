@@ -24,7 +24,7 @@ async function getRuntimePath(
 export async function getRewatchBscArgs(
   send: (msg: p.Message) => void,
   bscBinaryLocation: utils.NormalizedPath | null,
-  projectsFiles: Map<string, projectFiles>,
+  projectsFiles: Map<utils.NormalizedPath, projectFiles>,
   entry: IncrementallyCompiledFileInfo,
 ): Promise<RewatchCompilerArgs | null> {
   const rewatchCacheEntry = entry.buildRewatch;
