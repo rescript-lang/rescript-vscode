@@ -149,21 +149,14 @@ async function findRuntimePath(project: string): Promise<string[]> {
   return rescriptRuntimeDirs.map((runtime) => resolve(runtime));
 }
 
-function findRuntimeCached(): (project: string) => Promise<string[]> {
-  const cache = new Map<string, string[]>();
-  return async (project: string) => {
-    if (cache.has(project)) {
-      return cache.get(project)!;
-    }
-    const runtimes = await findRuntimePath(project);
-    cache.set(project, runtimes);
-    return runtimes;
-  };
-}
-
 /**
  * Find all installed @rescript/runtime directories in the given project path.
  * In a perfect world, there should be exactly one.
- * This function is cached per project path.
+ * Note: This function is not cached here. Caching is handled by the caller
+ * (see getRuntimePathFromWorkspaceRoot in utils.ts).
  */
-export const findRescriptRuntimesInProject = findRuntimeCached();
+export async function findRescriptRuntimesInProject(
+  project: string,
+): Promise<string[]> {
+  return await findRuntimePath(project);
+}
