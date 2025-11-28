@@ -1011,12 +1011,34 @@ let updateDiagnosticSyntax = async (fileUri: string, fileContent: string) => {
       tmpname,
     ]);
 
+  let allDiagnostics = [
+    ...syntaxDiagnosticsForFile,
+    ...compilerDiagnosticsForFile,
+  ];
+
+  // Update filesWithDiagnostics to track this file
+  let projectRootPath = utils.findProjectRootOfFile(filePath);
+  if (projectRootPath != null) {
+    let projectFile = projectsFiles.get(projectRootPath);
+    if (projectFile != null) {
+      if (allDiagnostics.length > 0) {
+        projectFile.filesWithDiagnostics.add(fileUri);
+      } else {
+        // Only remove if there are no compiler diagnostics either
+        // (compiler diagnostics are tracked separately in filesDiagnostics)
+        if (compilerDiagnosticsForFile.length === 0) {
+          projectFile.filesWithDiagnostics.delete(fileUri);
+        }
+      }
+    }
+  }
+
   let notification: p.NotificationMessage = {
     jsonrpc: c.jsonrpcVersion,
     method: "textDocument/publishDiagnostics",
     params: {
       uri: fileUri,
-      diagnostics: [...syntaxDiagnosticsForFile, ...compilerDiagnosticsForFile],
+      diagnostics: allDiagnostics,
     },
   };
 
