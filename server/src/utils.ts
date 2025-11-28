@@ -486,6 +486,14 @@ export async function getRuntimePathFromProjectRoot(
   return result;
 }
 
+/**
+ * Returns a snapshot of the runtime path cache as a plain object.
+ * Useful for debugging and state dumps.
+ */
+export function getRuntimePathCacheSnapshot(): Record<string, string | null> {
+  return Object.fromEntries(runtimePathCache);
+}
+
 export const getNamespaceNameFromConfigFile = (
   projDir: p.DocumentUri,
 ): execResult => {
