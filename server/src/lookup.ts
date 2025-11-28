@@ -60,9 +60,6 @@ export const findFilePathFromProjectRoot = (
   }
 
   const parentDir = normalizePath(parentDirStr);
-  if (parentDir == null) {
-    return null;
-  }
 
   return findFilePathFromProjectRoot(parentDir, filePartialPath);
 };
@@ -153,9 +150,6 @@ export const getFilenameFromRootBsconfig = (
 ): NormalizedPath | null => {
   // Start searching from the parent directory of projDir to find the workspace root
   const parentDir = normalizePath(path.dirname(projDir));
-  if (parentDir == null) {
-    return null;
-  }
 
   let rootConfigPath = findFilePathFromProjectRoot(
     parentDir,

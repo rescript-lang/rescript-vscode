@@ -653,17 +653,17 @@ async function compileContents(
 
           const fileUri = utils.pathToURI(entry.file.sourceFilePath);
 
+          // Get compiler diagnostics from main build (if any) and combine with incremental diagnostics
+          const compilerDiagnosticsForFile =
+            getCurrentCompilerDiagnosticsForFile(fileUri);
+          const allDiagnostics = [...res, ...compilerDiagnosticsForFile];
+
           // Update filesWithDiagnostics to track this file
           // entry.project.rootPath is guaranteed to match a key in projectsFiles
           // (see triggerIncrementalCompilationOfFile where the entry is created)
           const projectFile = projectsFiles.get(entry.project.rootPath);
 
           if (projectFile != null) {
-            // Get compiler diagnostics from main build (if any)
-            const compilerDiagnosticsForFile =
-              getCurrentCompilerDiagnosticsForFile(fileUri);
-            const allDiagnostics = [...res, ...compilerDiagnosticsForFile];
-
             if (allDiagnostics.length > 0) {
               projectFile.filesWithDiagnostics.add(fileUri);
             } else {
@@ -677,7 +677,7 @@ async function compileContents(
             method: "textDocument/publishDiagnostics",
             params: {
               uri: fileUri,
-              diagnostics: res,
+              diagnostics: allDiagnostics,
             },
           };
           send(notification);
