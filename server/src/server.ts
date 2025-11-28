@@ -167,11 +167,12 @@ let sendUpdatedDiagnostics = async () => {
     codeActionsFromDiagnostics = codeActions;
 
     // diff
-    Object.keys(filesAndErrors).forEach((file) => {
-      const fileUri = file as utils.FileURI;
+    (
+      Object.entries(filesAndErrors) as Array<[utils.FileURI, p.Diagnostic[]]>
+    ).forEach(([fileUri, diagnostics]) => {
       let params: p.PublishDiagnosticsParams = {
         uri: fileUri,
-        diagnostics: filesAndErrors[fileUri],
+        diagnostics,
       };
       let notification: p.NotificationMessage = {
         jsonrpc: c.jsonrpcVersion,
@@ -216,8 +217,10 @@ let sendUpdatedDiagnostics = async () => {
 
       let errorCount = 0;
       let warningCount = 0;
-      for (const [fileUri, diags] of Object.entries(filesAndErrors)) {
-        const filePath = utils.uriToNormalizedPath(fileUri as utils.FileURI);
+      for (const [fileUri, diags] of Object.entries(filesAndErrors) as Array<
+        [utils.FileURI, p.Diagnostic[]]
+      >) {
+        const filePath = utils.uriToNormalizedPath(fileUri);
         if (filePath.startsWith(projectRootPath)) {
           for (const d of diags as v.Diagnostic[]) {
             if (d.severity === v.DiagnosticSeverity.Error) errorCount++;

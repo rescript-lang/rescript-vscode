@@ -587,8 +587,7 @@ async function compileContents(
               const change = Object.values(ca.codeAction.edit.changes)[0];
 
               ca.codeAction.edit.changes = {
-                [utils.pathToURI(entry.file.sourceFilePath) as utils.FileURI]:
-                  change,
+                [utils.pathToURI(entry.file.sourceFilePath)]: change,
               };
             }
           });
@@ -655,9 +654,7 @@ async function compileContents(
             }
           }
 
-          const fileUri = utils.pathToURI(
-            entry.file.sourceFilePath,
-          ) as utils.FileURI;
+          const fileUri = utils.pathToURI(entry.file.sourceFilePath);
 
           // Update filesWithDiagnostics to track this file
           // entry.project.rootPath is guaranteed to match a key in projectsFiles
@@ -671,10 +668,10 @@ async function compileContents(
             const allDiagnostics = [...res, ...compilerDiagnosticsForFile];
 
             if (allDiagnostics.length > 0) {
-              projectFile.filesWithDiagnostics.add(fileUri as utils.FileURI);
+              projectFile.filesWithDiagnostics.add(fileUri);
             } else {
               // Only remove if there are no diagnostics at all
-              projectFile.filesWithDiagnostics.delete(fileUri as utils.FileURI);
+              projectFile.filesWithDiagnostics.delete(fileUri);
             }
           }
 

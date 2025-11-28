@@ -630,7 +630,7 @@ let simpleAddMissingCases: codeActionExtractor = async ({
       .join("")
       .trim();
 
-    let filePath = utils.uriToNormalizedPath(file as utils.FileURI);
+    let filePath = utils.uriToNormalizedPath(file);
 
     let newSwitchCode = await utils.runAnalysisAfterSanityCheck(filePath, [
       "codemod",
