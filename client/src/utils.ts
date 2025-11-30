@@ -9,6 +9,26 @@ import { DocumentUri } from "vscode-languageclient";
  * to the server itself.
  */
 
+/**
+ * Branded type for normalized file paths.
+ *
+ * All paths should be normalized to ensure consistent lookups and prevent
+ * path format mismatches (e.g., trailing slashes, relative vs absolute paths).
+ *
+ * Use `normalizePath()` to convert a regular path to a `NormalizedPath`.
+ */
+export type NormalizedPath = string & { __brand: "NormalizedPath" };
+
+/**
+ * Normalizes a file path and returns it as a `NormalizedPath`.
+ *
+ * @param filePath - The path to normalize (can be null)
+ * @returns The normalized path, or null if input was null
+ */
+export function normalizePath(filePath: string | null): NormalizedPath | null {
+  return filePath != null ? (path.normalize(filePath) as NormalizedPath) : null;
+}
+
 type binaryName = "rescript-editor-analysis.exe" | "rescript-tools.exe";
 
 const platformDir =
@@ -29,7 +49,7 @@ export const getLegacyBinaryProdPath = (b: binaryName) =>
 
 export const getBinaryPath = (
   binaryName: "rescript-editor-analysis.exe" | "rescript-tools.exe",
-  projectRootPath: string | null = null,
+  projectRootPath: NormalizedPath | null = null,
 ): string | null => {
   const binaryFromCompilerPackage = path.join(
     projectRootPath ?? "",
@@ -59,15 +79,24 @@ export const createFileInTempDir = (prefix = "", extension = "") => {
   return path.join(os.tmpdir(), tempFileName);
 };
 
-export let findProjectRootOfFileInDir = (source: string): null | string => {
-  let dir = path.dirname(source);
+export let findProjectRootOfFileInDir = (
+  source: string,
+): NormalizedPath | null => {
+  const normalizedSource = normalizePath(source);
+  if (normalizedSource == null) {
+    return null;
+  }
+  const dir = normalizePath(path.dirname(normalizedSource));
+  if (dir == null) {
+    return null;
+  }
   if (
     fs.existsSync(path.join(dir, "rescript.json")) ||
     fs.existsSync(path.join(dir, "bsconfig.json"))
   ) {
     return dir;
   } else {
-    if (dir === source) {
+    if (dir === normalizedSource) {
       // reached top
       return null;
     } else {

@@ -27,10 +27,11 @@ import { onErrorReported } from "./errorReporter";
 import * as ic from "./incrementalCompilation";
 import config, { extensionConfiguration } from "./config";
 import { projectsFiles } from "./projectFiles";
+import { NormalizedPath } from "./utils";
 
 // Absolute paths to all the workspace folders
 // Configured during the initialize request
-export const workspaceFolders = new Set<string>();
+export const workspaceFolders = new Set<NormalizedPath>();
 
 // This holds client capabilities specific to our extension, and not necessarily
 // related to the LS protocol. It's for enabling/disabling features that might
@@ -75,7 +76,7 @@ const projectCompilationStates: Map<string, ProjectCompilationState> =
 
 type CompilationStatusPayload = {
   project: string;
-  projectRootPath: string;
+  projectRootPath: NormalizedPath;
   status: "compiling" | "success" | "error" | "warning";
   errorCount: number;
   warningCount: number;
@@ -921,7 +922,7 @@ async function codeAction(msg: p.RequestMessage): Promise<p.ResponseMessage> {
   // Check local code actions coming from the diagnostics, or from incremental compilation.
   let localResults: v.CodeAction[] = [];
   const fromDiagnostics =
-    codeActionsFromDiagnostics[params.textDocument.uri] ?? [];
+    codeActionsFromDiagnostics[params.textDocument.uri as utils.FileURI] ?? [];
   const fromIncrementalCompilation =
     ic.getCodeActionsFromIncrementalCompilation(filePath) ?? [];
   [...fromDiagnostics, ...fromIncrementalCompilation].forEach(

@@ -11,6 +11,7 @@ import {
   createFileInTempDir,
   findProjectRootOfFileInDir,
   getBinaryPath,
+  NormalizedPath,
 } from "../utils";
 import * as path from "path";
 
@@ -136,7 +137,8 @@ export const dumpDebug = async (
   const { line: endLine, character: endChar } = editor.selection.end;
   const filePath = editor.document.uri.fsPath;
 
-  let projectRootPath: string | null = findProjectRootOfFileInDir(filePath);
+  let projectRootPath: NormalizedPath | null =
+    findProjectRootOfFileInDir(filePath);
   const binaryPath = getBinaryPath(
     "rescript-editor-analysis.exe",
     projectRootPath,

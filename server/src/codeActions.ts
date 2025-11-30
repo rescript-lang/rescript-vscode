@@ -7,7 +7,7 @@ import * as utils from "./utils";
 export type fileCodeActions = { range: p.Range; codeAction: p.CodeAction };
 
 export type filesCodeActions = {
-  [key: string]: fileCodeActions[];
+  [key: utils.FileURI]: fileCodeActions[];
 };
 
 interface findCodeActionsConfig {
@@ -326,7 +326,7 @@ let handleUndefinedRecordFieldsAction = ({
 }: {
   recordFieldNames: string[];
   codeActions: filesCodeActions;
-  file: string;
+  file: utils.FileURI;
   range: p.Range;
   diagnostic: p.Diagnostic;
   todoValue: string;

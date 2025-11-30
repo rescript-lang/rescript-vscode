@@ -74,10 +74,10 @@ export function uriToNormalizedPath(uri: FileURI): NormalizedPath {
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
 
-export let createFileInTempDir = (extension = "") => {
+export let createFileInTempDir = (extension = ""): NormalizedPath => {
   let tempFileName = tempFilePrefix + tempFileId + extension;
   tempFileId = tempFileId + 1;
-  return path.join(os.tmpdir(), tempFileName);
+  return path.join(os.tmpdir(), tempFileName) as NormalizedPath;
 };
 
 let findProjectRootOfFileInDir = (
@@ -501,7 +501,7 @@ export function computeWorkspaceRootPathFromLockfile(
 }
 
 // Shared cache: key is either workspace root path or project root path
-const runtimePathCache = new Map<string, string | null>();
+const runtimePathCache = new Map<NormalizedPath, NormalizedPath | null>();
 
 /**
  * Gets the runtime path from a workspace root path.
@@ -509,15 +509,16 @@ const runtimePathCache = new Map<string, string | null>();
  */
 export async function getRuntimePathFromWorkspaceRoot(
   workspaceRootPath: NormalizedPath,
-): Promise<string | null> {
+): Promise<NormalizedPath | null> {
   // Check cache first
   if (runtimePathCache.has(workspaceRootPath)) {
     return runtimePathCache.get(workspaceRootPath)!;
   }
 
   // Compute and cache
-  let rescriptRuntime: string | null =
-    config.extensionConfiguration.runtimePath ?? null;
+  let rescriptRuntime: NormalizedPath | null = normalizePath(
+    config.extensionConfiguration.runtimePath ?? null,
+  );
 
   if (rescriptRuntime !== null) {
     runtimePathCache.set(workspaceRootPath, rescriptRuntime);
@@ -539,7 +540,7 @@ export async function getRuntimePathFromWorkspaceRoot(
  */
 export async function getRuntimePathFromProjectRoot(
   projectRootPath: NormalizedPath | null,
-): Promise<string | null> {
+): Promise<NormalizedPath | null> {
   if (projectRootPath == null) {
     return null;
   }

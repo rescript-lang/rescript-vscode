@@ -1,6 +1,7 @@
 import { readdir, stat as statAsync, readFile } from "fs/promises";
 import { join, resolve } from "path";
 import { compilerInfoPartialPath } from "./constants";
+import { NormalizedPath } from "./utils";
 
 // Efficient parallel folder traversal to find node_modules directories
 async function findNodeModulesDirs(
@@ -92,14 +93,16 @@ async function findRescriptRuntimeInAlternativeLayout(
   return results;
 }
 
-async function findRuntimePath(project: string): Promise<string[]> {
+async function findRuntimePath(
+  project: NormalizedPath,
+): Promise<NormalizedPath[]> {
   // Try a compiler-info.json file first
   const compilerInfo = resolve(project, compilerInfoPartialPath);
   try {
     const contents = await readFile(compilerInfo, "utf8");
     const compileInfo: { runtime_path?: string } = JSON.parse(contents);
     if (compileInfo && compileInfo.runtime_path) {
-      return [compileInfo.runtime_path];
+      return [compileInfo.runtime_path as NormalizedPath];
     }
   } catch {
     // Ignore errors, fallback to node_modules search
@@ -146,12 +149,16 @@ async function findRuntimePath(project: string): Promise<string[]> {
     }),
   ).then((results) => results.flatMap((x) => x));
 
-  return rescriptRuntimeDirs.map((runtime) => resolve(runtime));
+  return rescriptRuntimeDirs.map(
+    (runtime) => resolve(runtime) as NormalizedPath,
+  );
 }
 
-function findRuntimeCached(): (project: string) => Promise<string[]> {
-  const cache = new Map<string, string[]>();
-  return async (project: string) => {
+function findRuntimeCached(): (
+  project: NormalizedPath,
+) => Promise<NormalizedPath[]> {
+  const cache = new Map<NormalizedPath, NormalizedPath[]>();
+  return async (project: NormalizedPath) => {
     if (cache.has(project)) {
       return cache.get(project)!;
     }

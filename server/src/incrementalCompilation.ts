@@ -1,7 +1,6 @@
 import * as path from "path";
 import fs from "fs";
 import * as utils from "./utils";
-import readline from "readline";
 import { performance } from "perf_hooks";
 import * as p from "vscode-languageserver-protocol";
 import * as cp from "node:child_process";
@@ -41,9 +40,9 @@ export type IncrementallyCompiledFileInfo = {
     /** Namespaced module name of the source file. */
     moduleNameNamespaced: string;
     /** Path to where the incremental file is saved. */
-    incrementalFilePath: string;
+    incrementalFilePath: NormalizedPath;
     /** Location of the original type file. */
-    originalTypeFileLocation: string;
+    originalTypeFileLocation: NormalizedPath;
   };
   buildSystem: "bsb" | "rewatch";
   /** Cache for build.ninja assets. */
@@ -55,7 +54,7 @@ export type IncrementallyCompiledFileInfo = {
   } | null;
   /** Cache for rewatch compiler args. */
   buildRewatch: {
-    lastFile: string;
+    lastFile: NormalizedPath;
     compilerArgs: RewatchCompilerArgs;
   } | null;
   /** Info of the currently active incremental compilation. `null` if no incremental compilation is active. */
@@ -88,8 +87,9 @@ const incrementallyCompiledFileInfo: Map<
   NormalizedPath,
   IncrementallyCompiledFileInfo
 > = new Map();
-const hasReportedFeatureFailedError: Set<string> = new Set();
-const originalTypeFileToFilePath: Map<string, NormalizedPath> = new Map();
+const hasReportedFeatureFailedError: Set<NormalizedPath> = new Set();
+const originalTypeFileToFilePath: Map<NormalizedPath, NormalizedPath> =
+  new Map();
 
 export function incrementalCompilationFileChanged(changedPath: NormalizedPath) {
   const filePath = originalTypeFileToFilePath.get(changedPath);
@@ -311,12 +311,12 @@ function triggerIncrementalCompilationOfFile(
       projectRootPath,
       c.compilerDirPartialPath,
       path.relative(projectRootPath, filePath),
-    );
+    ) as NormalizedPath;
 
     const parsed = path.parse(originalTypeFileLocation);
     parsed.ext = ext === ".res" ? ".cmt" : ".cmti";
     parsed.base = "";
-    originalTypeFileLocation = path.format(parsed);
+    originalTypeFileLocation = path.format(parsed) as NormalizedPath;
 
     incrementalFileCacheEntry = {
       file: {
@@ -326,7 +326,10 @@ function triggerIncrementalCompilationOfFile(
         moduleNameNamespaced,
         sourceFileName: moduleName + ext,
         sourceFilePath: filePath,
-        incrementalFilePath: path.join(incrementalFolderPath, moduleName + ext),
+        incrementalFilePath: path.join(
+          incrementalFolderPath,
+          moduleName + ext,
+        ) as NormalizedPath,
       },
       project: {
         workspaceRootPath,
