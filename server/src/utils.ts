@@ -145,8 +145,10 @@ let findBinary = async (
     // TODO: export `binPaths` from `rescript` package so that we don't need to
     // copy the logic for figuring out `target`.
     const target = `${process.platform}-${process.arch}`;
+    // Use realpathSync to resolve symlinks, which is necessary for package
+    // managers like Deno and pnpm that use symlinked node_modules structures.
     const targetPackagePath = path.join(
-      rescriptDir,
+      fs.realpathSync(rescriptDir),
       "..",
       `@rescript/${target}/bin.js`,
     );
