@@ -10,7 +10,7 @@ import fs from "fs";
 import fsAsync from "fs/promises";
 import * as os from "os";
 import semver from "semver";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
@@ -704,9 +704,7 @@ export let runBuildWatcherUsingValidBuildPath = (
 
 // parser helpers
 export let pathToURI = (file: NormalizedPath): FileURI => {
-  return (
-    process.platform === "win32" ? `file:\\\\\\${file}` : `file://${file}`
-  ) as FileURI;
+  return pathToFileURL(file).toString() as FileURI;
 };
 let parseFileAndRange = (fileAndRange: string) => {
   // https://github.com/rescript-lang/rescript-compiler/blob/0a3f4bb32ca81e89cefd5a912b8795878836f883/jscomp/super_errors/super_location.ml#L15-L25
