@@ -83,8 +83,7 @@ export let createFileInTempDir = (extension = "") => {
 let findProjectRootOfFileInDir = (
   source: NormalizedPath,
 ): NormalizedPath | null => {
-  let dirStr = path.dirname(source);
-  const dir = normalizePath(dirStr);
+  const dir = normalizePath(path.dirname(source));
   if (dir == null) {
     return null;
   }

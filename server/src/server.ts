@@ -1069,11 +1069,7 @@ let updateDiagnosticSyntax = async (
     if (allDiagnostics.length > 0) {
       projectFile.filesWithDiagnostics.add(fileUri);
     } else {
-      // Only remove if there are no compiler diagnostics either
-      // (compiler diagnostics are tracked separately in filesDiagnostics)
-      if (compilerDiagnosticsForFile.length === 0) {
-        projectFile.filesWithDiagnostics.delete(fileUri);
-      }
+      projectFile.filesWithDiagnostics.delete(fileUri);
     }
   }
 
@@ -1645,7 +1641,7 @@ async function onMessage(msg: p.Message) {
         // Should never happen, but handle gracefully and log a warning
         console.warn(
           "[ReScript Language Server] Failed to normalize projectRootPath from clientSentBuildAction:",
-          msg_.projectRootPath
+          msg_.projectRootPath,
         );
         return;
       }
