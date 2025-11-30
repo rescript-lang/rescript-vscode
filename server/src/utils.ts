@@ -628,10 +628,7 @@ export let getCompiledFilePath = (
   }
 
   // Normalize the path before returning
-  const normalizedResult = normalizePath(result);
-  if (normalizedResult == null) {
-    return error;
-  }
+  const normalizedResult = normalizePath(result)!;
 
   return {
     kind: "success",
@@ -733,12 +730,7 @@ let parseFileAndRange = (fileAndRange: string) => {
   let match = trimmedFileAndRange.match(regex);
   if (match === null) {
     // no location! Though LSP insist that we provide at least a dummy location
-    const normalizedPath = normalizePath(trimmedFileAndRange);
-    if (normalizedPath == null) {
-      // If we can't normalize the file path, throw an error
-      // This should never happen in practice, but we need to handle it
-      throw new Error(`Failed to normalize file path: ${trimmedFileAndRange}`);
-    }
+    const normalizedPath = normalizePath(trimmedFileAndRange)!;
     return {
       file: pathToURI(normalizedPath),
       range: {
@@ -784,12 +776,7 @@ let parseFileAndRange = (fileAndRange: string) => {
       end: { line: parseInt(endLine) - 1, character: parseInt(endChar) },
     };
   }
-  const normalizedFile = normalizePath(file);
-  if (normalizedFile == null) {
-    // If we can't normalize the file path, throw an error
-    // This should never happen in practice, but we need to handle it
-    throw new Error(`Failed to normalize file path: ${file}`);
-  }
+  const normalizedFile = normalizePath(file)!;
   return {
     file: pathToURI(normalizedFile),
     range,
