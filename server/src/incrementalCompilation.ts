@@ -268,7 +268,7 @@ function triggerIncrementalCompilationOfFile(
     const computedWorkspaceRoot =
       utils.computeWorkspaceRootPathFromLockfile(projectRootPath);
     // If null, it means either a lockfile was found (local package) or no parent project root exists
-    // In both cases, we default to actualProjectRootPath
+    // In both cases, we default to projectRootPath
     const workspaceRootPath: NormalizedPath =
       computedWorkspaceRoot ?? projectRootPath;
 
