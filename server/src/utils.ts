@@ -141,11 +141,11 @@ export let findProjectRootOfFile = (
 /**
  * Gets the project file for a given project root path.
  *
- * All keys in `projectsFiles` are normalized (see `openedFile` in server.ts),
- * so this function accepts either a normalized or non-normalized path and
- * normalizes it before lookup.
+ * All keys in `projectsFiles` are normalized (see `openedFile` in server.ts).
+ * This function accepts a normalized project root path (or null) and performs a direct lookup.
+ * The path must already be normalized before calling this function.
  *
- * @param projectRootPath - The project root path to look up (can be null or already normalized)
+ * @param projectRootPath - The normalized project root path to look up (or null)
  * @returns The project file if found, null otherwise
  */
 export let getProjectFile = (
