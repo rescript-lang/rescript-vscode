@@ -226,8 +226,10 @@ let findBinary = async (
     // TODO: export `binPaths` from `rescript` package so that we don't need to
     // copy the logic for figuring out `target`.
     const target = `${process.platform}-${process.arch}`;
+    // Use realpathSync to resolve symlinks, which is necessary for package
+    // managers like Deno and pnpm that use symlinked node_modules structures.
     const targetPackagePath = path.join(
-      rescriptDir,
+      fs.realpathSync(rescriptDir),
       "..",
       `@rescript/${target}/bin.js`,
     );
@@ -568,6 +570,14 @@ export async function getRuntimePathFromProjectRoot(
   runtimePathCache.set(workspaceRootPath, result);
   runtimePathCache.set(projectRootPath, result);
   return result;
+}
+
+/**
+ * Returns a snapshot of the runtime path cache as a plain object.
+ * Useful for debugging and state dumps.
+ */
+export function getRuntimePathCacheSnapshot(): Record<string, string | null> {
+  return Object.fromEntries(runtimePathCache);
 }
 
 export const getNamespaceNameFromConfigFile = (

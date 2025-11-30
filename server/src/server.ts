@@ -1580,6 +1580,7 @@ async function onMessage(msg: p.Message) {
           config: config.extensionConfiguration,
           projects,
           workspaceFolders: Array.from(workspaceFolders),
+          runtimePathCache: utils.getRuntimePathCacheSnapshot(),
         };
 
         let response: p.ResponseMessage = {

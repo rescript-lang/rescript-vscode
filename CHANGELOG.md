@@ -10,6 +10,12 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## [Unreleased]
+
+#### :nail_care: Polish
+
+- Resolve symlinks when finding platform binaries. https://github.com/rescript-lang/rescript-vscode/pull/1154
+
 ## 1.70.0
 
 #### :bug: Bug fix
