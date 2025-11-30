@@ -273,7 +273,7 @@ function triggerIncrementalCompilationOfFile(
       computedWorkspaceRoot ?? projectRootPath;
 
     // Determine if lockfile was found for debug logging
-    // If computedWorkspaceRoot is null and actualProjectRootPath is not null, check if parent exists
+    // If computedWorkspaceRoot is null and projectRootPath is not null, check if parent exists
     const foundRewatchLockfileInProjectRoot =
       computedWorkspaceRoot == null &&
       projectRootPath != null &&
