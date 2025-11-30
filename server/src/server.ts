@@ -1642,7 +1642,11 @@ async function onMessage(msg: p.Message) {
       // The type says it's NormalizedPath, so we ensure it actually is
       let projectRootPath = utils.normalizePath(msg_.projectRootPath);
       if (projectRootPath == null) {
-        // Should never happen, but handle gracefully
+        // Should never happen, but handle gracefully and log a warning
+        console.warn(
+          "[ReScript Language Server] Failed to normalize projectRootPath from clientSentBuildAction:",
+          msg_.projectRootPath
+        );
         return;
       }
       // TODO: sometime stale .bsb.lock dangling
