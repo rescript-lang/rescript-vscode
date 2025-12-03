@@ -302,11 +302,13 @@ function triggerIncrementalCompilationOfFile(
         ? `${moduleName}-${project.namespaceName}`
         : moduleName;
 
+    // projectRootPath is already NormalizedPath, appending a constant string still makes it a NormalizedPath
     const incrementalFolderPath: NormalizedPath = path.join(
       projectRootPath,
       INCREMENTAL_FILE_FOLDER_LOCATION,
     ) as NormalizedPath;
 
+    // projectRootPath is already NormalizedPath, appending a constant string still makes it a NormalizedPath
     let originalTypeFileLocation = path.resolve(
       projectRootPath,
       c.compilerDirPartialPath,
@@ -316,6 +318,7 @@ function triggerIncrementalCompilationOfFile(
     const parsed = path.parse(originalTypeFileLocation);
     parsed.ext = ext === ".res" ? ".cmt" : ".cmti";
     parsed.base = "";
+    // As originalTypeFileLocation was a NormalizedPath, path.format ensures we can assume string is now NormalizedPath
     originalTypeFileLocation = path.format(parsed) as NormalizedPath;
 
     incrementalFileCacheEntry = {
@@ -326,6 +329,7 @@ function triggerIncrementalCompilationOfFile(
         moduleNameNamespaced,
         sourceFileName: moduleName + ext,
         sourceFilePath: filePath,
+        // As incrementalFolderPath was a NormalizedPath, path.join ensures we can assume string is now NormalizedPath
         incrementalFilePath: path.join(
           incrementalFolderPath,
           moduleName + ext,

@@ -1,7 +1,7 @@
 import { readdir, stat as statAsync, readFile } from "fs/promises";
 import { join, resolve } from "path";
 import { compilerInfoPartialPath } from "./constants";
-import { NormalizedPath } from "./utils";
+import { NormalizedPath, normalizePath } from "./utils";
 
 // Efficient parallel folder traversal to find node_modules directories
 async function findNodeModulesDirs(
@@ -102,7 +102,9 @@ async function findRuntimePath(
     const contents = await readFile(compilerInfo, "utf8");
     const compileInfo: { runtime_path?: string } = JSON.parse(contents);
     if (compileInfo && compileInfo.runtime_path) {
-      return [compileInfo.runtime_path as NormalizedPath];
+      // We somewhat assume the user to pass down a normalized path, but we cannot be sure of this.
+      const normalizedRuntimePath = normalizePath(compileInfo.runtime_path);
+      return normalizedRuntimePath ? [normalizedRuntimePath] : [];
     }
   } catch {
     // Ignore errors, fallback to node_modules search
@@ -150,6 +152,7 @@ async function findRuntimePath(
   ).then((results) => results.flatMap((x) => x));
 
   return rescriptRuntimeDirs.map(
+    // `resolve` ensures we can assume string is now NormalizedPath
     (runtime) => resolve(runtime) as NormalizedPath,
   );
 }

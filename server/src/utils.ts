@@ -51,6 +51,7 @@ export type FileURI = string & { __brand: "FileURI" };
  * @returns The normalized path, or null if input was null
  */
 export function normalizePath(filePath: string | null): NormalizedPath | null {
+  // `path.normalize` ensures we can assume string is now NormalizedPath
   return filePath != null ? (path.normalize(filePath) as NormalizedPath) : null;
 }
 
@@ -77,6 +78,7 @@ let tempFileId = 0;
 export let createFileInTempDir = (extension = ""): NormalizedPath => {
   let tempFileName = tempFilePrefix + tempFileId + extension;
   tempFileId = tempFileId + 1;
+  // `os.tmpdir` returns an absolute path, so `path.join` ensures we can assume string is now NormalizedPath
   return path.join(os.tmpdir(), tempFileName) as NormalizedPath;
 };
 
@@ -715,6 +717,7 @@ export let runBuildWatcherUsingValidBuildPath = (
 
 // parser helpers
 export let pathToURI = (file: NormalizedPath): FileURI => {
+  // `pathToFileURL` ensures we can assume string is now FileURI
   return pathToFileURL(file).toString() as FileURI;
 };
 let parseFileAndRange = (fileAndRange: string) => {
@@ -953,10 +956,9 @@ export let parseCompilerLogOutput = async (
   for (const parsedDiagnostic of parsedDiagnostics) {
     let [fileAndRangeLine, ...diagnosticMessage] = parsedDiagnostic.content;
     let { file, range } = parseFileAndRange(fileAndRangeLine);
-    const fileUri = file as FileURI;
 
-    if (result[fileUri] == null) {
-      result[fileUri] = [];
+    if (result[file] == null) {
+      result[file] = [];
     }
 
     // remove start and end whitespaces/newlines
@@ -982,7 +984,7 @@ export let parseCompilerLogOutput = async (
         range,
       });
 
-      result[fileUri].push(diagnostic);
+      result[file].push(diagnostic);
     }
   }
 

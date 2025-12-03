@@ -26,6 +26,7 @@ export type NormalizedPath = string & { __brand: "NormalizedPath" };
  * @returns The normalized path, or null if input was null
  */
 export function normalizePath(filePath: string | null): NormalizedPath | null {
+  // `path.normalize` ensures we can assume string is now NormalizedPath
   return filePath != null ? (path.normalize(filePath) as NormalizedPath) : null;
 }
 
