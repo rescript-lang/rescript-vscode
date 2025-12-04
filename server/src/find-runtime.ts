@@ -1,6 +1,7 @@
 import { readdir, stat as statAsync, readFile } from "fs/promises";
 import { join, resolve } from "path";
 import { compilerInfoPartialPath } from "./constants";
+import { NormalizedPath, normalizePath } from "./utils";
 
 // Efficient parallel folder traversal to find node_modules directories
 async function findNodeModulesDirs(
@@ -92,14 +93,18 @@ async function findRescriptRuntimeInAlternativeLayout(
   return results;
 }
 
-async function findRuntimePath(project: string): Promise<string[]> {
+async function findRuntimePath(
+  project: NormalizedPath,
+): Promise<NormalizedPath[]> {
   // Try a compiler-info.json file first
   const compilerInfo = resolve(project, compilerInfoPartialPath);
   try {
     const contents = await readFile(compilerInfo, "utf8");
     const compileInfo: { runtime_path?: string } = JSON.parse(contents);
     if (compileInfo && compileInfo.runtime_path) {
-      return [compileInfo.runtime_path];
+      // We somewhat assume the user to pass down a normalized path, but we cannot be sure of this.
+      const normalizedRuntimePath = normalizePath(compileInfo.runtime_path);
+      return normalizedRuntimePath ? [normalizedRuntimePath] : [];
     }
   } catch {
     // Ignore errors, fallback to node_modules search
@@ -146,7 +151,10 @@ async function findRuntimePath(project: string): Promise<string[]> {
     }),
   ).then((results) => results.flatMap((x) => x));
 
-  return rescriptRuntimeDirs.map((runtime) => resolve(runtime));
+  return rescriptRuntimeDirs.map(
+    // `resolve` ensures we can assume string is now NormalizedPath
+    (runtime) => resolve(runtime) as NormalizedPath,
+  );
 }
 
 /**
@@ -156,7 +164,7 @@ async function findRuntimePath(project: string): Promise<string[]> {
  * (see getRuntimePathFromWorkspaceRoot in utils.ts).
  */
 export async function findRescriptRuntimesInProject(
-  project: string,
-): Promise<string[]> {
+  project: NormalizedPath,
+): Promise<NormalizedPath[]> {
   return await findRuntimePath(project);
 }

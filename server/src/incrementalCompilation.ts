@@ -1,8 +1,6 @@
 import * as path from "path";
 import fs from "fs";
 import * as utils from "./utils";
-import { pathToFileURL } from "url";
-import readline from "readline";
 import { performance } from "perf_hooks";
 import * as p from "vscode-languageserver-protocol";
 import * as cp from "node:child_process";
@@ -14,7 +12,8 @@ import { fileCodeActions } from "./codeActions";
 import { projectsFiles } from "./projectFiles";
 import { getRewatchBscArgs, RewatchCompilerArgs } from "./bsc-args/rewatch";
 import { BsbCompilerArgs, getBsbBscArgs } from "./bsc-args/bsb";
-import { workspaceFolders } from "./server";
+import { getCurrentCompilerDiagnosticsForFile } from "./server";
+import { NormalizedPath } from "./utils";
 
 export function debug() {
   return (
@@ -32,8 +31,8 @@ export type IncrementallyCompiledFileInfo = {
   file: {
     /** File type. */
     extension: ".res" | ".resi";
-    /** Path to the source file. */
-    sourceFilePath: string;
+    /** Path to the source file (normalized). */
+    sourceFilePath: NormalizedPath;
     /** Name of the source file. */
     sourceFileName: string;
     /** Module name of the source file. */
@@ -41,9 +40,9 @@ export type IncrementallyCompiledFileInfo = {
     /** Namespaced module name of the source file. */
     moduleNameNamespaced: string;
     /** Path to where the incremental file is saved. */
-    incrementalFilePath: string;
+    incrementalFilePath: NormalizedPath;
     /** Location of the original type file. */
-    originalTypeFileLocation: string;
+    originalTypeFileLocation: NormalizedPath;
   };
   buildSystem: "bsb" | "rewatch";
   /** Cache for build.ninja assets. */
@@ -55,7 +54,7 @@ export type IncrementallyCompiledFileInfo = {
   } | null;
   /** Cache for rewatch compiler args. */
   buildRewatch: {
-    lastFile: string;
+    lastFile: NormalizedPath;
     compilerArgs: RewatchCompilerArgs;
   } | null;
   /** Info of the currently active incremental compilation. `null` if no incremental compilation is active. */
@@ -69,29 +68,30 @@ export type IncrementallyCompiledFileInfo = {
   killCompilationListeners: Array<() => void>;
   /** Project specific information. */
   project: {
-    /** The root path of the project. */
-    rootPath: string;
+    /** The root path of the project (normalized to match projectsFiles keys). */
+    rootPath: NormalizedPath;
     /** The root path of the workspace (if a monorepo) */
-    workspaceRootPath: string;
+    workspaceRootPath: NormalizedPath;
     /** Computed location of bsc. */
-    bscBinaryLocation: string;
+    bscBinaryLocation: NormalizedPath;
     /** The arguments needed for bsc, derived from the project configuration/build.ninja. */
     callArgs: Promise<Array<string> | null>;
     /** The location of the incremental folder for this project. */
-    incrementalFolderPath: string;
+    incrementalFolderPath: NormalizedPath;
   };
   /** Any code actions for this incremental file. */
   codeActions: Array<fileCodeActions>;
 };
 
 const incrementallyCompiledFileInfo: Map<
-  string,
+  NormalizedPath,
   IncrementallyCompiledFileInfo
 > = new Map();
-const hasReportedFeatureFailedError: Set<string> = new Set();
-const originalTypeFileToFilePath: Map<string, string> = new Map();
+const hasReportedFeatureFailedError: Set<NormalizedPath> = new Set();
+const originalTypeFileToFilePath: Map<NormalizedPath, NormalizedPath> =
+  new Map();
 
-export function incrementalCompilationFileChanged(changedPath: string) {
+export function incrementalCompilationFileChanged(changedPath: NormalizedPath) {
   const filePath = originalTypeFileToFilePath.get(changedPath);
   if (filePath != null) {
     const entry = incrementallyCompiledFileInfo.get(filePath);
@@ -116,7 +116,7 @@ export function incrementalCompilationFileChanged(changedPath: string) {
 }
 
 export function removeIncrementalFileFolder(
-  projectRootPath: string,
+  projectRootPath: NormalizedPath,
   onAfterRemove?: () => void,
 ) {
   fs.rm(
@@ -128,7 +128,7 @@ export function removeIncrementalFileFolder(
   );
 }
 
-export function recreateIncrementalFileFolder(projectRootPath: string) {
+export function recreateIncrementalFileFolder(projectRootPath: NormalizedPath) {
   if (debug()) {
     console.log("Recreating incremental file folder");
   }
@@ -142,8 +142,8 @@ export function recreateIncrementalFileFolder(projectRootPath: string) {
 }
 
 export function cleanUpIncrementalFiles(
-  filePath: string,
-  projectRootPath: string,
+  filePath: NormalizedPath,
+  projectRootPath: NormalizedPath,
 ) {
   const ext = filePath.endsWith(".resi") ? ".resi" : ".res";
   const namespace = utils.getNamespaceNameFromConfigFile(projectRootPath);
@@ -242,7 +242,7 @@ function removeAnsiCodes(s: string): string {
   return s.replace(ansiEscape, "");
 }
 function triggerIncrementalCompilationOfFile(
-  filePath: string,
+  filePath: NormalizedPath,
   fileContent: string,
   send: send,
   onCompilationFinished?: () => void,
@@ -256,7 +256,9 @@ function triggerIncrementalCompilationOfFile(
         console.log("Did not find project root path for " + filePath);
       return;
     }
-    const project = projectsFiles.get(projectRootPath);
+    // projectRootPath is already normalized (NormalizedPath) from findProjectRootOfFile
+    // Use getProjectFile to verify the project exists
+    const project = utils.getProjectFile(projectRootPath);
     if (project == null) {
       if (debug()) console.log("Did not find open project for " + filePath);
       return;
@@ -267,7 +269,8 @@ function triggerIncrementalCompilationOfFile(
       utils.computeWorkspaceRootPathFromLockfile(projectRootPath);
     // If null, it means either a lockfile was found (local package) or no parent project root exists
     // In both cases, we default to projectRootPath
-    const workspaceRootPath = computedWorkspaceRoot ?? projectRootPath;
+    const workspaceRootPath: NormalizedPath =
+      computedWorkspaceRoot ?? projectRootPath;
 
     // Determine if lockfile was found for debug logging
     // If computedWorkspaceRoot is null and projectRootPath is not null, check if parent exists
@@ -299,21 +302,24 @@ function triggerIncrementalCompilationOfFile(
         ? `${moduleName}-${project.namespaceName}`
         : moduleName;
 
-    const incrementalFolderPath = path.join(
+    // projectRootPath is already NormalizedPath, appending a constant string still makes it a NormalizedPath
+    const incrementalFolderPath: NormalizedPath = path.join(
       projectRootPath,
       INCREMENTAL_FILE_FOLDER_LOCATION,
-    );
+    ) as NormalizedPath;
 
+    // projectRootPath is already NormalizedPath, appending a constant string still makes it a NormalizedPath
     let originalTypeFileLocation = path.resolve(
       projectRootPath,
       c.compilerDirPartialPath,
       path.relative(projectRootPath, filePath),
-    );
+    ) as NormalizedPath;
 
     const parsed = path.parse(originalTypeFileLocation);
     parsed.ext = ext === ".res" ? ".cmt" : ".cmti";
     parsed.base = "";
-    originalTypeFileLocation = path.format(parsed);
+    // As originalTypeFileLocation was a NormalizedPath, path.format ensures we can assume string is now NormalizedPath
+    originalTypeFileLocation = path.format(parsed) as NormalizedPath;
 
     incrementalFileCacheEntry = {
       file: {
@@ -323,10 +329,14 @@ function triggerIncrementalCompilationOfFile(
         moduleNameNamespaced,
         sourceFileName: moduleName + ext,
         sourceFilePath: filePath,
-        incrementalFilePath: path.join(incrementalFolderPath, moduleName + ext),
+        // As incrementalFolderPath was a NormalizedPath, path.join ensures we can assume string is now NormalizedPath
+        incrementalFilePath: path.join(
+          incrementalFolderPath,
+          moduleName + ext,
+        ) as NormalizedPath,
       },
       project: {
-        workspaceRootPath: workspaceRootPath ?? projectRootPath,
+        workspaceRootPath,
         rootPath: projectRootPath,
         callArgs: Promise.resolve([]),
         bscBinaryLocation,
@@ -373,7 +383,10 @@ function triggerIncrementalCompilationOfFile(
     };
   }
 }
-function verifyTriggerToken(filePath: string, triggerToken: number): boolean {
+function verifyTriggerToken(
+  filePath: NormalizedPath,
+  triggerToken: number,
+): boolean {
   return (
     incrementallyCompiledFileInfo.get(filePath)?.compilation?.triggerToken ===
     triggerToken
@@ -578,7 +591,7 @@ async function compileContents(
               const change = Object.values(ca.codeAction.edit.changes)[0];
 
               ca.codeAction.edit.changes = {
-                [pathToFileURL(entry.file.sourceFilePath).toString()]: change,
+                [utils.pathToURI(entry.file.sourceFilePath)]: change,
               };
             }
           });
@@ -645,12 +658,33 @@ async function compileContents(
             }
           }
 
+          const fileUri = utils.pathToURI(entry.file.sourceFilePath);
+
+          // Get compiler diagnostics from main build (if any) and combine with incremental diagnostics
+          const compilerDiagnosticsForFile =
+            getCurrentCompilerDiagnosticsForFile(fileUri);
+          const allDiagnostics = [...res, ...compilerDiagnosticsForFile];
+
+          // Update filesWithDiagnostics to track this file
+          // entry.project.rootPath is guaranteed to match a key in projectsFiles
+          // (see triggerIncrementalCompilationOfFile where the entry is created)
+          const projectFile = projectsFiles.get(entry.project.rootPath);
+
+          if (projectFile != null) {
+            if (allDiagnostics.length > 0) {
+              projectFile.filesWithDiagnostics.add(fileUri);
+            } else {
+              // Only remove if there are no diagnostics at all
+              projectFile.filesWithDiagnostics.delete(fileUri);
+            }
+          }
+
           const notification: p.NotificationMessage = {
             jsonrpc: c.jsonrpcVersion,
             method: "textDocument/publishDiagnostics",
             params: {
-              uri: pathToFileURL(entry.file.sourceFilePath),
-              diagnostics: res,
+              uri: fileUri,
+              diagnostics: allDiagnostics,
             },
           };
           send(notification);
@@ -667,7 +701,7 @@ async function compileContents(
 }
 
 export function handleUpdateOpenedFile(
-  filePath: string,
+  filePath: utils.NormalizedPath,
   fileContent: string,
   send: send,
   onCompilationFinished?: () => void,
@@ -683,7 +717,7 @@ export function handleUpdateOpenedFile(
   );
 }
 
-export function handleClosedFile(filePath: string) {
+export function handleClosedFile(filePath: NormalizedPath) {
   if (debug()) {
     console.log("Closed: " + filePath);
   }
@@ -695,7 +729,7 @@ export function handleClosedFile(filePath: string) {
 }
 
 export function getCodeActionsFromIncrementalCompilation(
-  filePath: string,
+  filePath: NormalizedPath,
 ): Array<fileCodeActions> | null {
   const entry = incrementallyCompiledFileInfo.get(filePath);
   if (entry != null) {

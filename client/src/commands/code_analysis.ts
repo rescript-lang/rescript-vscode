@@ -14,7 +14,11 @@ import {
   OutputChannel,
   StatusBarItem,
 } from "vscode";
-import { findProjectRootOfFileInDir, getBinaryPath } from "../utils";
+import {
+  findProjectRootOfFileInDir,
+  getBinaryPath,
+  NormalizedPath,
+} from "../utils";
 
 export let statusBarItem = {
   setToStopText: (codeAnalysisRunningStatusBarItem: StatusBarItem) => {
@@ -208,7 +212,7 @@ export const runCodeAnalysisWithReanalyze = (
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
-  let projectRootPath: string | null = findProjectRootOfFileInDir(
+  let projectRootPath: NormalizedPath | null = findProjectRootOfFileInDir(
     currentDocument.uri.fsPath,
   );
 

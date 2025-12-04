@@ -3,18 +3,17 @@
 // OCaml binary.
 import * as p from "vscode-languageserver-protocol";
 import * as utils from "./utils";
-import { fileURLToPath } from "url";
 
 export type fileCodeActions = { range: p.Range; codeAction: p.CodeAction };
 
 export type filesCodeActions = {
-  [key: string]: fileCodeActions[];
+  [key: utils.FileURI]: fileCodeActions[];
 };
 
 interface findCodeActionsConfig {
   diagnostic: p.Diagnostic;
   diagnosticMessage: string[];
-  file: string;
+  file: utils.FileURI;
   range: p.Range;
   addFoundActionsHere: filesCodeActions;
 }
@@ -190,7 +189,7 @@ interface codeActionExtractorConfig {
   line: string;
   index: number;
   array: string[];
-  file: string;
+  file: utils.FileURI;
   range: p.Range;
   diagnostic: p.Diagnostic;
   codeActions: filesCodeActions;
@@ -327,7 +326,7 @@ let handleUndefinedRecordFieldsAction = ({
 }: {
   recordFieldNames: string[];
   codeActions: filesCodeActions;
-  file: string;
+  file: utils.FileURI;
   range: p.Range;
   diagnostic: p.Diagnostic;
   todoValue: string;
@@ -631,7 +630,7 @@ let simpleAddMissingCases: codeActionExtractor = async ({
       .join("")
       .trim();
 
-    let filePath = fileURLToPath(file);
+    let filePath = utils.uriToNormalizedPath(file);
 
     let newSwitchCode = await utils.runAnalysisAfterSanityCheck(filePath, [
       "codemod",

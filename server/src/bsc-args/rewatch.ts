@@ -17,14 +17,14 @@ export type RewatchCompilerArgs = {
 
 async function getRuntimePath(
   entry: IncrementallyCompiledFileInfo,
-): Promise<string | null> {
+): Promise<utils.NormalizedPath | null> {
   return utils.getRuntimePathFromWorkspaceRoot(entry.project.workspaceRootPath);
 }
 
 export async function getRewatchBscArgs(
   send: (msg: p.Message) => void,
-  bscBinaryLocation: string | null,
-  projectsFiles: Map<string, projectFiles>,
+  bscBinaryLocation: utils.NormalizedPath | null,
+  projectsFiles: Map<utils.NormalizedPath, projectFiles>,
   entry: IncrementallyCompiledFileInfo,
 ): Promise<RewatchCompilerArgs | null> {
   const rewatchCacheEntry = entry.buildRewatch;
@@ -103,7 +103,8 @@ export async function getRewatchBscArgs(
         includePrerelease: true,
       })
     ) {
-      let rescriptRuntime: string | null = await getRuntimePath(entry);
+      let rescriptRuntime: utils.NormalizedPath | null =
+        await getRuntimePath(entry);
 
       if (rescriptRuntime !== null) {
         env["RESCRIPT_RUNTIME"] = rescriptRuntime;
