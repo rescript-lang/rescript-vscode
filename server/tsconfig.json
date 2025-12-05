@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "target": "es2019",
     "lib": ["ES2019"],
@@ -8,6 +9,8 @@
     "strict": true,
     "outDir": "out",
     "rootDir": "src",
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": true,
     "esModuleInterop": true
   },
   "include": ["src"],
