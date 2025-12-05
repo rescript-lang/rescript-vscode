@@ -969,7 +969,9 @@ export let parseCompilerLogOutput = async (
       let diagnostic: p.Diagnostic = {
         severity: parsedDiagnostic.severity,
         tags: parsedDiagnostic.tag === undefined ? [] : [parsedDiagnostic.tag],
-        code: parsedDiagnostic.code,
+        ...(parsedDiagnostic.code && {
+          code: parsedDiagnostic.code,
+        }),
         range,
         source: "ReScript",
         message,

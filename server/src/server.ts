@@ -1445,19 +1445,19 @@ async function onMessage(msg: p.Message) {
             // TODO: Support range for full, and add delta support
             full: true,
           },
-          inlayHintProvider: config.extensionConfiguration.inlayHints?.enable,
-          codeLensProvider: config.extensionConfiguration.codeLens
-            ? {
-                workDoneProgress: false,
-              }
-            : undefined,
-          signatureHelpProvider: config.extensionConfiguration.signatureHelp
-            ?.enabled
-            ? {
-                triggerCharacters: ["("],
-                retriggerCharacters: ["=", ","],
-              }
-            : undefined,
+          inlayHintProvider:
+            config.extensionConfiguration.inlayHints?.enable || false,
+          ...(config.extensionConfiguration.codeLens && {
+            codeLensProvider: {
+              workDoneProgress: false,
+            },
+          }),
+          ...(config.extensionConfiguration.signatureHelp?.enabled && {
+            signatureHelpProvider: {
+              triggerCharacters: ["("],
+              retriggerCharacters: ["=", ","],
+            },
+          }),
         },
       };
       let response: p.ResponseMessage = {
