@@ -82,9 +82,9 @@ export let createFileInTempDir = (extension = ""): NormalizedPath => {
   return path.join(os.tmpdir(), tempFileName) as NormalizedPath;
 };
 
-let findProjectRootOfFileInDir = (
+function findProjectRootOfFileInDir(
   source: NormalizedPath,
-): NormalizedPath | null => {
+): NormalizedPath | null {
   const dir = normalizePath(path.dirname(source));
   if (dir == null) {
     return null;
@@ -102,18 +102,20 @@ let findProjectRootOfFileInDir = (
       return findProjectRootOfFileInDir(dir);
     }
   }
-};
+}
 
-// TODO: races here?
-export let findProjectRootOfFile = (
+/**
+ * Searches for a project root path in projectsFiles that contains the given file path.
+ * Excludes exact matches - the source must be a file inside a project, not the project root itself.
+ */
+function findProjectRootContainingFile(
   source: NormalizedPath,
-  allowDir?: boolean,
-): NormalizedPath | null => {
-  // First look in project files (keys are already normalized)
+): NormalizedPath | null {
   let foundRootFromProjectFiles: NormalizedPath | null = null;
   for (const rootPath of projectsFiles.keys()) {
     // Both are normalized, so direct comparison works
-    if (source.startsWith(rootPath) && (!allowDir || source !== rootPath)) {
+    // For files, we exclude exact matches (source !== rootPath)
+    if (source.startsWith(rootPath) && source !== rootPath) {
       // Prefer the longest path (most nested)
       if (
         foundRootFromProjectFiles == null ||
@@ -124,20 +126,77 @@ export let findProjectRootOfFile = (
     }
   }
 
-  if (foundRootFromProjectFiles != null) {
-    return foundRootFromProjectFiles;
-  } else {
-    const isDir = path.extname(source) === "";
-    const searchPath =
-      isDir && !allowDir ? path.join(source, "dummy.res") : source;
-    const normalizedSearchPath = normalizePath(searchPath);
-    if (normalizedSearchPath == null) {
-      return null;
+  return foundRootFromProjectFiles;
+}
+
+/**
+ * Searches for a project root path in projectsFiles that matches the given directory path.
+ * Allows exact matches - the source can be the project root directory itself.
+ */
+function findProjectRootMatchingDir(
+  source: NormalizedPath,
+): NormalizedPath | null {
+  console.log({
+    source,
+    searchType: "directory",
+    projectsFilesKeys: Array.from(projectsFiles.keys()),
+  });
+
+  let foundRootFromProjectFiles: NormalizedPath | null = null;
+  for (const rootPath of projectsFiles.keys()) {
+    // Both are normalized, so direct comparison works
+    // For directories, we allow exact matches
+    if (source.startsWith(rootPath)) {
+      // Prefer the longest path (most nested)
+      if (
+        foundRootFromProjectFiles == null ||
+        rootPath.length > foundRootFromProjectFiles.length
+      ) {
+        foundRootFromProjectFiles = rootPath;
+      }
     }
-    const foundPath = findProjectRootOfFileInDir(normalizedSearchPath);
-    return foundPath;
   }
-};
+
+  return foundRootFromProjectFiles;
+}
+
+/**
+ * Finds the project root for a given file path.
+ * This is the main function used throughout the codebase for finding project roots.
+ */
+export function findProjectRootOfFile(
+  source: NormalizedPath,
+): NormalizedPath | null {
+  // First look in project files - exclude exact matches since we're looking for a file
+  let foundRoot = findProjectRootContainingFile(source);
+
+  if (foundRoot != null) {
+    return foundRoot;
+  }
+
+  // Fallback: search the filesystem
+  const foundPath = findProjectRootOfFileInDir(source);
+  return foundPath;
+}
+
+/**
+ * Finds the project root for a given directory path.
+ * This allows exact matches and is used for workspace/lockfile detection.
+ */
+export function findProjectRootOfDir(
+  source: NormalizedPath,
+): NormalizedPath | null {
+  // First look in project files - allow exact matches since we're looking for a directory
+  let foundRoot = findProjectRootMatchingDir(source);
+
+  if (foundRoot != null) {
+    return foundRoot;
+  }
+
+  // Fallback: search the filesystem
+  const foundPath = findProjectRootOfFileInDir(source);
+  return foundPath;
+}
 
 /**
  * Gets the project file for a given project root path.
@@ -493,14 +552,21 @@ export function computeWorkspaceRootPathFromLockfile(
     path.resolve(projectRootPath, rescriptLockPartialPath),
   ];
 
+  console.log(projectRewatchLockfiles);
+
   const foundRewatchLockfileInProjectRoot = projectRewatchLockfiles.some(
     (lockFile) => fs.existsSync(lockFile),
+  );
+
+  console.log(
+    "foundRewatchLockfileInProjectRoot",
+    foundRewatchLockfileInProjectRoot,
   );
 
   // if we find a rewatch.lock in the project root, it's a compilation of a local package
   // in the workspace.
   return !foundRewatchLockfileInProjectRoot
-    ? findProjectRootOfFile(projectRootPath, true)
+    ? findProjectRootOfDir(projectRootPath)
     : null;
 }
 
