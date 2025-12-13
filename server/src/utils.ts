@@ -136,12 +136,6 @@ function findProjectRootContainingFile(
 function findProjectRootMatchingDir(
   source: NormalizedPath,
 ): NormalizedPath | null {
-  console.log({
-    source,
-    searchType: "directory",
-    projectsFilesKeys: Array.from(projectsFiles.keys()),
-  });
-
   let foundRootFromProjectFiles: NormalizedPath | null = null;
   for (const rootPath of projectsFiles.keys()) {
     // Both are normalized, so direct comparison works
@@ -551,8 +545,6 @@ export function computeWorkspaceRootPathFromLockfile(
     path.resolve(projectRootPath, rewatchLockPartialPath),
     path.resolve(projectRootPath, rescriptLockPartialPath),
   ];
-
-  console.log(projectRewatchLockfiles);
 
   const foundRewatchLockfileInProjectRoot = projectRewatchLockfiles.some(
     (lockFile) => fs.existsSync(lockFile),
