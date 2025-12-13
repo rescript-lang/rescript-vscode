@@ -12,6 +12,10 @@
 
 ## [Unreleased]
 
+#### :bug: Bug fix
+
+- Fix rewatch lockfile detection on Windows. https://github.com/rescript-lang/rescript-vscode/pull/1160
+
 #### :nail_care: Polish
 
 - Resolve symlinks when finding platform binaries. https://github.com/rescript-lang/rescript-vscode/pull/1154
