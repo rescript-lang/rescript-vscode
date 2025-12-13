@@ -277,7 +277,7 @@ function triggerIncrementalCompilationOfFile(
     const foundRewatchLockfileInProjectRoot =
       computedWorkspaceRoot == null &&
       projectRootPath != null &&
-      utils.findProjectRootOfFile(projectRootPath, true) != null;
+      utils.findProjectRootOfDir(projectRootPath) != null;
 
     if (foundRewatchLockfileInProjectRoot && debug()) {
       console.log(
