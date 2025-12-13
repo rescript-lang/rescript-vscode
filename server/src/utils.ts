@@ -550,11 +550,6 @@ export function computeWorkspaceRootPathFromLockfile(
     (lockFile) => fs.existsSync(lockFile),
   );
 
-  console.log(
-    "foundRewatchLockfileInProjectRoot",
-    foundRewatchLockfileInProjectRoot,
-  );
-
   // if we find a rewatch.lock in the project root, it's a compilation of a local package
   // in the workspace.
   return !foundRewatchLockfileInProjectRoot
