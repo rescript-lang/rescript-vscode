@@ -1273,8 +1273,11 @@ async function dumpServerState(
       const packageJsonContent = await fsAsync.readFile(packageJsonPath, {
         encoding: "utf-8",
       });
-      const packageJson = JSON.parse(packageJsonContent);
-      serverVersion = packageJson.version;
+      const packageJson: { version?: unknown } = JSON.parse(packageJsonContent);
+      serverVersion =
+        typeof packageJson.version === "string"
+          ? packageJson.version
+          : undefined;
     } catch (e) {
       // If we can't read the version, that's okay - we'll just omit it
       serverVersion = undefined;
@@ -1311,28 +1314,12 @@ async function dumpServerState(
     // have been converted to plain objects/arrays above
     const formattedJson = JSON.stringify(state, null, 2);
 
-    // Write the file to disk on the server side
-    const outputFile = utils.createFileInTempDir("_server_state.json");
-    fs.writeFileSync(outputFile, formattedJson, { encoding: "utf-8" });
-
-    // Request the client to open the document
-    const fileUri = utils.pathToURI(outputFile);
-    const showDocumentRequest: p.RequestMessage = {
-      jsonrpc: c.jsonrpcVersion,
-      id: serverSentRequestIdCounter++,
-      method: "window/showDocument",
-      params: {
-        uri: fileUri,
-        external: false,
-        takeFocus: true,
-      },
-    };
-    send(showDocumentRequest);
-
+    // Return the content so the client can create an unsaved document
+    // This avoids creating temporary files that would never be cleaned up
     let response: p.ResponseMessage = {
       jsonrpc: c.jsonrpcVersion,
       id: msg.id,
-      result: { uri: fileUri },
+      result: { content: formattedJson },
     };
     return response;
   } catch (e) {
