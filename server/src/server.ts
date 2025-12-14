@@ -5,6 +5,7 @@ import * as rpc from "vscode-jsonrpc/node";
 import * as path from "path";
 import semver from "semver";
 import fs from "fs";
+import fsAsync from "fs/promises";
 import {
   DidChangeWatchedFilesNotification,
   DidOpenTextDocumentNotification,
@@ -1260,6 +1261,93 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
   return response;
 }
 
+async function dumpServerState(
+  msg: p.RequestMessage,
+): Promise<p.ResponseMessage> {
+  // Custom debug endpoint: dump current server state (config + projectsFiles)
+  try {
+    // Read the server version from package.json
+    let serverVersion: string | undefined;
+    try {
+      const packageJsonPath = path.join(__dirname, "..", "package.json");
+      const packageJsonContent = await fsAsync.readFile(packageJsonPath, {
+        encoding: "utf-8",
+      });
+      const packageJson = JSON.parse(packageJsonContent);
+      serverVersion = packageJson.version;
+    } catch (e) {
+      // If we can't read the version, that's okay - we'll just omit it
+      serverVersion = undefined;
+    }
+
+    const projects = Array.from(projectsFiles.entries()).map(
+      ([projectRootPath, pf]) => ({
+        projectRootPath,
+        openFiles: Array.from(pf.openFiles),
+        filesWithDiagnostics: Array.from(pf.filesWithDiagnostics),
+        filesDiagnostics: pf.filesDiagnostics,
+        rescriptVersion: pf.rescriptVersion,
+        bscBinaryLocation: pf.bscBinaryLocation,
+        editorAnalysisLocation: pf.editorAnalysisLocation,
+        namespaceName: pf.namespaceName,
+        hasPromptedToStartBuild: pf.hasPromptedToStartBuild,
+        bsbWatcherByEditor:
+          pf.bsbWatcherByEditor != null
+            ? { pid: pf.bsbWatcherByEditor.pid ?? null }
+            : null,
+      }),
+    );
+
+    const state = {
+      lspServerVersion: serverVersion,
+      config: config.extensionConfiguration,
+      projects,
+      workspaceFolders: Array.from(workspaceFolders),
+      runtimePathCache: utils.getRuntimePathCacheSnapshot(),
+    };
+
+    // Format JSON with pretty-printing (2-space indent) on the server side
+    // This ensures consistent formatting and handles any Maps/Sets that might
+    // have been converted to plain objects/arrays above
+    const formattedJson = JSON.stringify(state, null, 2);
+
+    // Write the file to disk on the server side
+    const outputFile = utils.createFileInTempDir("_server_state.json");
+    fs.writeFileSync(outputFile, formattedJson, { encoding: "utf-8" });
+
+    // Request the client to open the document
+    const fileUri = utils.pathToURI(outputFile);
+    const showDocumentRequest: p.RequestMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      id: serverSentRequestIdCounter++,
+      method: "window/showDocument",
+      params: {
+        uri: fileUri,
+        external: false,
+        takeFocus: true,
+      },
+    };
+    send(showDocumentRequest);
+
+    let response: p.ResponseMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: { uri: fileUri },
+    };
+    return response;
+  } catch (e) {
+    let response: p.ResponseMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      error: {
+        code: p.ErrorCodes.InternalError,
+        message: `Failed to dump server state: ${String(e)}`,
+      },
+    };
+    return response;
+  }
+}
+
 async function onMessage(msg: p.Message) {
   if (p.Message.isNotification(msg)) {
     // notification message, aka the client ends it and doesn't want a reply
@@ -1458,6 +1546,9 @@ async function onMessage(msg: p.Message) {
                 retriggerCharacters: ["=", ","],
               }
             : undefined,
+          executeCommandProvider: {
+            commands: ["rescript/dumpServerState"],
+          },
         },
       };
       let response: p.ResponseMessage = {
@@ -1555,47 +1646,18 @@ async function onMessage(msg: p.Message) {
       if (extName === c.resExt) {
         send(await signatureHelp(msg));
       }
-    } else if (msg.method === "rescript/dumpServerState") {
-      // Custom debug endpoint: dump current server state (config + projectsFiles)
-      try {
-        const projects = Array.from(projectsFiles.entries()).map(
-          ([projectRootPath, pf]) => ({
-            projectRootPath,
-            openFiles: Array.from(pf.openFiles),
-            filesWithDiagnostics: Array.from(pf.filesWithDiagnostics),
-            filesDiagnostics: pf.filesDiagnostics,
-            rescriptVersion: pf.rescriptVersion,
-            bscBinaryLocation: pf.bscBinaryLocation,
-            editorAnalysisLocation: pf.editorAnalysisLocation,
-            namespaceName: pf.namespaceName,
-            hasPromptedToStartBuild: pf.hasPromptedToStartBuild,
-            bsbWatcherByEditor:
-              pf.bsbWatcherByEditor != null
-                ? { pid: pf.bsbWatcherByEditor.pid ?? null }
-                : null,
-          }),
-        );
-
-        const result = {
-          config: config.extensionConfiguration,
-          projects,
-          workspaceFolders: Array.from(workspaceFolders),
-          runtimePathCache: utils.getRuntimePathCacheSnapshot(),
-        };
-
-        let response: p.ResponseMessage = {
-          jsonrpc: c.jsonrpcVersion,
-          id: msg.id,
-          result,
-        };
-        send(response);
-      } catch (e) {
+    } else if (msg.method === p.ExecuteCommandRequest.method) {
+      // Standard LSP executeCommand - supports editor-agnostic command execution
+      const params = msg.params as p.ExecuteCommandParams;
+      if (params.command === "rescript/dumpServerState") {
+        send(await dumpServerState(msg));
+      } else {
         let response: p.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
           id: msg.id,
           error: {
-            code: p.ErrorCodes.InternalError,
-            message: `Failed to dump server state: ${String(e)}`,
+            code: p.ErrorCodes.InvalidRequest,
+            message: `Unknown command: ${params.command}`,
           },
         };
         send(response);

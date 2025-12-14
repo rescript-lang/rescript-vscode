@@ -373,8 +373,15 @@ export function activate(context: ExtensionContext) {
     customCommands.dumpDebug(context, debugDumpStatusBarItem);
   });
 
-  commands.registerCommand("rescript-vscode.dump-server-state", () => {
-    customCommands.dumpServerState(client, context, debugDumpStatusBarItem);
+  commands.registerCommand("rescript-vscode.dump-server-state", async () => {
+    // Server handles everything: writing to disk and opening the file via window/showDocument
+    try {
+      await client.sendRequest("workspace/executeCommand", {
+        command: "rescript/dumpServerState",
+      });
+    } catch (e) {
+      console.error("Failed to dump server state:", e);
+    }
   });
 
   commands.registerCommand("rescript-vscode.showProblems", async () => {
