@@ -13,6 +13,7 @@ import {
   WorkspaceEdit,
   CodeActionKind,
   Diagnostic,
+  ViewColumn,
 } from "vscode";
 import { ThemeColor } from "vscode";
 
@@ -373,8 +374,30 @@ export function activate(context: ExtensionContext) {
     customCommands.dumpDebug(context, debugDumpStatusBarItem);
   });
 
-  commands.registerCommand("rescript-vscode.dump-server-state", () => {
-    customCommands.dumpServerState(client, context, debugDumpStatusBarItem);
+  commands.registerCommand("rescript-vscode.dump-server-state", async () => {
+    try {
+      const result = (await client.sendRequest("workspace/executeCommand", {
+        command: "rescript/dumpServerState",
+      })) as { content: string };
+
+      // Create an unsaved document with the server state content
+      const document = await workspace.openTextDocument({
+        content: result.content,
+        language: "json",
+      });
+
+      // Show the document in the editor
+      await window.showTextDocument(document, {
+        viewColumn: ViewColumn.Beside,
+        preview: false,
+      });
+    } catch (e) {
+      outputChannel.appendLine(`Failed to dump server state: ${String(e)}`);
+      window.showErrorMessage(
+        "Failed to dump server state. See 'Output' tab, 'ReScript Language Server' channel for details.",
+      );
+      outputChannel.show();
+    }
   });
 
   commands.registerCommand("rescript-vscode.showProblems", async () => {
