@@ -345,31 +345,29 @@ let sendCompilationFinishedMessage = () => {
   send(notification);
 };
 
-let debug = false;
-
 let syncProjectConfigCache = async (rootPath: utils.NormalizedPath) => {
   try {
-    if (debug) console.log("syncing project config cache for " + rootPath);
+    getLogger().log("syncing project config cache for " + rootPath);
     await utils.runAnalysisAfterSanityCheck(rootPath, [
       "cache-project",
       rootPath,
     ]);
-    if (debug) console.log("OK - synced project config cache for " + rootPath);
+    getLogger().log("OK - synced project config cache for " + rootPath);
   } catch (e) {
-    if (debug) console.error(e);
+    getLogger().error(JSON.stringify(e));
   }
 };
 
 let deleteProjectConfigCache = async (rootPath: utils.NormalizedPath) => {
   try {
-    if (debug) console.log("deleting project config cache for " + rootPath);
+    getLogger().log("deleting project config cache for " + rootPath);
     await utils.runAnalysisAfterSanityCheck(rootPath, [
       "cache-delete",
       rootPath,
     ]);
-    if (debug) console.log("OK - deleted project config cache for " + rootPath);
+    getLogger().log("OK - deleted project config cache for " + rootPath);
   } catch (e) {
-    if (debug) console.error(e);
+    getLogger().error(JSON.stringify(e));
   }
 };
 
@@ -400,7 +398,7 @@ async function onWorkspaceDidChangeWatchedFiles(
             sendCodeLensRefresh();
           }
         } catch {
-          console.log("Error while sending updated diagnostics");
+          getLogger().error("Error while sending updated diagnostics");
         }
       } else {
         ic.incrementalCompilationFileChanged(
