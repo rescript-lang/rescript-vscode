@@ -233,6 +233,12 @@
           "type": "boolean",
           "default": true,
           "description": "Show compile status in the status bar (compiling/errors/warnings/success)."
+        },
+        "rescript.settings.logLevel": {
+          "type": "string",
+          "enum": ["error", "warn", "info", "log", "debug"],
+          "default": "info",
+          "description": "Verbosity of ReScript language server logs sent to the Output channel."
         }
       }
     },

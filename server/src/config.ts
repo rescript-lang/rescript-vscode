@@ -4,6 +4,7 @@ export type send = (msg: Message) => void;
 
 export interface extensionConfiguration {
   askToStartBuild?: boolean;
+  logLevel?: "error" | "warn" | "info" | "log";
   inlayHints?: {
     enable?: boolean;
     maxLength?: number | null;
@@ -33,6 +34,7 @@ export interface extensionConfiguration {
 let config: { extensionConfiguration: extensionConfiguration } = {
   extensionConfiguration: {
     askToStartBuild: true,
+    logLevel: "info",
     inlayHints: {
       enable: false,
       maxLength: 25,

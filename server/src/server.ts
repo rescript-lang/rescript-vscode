@@ -29,6 +29,7 @@ import * as ic from "./incrementalCompilation";
 import config, { extensionConfiguration } from "./config";
 import { projectsFiles } from "./projectFiles";
 import { NormalizedPath } from "./utils";
+import { initializeLogger, getLogger, setLogLevel, LogLevel } from "./logger";
 
 // Absolute paths to all the workspace folders
 // Configured during the initialize request
@@ -548,10 +549,12 @@ export default function listen(useStdio = false) {
     let reader = new rpc.StreamMessageReader(process.stdin);
     // proper `this` scope for writer
     send = (msg: p.Message) => writer.write(msg);
+    initializeLogger(send);
     reader.listen(onMessage);
   } else {
     // proper `this` scope for process
     send = (msg: p.Message) => process.send!(msg);
+    initializeLogger(send);
     process.on("message", onMessage);
   }
 }
@@ -1453,6 +1456,7 @@ async function onMessage(msg: p.Message) {
       };
       send(response);
     } else if (msg.method === "initialize") {
+      getLogger().info("Received initialize request from client.");
       // Save initial configuration, if present
       let initParams = msg.params as InitializeParams;
       for (const workspaceFolder of initParams.workspaceFolders || []) {
@@ -1465,6 +1469,19 @@ async function onMessage(msg: p.Message) {
 
       if (initialConfiguration != null) {
         config.extensionConfiguration = initialConfiguration;
+
+        let initialLogLevel = initialConfiguration.logLevel as
+          | LogLevel
+          | undefined;
+
+        if (
+          initialLogLevel === "error" ||
+          initialLogLevel === "warn" ||
+          initialLogLevel === "info" ||
+          initialLogLevel === "log"
+        ) {
+          setLogLevel(initialLogLevel);
+        }
       }
 
       // These are static configuration options the client can set to enable certain
