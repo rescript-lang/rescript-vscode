@@ -26,12 +26,19 @@ import { assert } from "console";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { onErrorReported } from "./errorReporter";
 import * as ic from "./incrementalCompilation";
-import config, { extensionConfiguration } from "./config";
+import config, { extensionConfiguration, initialConfiguration } from "./config";
 import { projectsFiles } from "./projectFiles";
 import { NormalizedPath } from "./utils";
 import { initializeLogger, getLogger, setLogLevel, LogLevel } from "./logger";
 
-function applyLogLevel(configuration: extensionConfiguration) {
+function applyUserConfiguration(configuration: extensionConfiguration) {
+  // We always want to spread the initial configuration to ensure all defaults are respected.
+  config.extensionConfiguration = Object.assign(
+    {},
+    initialConfiguration,
+    configuration,
+  );
+
   const debugLoggingEnabled =
     configuration.incrementalTypechecking?.debugLogging === true;
 
@@ -538,6 +545,9 @@ let closedFile = async (fileUri: utils.FileURI) => {
 };
 
 let updateOpenedFile = (fileUri: utils.FileURI, fileContent: string) => {
+  getLogger().info(
+    `Updating opened file ${fileUri}, incremental TC enabled: ${config.extensionConfiguration.incrementalTypechecking?.enable}`,
+  );
   let filePath = utils.uriToNormalizedPath(fileUri);
   assert(stupidFileContentCache.has(filePath));
   stupidFileContentCache.set(filePath, fileContent);
@@ -1488,8 +1498,7 @@ async function onMessage(msg: p.Message) {
         ?.extensionConfiguration as extensionConfiguration | undefined;
 
       if (initialConfiguration != null) {
-        config.extensionConfiguration = initialConfiguration;
-        applyLogLevel(initialConfiguration);
+        applyUserConfiguration(initialConfiguration);
       }
 
       // These are static configuration options the client can set to enable certain
@@ -1699,8 +1708,7 @@ async function onMessage(msg: p.Message) {
           extensionConfiguration | null | undefined,
         ];
         if (configuration != null) {
-          config.extensionConfiguration = configuration;
-          applyLogLevel(configuration);
+          applyUserConfiguration(configuration);
         }
       }
     } else if (
