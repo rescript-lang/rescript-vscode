@@ -4,7 +4,7 @@
   "description": "ReScript language support (official)",
   "author": "ReScript Team",
   "license": "MIT",
-  "version": "1.70.0",
+  "version": "1.72.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/rescript-lang/rescript-vscode"
