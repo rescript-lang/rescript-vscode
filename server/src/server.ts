@@ -26,9 +26,30 @@ import { assert } from "console";
 import { WorkspaceEdit } from "vscode-languageserver";
 import { onErrorReported } from "./errorReporter";
 import * as ic from "./incrementalCompilation";
-import config, { extensionConfiguration } from "./config";
+import config, { extensionConfiguration, initialConfiguration } from "./config";
 import { projectsFiles } from "./projectFiles";
 import { NormalizedPath } from "./utils";
+import { initializeLogger, getLogger, setLogLevel, LogLevel } from "./logger";
+
+function applyUserConfiguration(configuration: extensionConfiguration) {
+  // We always want to spread the initial configuration to ensure all defaults are respected.
+  config.extensionConfiguration = Object.assign(
+    {},
+    initialConfiguration,
+    configuration,
+  );
+
+  const level = config.extensionConfiguration.logLevel;
+
+  if (
+    level === "error" ||
+    level === "warn" ||
+    level === "info" ||
+    level === "log"
+  ) {
+    setLogLevel(level);
+  }
+}
 
 // Absolute paths to all the workspace folders
 // Configured during the initialize request
@@ -322,31 +343,29 @@ let sendCompilationFinishedMessage = () => {
   send(notification);
 };
 
-let debug = false;
-
 let syncProjectConfigCache = async (rootPath: utils.NormalizedPath) => {
   try {
-    if (debug) console.log("syncing project config cache for " + rootPath);
+    getLogger().log("syncing project config cache for " + rootPath);
     await utils.runAnalysisAfterSanityCheck(rootPath, [
       "cache-project",
       rootPath,
     ]);
-    if (debug) console.log("OK - synced project config cache for " + rootPath);
+    getLogger().log("OK - synced project config cache for " + rootPath);
   } catch (e) {
-    if (debug) console.error(e);
+    getLogger().error(String(e));
   }
 };
 
 let deleteProjectConfigCache = async (rootPath: utils.NormalizedPath) => {
   try {
-    if (debug) console.log("deleting project config cache for " + rootPath);
+    getLogger().log("deleting project config cache for " + rootPath);
     await utils.runAnalysisAfterSanityCheck(rootPath, [
       "cache-delete",
       rootPath,
     ]);
-    if (debug) console.log("OK - deleted project config cache for " + rootPath);
+    getLogger().log("OK - deleted project config cache for " + rootPath);
   } catch (e) {
-    if (debug) console.error(e);
+    getLogger().error(String(e));
   }
 };
 
@@ -377,7 +396,7 @@ async function onWorkspaceDidChangeWatchedFiles(
             sendCodeLensRefresh();
           }
         } catch {
-          console.log("Error while sending updated diagnostics");
+          getLogger().error("Error while sending updated diagnostics");
         }
       } else {
         ic.incrementalCompilationFileChanged(
@@ -517,6 +536,9 @@ let closedFile = async (fileUri: utils.FileURI) => {
 };
 
 let updateOpenedFile = (fileUri: utils.FileURI, fileContent: string) => {
+  getLogger().info(
+    `Updating opened file ${fileUri}, incremental TC enabled: ${config.extensionConfiguration.incrementalTypechecking?.enable}`,
+  );
   let filePath = utils.uriToNormalizedPath(fileUri);
   assert(stupidFileContentCache.has(filePath));
   stupidFileContentCache.set(filePath, fileContent);
@@ -548,10 +570,12 @@ export default function listen(useStdio = false) {
     let reader = new rpc.StreamMessageReader(process.stdin);
     // proper `this` scope for writer
     send = (msg: p.Message) => writer.write(msg);
+    initializeLogger(send);
     reader.listen(onMessage);
   } else {
     // proper `this` scope for process
     send = (msg: p.Message) => process.send!(msg);
+    initializeLogger(send);
     process.on("message", onMessage);
   }
 }
@@ -1453,6 +1477,7 @@ async function onMessage(msg: p.Message) {
       };
       send(response);
     } else if (msg.method === "initialize") {
+      getLogger().info("Received initialize request from client.");
       // Save initial configuration, if present
       let initParams = msg.params as InitializeParams;
       for (const workspaceFolder of initParams.workspaceFolders || []) {
@@ -1464,7 +1489,7 @@ async function onMessage(msg: p.Message) {
         ?.extensionConfiguration as extensionConfiguration | undefined;
 
       if (initialConfiguration != null) {
-        config.extensionConfiguration = initialConfiguration;
+        applyUserConfiguration(initialConfiguration);
       }
 
       // These are static configuration options the client can set to enable certain
@@ -1674,7 +1699,7 @@ async function onMessage(msg: p.Message) {
           extensionConfiguration | null | undefined,
         ];
         if (configuration != null) {
-          config.extensionConfiguration = configuration;
+          applyUserConfiguration(configuration);
         }
       }
     } else if (

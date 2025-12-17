@@ -15,10 +15,12 @@
 #### :bug: Bug fix
 
 - Fix rewatch lockfile detection on Windows. https://github.com/rescript-lang/rescript-vscode/pull/1160
+- Override default `initialConfiguration` with user specific config. https://github.com/rescript-lang/rescript-vscode/pull/1162
 
 #### :nail_care: Polish
 
 - Resolve symlinks when finding platform binaries. https://github.com/rescript-lang/rescript-vscode/pull/1154
+- Use `window/logMessage` in LSP Server for logging. https://github.com/rescript-lang/rescript-vscode/pull/1162
 
 ## 1.70.0
 

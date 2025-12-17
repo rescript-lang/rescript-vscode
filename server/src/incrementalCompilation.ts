@@ -14,12 +14,7 @@ import { getRewatchBscArgs, RewatchCompilerArgs } from "./bsc-args/rewatch";
 import { BsbCompilerArgs, getBsbBscArgs } from "./bsc-args/bsb";
 import { getCurrentCompilerDiagnosticsForFile } from "./server";
 import { NormalizedPath } from "./utils";
-
-export function debug() {
-  return (
-    config.extensionConfiguration.incrementalTypechecking?.debugLogging ?? false
-  );
-}
+import { getLogger } from "./logger";
 
 const INCREMENTAL_FOLDER_NAME = "___incremental";
 const INCREMENTAL_FILE_FOLDER_LOCATION = path.join(
@@ -96,13 +91,11 @@ export function incrementalCompilationFileChanged(changedPath: NormalizedPath) {
   if (filePath != null) {
     const entry = incrementallyCompiledFileInfo.get(filePath);
     if (entry != null) {
-      if (debug()) {
-        console.log("[watcher] Cleaning up incremental files for " + filePath);
-      }
+      getLogger().log(
+        "[watcher] Cleaning up incremental files for " + filePath,
+      );
       if (entry.compilation != null) {
-        if (debug()) {
-          console.log("[watcher] Was compiling, killing");
-        }
+        getLogger().log("[watcher] Was compiling, killing");
         clearTimeout(entry.compilation.timeout);
         entry.killCompilationListeners.forEach((cb) => cb());
         entry.compilation = null;
@@ -129,9 +122,7 @@ export function removeIncrementalFileFolder(
 }
 
 export function recreateIncrementalFileFolder(projectRootPath: NormalizedPath) {
-  if (debug()) {
-    console.log("Recreating incremental file folder");
-  }
+  getLogger().log("Recreating incremental file folder");
   removeIncrementalFileFolder(projectRootPath, () => {
     fs.mkdir(
       path.resolve(projectRootPath, INCREMENTAL_FILE_FOLDER_LOCATION),
@@ -153,9 +144,7 @@ export function cleanUpIncrementalFiles(
       ? `${fileNameNoExt}-${namespace.result}`
       : fileNameNoExt;
 
-  if (debug()) {
-    console.log("Cleaning up incremental file assets for: " + fileNameNoExt);
-  }
+  getLogger().log("Cleaning up incremental file assets for: " + fileNameNoExt);
 
   fs.unlink(
     path.resolve(
@@ -252,15 +241,14 @@ function triggerIncrementalCompilationOfFile(
     // New file
     const projectRootPath = utils.findProjectRootOfFile(filePath);
     if (projectRootPath == null) {
-      if (debug())
-        console.log("Did not find project root path for " + filePath);
+      getLogger().log("Did not find project root path for " + filePath);
       return;
     }
     // projectRootPath is already normalized (NormalizedPath) from findProjectRootOfFile
     // Use getProjectFile to verify the project exists
     const project = utils.getProjectFile(projectRootPath);
     if (project == null) {
-      if (debug()) console.log("Did not find open project for " + filePath);
+      getLogger().log("Did not find open project for " + filePath);
       return;
     }
 
@@ -279,20 +267,19 @@ function triggerIncrementalCompilationOfFile(
       projectRootPath != null &&
       utils.findProjectRootOfDir(projectRootPath) != null;
 
-    if (foundRewatchLockfileInProjectRoot && debug()) {
-      console.log(
+    if (foundRewatchLockfileInProjectRoot) {
+      getLogger().log(
         `Found rewatch/rescript lockfile in project root, treating as local package in workspace`,
       );
-    } else if (!foundRewatchLockfileInProjectRoot && debug()) {
-      console.log(
+    } else {
+      getLogger().log(
         `Did not find rewatch/rescript lockfile in project root, assuming bsb`,
       );
     }
 
     const bscBinaryLocation = project.bscBinaryLocation;
     if (bscBinaryLocation == null) {
-      if (debug())
-        console.log("Could not find bsc binary location for " + filePath);
+      getLogger().log("Could not find bsc binary location for " + filePath);
       return;
     }
     const ext = filePath.endsWith(".resi") ? ".resi" : ".res";
@@ -401,12 +388,9 @@ async function figureOutBscArgs(
 ) {
   const project = projectsFiles.get(entry.project.rootPath);
   if (project?.rescriptVersion == null) {
-    if (debug()) {
-      console.log(
-        "Found no project (or ReScript version) for " +
-          entry.file.sourceFilePath,
-      );
-    }
+    getLogger().log(
+      "Found no project (or ReScript version) for " + entry.file.sourceFilePath,
+    );
     return null;
   }
   const res = await getBscArgs(send, entry);
@@ -515,11 +499,9 @@ async function compileContents(
       callArgs = callArgsRetried;
       entry.project.callArgs = Promise.resolve(callArgsRetried);
     } else {
-      if (debug()) {
-        console.log(
-          "Could not figure out call args. Maybe build.ninja does not exist yet?",
-        );
-      }
+      getLogger().log(
+        "Could not figure out call args. Maybe build.ninja does not exist yet?",
+      );
       return;
     }
   }
@@ -537,31 +519,27 @@ async function compileContents(
       entry.buildSystem === "bsb"
         ? entry.project.rootPath
         : path.resolve(entry.project.rootPath, c.compilerDirPartialPath);
-    if (debug()) {
-      console.log(
-        `About to invoke bsc from \"${cwd}\", used ${entry.buildSystem}`,
-      );
-      console.log(
-        `${entry.project.bscBinaryLocation} ${callArgs.map((c) => `"${c}"`).join(" ")}`,
-      );
-    }
+    getLogger().log(
+      `About to invoke bsc from \"${cwd}\", used ${entry.buildSystem}`,
+    );
+    getLogger().log(
+      `${entry.project.bscBinaryLocation} ${callArgs.map((c) => `"${c}"`).join(" ")}`,
+    );
     const process = cp.execFile(
       entry.project.bscBinaryLocation,
       callArgs,
       { cwd },
       async (error, _stdout, stderr) => {
         if (!error?.killed) {
-          if (debug())
-            console.log(
-              `Recompiled ${entry.file.sourceFileName} in ${
-                (performance.now() - startTime) / 1000
-              }s`,
-            );
+          getLogger().log(
+            `Recompiled ${entry.file.sourceFileName} in ${
+              (performance.now() - startTime) / 1000
+            }s`,
+          );
         } else {
-          if (debug())
-            console.log(
-              `Compilation of ${entry.file.sourceFileName} was killed.`,
-            );
+          getLogger().log(
+            `Compilation of ${entry.file.sourceFileName} was killed.`,
+          );
         }
         let hasIgnoredErrorMessages = false;
         if (
@@ -569,9 +547,7 @@ async function compileContents(
           triggerToken != null &&
           verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
         ) {
-          if (debug()) {
-            console.log("Resetting compilation status.");
-          }
+          getLogger().log("Resetting compilation status.");
           // Reset compilation status as this compilation finished
           entry.compilation = null;
           const { result, codeActions } = await utils.parseCompilerLogOutput(
@@ -706,9 +682,7 @@ export function handleUpdateOpenedFile(
   send: send,
   onCompilationFinished?: () => void,
 ) {
-  if (debug()) {
-    console.log("Updated: " + filePath);
-  }
+  getLogger().log("Updated: " + filePath);
   triggerIncrementalCompilationOfFile(
     filePath,
     fileContent,
@@ -718,9 +692,7 @@ export function handleUpdateOpenedFile(
 }
 
 export function handleClosedFile(filePath: NormalizedPath) {
-  if (debug()) {
-    console.log("Closed: " + filePath);
-  }
+  getLogger().log("Closed: " + filePath);
   const entry = incrementallyCompiledFileInfo.get(filePath);
   if (entry == null) return;
   cleanUpIncrementalFiles(filePath, entry.project.rootPath);
