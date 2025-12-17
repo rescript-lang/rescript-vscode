@@ -3,12 +3,10 @@ import * as utils from "../utils";
 import * as cp from "node:child_process";
 import * as p from "vscode-languageserver-protocol";
 import semver from "semver";
-import {
-  debug,
-  IncrementallyCompiledFileInfo,
-} from "../incrementalCompilation";
+import { IncrementallyCompiledFileInfo } from "../incrementalCompilation";
 import type { projectFiles } from "../projectFiles";
 import { jsonrpcVersion } from "../constants";
+import { getLogger } from "../logger";
 
 export type RewatchCompilerArgs = {
   compiler_args: Array<string>;
@@ -68,15 +66,11 @@ export async function getRewatchBscArgs(
 
     if (rescriptRewatchPath != null) {
       rewatchPath = rescriptRewatchPath;
-      if (debug()) {
-        console.log(
-          `Found rewatch binary bundled with v12: ${rescriptRewatchPath}`,
-        );
-      }
+      getLogger().log(
+        `Found rewatch binary bundled with v12: ${rescriptRewatchPath}`,
+      );
     } else {
-      if (debug()) {
-        console.log("Did not find rewatch binary bundled with v12");
-      }
+      getLogger().log("Did not find rewatch binary bundled with v12");
     }
 
     const rewatchArguments = semver.satisfies(

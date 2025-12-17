@@ -31,6 +31,28 @@ import { projectsFiles } from "./projectFiles";
 import { NormalizedPath } from "./utils";
 import { initializeLogger, getLogger, setLogLevel, LogLevel } from "./logger";
 
+function applyLogLevel(configuration: extensionConfiguration) {
+  const debugLoggingEnabled =
+    configuration.incrementalTypechecking?.debugLogging === true;
+
+  if (debugLoggingEnabled) {
+    // incrementalTypechecking.debugLogging overrides logLevel to retain legacy behavior
+    setLogLevel("log");
+    return;
+  }
+
+  const level = configuration.logLevel as LogLevel | undefined;
+
+  if (
+    level === "error" ||
+    level === "warn" ||
+    level === "info" ||
+    level === "log"
+  ) {
+    setLogLevel(level);
+  }
+}
+
 // Absolute paths to all the workspace folders
 // Configured during the initialize request
 export const workspaceFolders = new Set<NormalizedPath>();
@@ -1469,19 +1491,7 @@ async function onMessage(msg: p.Message) {
 
       if (initialConfiguration != null) {
         config.extensionConfiguration = initialConfiguration;
-
-        let initialLogLevel = initialConfiguration.logLevel as
-          | LogLevel
-          | undefined;
-
-        if (
-          initialLogLevel === "error" ||
-          initialLogLevel === "warn" ||
-          initialLogLevel === "info" ||
-          initialLogLevel === "log"
-        ) {
-          setLogLevel(initialLogLevel);
-        }
+        applyLogLevel(initialConfiguration);
       }
 
       // These are static configuration options the client can set to enable certain
@@ -1692,17 +1702,7 @@ async function onMessage(msg: p.Message) {
         ];
         if (configuration != null) {
           config.extensionConfiguration = configuration;
-
-          let updatedLogLevel = configuration.logLevel as LogLevel | undefined;
-
-          if (
-            updatedLogLevel === "error" ||
-            updatedLogLevel === "warn" ||
-            updatedLogLevel === "info" ||
-            updatedLogLevel === "log"
-          ) {
-            setLogLevel(updatedLogLevel);
-          }
+          applyLogLevel(configuration);
         }
       }
     } else if (

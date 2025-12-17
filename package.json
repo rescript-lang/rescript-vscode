@@ -236,7 +236,13 @@
         },
         "rescript.settings.logLevel": {
           "type": "string",
-          "enum": ["error", "warn", "info", "log", "debug"],
+          "enum": [
+            "error",
+            "warn",
+            "info",
+            "log",
+            "debug"
+          ],
           "default": "info",
           "description": "Verbosity of ReScript language server logs sent to the Output channel."
         }
