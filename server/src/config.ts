@@ -20,7 +20,6 @@ export interface extensionConfiguration {
   incrementalTypechecking?: {
     enable?: boolean;
     acrossFiles?: boolean;
-    debugLogging?: boolean;
   };
   cache?: {
     projectConfig?: {
@@ -46,7 +45,6 @@ export const initialConfiguration: extensionConfiguration = {
   incrementalTypechecking: {
     enable: true,
     acrossFiles: false,
-    debugLogging: false,
   },
   cache: {
     projectConfig: {

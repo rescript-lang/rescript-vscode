@@ -39,16 +39,7 @@ function applyUserConfiguration(configuration: extensionConfiguration) {
     configuration,
   );
 
-  const debugLoggingEnabled =
-    configuration.incrementalTypechecking?.debugLogging === true;
-
-  if (debugLoggingEnabled) {
-    // incrementalTypechecking.debugLogging overrides logLevel to retain legacy behavior
-    setLogLevel("log");
-    return;
-  }
-
-  const level = config.extensionConfiguration.logLevel as LogLevel | undefined;
+  const level = config.extensionConfiguration.logLevel;
 
   if (
     level === "error" ||

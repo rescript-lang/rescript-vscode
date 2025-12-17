@@ -195,11 +195,6 @@
           "default": false,
           "description": "(beta/experimental) Enable incremental type checking across files, so that unsaved file A gets access to unsaved file B."
         },
-        "rescript.settings.incrementalTypechecking.debugLogging": {
-          "type": "boolean",
-          "default": false,
-          "description": "(debug) Enable debug logging (ends up in the extension output)."
-        },
         "rescript.settings.cache.projectConfig.enable": {
           "type": "boolean",
           "default": true,
