@@ -1692,6 +1692,17 @@ async function onMessage(msg: p.Message) {
         ];
         if (configuration != null) {
           config.extensionConfiguration = configuration;
+
+          let updatedLogLevel = configuration.logLevel as LogLevel | undefined;
+
+          if (
+            updatedLogLevel === "error" ||
+            updatedLogLevel === "warn" ||
+            updatedLogLevel === "info" ||
+            updatedLogLevel === "log"
+          ) {
+            setLogLevel(updatedLogLevel);
+          }
         }
       }
     } else if (
