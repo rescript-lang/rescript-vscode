@@ -48,7 +48,7 @@ function applyUserConfiguration(configuration: extensionConfiguration) {
     return;
   }
 
-  const level = configuration.logLevel as LogLevel | undefined;
+  const level = config.extensionConfiguration.logLevel as LogLevel | undefined;
 
   if (
     level === "error" ||
@@ -361,7 +361,7 @@ let syncProjectConfigCache = async (rootPath: utils.NormalizedPath) => {
     ]);
     getLogger().log("OK - synced project config cache for " + rootPath);
   } catch (e) {
-    getLogger().error(JSON.stringify(e));
+    getLogger().error(String(e));
   }
 };
 
@@ -374,7 +374,7 @@ let deleteProjectConfigCache = async (rootPath: utils.NormalizedPath) => {
     ]);
     getLogger().log("OK - deleted project config cache for " + rootPath);
   } catch (e) {
-    getLogger().error(JSON.stringify(e));
+    getLogger().error(String(e));
   }
 };
 

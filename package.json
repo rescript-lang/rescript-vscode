@@ -240,8 +240,7 @@
             "error",
             "warn",
             "info",
-            "log",
-            "debug"
+            "log"
           ],
           "default": "info",
           "description": "Verbosity of ReScript language server logs sent to the Output channel."
