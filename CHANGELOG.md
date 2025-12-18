@@ -10,6 +10,12 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## [Unreleased]
+
+#### :bug: Bug fix
+
+- Take namespace into account for incremental cleanup. https://github.com/rescript-lang/rescript-vscode/pull/1164
+
 ## 1.72.0
 
 #### :bug: Bug fix

@@ -29,7 +29,7 @@ import * as ic from "./incrementalCompilation";
 import config, { extensionConfiguration, initialConfiguration } from "./config";
 import { projectsFiles } from "./projectFiles";
 import { NormalizedPath } from "./utils";
-import { initializeLogger, getLogger, setLogLevel, LogLevel } from "./logger";
+import { initializeLogger, getLogger, setLogLevel } from "./logger";
 
 function applyUserConfiguration(configuration: extensionConfiguration) {
   // We always want to spread the initial configuration to ensure all defaults are respected.
@@ -1285,27 +1285,30 @@ function openCompiledFile(msg: p.RequestMessage): p.Message {
   return response;
 }
 
+async function getServerVersion(): Promise<string | undefined> {
+  // Read the server version from package.json
+  let serverVersion: string | undefined;
+  try {
+    const packageJsonPath = path.join(__dirname, "..", "package.json");
+    const packageJsonContent = await fsAsync.readFile(packageJsonPath, {
+      encoding: "utf-8",
+    });
+    const packageJson: { version?: unknown } = JSON.parse(packageJsonContent);
+    serverVersion =
+      typeof packageJson.version === "string" ? packageJson.version : undefined;
+  } catch (e) {
+    // If we can't read the version, that's okay - we'll just omit it
+    serverVersion = undefined;
+  }
+  return serverVersion;
+}
+
 async function dumpServerState(
   msg: p.RequestMessage,
 ): Promise<p.ResponseMessage> {
   // Custom debug endpoint: dump current server state (config + projectsFiles)
   try {
-    // Read the server version from package.json
-    let serverVersion: string | undefined;
-    try {
-      const packageJsonPath = path.join(__dirname, "..", "package.json");
-      const packageJsonContent = await fsAsync.readFile(packageJsonPath, {
-        encoding: "utf-8",
-      });
-      const packageJson: { version?: unknown } = JSON.parse(packageJsonContent);
-      serverVersion =
-        typeof packageJson.version === "string"
-          ? packageJson.version
-          : undefined;
-    } catch (e) {
-      // If we can't read the version, that's okay - we'll just omit it
-      serverVersion = undefined;
-    }
+    const serverVersion = await getServerVersion();
 
     const projects = Array.from(projectsFiles.entries()).map(
       ([projectRootPath, pf]) => ({
@@ -1477,7 +1480,10 @@ async function onMessage(msg: p.Message) {
       };
       send(response);
     } else if (msg.method === "initialize") {
-      getLogger().info("Received initialize request from client.");
+      const serverVersion = await getServerVersion();
+      getLogger().info(
+        `Received initialize request from client. Server version: ${serverVersion}`,
+      );
       // Save initial configuration, if present
       let initParams = msg.params as InitializeParams;
       for (const workspaceFolder of initParams.workspaceFolders || []) {
