@@ -112,6 +112,59 @@ We call a few binaries and it's tricky to call them properly cross-platform. Her
 
 ## Rough Description Of How The Plugin Works
 
+### Text Changes
+
+The flow below shows how the LSP server reacts to incremental text changes and produces diagnostics:
+
+```mermaid
+flowchart TD
+  A[Your ReScript file in your editor]
+  B[LSP Client]
+  C[LSP Server]
+  D[bsc]
+
+  A -->|Type a character| B
+  B -->|textDocument/didChange| C
+
+  subgraph LSP_Server_Internal_Flow["LSP Server"]
+    C1[triggerIncrementalCompilationOfFile]
+    C2[compileContents]
+    C3[figureOutBscArgs]
+    C4[parse .compiler.log]
+  end
+
+  C --> C1
+  C1 --> C2 --> C3
+  C3 -->|invoke| D
+  D -->|writes| C4
+  C4 -->|textDocument/publishDiagnostics| B
+```
+
+### Completion
+
+The flow below shows how the LSP server handles completion requests by delegating to the native analysis binary:
+
+```mermaid
+flowchart TD
+  A[Your ReScript file in your editor]
+  B[LSP Client]
+  C[LSP Server]
+  D[rescript-editor-analysis.exe]
+
+  A -->|Trigger completion| B
+  B -->|textDocument/completion| C
+
+  subgraph LSP_Server_Internal_Flow["LSP Server"]
+    C1[shell out to rescript-editor-analysis.exe]
+    C2[build completion response]
+  end
+
+  C --> C1
+  C1 -->|exec| D
+  D --> C2
+  C2 -->|textDocument/completion response| B
+```
+
 ### Editor Diagnostics
 
 They should be synced in from `lib/bs/.compiler.log` build. Don't take them from other places.
