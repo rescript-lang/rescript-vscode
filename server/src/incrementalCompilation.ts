@@ -487,6 +487,174 @@ rule mij
   callArgs.push(entry.file.incrementalFilePath);
   return callArgs;
 }
+
+/**
+ * Remaps code action file paths from the incremental temp file to the actual source file.
+ */
+function remapCodeActionsToSourceFile(
+  codeActions: Record<string, fileCodeActions[]>,
+  sourceFilePath: NormalizedPath,
+): fileCodeActions[] {
+  const actions = Object.values(codeActions)[0] ?? [];
+
+  // Code actions will point to the locally saved incremental file, so we must remap
+  // them so the editor understand it's supposed to apply them to the unsaved doc,
+  // not the saved "dummy" incremental file.
+  actions.forEach((ca) => {
+    if (ca.codeAction.edit != null && ca.codeAction.edit.changes != null) {
+      const change = Object.values(ca.codeAction.edit.changes)[0];
+
+      ca.codeAction.edit.changes = {
+        [utils.pathToURI(sourceFilePath)]: change,
+      };
+    }
+  });
+
+  return actions;
+}
+
+/**
+ * Filters diagnostics to remove unwanted parser errors from incremental compilation.
+ */
+function filterIncrementalDiagnostics(
+  diagnostics: p.Diagnostic[],
+  sourceFileName: string,
+): { filtered: p.Diagnostic[]; hasIgnoredMessages: boolean } {
+  let hasIgnoredMessages = false;
+
+  const filtered = diagnostics
+    .map((d) => ({
+      ...d,
+      message: removeAnsiCodes(d.message),
+    }))
+    // Filter out a few unwanted parser errors since we run the parser in ignore mode
+    .filter((d) => {
+      if (
+        !d.message.startsWith("Uninterpreted extension 'rescript.") &&
+        (!d.message.includes(`/${INCREMENTAL_FOLDER_NAME}/${sourceFileName}`) ||
+          // The `Multiple definition of the <kind> name <name>` type error's
+          // message includes the filepath with LOC of the duplicate definition
+          d.message.startsWith("Multiple definition of the") ||
+          // The signature mismatch, with mismatch and ill typed applicative functor
+          // type errors all include the filepath with LOC
+          d.message.startsWith("Signature mismatch") ||
+          d.message.startsWith("In this `with' constraint") ||
+          d.message.startsWith("This `with' constraint on"))
+      ) {
+        hasIgnoredMessages = true;
+        return true;
+      }
+      return false;
+    });
+
+  return { filtered, hasIgnoredMessages };
+}
+
+/**
+ * Logs an error when incremental compilation produces unexpected output.
+ */
+function logIncrementalCompilationError(
+  entry: IncrementallyCompiledFileInfo,
+  stderr: string,
+  callArgs: string[] | null,
+  send: (msg: p.Message) => void,
+): void {
+  hasReportedFeatureFailedError.add(entry.project.rootPath);
+  const logfile = path.resolve(
+    entry.project.incrementalFolderPath,
+    "error.log",
+  );
+
+  try {
+    fs.writeFileSync(
+      logfile,
+      `== BSC ARGS ==\n${callArgs?.join(" ")}\n\n== OUTPUT ==\n${stderr}`,
+    );
+
+    const params: p.ShowMessageParams = {
+      type: p.MessageType.Warning,
+      message: `[Incremental typechecking] Something might have gone wrong with incremental type checking. Check out the [error log](file://${logfile}) and report this issue please.`,
+    };
+
+    const message: p.NotificationMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      method: "window/showMessage",
+      params: params,
+    };
+
+    send(message);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+/**
+ * Processes compilation results and publishes diagnostics to the LSP client.
+ */
+function processAndPublishDiagnostics(
+  entry: IncrementallyCompiledFileInfo,
+  result: Record<string, p.Diagnostic[]>,
+  codeActions: Record<string, fileCodeActions[]>,
+  stderr: string,
+  callArgs: string[] | null,
+  send: (msg: p.Message) => void,
+): void {
+  // Remap code actions to source file
+  const actions = remapCodeActionsToSourceFile(
+    codeActions,
+    entry.file.sourceFilePath,
+  );
+  entry.codeActions = actions;
+
+  // Filter diagnostics
+  const rawDiagnostics = Object.values(result)[0] ?? [];
+  const { filtered: res, hasIgnoredMessages } = filterIncrementalDiagnostics(
+    rawDiagnostics,
+    entry.file.sourceFileName,
+  );
+
+  // Log error if compilation produced unexpected output
+  if (
+    res.length === 0 &&
+    stderr !== "" &&
+    !hasIgnoredMessages &&
+    !hasReportedFeatureFailedError.has(entry.project.rootPath)
+  ) {
+    logIncrementalCompilationError(entry, stderr, callArgs, send);
+  }
+
+  const fileUri = utils.pathToURI(entry.file.sourceFilePath);
+
+  // Get compiler diagnostics from main build (if any) and combine with incremental diagnostics
+  const compilerDiagnosticsForFile =
+    getCurrentCompilerDiagnosticsForFile(fileUri);
+  const allDiagnostics = [...res, ...compilerDiagnosticsForFile];
+
+  // Update filesWithDiagnostics to track this file
+  // entry.project.rootPath is guaranteed to match a key in projectsFiles
+  // (see triggerIncrementalCompilationOfFile where the entry is created)
+  const projectFile = projectsFiles.get(entry.project.rootPath);
+
+  if (projectFile != null) {
+    if (allDiagnostics.length > 0) {
+      projectFile.filesWithDiagnostics.add(fileUri);
+    } else {
+      // Only remove if there are no diagnostics at all
+      projectFile.filesWithDiagnostics.delete(fileUri);
+    }
+  }
+
+  const notification: p.NotificationMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: "textDocument/publishDiagnostics",
+    params: {
+      uri: fileUri,
+      diagnostics: allDiagnostics,
+    },
+  };
+  send(notification);
+}
+
 async function compileContents(
   entry: IncrementallyCompiledFileInfo,
   fileContent: string,
@@ -564,116 +732,14 @@ async function compileContents(
             return;
           }
 
-          const actions = Object.values(codeActions)[0] ?? [];
-
-          // Code actions will point to the locally saved incremental file, so we must remap
-          // them so the editor understand it's supposed to apply them to the unsaved doc,
-          // not the saved "dummy" incremental file.
-          actions.forEach((ca) => {
-            if (
-              ca.codeAction.edit != null &&
-              ca.codeAction.edit.changes != null
-            ) {
-              const change = Object.values(ca.codeAction.edit.changes)[0];
-
-              ca.codeAction.edit.changes = {
-                [utils.pathToURI(entry.file.sourceFilePath)]: change,
-              };
-            }
-          });
-
-          entry.codeActions = actions;
-
-          const res = (Object.values(result)[0] ?? [])
-            .map((d) => ({
-              ...d,
-              message: removeAnsiCodes(d.message),
-            }))
-            // Filter out a few unwanted parser errors since we run the parser in ignore mode
-            .filter((d) => {
-              if (
-                !d.message.startsWith("Uninterpreted extension 'rescript.") &&
-                (!d.message.includes(
-                  `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`,
-                ) ||
-                  // The `Multiple definition of the <kind> name <name>` type error's
-                  // message includes the filepath with LOC of the duplicate definition
-                  d.message.startsWith("Multiple definition of the") ||
-                  // The signature mismatch, with mismatch and ill typed applicative functor
-                  // type errors all include the filepath with LOC
-                  d.message.startsWith("Signature mismatch") ||
-                  d.message.startsWith("In this `with' constraint") ||
-                  d.message.startsWith("This `with' constraint on"))
-              ) {
-                hasIgnoredErrorMessages = true;
-                return true;
-              }
-              return false;
-            });
-
-          if (
-            res.length === 0 &&
-            stderr !== "" &&
-            !hasIgnoredErrorMessages &&
-            !hasReportedFeatureFailedError.has(entry.project.rootPath)
-          ) {
-            try {
-              hasReportedFeatureFailedError.add(entry.project.rootPath);
-              const logfile = path.resolve(
-                entry.project.incrementalFolderPath,
-                "error.log",
-              );
-              fs.writeFileSync(
-                logfile,
-                `== BSC ARGS ==\n${callArgs?.join(
-                  " ",
-                )}\n\n== OUTPUT ==\n${stderr}`,
-              );
-              let params: p.ShowMessageParams = {
-                type: p.MessageType.Warning,
-                message: `[Incremental typechecking] Something might have gone wrong with incremental type checking. Check out the [error log](file://${logfile}) and report this issue please.`,
-              };
-              let message: p.NotificationMessage = {
-                jsonrpc: c.jsonrpcVersion,
-                method: "window/showMessage",
-                params: params,
-              };
-              send(message);
-            } catch (e) {
-              console.error(e);
-            }
-          }
-
-          const fileUri = utils.pathToURI(entry.file.sourceFilePath);
-
-          // Get compiler diagnostics from main build (if any) and combine with incremental diagnostics
-          const compilerDiagnosticsForFile =
-            getCurrentCompilerDiagnosticsForFile(fileUri);
-          const allDiagnostics = [...res, ...compilerDiagnosticsForFile];
-
-          // Update filesWithDiagnostics to track this file
-          // entry.project.rootPath is guaranteed to match a key in projectsFiles
-          // (see triggerIncrementalCompilationOfFile where the entry is created)
-          const projectFile = projectsFiles.get(entry.project.rootPath);
-
-          if (projectFile != null) {
-            if (allDiagnostics.length > 0) {
-              projectFile.filesWithDiagnostics.add(fileUri);
-            } else {
-              // Only remove if there are no diagnostics at all
-              projectFile.filesWithDiagnostics.delete(fileUri);
-            }
-          }
-
-          const notification: p.NotificationMessage = {
-            jsonrpc: c.jsonrpcVersion,
-            method: "textDocument/publishDiagnostics",
-            params: {
-              uri: fileUri,
-              diagnostics: allDiagnostics,
-            },
-          };
-          send(notification);
+          processAndPublishDiagnostics(
+            entry,
+            result,
+            codeActions,
+            stderr,
+            callArgs,
+            send,
+          );
         }
         onCompilationFinished?.();
       },
