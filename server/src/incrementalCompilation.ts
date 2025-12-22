@@ -630,18 +630,13 @@ function processAndPublishDiagnostics(
 
   const fileUri = utils.pathToURI(entry.file.sourceFilePath);
 
-  // Get compiler diagnostics from main build (if any) and combine with incremental diagnostics
-  const compilerDiagnosticsForFile =
-    getCurrentCompilerDiagnosticsForFile(fileUri);
-  const allDiagnostics = [...res, ...compilerDiagnosticsForFile];
-
   // Update filesWithDiagnostics to track this file
   // entry.project.rootPath is guaranteed to match a key in projectsFiles
   // (see triggerIncrementalCompilationOfFile where the entry is created)
   const projectFile = projectsFiles.get(entry.project.rootPath);
 
   if (projectFile != null) {
-    if (allDiagnostics.length > 0) {
+    if (res.length > 0) {
       projectFile.filesWithDiagnostics.add(fileUri);
     } else {
       // Only remove if there are no diagnostics at all
@@ -654,7 +649,7 @@ function processAndPublishDiagnostics(
     method: "textDocument/publishDiagnostics",
     params: {
       uri: fileUri,
-      diagnostics: allDiagnostics,
+      diagnostics: res,
     },
   };
   send(notification);
