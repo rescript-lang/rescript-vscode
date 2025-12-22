@@ -503,7 +503,7 @@ function remapCodeActionsToSourceFile(
   const actions = Object.values(codeActions)[0] ?? [];
 
   // Code actions will point to the locally saved incremental file, so we must remap
-  // them so the editor understand it's supposed to apply them to the unsaved doc,
+  // them so the editor understands it's supposed to apply them to the unsaved doc,
   // not the saved "dummy" incremental file.
   actions.forEach((ca) => {
     if (ca.codeAction.edit != null && ca.codeAction.edit.changes != null) {
@@ -713,7 +713,7 @@ async function compileContents(
     };
 
     try {
-      const { stdout, stderr } = await execFilePromise(
+      const { stderr } = await execFilePromise(
         entry.project.bscBinaryLocation,
         callArgs,
         { cwd, signal },
@@ -736,11 +736,6 @@ async function compileContents(
         return;
       }
 
-      getLogger().log("Resetting compilation status.");
-      // Reset compilation status as this compilation finished
-      entry.compilation = null;
-      entry.abortCompilation = null;
-
       const { result, codeActions } = await utils.parseCompilerLogOutput(
         `${stderr}\n#Done()`,
       );
@@ -755,6 +750,11 @@ async function compileContents(
         );
         return;
       }
+
+      getLogger().log("Resetting compilation status.");
+      // Reset compilation status as this compilation finished
+      entry.compilation = null;
+      entry.abortCompilation = null;
 
       processAndPublishDiagnostics(
         entry,
