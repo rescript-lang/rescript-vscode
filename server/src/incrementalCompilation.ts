@@ -556,6 +556,14 @@ async function compileContents(
             `${stderr}\n#Done()`,
           );
 
+          // reverify: Token may have changed during the await above
+          if (!verifyTriggerToken(entry.file.sourceFilePath, triggerToken)) {
+            getLogger().log(
+              `Discarding stale compilation results for ${entry.file.sourceFileName} (token mismatch after parsing)`,
+            );
+            return;
+          }
+
           const actions = Object.values(codeActions)[0] ?? [];
 
           // Code actions will point to the locally saved incremental file, so we must remap
