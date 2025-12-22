@@ -4,6 +4,7 @@ import * as utils from "./utils";
 import { performance } from "perf_hooks";
 import * as p from "vscode-languageserver-protocol";
 import * as cp from "node:child_process";
+import { promisify } from "node:util";
 import semver from "semver";
 import * as os from "os";
 import config, { send } from "./config";
@@ -15,6 +16,8 @@ import { BsbCompilerArgs, getBsbBscArgs } from "./bsc-args/bsb";
 import { getCurrentCompilerDiagnosticsForFile } from "./server";
 import { NormalizedPath } from "./utils";
 import { getLogger } from "./logger";
+
+const execFilePromise = promisify(cp.execFile);
 
 const INCREMENTAL_FOLDER_NAME = "___incremental";
 const INCREMENTAL_FILE_FOLDER_LOCATION = path.join(
@@ -59,8 +62,8 @@ export type IncrementallyCompiledFileInfo = {
     /** The trigger token for the currently active compilation. */
     triggerToken: number;
   } | null;
-  /** Listeners for when compilation of this file is killed. List always cleared after each invocation. */
-  killCompilationListeners: Array<() => void>;
+  /** Mechanism to kill the currently active compilation. */
+  abortCompilation: (() => void) | null;
   /** Project specific information. */
   project: {
     /** The root path of the project (normalized to match projectsFiles keys). */
@@ -86,6 +89,19 @@ const hasReportedFeatureFailedError: Set<NormalizedPath> = new Set();
 const originalTypeFileToFilePath: Map<NormalizedPath, NormalizedPath> =
   new Map();
 
+/**
+ * Cancels the currently active compilation for an entry.
+ * Clears the timeout, aborts the compilation, and resets state.
+ */
+function cancelActiveCompilation(entry: IncrementallyCompiledFileInfo): void {
+  if (entry.compilation != null) {
+    clearTimeout(entry.compilation.timeout);
+    entry.abortCompilation?.();
+    entry.compilation = null;
+    entry.abortCompilation = null;
+  }
+}
+
 export function incrementalCompilationFileChanged(changedPath: NormalizedPath) {
   const filePath = originalTypeFileToFilePath.get(changedPath);
   if (filePath != null) {
@@ -96,9 +112,7 @@ export function incrementalCompilationFileChanged(changedPath: NormalizedPath) {
       );
       if (entry.compilation != null) {
         getLogger().log("[watcher] Was compiling, killing");
-        clearTimeout(entry.compilation.timeout);
-        entry.killCompilationListeners.forEach((cb) => cb());
-        entry.compilation = null;
+        cancelActiveCompilation(entry);
       }
       cleanUpIncrementalFiles(
         entry.file.sourceFilePath,
@@ -335,7 +349,7 @@ function triggerIncrementalCompilationOfFile(
       buildRewatch: null,
       buildNinja: null,
       compilation: null,
-      killCompilationListeners: [],
+      abortCompilation: null,
       codeActions: [],
     };
 
@@ -352,25 +366,16 @@ function triggerIncrementalCompilationOfFile(
 
   if (incrementalFileCacheEntry == null) return;
   const entry = incrementalFileCacheEntry;
-  if (entry.compilation != null) {
-    clearTimeout(entry.compilation.timeout);
-    entry.killCompilationListeners.forEach((cb) => cb());
-    entry.killCompilationListeners = [];
-  }
+  cancelActiveCompilation(entry);
   const triggerToken = performance.now();
   const timeout = setTimeout(() => {
     compileContents(entry, fileContent, send, onCompilationFinished);
   }, 20);
 
-  if (entry.compilation != null) {
-    entry.compilation.timeout = timeout;
-    entry.compilation.triggerToken = triggerToken;
-  } else {
-    entry.compilation = {
-      timeout,
-      triggerToken,
-    };
-  }
+  entry.compilation = {
+    timeout,
+    triggerToken,
+  };
 }
 function verifyTriggerToken(
   filePath: NormalizedPath,
@@ -689,66 +694,89 @@ async function compileContents(
       entry.buildSystem === "bsb"
         ? entry.project.rootPath
         : path.resolve(entry.project.rootPath, c.compilerDirPartialPath);
+
     getLogger().log(
       `About to invoke bsc from \"${cwd}\", used ${entry.buildSystem}`,
     );
     getLogger().log(
       `${entry.project.bscBinaryLocation} ${callArgs.map((c) => `"${c}"`).join(" ")}`,
     );
-    const process = cp.execFile(
-      entry.project.bscBinaryLocation,
-      callArgs,
-      { cwd },
-      async (error, _stdout, stderr) => {
-        if (!error?.killed) {
-          getLogger().log(
-            `Recompiled ${entry.file.sourceFileName} in ${
-              (performance.now() - startTime) / 1000
-            }s`,
-          );
-        } else {
-          getLogger().log(
-            `Compilation of ${entry.file.sourceFileName} was killed.`,
-          );
-        }
-        let hasIgnoredErrorMessages = false;
-        if (
-          !error?.killed &&
-          triggerToken != null &&
-          verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
-        ) {
-          getLogger().log("Resetting compilation status.");
-          // Reset compilation status as this compilation finished
-          entry.compilation = null;
-          const { result, codeActions } = await utils.parseCompilerLogOutput(
-            `${stderr}\n#Done()`,
-          );
 
-          // reverify: Token may have changed during the await above
-          if (!verifyTriggerToken(entry.file.sourceFilePath, triggerToken)) {
-            getLogger().log(
-              `Discarding stale compilation results for ${entry.file.sourceFileName} (token mismatch after parsing)`,
-            );
-            return;
-          }
+    // Create AbortController for this compilation
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-          processAndPublishDiagnostics(
-            entry,
-            result,
-            codeActions,
-            stderr,
-            callArgs,
-            send,
-          );
-        }
-        onCompilationFinished?.();
-      },
-    );
-    entry.killCompilationListeners.push(() => {
-      process.kill("SIGKILL");
-    });
+    // Store abort function directly on the entry
+    entry.abortCompilation = () => {
+      getLogger().log(`Aborting compilation of ${entry.file.sourceFileName}`);
+      abortController.abort();
+    };
+
+    try {
+      const { stdout, stderr } = await execFilePromise(
+        entry.project.bscBinaryLocation,
+        callArgs,
+        { cwd, signal },
+      );
+
+      getLogger().log(
+        `Recompiled ${entry.file.sourceFileName} in ${
+          (performance.now() - startTime) / 1000
+        }s`,
+      );
+
+      // Verify token after async operation
+      if (
+        triggerToken != null &&
+        !verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
+      ) {
+        getLogger().log(
+          `Discarding stale compilation results for ${entry.file.sourceFileName} (token changed)`,
+        );
+        return;
+      }
+
+      getLogger().log("Resetting compilation status.");
+      // Reset compilation status as this compilation finished
+      entry.compilation = null;
+      entry.abortCompilation = null;
+
+      const { result, codeActions } = await utils.parseCompilerLogOutput(
+        `${stderr}\n#Done()`,
+      );
+
+      // Re-verify again after second async operation
+      if (
+        triggerToken != null &&
+        !verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
+      ) {
+        getLogger().log(
+          `Discarding stale compilation results for ${entry.file.sourceFileName} (token changed after parsing)`,
+        );
+        return;
+      }
+
+      processAndPublishDiagnostics(
+        entry,
+        result,
+        codeActions,
+        stderr,
+        callArgs,
+        send,
+      );
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        getLogger().log(
+          `Compilation of ${entry.file.sourceFileName} was aborted.`,
+        );
+      } else {
+        throw error;
+      }
+    }
   } catch (e) {
     console.error(e);
+  } finally {
+    onCompilationFinished?.();
   }
 }
 
