@@ -15,6 +15,11 @@
 #### :bug: Bug fix
 
 - Take namespace into account for incremental cleanup. https://github.com/rescript-lang/rescript-vscode/pull/1164
+- Potential race condition in incremental compilation. https://github.com/rescript-lang/rescript-vscode/pull/1167
+
+#### :nail_care: Polish
+
+- Stale .compiler.log can still spill through in incremental compilation. https://github.com/rescript-lang/rescript-vscode/pull/1167
 
 ## 1.72.0
 
