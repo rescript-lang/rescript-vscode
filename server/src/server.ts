@@ -1436,7 +1436,20 @@ async function onMessage(msg: p.Message) {
         params.textDocument.uri as utils.FileURI,
         params.textDocument.text,
       );
-      await sendUpdatedDiagnostics();
+
+      if (config.extensionConfiguration.incrementalTypechecking?.enable) {
+        // We run incremental typechecking to get the most accurate results
+        // the current file may have deviated from the last compilation.
+        updateOpenedFile(
+          params.textDocument.uri as utils.FileURI,
+          params.textDocument.text,
+        );
+      } else {
+        // Check the .compiler.log file for diagnostics
+        // This could be stale data of course.
+        await sendUpdatedDiagnostics();
+      }
+
       await updateDiagnosticSyntax(
         params.textDocument.uri as utils.FileURI,
         params.textDocument.text,

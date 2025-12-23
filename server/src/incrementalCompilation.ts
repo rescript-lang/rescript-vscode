@@ -4,6 +4,7 @@ import * as utils from "./utils";
 import { performance } from "perf_hooks";
 import * as p from "vscode-languageserver-protocol";
 import * as cp from "node:child_process";
+import { promisify } from "node:util";
 import semver from "semver";
 import * as os from "os";
 import config, { send } from "./config";
@@ -15,6 +16,8 @@ import { BsbCompilerArgs, getBsbBscArgs } from "./bsc-args/bsb";
 import { getCurrentCompilerDiagnosticsForFile } from "./server";
 import { NormalizedPath } from "./utils";
 import { getLogger } from "./logger";
+
+const execFilePromise = promisify(cp.execFile);
 
 const INCREMENTAL_FOLDER_NAME = "___incremental";
 const INCREMENTAL_FILE_FOLDER_LOCATION = path.join(
@@ -59,8 +62,8 @@ export type IncrementallyCompiledFileInfo = {
     /** The trigger token for the currently active compilation. */
     triggerToken: number;
   } | null;
-  /** Listeners for when compilation of this file is killed. List always cleared after each invocation. */
-  killCompilationListeners: Array<() => void>;
+  /** Mechanism to kill the currently active compilation. */
+  abortCompilation: (() => void) | null;
   /** Project specific information. */
   project: {
     /** The root path of the project (normalized to match projectsFiles keys). */
@@ -86,6 +89,19 @@ const hasReportedFeatureFailedError: Set<NormalizedPath> = new Set();
 const originalTypeFileToFilePath: Map<NormalizedPath, NormalizedPath> =
   new Map();
 
+/**
+ * Cancels the currently active compilation for an entry.
+ * Clears the timeout, aborts the compilation, and resets state.
+ */
+function cancelActiveCompilation(entry: IncrementallyCompiledFileInfo): void {
+  if (entry.compilation != null) {
+    clearTimeout(entry.compilation.timeout);
+    entry.abortCompilation?.();
+    entry.compilation = null;
+    entry.abortCompilation = null;
+  }
+}
+
 export function incrementalCompilationFileChanged(changedPath: NormalizedPath) {
   const filePath = originalTypeFileToFilePath.get(changedPath);
   if (filePath != null) {
@@ -96,9 +112,7 @@ export function incrementalCompilationFileChanged(changedPath: NormalizedPath) {
       );
       if (entry.compilation != null) {
         getLogger().log("[watcher] Was compiling, killing");
-        clearTimeout(entry.compilation.timeout);
-        entry.killCompilationListeners.forEach((cb) => cb());
-        entry.compilation = null;
+        cancelActiveCompilation(entry);
       }
       cleanUpIncrementalFiles(
         entry.file.sourceFilePath,
@@ -335,7 +349,7 @@ function triggerIncrementalCompilationOfFile(
       buildRewatch: null,
       buildNinja: null,
       compilation: null,
-      killCompilationListeners: [],
+      abortCompilation: null,
       codeActions: [],
     };
 
@@ -352,25 +366,16 @@ function triggerIncrementalCompilationOfFile(
 
   if (incrementalFileCacheEntry == null) return;
   const entry = incrementalFileCacheEntry;
-  if (entry.compilation != null) {
-    clearTimeout(entry.compilation.timeout);
-    entry.killCompilationListeners.forEach((cb) => cb());
-    entry.killCompilationListeners = [];
-  }
+  cancelActiveCompilation(entry);
   const triggerToken = performance.now();
   const timeout = setTimeout(() => {
     compileContents(entry, fileContent, send, onCompilationFinished);
   }, 20);
 
-  if (entry.compilation != null) {
-    entry.compilation.timeout = timeout;
-    entry.compilation.triggerToken = triggerToken;
-  } else {
-    entry.compilation = {
-      timeout,
-      triggerToken,
-    };
-  }
+  entry.compilation = {
+    timeout,
+    triggerToken,
+  };
 }
 function verifyTriggerToken(
   filePath: NormalizedPath,
@@ -487,6 +492,169 @@ rule mij
   callArgs.push(entry.file.incrementalFilePath);
   return callArgs;
 }
+
+/**
+ * Remaps code action file paths from the incremental temp file to the actual source file.
+ */
+function remapCodeActionsToSourceFile(
+  codeActions: Record<string, fileCodeActions[]>,
+  sourceFilePath: NormalizedPath,
+): fileCodeActions[] {
+  const actions = Object.values(codeActions)[0] ?? [];
+
+  // Code actions will point to the locally saved incremental file, so we must remap
+  // them so the editor understands it's supposed to apply them to the unsaved doc,
+  // not the saved "dummy" incremental file.
+  actions.forEach((ca) => {
+    if (ca.codeAction.edit != null && ca.codeAction.edit.changes != null) {
+      const change = Object.values(ca.codeAction.edit.changes)[0];
+
+      ca.codeAction.edit.changes = {
+        [utils.pathToURI(sourceFilePath)]: change,
+      };
+    }
+  });
+
+  return actions;
+}
+
+/**
+ * Filters diagnostics to remove unwanted parser errors from incremental compilation.
+ */
+function filterIncrementalDiagnostics(
+  diagnostics: p.Diagnostic[],
+  sourceFileName: string,
+): { filtered: p.Diagnostic[]; hasIgnoredMessages: boolean } {
+  let hasIgnoredMessages = false;
+
+  const filtered = diagnostics
+    .map((d) => ({
+      ...d,
+      message: removeAnsiCodes(d.message),
+    }))
+    // Filter out a few unwanted parser errors since we run the parser in ignore mode
+    .filter((d) => {
+      if (
+        !d.message.startsWith("Uninterpreted extension 'rescript.") &&
+        (!d.message.includes(`/${INCREMENTAL_FOLDER_NAME}/${sourceFileName}`) ||
+          // The `Multiple definition of the <kind> name <name>` type error's
+          // message includes the filepath with LOC of the duplicate definition
+          d.message.startsWith("Multiple definition of the") ||
+          // The signature mismatch, with mismatch and ill typed applicative functor
+          // type errors all include the filepath with LOC
+          d.message.startsWith("Signature mismatch") ||
+          d.message.startsWith("In this `with' constraint") ||
+          d.message.startsWith("This `with' constraint on"))
+      ) {
+        hasIgnoredMessages = true;
+        return true;
+      }
+      return false;
+    });
+
+  return { filtered, hasIgnoredMessages };
+}
+
+/**
+ * Logs an error when incremental compilation produces unexpected output.
+ */
+function logIncrementalCompilationError(
+  entry: IncrementallyCompiledFileInfo,
+  stderr: string,
+  callArgs: string[] | null,
+  send: (msg: p.Message) => void,
+): void {
+  hasReportedFeatureFailedError.add(entry.project.rootPath);
+  const logfile = path.resolve(
+    entry.project.incrementalFolderPath,
+    "error.log",
+  );
+
+  try {
+    fs.writeFileSync(
+      logfile,
+      `== BSC ARGS ==\n${callArgs?.join(" ")}\n\n== OUTPUT ==\n${stderr}`,
+    );
+
+    const params: p.ShowMessageParams = {
+      type: p.MessageType.Warning,
+      message: `[Incremental typechecking] Something might have gone wrong with incremental type checking. Check out the [error log](file://${logfile}) and report this issue please.`,
+    };
+
+    const message: p.NotificationMessage = {
+      jsonrpc: c.jsonrpcVersion,
+      method: "window/showMessage",
+      params: params,
+    };
+
+    send(message);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+/**
+ * Processes compilation results and publishes diagnostics to the LSP client.
+ */
+function processAndPublishDiagnostics(
+  entry: IncrementallyCompiledFileInfo,
+  result: Record<string, p.Diagnostic[]>,
+  codeActions: Record<string, fileCodeActions[]>,
+  stderr: string,
+  callArgs: string[] | null,
+  send: (msg: p.Message) => void,
+): void {
+  // Remap code actions to source file
+  const actions = remapCodeActionsToSourceFile(
+    codeActions,
+    entry.file.sourceFilePath,
+  );
+  entry.codeActions = actions;
+
+  // Filter diagnostics
+  const rawDiagnostics = Object.values(result)[0] ?? [];
+  const { filtered: res, hasIgnoredMessages } = filterIncrementalDiagnostics(
+    rawDiagnostics,
+    entry.file.sourceFileName,
+  );
+
+  // Log error if compilation produced unexpected output
+  if (
+    res.length === 0 &&
+    stderr !== "" &&
+    !hasIgnoredMessages &&
+    !hasReportedFeatureFailedError.has(entry.project.rootPath)
+  ) {
+    logIncrementalCompilationError(entry, stderr, callArgs, send);
+  }
+
+  const fileUri = utils.pathToURI(entry.file.sourceFilePath);
+
+  // Update filesWithDiagnostics to track this file
+  // entry.project.rootPath is guaranteed to match a key in projectsFiles
+  // (see triggerIncrementalCompilationOfFile where the entry is created)
+  const projectFile = projectsFiles.get(entry.project.rootPath);
+
+  if (projectFile != null) {
+    if (res.length > 0) {
+      projectFile.filesWithDiagnostics.add(fileUri);
+    } else {
+      // Only remove if there are no diagnostics at all
+      projectFile.filesWithDiagnostics.delete(fileUri);
+    }
+  }
+
+  const notification: p.NotificationMessage = {
+    jsonrpc: c.jsonrpcVersion,
+    method: "textDocument/publishDiagnostics",
+    params: {
+      uri: fileUri,
+      diagnostics: res,
+    },
+  };
+  send(notification);
+}
+
 async function compileContents(
   entry: IncrementallyCompiledFileInfo,
   fileContent: string,
@@ -521,160 +689,92 @@ async function compileContents(
       entry.buildSystem === "bsb"
         ? entry.project.rootPath
         : path.resolve(entry.project.rootPath, c.compilerDirPartialPath);
+
     getLogger().log(
       `About to invoke bsc from \"${cwd}\", used ${entry.buildSystem}`,
     );
     getLogger().log(
       `${entry.project.bscBinaryLocation} ${callArgs.map((c) => `"${c}"`).join(" ")}`,
     );
-    const process = cp.execFile(
-      entry.project.bscBinaryLocation,
-      callArgs,
-      { cwd },
-      async (error, _stdout, stderr) => {
-        if (!error?.killed) {
-          getLogger().log(
-            `Recompiled ${entry.file.sourceFileName} in ${
-              (performance.now() - startTime) / 1000
-            }s`,
-          );
-        } else {
-          getLogger().log(
-            `Compilation of ${entry.file.sourceFileName} was killed.`,
-          );
-        }
-        let hasIgnoredErrorMessages = false;
-        if (
-          !error?.killed &&
-          triggerToken != null &&
-          verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
-        ) {
-          getLogger().log("Resetting compilation status.");
-          // Reset compilation status as this compilation finished
-          entry.compilation = null;
-          const { result, codeActions } = await utils.parseCompilerLogOutput(
-            `${stderr}\n#Done()`,
-          );
 
-          const actions = Object.values(codeActions)[0] ?? [];
+    // Create AbortController for this compilation
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-          // Code actions will point to the locally saved incremental file, so we must remap
-          // them so the editor understand it's supposed to apply them to the unsaved doc,
-          // not the saved "dummy" incremental file.
-          actions.forEach((ca) => {
-            if (
-              ca.codeAction.edit != null &&
-              ca.codeAction.edit.changes != null
-            ) {
-              const change = Object.values(ca.codeAction.edit.changes)[0];
+    // Store abort function directly on the entry
+    entry.abortCompilation = () => {
+      getLogger().log(`Aborting compilation of ${entry.file.sourceFileName}`);
+      abortController.abort();
+    };
 
-              ca.codeAction.edit.changes = {
-                [utils.pathToURI(entry.file.sourceFilePath)]: change,
-              };
-            }
-          });
+    try {
+      const { stderr } = await execFilePromise(
+        entry.project.bscBinaryLocation,
+        callArgs,
+        { cwd, signal },
+      );
 
-          entry.codeActions = actions;
+      getLogger().log(
+        `Recompiled ${entry.file.sourceFileName} in ${
+          (performance.now() - startTime) / 1000
+        }s`,
+      );
 
-          const res = (Object.values(result)[0] ?? [])
-            .map((d) => ({
-              ...d,
-              message: removeAnsiCodes(d.message),
-            }))
-            // Filter out a few unwanted parser errors since we run the parser in ignore mode
-            .filter((d) => {
-              if (
-                !d.message.startsWith("Uninterpreted extension 'rescript.") &&
-                (!d.message.includes(
-                  `/${INCREMENTAL_FOLDER_NAME}/${entry.file.sourceFileName}`,
-                ) ||
-                  // The `Multiple definition of the <kind> name <name>` type error's
-                  // message includes the filepath with LOC of the duplicate definition
-                  d.message.startsWith("Multiple definition of the") ||
-                  // The signature mismatch, with mismatch and ill typed applicative functor
-                  // type errors all include the filepath with LOC
-                  d.message.startsWith("Signature mismatch") ||
-                  d.message.startsWith("In this `with' constraint") ||
-                  d.message.startsWith("This `with' constraint on"))
-              ) {
-                hasIgnoredErrorMessages = true;
-                return true;
-              }
-              return false;
-            });
+      // Verify token after async operation
+      if (
+        triggerToken != null &&
+        !verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
+      ) {
+        getLogger().log(
+          `Discarding stale compilation results for ${entry.file.sourceFileName} (token changed)`,
+        );
+        return;
+      }
 
-          if (
-            res.length === 0 &&
-            stderr !== "" &&
-            !hasIgnoredErrorMessages &&
-            !hasReportedFeatureFailedError.has(entry.project.rootPath)
-          ) {
-            try {
-              hasReportedFeatureFailedError.add(entry.project.rootPath);
-              const logfile = path.resolve(
-                entry.project.incrementalFolderPath,
-                "error.log",
-              );
-              fs.writeFileSync(
-                logfile,
-                `== BSC ARGS ==\n${callArgs?.join(
-                  " ",
-                )}\n\n== OUTPUT ==\n${stderr}`,
-              );
-              let params: p.ShowMessageParams = {
-                type: p.MessageType.Warning,
-                message: `[Incremental typechecking] Something might have gone wrong with incremental type checking. Check out the [error log](file://${logfile}) and report this issue please.`,
-              };
-              let message: p.NotificationMessage = {
-                jsonrpc: c.jsonrpcVersion,
-                method: "window/showMessage",
-                params: params,
-              };
-              send(message);
-            } catch (e) {
-              console.error(e);
-            }
-          }
+      const { result, codeActions } = await utils.parseCompilerLogOutput(
+        `${stderr}\n#Done()`,
+      );
 
-          const fileUri = utils.pathToURI(entry.file.sourceFilePath);
+      // Re-verify again after second async operation
+      if (
+        triggerToken != null &&
+        !verifyTriggerToken(entry.file.sourceFilePath, triggerToken)
+      ) {
+        getLogger().log(
+          `Discarding stale compilation results for ${entry.file.sourceFileName} (token changed after parsing)`,
+        );
+        return;
+      }
 
-          // Get compiler diagnostics from main build (if any) and combine with incremental diagnostics
-          const compilerDiagnosticsForFile =
-            getCurrentCompilerDiagnosticsForFile(fileUri);
-          const allDiagnostics = [...res, ...compilerDiagnosticsForFile];
-
-          // Update filesWithDiagnostics to track this file
-          // entry.project.rootPath is guaranteed to match a key in projectsFiles
-          // (see triggerIncrementalCompilationOfFile where the entry is created)
-          const projectFile = projectsFiles.get(entry.project.rootPath);
-
-          if (projectFile != null) {
-            if (allDiagnostics.length > 0) {
-              projectFile.filesWithDiagnostics.add(fileUri);
-            } else {
-              // Only remove if there are no diagnostics at all
-              projectFile.filesWithDiagnostics.delete(fileUri);
-            }
-          }
-
-          const notification: p.NotificationMessage = {
-            jsonrpc: c.jsonrpcVersion,
-            method: "textDocument/publishDiagnostics",
-            params: {
-              uri: fileUri,
-              diagnostics: allDiagnostics,
-            },
-          };
-          send(notification);
-        }
-        onCompilationFinished?.();
-      },
-    );
-    entry.killCompilationListeners.push(() => {
-      process.kill("SIGKILL");
-    });
-  } catch (e) {
-    console.error(e);
+      processAndPublishDiagnostics(
+        entry,
+        result,
+        codeActions,
+        stderr,
+        callArgs,
+        send,
+      );
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        getLogger().log(
+          `Compilation of ${entry.file.sourceFileName} was aborted.`,
+        );
+      } else {
+        getLogger().error(
+          `Unexpected error during compilation of ${entry.file.sourceFileName}: ${error}`,
+        );
+        throw error;
+      }
+    } finally {
+      // Only clean up if this is still the active compilation
+      if (entry.compilation?.triggerToken === triggerToken) {
+        getLogger().log("Cleaning up compilation status.");
+        entry.compilation = null;
+        entry.abortCompilation = null;
+      }
+    }
+  } finally {
+    onCompilationFinished?.();
   }
 }
 
