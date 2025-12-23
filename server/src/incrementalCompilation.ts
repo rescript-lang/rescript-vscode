@@ -746,11 +746,6 @@ async function compileContents(
         return;
       }
 
-      getLogger().log("Resetting compilation status.");
-      // Reset compilation status as this compilation finished
-      entry.compilation = null;
-      entry.abortCompilation = null;
-
       processAndPublishDiagnostics(
         entry,
         result,
@@ -765,11 +760,19 @@ async function compileContents(
           `Compilation of ${entry.file.sourceFileName} was aborted.`,
         );
       } else {
+        getLogger().error(
+          `Unexpected error during compilation of ${entry.file.sourceFileName}: ${error}`,
+        );
         throw error;
       }
+    } finally {
+      // Only clean up if this is still the active compilation
+      if (entry.compilation?.triggerToken === triggerToken) {
+        getLogger().log("Cleaning up compilation status.");
+        entry.compilation = null;
+        entry.abortCompilation = null;
+      }
     }
-  } catch (e) {
-    console.error(e);
   } finally {
     onCompilationFinished?.();
   }
