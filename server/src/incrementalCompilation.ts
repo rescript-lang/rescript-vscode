@@ -712,7 +712,12 @@ async function compileContents(
         entry.project.bscBinaryLocation,
         callArgs,
         { cwd, signal },
-      );
+      ).catch((error) => {
+        if (error.stderr) {
+          return { stderr: error.stderr };
+        }
+        throw error;
+      });
 
       getLogger().log(
         `Recompiled ${entry.file.sourceFileName} in ${
