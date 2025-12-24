@@ -13,7 +13,6 @@ import { fileCodeActions } from "./codeActions";
 import { projectsFiles } from "./projectFiles";
 import { getRewatchBscArgs, RewatchCompilerArgs } from "./bsc-args/rewatch";
 import { BsbCompilerArgs, getBsbBscArgs } from "./bsc-args/bsb";
-import { getCurrentCompilerDiagnosticsForFile } from "./server";
 import { NormalizedPath } from "./utils";
 import { getLogger } from "./logger";
 
