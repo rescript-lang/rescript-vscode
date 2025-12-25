@@ -13,7 +13,6 @@ import { fileCodeActions } from "./codeActions";
 import { projectsFiles } from "./projectFiles";
 import { getRewatchBscArgs, RewatchCompilerArgs } from "./bsc-args/rewatch";
 import { BsbCompilerArgs, getBsbBscArgs } from "./bsc-args/bsb";
-import { getCurrentCompilerDiagnosticsForFile } from "./server";
 import { NormalizedPath } from "./utils";
 import { getLogger } from "./logger";
 
@@ -712,7 +711,12 @@ async function compileContents(
         entry.project.bscBinaryLocation,
         callArgs,
         { cwd, signal },
-      );
+      ).catch((error) => {
+        if (error.stderr) {
+          return { stderr: error.stderr };
+        }
+        throw error;
+      });
 
       getLogger().log(
         `Recompiled ${entry.file.sourceFileName} in ${
