@@ -1,4 +1,5 @@
 import * as cp from "child_process";
+import * as fs from "fs";
 import * as path from "path";
 import {
   window,
@@ -216,12 +217,27 @@ export const runCodeAnalysisWithReanalyze = (
     currentDocument.uri.fsPath,
   );
 
-  // This little weird lookup is because in the legacy setup reanalyze needs to be
-  // run from the analysis binary, whereas in the new setup it's run from the tools
-  // binary.
-  let binaryPath =
-    getBinaryPath("rescript-tools.exe", projectRootPath) ??
-    getBinaryPath("rescript-editor-analysis.exe");
+  // Try v12+ path first: @rescript/{platform}-{arch}/bin/rescript-tools.exe
+  // Then fall back to legacy paths via getBinaryPath
+  let binaryPath: string | null = null;
+  if (projectRootPath != null) {
+    const v12Path = path.join(
+      projectRootPath,
+      "node_modules",
+      "@rescript",
+      `${process.platform}-${process.arch}`,
+      "bin",
+      "rescript-tools.exe",
+    );
+    if (fs.existsSync(v12Path)) {
+      binaryPath = v12Path;
+    }
+  }
+  if (binaryPath == null) {
+    binaryPath =
+      getBinaryPath("rescript-tools.exe", projectRootPath) ??
+      getBinaryPath("rescript-editor-analysis.exe", projectRootPath);
+  }
 
   if (binaryPath === null) {
     window.showErrorMessage("Binary executable not found.");
