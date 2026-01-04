@@ -427,18 +427,49 @@ let openedFile = async (fileUri: utils.FileURI, fileContent: string) => {
       const namespaceName =
         utils.getNamespaceNameFromConfigFile(projectRootPath);
 
+      const rescriptVersion =
+        await utils.findReScriptVersionForProjectRoot(projectRootPath);
+      const isReScript12OrHigher =
+        semver.valid(rescriptVersion) &&
+        semver.gte(rescriptVersion as string, "12.0.0");
+
+      // Top-level separation: v12+ or legacy
+      let editorAnalysisLocation: string | null = null;
+      if (isReScript12OrHigher) {
+        // ReScript 12+: function handles all errors internally and throws if not found
+        try {
+          editorAnalysisLocation =
+            await utils.findEditorAnalysisBinary(projectRootPath);
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : `Failed to find ReScript ${rescriptVersion} editor analysis binary: ${String(error)}`;
+          getLogger().error(errorMessage);
+          throw error;
+        }
+      } else {
+        // ReScript < 12: function returns null if not found, no errors thrown
+        try {
+          editorAnalysisLocation =
+            await utils.findEditorAnalysisBinary(projectRootPath);
+        } catch (error) {
+          getLogger().log(
+            `Could not find editor analysis binary for ReScript ${rescriptVersion}: ${String(error)}`,
+          );
+        }
+      }
+
       projectRootState = {
         openFiles: new Set(),
         filesWithDiagnostics: new Set(),
         filesDiagnostics: {},
         namespaceName:
           namespaceName.kind === "success" ? namespaceName.result : null,
-        rescriptVersion:
-          await utils.findReScriptVersionForProjectRoot(projectRootPath),
+        rescriptVersion: rescriptVersion,
         bsbWatcherByEditor: null,
         bscBinaryLocation: await utils.findBscExeBinary(projectRootPath),
-        editorAnalysisLocation:
-          await utils.findEditorAnalysisBinary(projectRootPath),
+        editorAnalysisLocation: editorAnalysisLocation,
         hasPromptedToStartBuild: /(\/|\\)node_modules(\/|\\)/.test(
           projectRootPath,
         )

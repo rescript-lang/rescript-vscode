@@ -18,6 +18,7 @@ import * as lookup from "./lookup";
 import { reportError } from "./errorReporter";
 import config from "./config";
 import { filesDiagnostics, projectsFiles, projectFiles } from "./projectFiles";
+import { findBinaryLegacy } from "./utils-legacy";
 import { workspaceFolders } from "./server";
 import { rewatchLockPartialPath, rescriptLockPartialPath } from "./constants";
 import { findRescriptRuntimesInProject } from "./find-runtime";
@@ -211,9 +212,82 @@ export let getProjectFile = (
   return projectsFiles.get(projectRootPath) ?? null;
 };
 
-// If ReScript < 12.0.0-alpha.13, then we want `{project_root}/node_modules/rescript/{c.platformDir}/{binary}`.
-// Otherwise, we want to dynamically import `{project_root}/node_modules/rescript` and from `binPaths` get the relevant binary.
-// We won't know which version is in the project root until we read and parse `{project_root}/node_modules/rescript/package.json`
+// ============================================================================
+// ReScript 12+ Binary Finding (Clean, self-contained)
+// ============================================================================
+
+/**
+ * Finds binaries for ReScript 12+ using the new @rescript/${target}/bin.js structure.
+ * This is the single source of truth for binary locations in v12+.
+ */
+let findBinaryReScript12 = async (
+  rescriptDir: string,
+  rescriptVersion: string,
+  binary:
+    | "bsc.exe"
+    | "rescript-editor-analysis.exe"
+    | "rescript.exe"
+    | "rescript-tools.exe",
+): Promise<NormalizedPath | null> => {
+  const target = `${process.platform}-${process.arch}`;
+  // Use realpathSync to resolve symlinks, which is necessary for package
+  // managers like Deno and pnpm that use symlinked node_modules structures.
+  const targetPackagePath = path.join(
+    fs.realpathSync(rescriptDir),
+    "..",
+    `@rescript/${target}/bin.js`,
+  );
+
+  try {
+    const { binPaths } = await import(targetPackagePath);
+
+    let binaryPath: string | null = null;
+    if (binary == "bsc.exe") {
+      binaryPath = binPaths.bsc_exe;
+    } else if (binary == "rescript-editor-analysis.exe") {
+      binaryPath = binPaths.rescript_editor_analysis_exe;
+    } else if (binary == "rescript.exe") {
+      binaryPath = binPaths.rescript_exe;
+    } else if (binary == "rescript-tools.exe") {
+      binaryPath = binPaths.rescript_tools_exe;
+    }
+
+    if (binaryPath == null) {
+      throw new Error(
+        `Binary ${binary} not found in binPaths for ReScript ${rescriptVersion}`,
+      );
+    }
+
+    if (!fs.existsSync(binaryPath)) {
+      throw new Error(
+        `Binary ${binary} path from binPaths does not exist: ${binaryPath}`,
+      );
+    }
+
+    return normalizePath(binaryPath);
+  } catch (error) {
+    // For ReScript 12+, we must have a valid binary path or fail with an error
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : `Failed to find ${binary} for ReScript ${rescriptVersion}: ${String(error)}`;
+    throw new Error(
+      `ReScript ${rescriptVersion} binary resolution failed: ${errorMessage}. ` +
+        `Expected to find binary via @rescript/${target}/bin.js. ` +
+        `Please ensure ReScript is properly installed in your project.`,
+    );
+  }
+};
+
+// ============================================================================
+// Main Binary Finding Function (Routes to v12 or legacy based on version)
+// ============================================================================
+
+/**
+ * Finds a ReScript binary, routing to v12+ or legacy implementation based on version.
+ * For ReScript >= 12.0.0, uses @rescript/${target}/bin.js.
+ * For ReScript < 12.0.0, uses the old path structure.
+ */
 let findBinary = async (
   projectRootPath: NormalizedPath | null,
   binary:
@@ -221,8 +295,10 @@ let findBinary = async (
     | "rescript-editor-analysis.exe"
     | "rescript"
     | "rewatch.exe"
-    | "rescript.exe",
+    | "rescript.exe"
+    | "rescript-tools.exe",
 ): Promise<NormalizedPath | null> => {
+  // Check for manual platform path override
   if (config.extensionConfiguration.platformPath != null) {
     const result = path.join(
       config.extensionConfiguration.platformPath,
@@ -231,26 +307,7 @@ let findBinary = async (
     return normalizePath(result);
   }
 
-  if (projectRootPath !== null) {
-    try {
-      const compilerInfo = path.resolve(
-        projectRootPath,
-        c.compilerInfoPartialPath,
-      );
-      const contents = await fsAsync.readFile(compilerInfo, "utf8");
-      const compileInfo = JSON.parse(contents);
-      if (compileInfo && compileInfo.bsc_path) {
-        const bsc_path = compileInfo.bsc_path;
-        if (binary === "bsc.exe") {
-          return normalizePath(bsc_path);
-        } else {
-          const binary_path = path.join(path.dirname(bsc_path), binary);
-          return normalizePath(binary_path);
-        }
-      }
-    } catch {}
-  }
-
+  // Find rescript package directory
   const rescriptDir = lookup.findFilePathFromProjectRoot(
     projectRootPath,
     path.join("node_modules", "rescript"),
@@ -259,8 +316,9 @@ let findBinary = async (
     return null;
   }
 
-  let rescriptVersion = null;
-  let rescriptJSWrapperPath = null;
+  // Read version from package.json
+  let rescriptVersion: string | null = null;
+  let rescriptJSWrapperPath: string | null = null;
   try {
     const rescriptPackageJSONPath = path.join(rescriptDir, "package.json");
     const rescriptPackageJSON = JSON.parse(
@@ -272,41 +330,30 @@ let findBinary = async (
     return null;
   }
 
-  let binaryPath: string | null = null;
+  // Handle "rescript" JS wrapper (same for all versions)
   if (binary == "rescript") {
     // Can't use the native bsb/rescript since we might need the watcher -w
     // flag, which is only in the JS wrapper
-    binaryPath = path.join(rescriptDir, rescriptJSWrapperPath);
-  } else if (semver.gte(rescriptVersion, "12.0.0-alpha.13")) {
-    // TODO: export `binPaths` from `rescript` package so that we don't need to
-    // copy the logic for figuring out `target`.
-    const target = `${process.platform}-${process.arch}`;
-    // Use realpathSync to resolve symlinks, which is necessary for package
-    // managers like Deno and pnpm that use symlinked node_modules structures.
-    const targetPackagePath = path.join(
-      fs.realpathSync(rescriptDir),
-      "..",
-      `@rescript/${target}/bin.js`,
-    );
-    const { binPaths } = await import(targetPackagePath);
-
-    if (binary == "bsc.exe") {
-      binaryPath = binPaths.bsc_exe;
-    } else if (binary == "rescript-editor-analysis.exe") {
-      binaryPath = binPaths.rescript_editor_analysis_exe;
-    } else if (binary == "rewatch.exe") {
-      binaryPath = binPaths.rewatch_exe;
-    } else if (binary == "rescript.exe") {
-      binaryPath = binPaths.rescript_exe;
+    if (rescriptJSWrapperPath == null) {
+      return null;
     }
-  } else {
-    binaryPath = path.join(rescriptDir, c.platformDir, binary);
+    const binaryPath = path.join(rescriptDir, rescriptJSWrapperPath);
+    return normalizePath(binaryPath);
   }
 
-  if (binaryPath != null && fs.existsSync(binaryPath)) {
-    return normalizePath(binaryPath);
-  } else {
+  // Top-level separation: v12+ or legacy
+  if (rescriptVersion == null) {
     return null;
+  }
+  const isReScript12OrHigher = semver.gte(rescriptVersion, "12.0.0");
+  if (isReScript12OrHigher) {
+    // For ReScript 12+, rewatch.exe doesn't exist
+    if (binary == "rewatch.exe") {
+      return null;
+    }
+    return findBinaryReScript12(rescriptDir, rescriptVersion, binary);
+  } else {
+    return findBinaryLegacy(projectRootPath, rescriptDir, binary);
   }
 };
 
@@ -325,6 +372,9 @@ export let findRewatchBinary = (projectRootPath: NormalizedPath | null) =>
 
 export let findRescriptExeBinary = (projectRootPath: NormalizedPath | null) =>
   findBinary(projectRootPath, "rescript.exe");
+
+export let findRescriptToolsBinary = (projectRootPath: NormalizedPath | null) =>
+  findBinary(projectRootPath, "rescript-tools.exe");
 
 type execResult<T = string> =
   | {
@@ -422,32 +472,45 @@ export let runAnalysisAfterSanityCheck = async (
       ? projectsFiles.get(projectRootPath)?.rescriptVersion
       : null) ?? (await findReScriptVersionForProjectRoot(projectRootPath));
 
-  let binaryPath = builtinBinaryPath;
+  const isReScript12OrHigher =
+    semver.valid(rescriptVersion) &&
+    semver.gte(rescriptVersion as string, "12.0.0");
 
   let project = projectRootPath ? projectsFiles.get(projectRootPath) : null;
 
-  /**
-   * All versions including 12.0.0-alpha.5 and above should use the analysis binary
-   * that now ships with the compiler. Previous versions use the legacy one we ship
-   * with the extension itself.
-   */
-  let shouldUseBuiltinAnalysis =
-    semver.valid(rescriptVersion) &&
-    semver.lt(rescriptVersion as string, "12.0.0-alpha.5");
-
-  if (!shouldUseBuiltinAnalysis && project != null) {
-    binaryPath = project.editorAnalysisLocation;
-  } else if (!shouldUseBuiltinAnalysis && project == null) {
-    // TODO: Warn user about broken state?
-    return null;
-  } else {
-    binaryPath = builtinBinaryPath;
-  }
-
+  // Top-level separation: v12+ or legacy
+  let binaryPath: string | null = null;
   let runtime: string | undefined = undefined;
-  if (semver.gt(rescriptVersion as string, "12.0.0-rc.1")) {
+
+  if (isReScript12OrHigher) {
+    // ReScript 12+: use binary from compiler, must have valid path
+    if (project != null && project.editorAnalysisLocation != null) {
+      binaryPath = project.editorAnalysisLocation;
+    } else if (projectRootPath != null) {
+      // Project not in cache yet, try to find binary directly
+      binaryPath = await findBinary(
+        projectRootPath,
+        "rescript-editor-analysis.exe",
+      );
+    }
+
+    if (binaryPath == null) {
+      const errorMessage =
+        `ReScript ${rescriptVersion} editor analysis binary not found. ` +
+        `Please ensure ReScript is properly installed in your project at ${projectRootPath ?? "unknown"}. ` +
+        `The extension expects to find the binary via @rescript/${process.platform}-${process.arch}/bin.js.`;
+      reportError("editor-analysis-binary-not-found", errorMessage);
+      throw new Error(errorMessage);
+    }
+
     const runtimePath = await getRuntimePathFromProjectRoot(projectRootPath);
     runtime = runtimePath ?? undefined;
+  } else {
+    // ReScript < 12: always use builtin binary (preserves original behavior)
+    binaryPath = builtinBinaryPath;
+    if (binaryPath == null) {
+      return null;
+    }
   }
 
   let options: childProcess.ExecFileSyncOptions = {
@@ -467,10 +530,6 @@ export let runAnalysisAfterSanityCheck = async (
       RESCRIPT_RUNTIME: runtime,
     },
   };
-
-  if (binaryPath == null) {
-    return null;
-  }
 
   let stdout = "";
   try {

@@ -2,6 +2,8 @@ import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
 import { DocumentUri } from "vscode-languageclient";
+import * as semver from "semver";
+import { getBinaryPathLegacy } from "./utils-legacy";
 
 /*
  * Much of the code in here is duplicated from the server code.
@@ -32,42 +34,110 @@ export function normalizePath(filePath: string | null): NormalizedPath | null {
 
 type binaryName = "rescript-editor-analysis.exe" | "rescript-tools.exe";
 
-const platformDir =
-  process.arch === "arm64" ? process.platform + process.arch : process.platform;
+// v12+ format: with hyphen (e.g., "darwin-arm64")
+const platformTarget = `${process.platform}-${process.arch}`;
 
-const getLegacyBinaryDevPath = (b: binaryName) =>
-  path.join(path.dirname(__dirname), "..", "analysis", b);
+// ============================================================================
+// Version Detection
+// ============================================================================
 
-export const getLegacyBinaryProdPath = (b: binaryName) =>
-  path.join(
-    path.dirname(__dirname),
-    "..",
-    "server",
-    "analysis_binaries",
-    platformDir,
-    b,
+/**
+ * Finds the ReScript version from package.json in the project.
+ */
+export const findReScriptVersion = (
+  projectRootPath: NormalizedPath | null,
+): string | null => {
+  if (projectRootPath == null) {
+    return null;
+  }
+  try {
+    const packageJsonPath = path.join(
+      projectRootPath,
+      "node_modules",
+      "rescript",
+      "package.json",
+    );
+    if (!fs.existsSync(packageJsonPath)) {
+      return null;
+    }
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+    return packageJson.version ?? null;
+  } catch {
+    return null;
+  }
+};
+
+// ============================================================================
+// ReScript 12+ Binary Finding (Clean, self-contained)
+// ============================================================================
+
+/**
+ * Finds binaries for ReScript 12+ using @rescript/${target}/bin.js structure.
+ * This is the single source of truth for binary locations in v12+.
+ * Returns null if binary not found, throws on critical errors.
+ */
+const getBinaryPathReScript12 = (
+  projectRootPath: NormalizedPath,
+  binaryName: binaryName,
+): string | null => {
+  const binJsPath = path.join(
+    projectRootPath,
+    "node_modules",
+    "@rescript",
+    platformTarget,
+    "bin.js",
   );
 
+  if (!fs.existsSync(binJsPath)) {
+    return null;
+  }
+
+  // Read bin.js and extract the binary path
+  // bin.js exports binPaths object with paths to binaries
+  const binDir = path.join(
+    projectRootPath,
+    "node_modules",
+    "@rescript",
+    platformTarget,
+    "bin",
+  );
+
+  let binaryPath: string | null = null;
+  if (binaryName === "rescript-tools.exe") {
+    binaryPath = path.join(binDir, "rescript-tools.exe");
+  } else if (binaryName === "rescript-editor-analysis.exe") {
+    binaryPath = path.join(binDir, "rescript-editor-analysis.exe");
+  }
+
+  if (binaryPath != null && fs.existsSync(binaryPath)) {
+    return binaryPath;
+  }
+  return null;
+};
+
+// ============================================================================
+// Main Binary Finding Function (Routes to v12 or legacy)
+// ============================================================================
+
+/**
+ * Finds a ReScript binary, routing to v12+ or legacy implementation.
+ * Top-level if separates the two code paths completely.
+ */
 export const getBinaryPath = (
   binaryName: "rescript-editor-analysis.exe" | "rescript-tools.exe",
   projectRootPath: NormalizedPath | null = null,
 ): string | null => {
-  const binaryFromCompilerPackage = path.join(
-    projectRootPath ?? "",
-    "node_modules",
-    "rescript",
-    platformDir,
-    binaryName,
-  );
+  const rescriptVersion = findReScriptVersion(projectRootPath);
+  const isReScript12OrHigher =
+    rescriptVersion != null &&
+    semver.valid(rescriptVersion) &&
+    semver.gte(rescriptVersion, "12.0.0");
 
-  if (projectRootPath != null && fs.existsSync(binaryFromCompilerPackage)) {
-    return binaryFromCompilerPackage;
-  } else if (fs.existsSync(getLegacyBinaryDevPath(binaryName))) {
-    return getLegacyBinaryDevPath(binaryName);
-  } else if (fs.existsSync(getLegacyBinaryProdPath(binaryName))) {
-    return getLegacyBinaryProdPath(binaryName);
+  // Top-level separation: v12+ or legacy
+  if (isReScript12OrHigher && projectRootPath != null) {
+    return getBinaryPathReScript12(projectRootPath, binaryName);
   } else {
-    return null;
+    return getBinaryPathLegacy(projectRootPath, binaryName);
   }
 };
 

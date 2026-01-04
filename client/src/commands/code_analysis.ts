@@ -14,10 +14,12 @@ import {
   OutputChannel,
   StatusBarItem,
 } from "vscode";
+import * as semver from "semver";
 import {
   findProjectRootOfFileInDir,
   getBinaryPath,
   NormalizedPath,
+  findReScriptVersion,
 } from "../utils";
 
 export let statusBarItem = {
@@ -216,12 +218,20 @@ export const runCodeAnalysisWithReanalyze = (
     currentDocument.uri.fsPath,
   );
 
-  // This little weird lookup is because in the legacy setup reanalyze needs to be
-  // run from the analysis binary, whereas in the new setup it's run from the tools
-  // binary.
-  let binaryPath =
-    getBinaryPath("rescript-tools.exe", projectRootPath) ??
-    getBinaryPath("rescript-editor-analysis.exe");
+  // v12+: reanalyze is run from rescript-tools.exe
+  // Legacy: reanalyze is run from rescript-editor-analysis.exe
+  const rescriptVersion = findReScriptVersion(projectRootPath);
+  const isReScript12OrHigher =
+    rescriptVersion != null &&
+    semver.valid(rescriptVersion) &&
+    semver.gte(rescriptVersion, "12.0.0");
+
+  let binaryPath: string | null;
+  if (isReScript12OrHigher) {
+    binaryPath = getBinaryPath("rescript-tools.exe", projectRootPath);
+  } else {
+    binaryPath = getBinaryPath("rescript-editor-analysis.exe", projectRootPath);
+  }
 
   if (binaryPath === null) {
     window.showErrorMessage("Binary executable not found.");
