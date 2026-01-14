@@ -118,16 +118,28 @@ let findRescriptBinary = async (
 ): Promise<utils.NormalizedPath | null> => {
   if (
     config.extensionConfiguration.binaryPath != null &&
-    fs.existsSync(
-      path.join(config.extensionConfiguration.binaryPath, "rescript"),
-    )
+    (fs.existsSync(
+      path.join(config.extensionConfiguration.binaryPath, "rescript.exe"),
+    ) ||
+      fs.existsSync(
+        path.join(config.extensionConfiguration.binaryPath, "rescript"),
+      ))
   ) {
     return utils.normalizePath(
-      path.join(config.extensionConfiguration.binaryPath, "rescript"),
+      fs.existsSync(
+        path.join(config.extensionConfiguration.binaryPath, "rescript.exe"),
+      )
+        ? path.join(config.extensionConfiguration.binaryPath, "rescript.exe")
+        : path.join(config.extensionConfiguration.binaryPath, "rescript"),
     );
   }
 
-  return utils.findRescriptBinary(projectRootPath);
+  // Prefer the native rescript.exe (v12+) for spawning `build -w`.
+  // Fall back to the legacy/JS wrapper `rescript` path if needed.
+  return (
+    (await utils.findRescriptExeBinary(projectRootPath)) ??
+    (await utils.findRescriptBinary(projectRootPath))
+  );
 };
 
 let createInterfaceRequest = new v.RequestType<
@@ -1388,11 +1400,10 @@ async function onMessage(msg: p.Message) {
       const watchers = Array.from(workspaceFolders).flatMap(
         (projectRootPath) => [
           {
-            globPattern: path.join(
-              projectRootPath,
-              "**",
-              c.compilerLogPartialPath,
-            ),
+            // Only watch the root compiler log for each workspace folder.
+            // In monorepos, `**/lib/bs/.compiler.log` matches every package and dependency,
+            // causing a burst of events per save.
+            globPattern: path.join(projectRootPath, c.compilerLogPartialPath),
             kind: p.WatchKind.Change | p.WatchKind.Create | p.WatchKind.Delete,
           },
           {

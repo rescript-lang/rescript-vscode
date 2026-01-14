@@ -213,9 +213,14 @@ export const runCodeAnalysisWithReanalyze = (
   let currentDocument = window.activeTextEditor.document;
   let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
+  // Resolve the project root from `cwd` (which is the workspace root when code analysis is started),
+  // rather than from the currently-open file (which may be in a subpackage).
   let projectRootPath: NormalizedPath | null = findProjectRootOfFileInDir(
-    currentDocument.uri.fsPath,
+    path.join(cwd, "bsconfig.json"),
   );
+  if (projectRootPath == null) {
+    projectRootPath = findProjectRootOfFileInDir(currentDocument.uri.fsPath);
+  }
 
   // Try v12+ path first: @rescript/{platform}-{arch}/bin/rescript-tools.exe
   // Then fall back to legacy paths via getBinaryPath

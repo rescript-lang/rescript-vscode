@@ -442,12 +442,11 @@ export function activate(context: ExtensionContext) {
 
     inCodeAnalysisState.active = true;
 
-    // Pointing reanalyze to the dir of the current file path is fine, because
-    // reanalyze will walk upwards looking for a bsconfig.json in order to find
-    // the correct project root.
-    inCodeAnalysisState.activatedFromDirectory = path.dirname(
-      currentDocument.uri.fsPath,
-    );
+    // Run reanalyze from the workspace root (so monorepos consistently analyze the root project),
+    // instead of from whatever file happened to be active when analysis was started.
+    const wsFolder = workspace.getWorkspaceFolder(currentDocument.uri);
+    inCodeAnalysisState.activatedFromDirectory =
+      wsFolder?.uri.fsPath ?? path.dirname(currentDocument.uri.fsPath);
 
     codeAnalysisRunningStatusBarItem.command =
       "rescript-vscode.stop_code_analysis";
