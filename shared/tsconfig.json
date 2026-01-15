@@ -4,9 +4,9 @@
     "target": "es2019",
     "lib": ["ES2019"],
     "outDir": "out",
-    "rootDirs": ["src", "../shared/src"],
+    "rootDir": "src",
     "sourceMap": true
   },
-  "include": ["src", "../shared/src"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

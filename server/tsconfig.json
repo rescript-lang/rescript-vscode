@@ -7,9 +7,9 @@
     "sourceMap": true,
     "strict": true,
     "outDir": "out",
-    "rootDir": "src",
+    "rootDirs": ["src", "../shared/src"],
     "esModuleInterop": true
   },
-  "include": ["src"],
+  "include": ["src", "../shared/src"],
   "exclude": ["node_modules"]
 }

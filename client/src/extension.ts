@@ -155,7 +155,6 @@ export function activate(context: ExtensionContext) {
             client.onNotification("rescript/compilationFinished", () => {
               if (inCodeAnalysisState.active === true) {
                 customCommands.codeAnalysisWithReanalyze(
-                  inCodeAnalysisState.activatedFromDirectory,
                   diagnosticsCollection,
                   diagnosticsResultCodeActions,
                   outputChannel,
@@ -308,8 +307,7 @@ export function activate(context: ExtensionContext) {
 
   let inCodeAnalysisState: {
     active: boolean;
-    activatedFromDirectory: string | null;
-  } = { active: false, activatedFromDirectory: null };
+  } = { active: false };
 
   // This code actions provider yields the code actions potentially extracted
   // from the code analysis to the editor.
@@ -442,19 +440,12 @@ export function activate(context: ExtensionContext) {
 
     inCodeAnalysisState.active = true;
 
-    // Run reanalyze from the workspace root (so monorepos consistently analyze the root project),
-    // instead of from whatever file happened to be active when analysis was started.
-    const wsFolder = workspace.getWorkspaceFolder(currentDocument.uri);
-    inCodeAnalysisState.activatedFromDirectory =
-      wsFolder?.uri.fsPath ?? path.dirname(currentDocument.uri.fsPath);
-
     codeAnalysisRunningStatusBarItem.command =
       "rescript-vscode.stop_code_analysis";
     codeAnalysisRunningStatusBarItem.show();
     statusBarItem.setToStopText(codeAnalysisRunningStatusBarItem);
 
     customCommands.codeAnalysisWithReanalyze(
-      inCodeAnalysisState.activatedFromDirectory,
       diagnosticsCollection,
       diagnosticsResultCodeActions,
       outputChannel,
@@ -464,7 +455,6 @@ export function activate(context: ExtensionContext) {
 
   commands.registerCommand("rescript-vscode.stop_code_analysis", () => {
     inCodeAnalysisState.active = false;
-    inCodeAnalysisState.activatedFromDirectory = null;
 
     diagnosticsCollection.clear();
     diagnosticsResultCodeActions.clear();

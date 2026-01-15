@@ -118,28 +118,16 @@ let findRescriptBinary = async (
 ): Promise<utils.NormalizedPath | null> => {
   if (
     config.extensionConfiguration.binaryPath != null &&
-    (fs.existsSync(
-      path.join(config.extensionConfiguration.binaryPath, "rescript.exe"),
-    ) ||
-      fs.existsSync(
-        path.join(config.extensionConfiguration.binaryPath, "rescript"),
-      ))
+    fs.existsSync(
+      path.join(config.extensionConfiguration.binaryPath, "rescript"),
+    )
   ) {
     return utils.normalizePath(
-      fs.existsSync(
-        path.join(config.extensionConfiguration.binaryPath, "rescript.exe"),
-      )
-        ? path.join(config.extensionConfiguration.binaryPath, "rescript.exe")
-        : path.join(config.extensionConfiguration.binaryPath, "rescript"),
+      path.join(config.extensionConfiguration.binaryPath, "rescript"),
     );
   }
 
-  // Prefer the native rescript.exe (v12+) for spawning `build -w`.
-  // Fall back to the legacy/JS wrapper `rescript` path if needed.
-  return (
-    (await utils.findRescriptExeBinary(projectRootPath)) ??
-    (await utils.findRescriptBinary(projectRootPath))
-  );
+  return utils.findRescriptBinary(projectRootPath);
 };
 
 let createInterfaceRequest = new v.RequestType<

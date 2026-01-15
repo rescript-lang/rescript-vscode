@@ -12,6 +12,11 @@ import * as os from "os";
 import semver from "semver";
 import { fileURLToPath, pathToFileURL } from "url";
 
+import {
+  findBinary as findSharedBinary,
+  type BinaryName,
+} from "../../shared/src/findBinary";
+import { findProjectRootOfFileInDir as findProjectRootOfFileInDirShared } from "../../shared/src/projectRoots";
 import * as codeActions from "./codeActions";
 import * as c from "./constants";
 import * as lookup from "./lookup";
@@ -85,23 +90,7 @@ export let createFileInTempDir = (extension = ""): NormalizedPath => {
 function findProjectRootOfFileInDir(
   source: NormalizedPath,
 ): NormalizedPath | null {
-  const dir = normalizePath(path.dirname(source));
-  if (dir == null) {
-    return null;
-  }
-  if (
-    fs.existsSync(path.join(dir, c.rescriptJsonPartialPath)) ||
-    fs.existsSync(path.join(dir, c.bsconfigPartialPath))
-  ) {
-    return dir;
-  } else {
-    if (dir === source) {
-      // reached top
-      return null;
-    } else {
-      return findProjectRootOfFileInDir(dir);
-    }
-  }
+  return normalizePath(findProjectRootOfFileInDirShared(source));
 }
 
 /**
@@ -216,98 +205,14 @@ export let getProjectFile = (
 // We won't know which version is in the project root until we read and parse `{project_root}/node_modules/rescript/package.json`
 let findBinary = async (
   projectRootPath: NormalizedPath | null,
-  binary:
-    | "bsc.exe"
-    | "rescript-editor-analysis.exe"
-    | "rescript"
-    | "rewatch.exe"
-    | "rescript.exe",
+  binary: BinaryName,
 ): Promise<NormalizedPath | null> => {
-  if (config.extensionConfiguration.platformPath != null) {
-    const result = path.join(
-      config.extensionConfiguration.platformPath,
-      binary,
-    );
-    return normalizePath(result);
-  }
-
-  if (projectRootPath !== null) {
-    try {
-      const compilerInfo = path.resolve(
-        projectRootPath,
-        c.compilerInfoPartialPath,
-      );
-      const contents = await fsAsync.readFile(compilerInfo, "utf8");
-      const compileInfo = JSON.parse(contents);
-      if (compileInfo && compileInfo.bsc_path) {
-        const bsc_path = compileInfo.bsc_path;
-        if (binary === "bsc.exe") {
-          return normalizePath(bsc_path);
-        } else {
-          const binary_path = path.join(path.dirname(bsc_path), binary);
-          return normalizePath(binary_path);
-        }
-      }
-    } catch {}
-  }
-
-  const rescriptDir = lookup.findFilePathFromProjectRoot(
+  const result = await findSharedBinary({
     projectRootPath,
-    path.join("node_modules", "rescript"),
-  );
-  if (rescriptDir == null) {
-    return null;
-  }
-
-  let rescriptVersion = null;
-  let rescriptJSWrapperPath = null;
-  try {
-    const rescriptPackageJSONPath = path.join(rescriptDir, "package.json");
-    const rescriptPackageJSON = JSON.parse(
-      await fsAsync.readFile(rescriptPackageJSONPath, "utf-8"),
-    );
-    rescriptVersion = rescriptPackageJSON.version;
-    rescriptJSWrapperPath = rescriptPackageJSON.bin.rescript;
-  } catch (error) {
-    return null;
-  }
-
-  let binaryPath: string | null = null;
-  if (binary == "rescript") {
-    // Can't use the native bsb/rescript since we might need the watcher -w
-    // flag, which is only in the JS wrapper
-    binaryPath = path.join(rescriptDir, rescriptJSWrapperPath);
-  } else if (semver.gte(rescriptVersion, "12.0.0-alpha.13")) {
-    // TODO: export `binPaths` from `rescript` package so that we don't need to
-    // copy the logic for figuring out `target`.
-    const target = `${process.platform}-${process.arch}`;
-    // Use realpathSync to resolve symlinks, which is necessary for package
-    // managers like Deno and pnpm that use symlinked node_modules structures.
-    const targetPackagePath = path.join(
-      fs.realpathSync(rescriptDir),
-      "..",
-      `@rescript/${target}/bin.js`,
-    );
-    const { binPaths } = await import(targetPackagePath);
-
-    if (binary == "bsc.exe") {
-      binaryPath = binPaths.bsc_exe;
-    } else if (binary == "rescript-editor-analysis.exe") {
-      binaryPath = binPaths.rescript_editor_analysis_exe;
-    } else if (binary == "rewatch.exe") {
-      binaryPath = binPaths.rewatch_exe;
-    } else if (binary == "rescript.exe") {
-      binaryPath = binPaths.rescript_exe;
-    }
-  } else {
-    binaryPath = path.join(rescriptDir, c.platformDir, binary);
-  }
-
-  if (binaryPath != null && fs.existsSync(binaryPath)) {
-    return normalizePath(binaryPath);
-  } else {
-    return null;
-  }
+    binary,
+    platformPath: config.extensionConfiguration.platformPath ?? null,
+  });
+  return normalizePath(result);
 };
 
 export let findRescriptBinary = (projectRootPath: NormalizedPath | null) =>

@@ -2,6 +2,11 @@ import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
 import { DocumentUri } from "vscode-languageclient";
+import { findBinary, type BinaryName } from "../../shared/src/findBinary";
+import {
+  findProjectRootOfFileInDir as findProjectRootOfFileInDirShared,
+  normalizePath as normalizePathShared,
+} from "../../shared/src/projectRoots";
 
 /*
  * Much of the code in here is duplicated from the server code.
@@ -27,7 +32,7 @@ export type NormalizedPath = string & { __brand: "NormalizedPath" };
  */
 export function normalizePath(filePath: string | null): NormalizedPath | null {
   // `path.normalize` ensures we can assume string is now NormalizedPath
-  return filePath != null ? (path.normalize(filePath) as NormalizedPath) : null;
+  return normalizePathShared(filePath) as NormalizedPath | null;
 }
 
 type binaryName = "rescript-editor-analysis.exe" | "rescript-tools.exe";
@@ -83,25 +88,7 @@ export const createFileInTempDir = (prefix = "", extension = "") => {
 export let findProjectRootOfFileInDir = (
   source: string,
 ): NormalizedPath | null => {
-  const normalizedSource = normalizePath(source);
-  if (normalizedSource == null) {
-    return null;
-  }
-  const dir = normalizePath(path.dirname(normalizedSource));
-  if (dir == null) {
-    return null;
-  }
-  if (
-    fs.existsSync(path.join(dir, "rescript.json")) ||
-    fs.existsSync(path.join(dir, "bsconfig.json"))
-  ) {
-    return dir;
-  } else {
-    if (dir === normalizedSource) {
-      // reached top
-      return null;
-    } else {
-      return findProjectRootOfFileInDir(dir);
-    }
-  }
+  return normalizePath(findProjectRootOfFileInDirShared(source));
 };
+
+export { findBinary, BinaryName };

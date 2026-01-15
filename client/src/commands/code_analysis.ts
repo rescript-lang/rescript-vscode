@@ -15,11 +15,12 @@ import {
   OutputChannel,
   StatusBarItem,
 } from "vscode";
+import { getBinaryPath, NormalizedPath, normalizePath } from "../utils";
 import {
-  findProjectRootOfFileInDir,
-  getBinaryPath,
-  NormalizedPath,
-} from "../utils";
+  findBinary,
+  findBinary as findSharedBinary,
+} from "../../../shared/src/findBinary";
+import { findProjectRootOfFile } from "../../../shared/src/projectRoots";
 
 export let statusBarItem = {
   setToStopText: (codeAnalysisRunningStatusBarItem: StatusBarItem) => {
@@ -203,45 +204,26 @@ let resultsToDiagnostics = (
   };
 };
 
-export const runCodeAnalysisWithReanalyze = (
-  targetDir: string | null,
+export const runCodeAnalysisWithReanalyze = async (
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
   outputChannel: OutputChannel,
   codeAnalysisRunningStatusBarItem: StatusBarItem,
 ) => {
   let currentDocument = window.activeTextEditor.document;
-  let cwd = targetDir ?? path.dirname(currentDocument.uri.fsPath);
 
-  // Resolve the project root from `cwd` (which is the workspace root when code analysis is started),
-  // rather than from the currently-open file (which may be in a subpackage).
-  let projectRootPath: NormalizedPath | null = findProjectRootOfFileInDir(
-    path.join(cwd, "bsconfig.json"),
+  let projectRootPath: NormalizedPath | null = normalizePath(
+    findProjectRootOfFile(currentDocument.uri.fsPath),
   );
-  if (projectRootPath == null) {
-    projectRootPath = findProjectRootOfFileInDir(currentDocument.uri.fsPath);
-  }
-
-  // Try v12+ path first: @rescript/{platform}-{arch}/bin/rescript-tools.exe
-  // Then fall back to legacy paths via getBinaryPath
-  let binaryPath: string | null = null;
-  if (projectRootPath != null) {
-    const v12Path = path.join(
-      projectRootPath,
-      "node_modules",
-      "@rescript",
-      `${process.platform}-${process.arch}`,
-      "bin",
-      "rescript-tools.exe",
-    );
-    if (fs.existsSync(v12Path)) {
-      binaryPath = v12Path;
-    }
-  }
+  let binaryPath: string | null = await findBinary({
+    projectRootPath,
+    binary: "rescript-tools.exe",
+  });
   if (binaryPath == null) {
-    binaryPath =
-      getBinaryPath("rescript-tools.exe", projectRootPath) ??
-      getBinaryPath("rescript-editor-analysis.exe", projectRootPath);
+    binaryPath = await findBinary({
+      projectRootPath,
+      binary: "rescript-editor-analysis.exe",
+    });
   }
 
   if (binaryPath === null) {
@@ -249,12 +231,14 @@ export const runCodeAnalysisWithReanalyze = (
     return;
   }
 
+  // Strip everything after the outermost node_modules segment to get the project root.
+  let cwd =
+    binaryPath.match(/^(.*?)[\\/]+node_modules([\\/]+|$)/)?.[1] ?? binaryPath;
+
   statusBarItem.setToRunningText(codeAnalysisRunningStatusBarItem);
 
   let opts = ["reanalyze", "-json"];
-  let p = cp.spawn(binaryPath, opts, {
-    cwd,
-  });
+  let p = cp.spawn(binaryPath, opts, { cwd });
 
   if (p.stdout == null) {
     statusBarItem.setToFailed(codeAnalysisRunningStatusBarItem);

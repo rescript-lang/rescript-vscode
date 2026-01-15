@@ -13,14 +13,12 @@ export { pasteAsRescriptJson } from "./commands/paste_as_rescript_json";
 export { pasteAsRescriptJsx } from "./commands/paste_as_rescript_jsx";
 
 export const codeAnalysisWithReanalyze = (
-  targetDir: string | null,
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
   outputChannel: OutputChannel,
   codeAnalysisRunningStatusBarItem: StatusBarItem,
 ) => {
   runCodeAnalysisWithReanalyze(
-    targetDir,
     diagnosticsCollection,
     diagnosticsResultCodeActions,
     outputChannel,
