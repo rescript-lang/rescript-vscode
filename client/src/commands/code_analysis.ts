@@ -1,6 +1,7 @@
 import * as cp from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import * as semver from "semver";
 import {
   window,
   DiagnosticCollection,
@@ -15,12 +16,259 @@ import {
   OutputChannel,
   StatusBarItem,
 } from "vscode";
-import { getBinaryPath, NormalizedPath, normalizePath } from "../utils";
+import { NormalizedPath, normalizePath } from "../utils";
 import {
   findBinary,
-  findBinary as findSharedBinary,
+  getMonorepoRootFromBinaryPath,
 } from "../../../shared/src/findBinary";
 import { findProjectRootOfFile } from "../../../shared/src/projectRoots";
+
+// Reanalyze server constants (matches rescript monorepo)
+const REANALYZE_SOCKET_FILENAME = ".rescript-reanalyze.sock";
+const REANALYZE_SERVER_MIN_VERSION = "12.1.0";
+
+// Server state per monorepo root
+export interface ReanalyzeServerState {
+  process: cp.ChildProcess | null;
+  monorepoRoot: string;
+  socketPath: string;
+  startedByUs: boolean;
+  outputChannel: OutputChannel | null;
+}
+
+// Map from monorepo root to server state
+export const reanalyzeServers: Map<string, ReanalyzeServerState> = new Map();
+
+// Check if ReScript version supports reanalyze-server
+const supportsReanalyzeServer = async (
+  monorepoRootPath: string | null,
+): Promise<boolean> => {
+  if (monorepoRootPath === null) return false;
+
+  try {
+    const rescriptDir = path.join(monorepoRootPath, "node_modules", "rescript");
+    const packageJsonPath = path.join(rescriptDir, "package.json");
+    const packageJson = JSON.parse(
+      await fs.promises.readFile(packageJsonPath, "utf-8"),
+    );
+    const version = packageJson.version;
+
+    return (
+      semver.valid(version) != null &&
+      semver.gte(version, REANALYZE_SERVER_MIN_VERSION)
+    );
+  } catch {
+    return false;
+  }
+};
+
+// Get socket path for a monorepo root
+const getSocketPath = (monorepoRoot: string): string => {
+  return path.join(monorepoRoot, REANALYZE_SOCKET_FILENAME);
+};
+
+// Check if server is running (socket file exists)
+const isServerRunning = (monorepoRoot: string): boolean => {
+  const socketPath = getSocketPath(monorepoRoot);
+  return fs.existsSync(socketPath);
+};
+
+// Start reanalyze server for a monorepo.
+// Note: This should only be called after supportsReanalyzeServer() returns true,
+// which ensures ReScript >= 12.1.0 where the reanalyze-server subcommand exists.
+export const startReanalyzeServer = async (
+  monorepoRoot: string,
+  binaryPath: string,
+  clientOutputChannel?: OutputChannel,
+): Promise<ReanalyzeServerState | null> => {
+  // Check if already running (either by us or externally)
+  if (isServerRunning(monorepoRoot)) {
+    // Check if we have a record of starting it
+    const existing = reanalyzeServers.get(monorepoRoot);
+    if (existing) {
+      existing.outputChannel?.appendLine(
+        "[info] Server already running (started by us)",
+      );
+      return existing;
+    }
+    // Server running but not started by us - just record it
+    clientOutputChannel?.appendLine(
+      `[info] Found existing reanalyze-server for ${path.basename(monorepoRoot)} (not started by extension)`,
+    );
+    const state: ReanalyzeServerState = {
+      process: null,
+      monorepoRoot,
+      socketPath: getSocketPath(monorepoRoot),
+      startedByUs: false,
+      outputChannel: null,
+    };
+    reanalyzeServers.set(monorepoRoot, state);
+    return state;
+  }
+
+  // Create output channel for server logs
+  const outputChannel = window.createOutputChannel(
+    `ReScript Reanalyze Server (${path.basename(monorepoRoot)})`,
+  );
+
+  outputChannel.appendLine(
+    `[info] Starting reanalyze-server in ${monorepoRoot}`,
+  );
+
+  // Start the server
+  const serverProcess = cp.spawn(binaryPath, ["reanalyze-server"], {
+    cwd: monorepoRoot,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+  if (serverProcess.pid == null) {
+    outputChannel.appendLine("[error] Failed to start reanalyze-server");
+    return null;
+  }
+
+  const state: ReanalyzeServerState = {
+    process: serverProcess,
+    monorepoRoot,
+    socketPath: getSocketPath(monorepoRoot),
+    startedByUs: true,
+    outputChannel,
+  };
+
+  // Log stdout and stderr to output channel
+  serverProcess.stdout?.on("data", (data) => {
+    outputChannel.appendLine(`[stdout] ${data.toString().trim()}`);
+  });
+
+  serverProcess.stderr?.on("data", (data) => {
+    outputChannel.appendLine(`[stderr] ${data.toString().trim()}`);
+  });
+
+  serverProcess.on("error", (err) => {
+    outputChannel.appendLine(`[error] Server error: ${err.message}`);
+  });
+
+  serverProcess.on("exit", (code, signal) => {
+    outputChannel.appendLine(
+      `[info] Server exited with code ${code}, signal ${signal}`,
+    );
+    reanalyzeServers.delete(monorepoRoot);
+  });
+
+  reanalyzeServers.set(monorepoRoot, state);
+
+  // Wait briefly for socket file to be created (up to 3 seconds)
+  for (let i = 0; i < 30; i++) {
+    if (isServerRunning(monorepoRoot)) {
+      outputChannel.appendLine(`[info] Server socket ready`);
+      return state;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  outputChannel.appendLine(
+    "[warn] Server started but socket not found after 3 seconds",
+  );
+  return state;
+};
+
+// Clean up socket file if it exists
+const cleanupSocketFile = (socketPath: string): void => {
+  try {
+    if (fs.existsSync(socketPath)) {
+      fs.unlinkSync(socketPath);
+    }
+  } catch {
+    // Ignore errors during cleanup
+  }
+};
+
+// Stop reanalyze server for a monorepo (only if we started it)
+export const stopReanalyzeServer = (
+  monorepoRoot: string | null,
+  clientOutputChannel?: OutputChannel,
+): void => {
+  if (monorepoRoot == null) return;
+
+  const state = reanalyzeServers.get(monorepoRoot);
+  if (!state) return;
+
+  // Only kill the process if we started it
+  if (state.startedByUs && state.process != null) {
+    state.process.kill();
+    state.outputChannel?.appendLine("[info] Server stopped by extension");
+    // Clean up socket file to prevent stale socket issues
+    cleanupSocketFile(state.socketPath);
+  } else if (!state.startedByUs) {
+    clientOutputChannel?.appendLine(
+      `[info] Leaving external reanalyze-server running for ${path.basename(monorepoRoot)}`,
+    );
+  }
+
+  reanalyzeServers.delete(monorepoRoot);
+};
+
+// Stop all servers we started
+export const stopAllReanalyzeServers = (): void => {
+  for (const [_monorepoRoot, state] of reanalyzeServers) {
+    if (state.startedByUs && state.process != null) {
+      state.process.kill();
+      state.outputChannel?.appendLine("[info] Server stopped by extension");
+      // Clean up socket file to prevent stale socket issues
+      cleanupSocketFile(state.socketPath);
+    }
+  }
+  reanalyzeServers.clear();
+};
+
+// Show server log for a monorepo
+// Returns true if the output channel was shown, false otherwise
+// This is an async function because it may need to find the binary to derive monorepo root
+export const showReanalyzeServerLog = async (
+  monorepoRoot: string | null,
+): Promise<boolean> => {
+  if (monorepoRoot == null) {
+    // Try to find any running server
+    const firstServer = reanalyzeServers.values().next().value;
+    if (firstServer?.outputChannel) {
+      firstServer.outputChannel.show();
+      return true;
+    } else {
+      window.showInformationMessage(
+        "No reanalyze server is currently running.",
+      );
+      return false;
+    }
+  }
+
+  // First try direct lookup
+  let state = reanalyzeServers.get(monorepoRoot);
+  if (state?.outputChannel) {
+    state.outputChannel.show();
+    return true;
+  }
+
+  // If not found, try to derive monorepo root from binary path
+  // (the server is registered under monorepo root, not subpackage root)
+  const binaryPath = await findBinary({
+    projectRootPath: monorepoRoot,
+    binary: "rescript-tools.exe",
+  });
+  if (binaryPath != null) {
+    const derivedMonorepoRoot = getMonorepoRootFromBinaryPath(binaryPath);
+    if (derivedMonorepoRoot != null && derivedMonorepoRoot !== monorepoRoot) {
+      state = reanalyzeServers.get(derivedMonorepoRoot);
+      if (state?.outputChannel) {
+        state.outputChannel.show();
+        return true;
+      }
+    }
+  }
+
+  window.showInformationMessage(
+    `No reanalyze server log available for ${path.basename(monorepoRoot)}`,
+  );
+  return false;
+};
 
 export let statusBarItem = {
   setToStopText: (codeAnalysisRunningStatusBarItem: StatusBarItem) => {
@@ -204,46 +452,85 @@ let resultsToDiagnostics = (
   };
 };
 
+// Returns the monorepo root path if a reanalyze server was started, null otherwise.
+// This allows the caller to track which server to stop later.
 export const runCodeAnalysisWithReanalyze = async (
   diagnosticsCollection: DiagnosticCollection,
   diagnosticsResultCodeActions: DiagnosticsResultCodeActionsMap,
   outputChannel: OutputChannel,
   codeAnalysisRunningStatusBarItem: StatusBarItem,
-) => {
-  let currentDocument = window.activeTextEditor.document;
+): Promise<string | null> => {
+  let currentDocument = window.activeTextEditor?.document;
+  if (!currentDocument) {
+    window.showErrorMessage("No active document found.");
+    return null;
+  }
 
   let projectRootPath: NormalizedPath | null = normalizePath(
     findProjectRootOfFile(currentDocument.uri.fsPath),
   );
-  let binaryPath: string | null = await findBinary({
+
+  // findBinary walks up the directory tree to find node_modules/rescript,
+  // so it works correctly for monorepos (finds the workspace root's binary)
+  // Note: rescript-tools.exe (with reanalyze command) is only available in ReScript 12+
+  const binaryPath: string | null = await findBinary({
     projectRootPath,
     binary: "rescript-tools.exe",
   });
-  if (binaryPath == null) {
-    binaryPath = await findBinary({
-      projectRootPath,
-      binary: "rescript-editor-analysis.exe",
-    });
-  }
 
   if (binaryPath === null) {
-    window.showErrorMessage("Binary executable not found.");
-    return;
+    outputChannel.appendLine(
+      `[error] rescript-tools.exe not found for project root: ${projectRootPath}. Code analysis requires ReScript 12 or later.`,
+    );
+    window.showErrorMessage(
+      "Code analysis requires ReScript 12 or later (rescript-tools.exe not found).",
+    );
+    return null;
   }
 
-  // Strip everything after the outermost node_modules segment to get the project root.
-  let cwd =
-    binaryPath.match(/^(.*?)[\\/]+node_modules([\\/]+|$)/)?.[1] ?? binaryPath;
+  // Derive monorepo root from binary path - the directory containing node_modules
+  // This handles monorepos correctly since findBinary walks up to find the binary
+  const monorepoRootPath: NormalizedPath | null = normalizePath(
+    getMonorepoRootFromBinaryPath(binaryPath),
+  );
+
+  if (monorepoRootPath === null) {
+    outputChannel.appendLine(
+      `[error] Could not determine workspace root from binary path: ${binaryPath}`,
+    );
+    window.showErrorMessage("Could not determine workspace root.");
+    return null;
+  }
+
+  // Check if we should use reanalyze-server (ReScript >= 12.1.0)
+  const useServer = await supportsReanalyzeServer(monorepoRootPath);
+
+  if (useServer && monorepoRootPath) {
+    // Ensure server is running from workspace root
+    const serverState = await startReanalyzeServer(
+      monorepoRootPath,
+      binaryPath,
+      outputChannel,
+    );
+    if (serverState) {
+      outputChannel.appendLine(
+        `[info] Using reanalyze-server for ${path.basename(monorepoRootPath)}`,
+      );
+    }
+  }
 
   statusBarItem.setToRunningText(codeAnalysisRunningStatusBarItem);
 
   let opts = ["reanalyze", "-json"];
-  let p = cp.spawn(binaryPath, opts, { cwd });
+  let p = cp.spawn(binaryPath, opts, { cwd: monorepoRootPath });
 
   if (p.stdout == null) {
+    outputChannel.appendLine(
+      `[error] Failed to spawn reanalyze process: stdout is null. Binary: ${binaryPath}, cwd: ${monorepoRootPath}`,
+    );
     statusBarItem.setToFailed(codeAnalysisRunningStatusBarItem);
-    window.showErrorMessage("Something went wrong.");
-    return;
+    window.showErrorMessage("Failed to start code analysis process.");
+    return null;
   }
 
   let data = "";
@@ -292,7 +579,7 @@ export const runCodeAnalysisWithReanalyze = async (
       outputChannel.appendLine(
         `> To reproduce, run "${binaryPath} ${opts.join(
           " ",
-        )}" in directory: "${cwd}"`,
+        )}" in directory: "${monorepoRootPath}"`,
       );
       outputChannel.appendLine("\n");
     }
@@ -324,4 +611,7 @@ export const runCodeAnalysisWithReanalyze = async (
 
     statusBarItem.setToStopText(codeAnalysisRunningStatusBarItem);
   });
+
+  // Return the monorepo root so the caller can track which server to stop
+  return monorepoRootPath;
 };

@@ -6,7 +6,15 @@
   "keywords": [],
   "author": "ReScript Team",
   "license": "MIT",
+  "scripts": {
+    "test": "vscode-test"
+  },
   "dependencies": {
     "vscode-languageclient": "8.1.0-next.5"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
   }
 }

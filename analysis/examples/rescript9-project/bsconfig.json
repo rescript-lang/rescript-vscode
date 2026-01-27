@@ -1,0 +1,9 @@
+{
+  "name": "rescript9-project",
+  "sources": ["src"],
+  "package-specs": {
+    "module": "es6",
+    "in-source": true
+  },
+  "suffix": ".bs.js"
+}

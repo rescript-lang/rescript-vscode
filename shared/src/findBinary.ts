@@ -18,8 +18,11 @@ type FindBinaryOptions = {
 };
 
 const compilerInfoPartialPath = path.join("lib", "bs", "compiler-info.json");
-const platformDir =
-  process.arch === "arm64" ? process.platform + process.arch : process.platform;
+// For arm64, try the arm64-specific directory first (e.g., darwinarm64),
+// then fall back to the generic platform directory (e.g., darwin) for older ReScript versions
+const platformDirArm64 =
+  process.arch === "arm64" ? process.platform + process.arch : null;
+const platformDirGeneric = process.platform;
 
 const normalizePath = (filePath: string | null): string | null => {
   return filePath != null ? path.normalize(filePath) : null;
@@ -71,10 +74,12 @@ export const findBinary = async ({
         const bscPath = compileInfo.bsc_path;
         if (binary === "bsc.exe") {
           return normalizePath(bscPath);
-        } else {
+        } else if (binary !== "rescript") {
+          // For native binaries (not "rescript" JS wrapper), use the bsc_path directory
           const binaryPath = path.join(path.dirname(bscPath), binary);
           return normalizePath(binaryPath);
         }
+        // For "rescript", fall through to find the JS wrapper below
       }
     } catch {}
   }
@@ -122,7 +127,17 @@ export const findBinary = async ({
       binaryPath = binPaths.rescript_exe;
     }
   } else {
-    binaryPath = path.join(rescriptDir, platformDir, binary);
+    // For older ReScript versions (< 12.0.0-alpha.13), try arm64-specific directory first,
+    // then fall back to generic platform directory (older versions don't have arm64 directories)
+    if (platformDirArm64 != null) {
+      const arm64Path = path.join(rescriptDir, platformDirArm64, binary);
+      if (fs.existsSync(arm64Path)) {
+        binaryPath = arm64Path;
+      }
+    }
+    if (binaryPath == null) {
+      binaryPath = path.join(rescriptDir, platformDirGeneric, binary);
+    }
   }
 
   if (binaryPath != null && fs.existsSync(binaryPath)) {
@@ -130,4 +145,20 @@ export const findBinary = async ({
   }
 
   return null;
+};
+
+/**
+ * Derives the monorepo root directory from a binary path.
+ * For a path like `/monorepo/node_modules/.bin/rescript`, returns `/monorepo`.
+ * This is useful for monorepo support where the binary is in the monorepo root's
+ * node_modules, but the project root (nearest rescript.json) might be a subpackage.
+ */
+export const getMonorepoRootFromBinaryPath = (
+  binaryPath: string | null,
+): string | null => {
+  if (binaryPath == null) {
+    return null;
+  }
+  const match = binaryPath.match(/^(.*?)[\\/]+node_modules[\\/]+/);
+  return match ? normalizePath(match[1]) : null;
 };

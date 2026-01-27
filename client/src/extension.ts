@@ -32,6 +32,7 @@ import {
 } from "./commands/code_analysis";
 import { pasteAsRescriptJson } from "./commands/paste_as_rescript_json";
 import { pasteAsRescriptJsx } from "./commands/paste_as_rescript_jsx";
+import { findProjectRootOfFile } from "../../shared/src/projectRoots";
 
 let client: LanguageClient;
 
@@ -307,7 +308,8 @@ export function activate(context: ExtensionContext) {
 
   let inCodeAnalysisState: {
     active: boolean;
-  } = { active: false };
+    currentMonorepoRoot: string | null;
+  } = { active: false, currentMonorepoRoot: null };
 
   // This code actions provider yields the code actions potentially extracted
   // from the code analysis to the editor.
@@ -431,13 +433,7 @@ export function activate(context: ExtensionContext) {
   );
 
   // Starts the code analysis mode.
-  commands.registerCommand("rescript-vscode.start_code_analysis", () => {
-    // Save the directory this first ran from, and re-use that when continuously
-    // running the analysis. This is so that the target of the analysis does not
-    // change on subsequent runs, if there are multiple ReScript projects open
-    // in the editor.
-    let currentDocument = window.activeTextEditor.document;
-
+  commands.registerCommand("rescript-vscode.start_code_analysis", async () => {
     inCodeAnalysisState.active = true;
 
     codeAnalysisRunningStatusBarItem.command =
@@ -445,16 +441,25 @@ export function activate(context: ExtensionContext) {
     codeAnalysisRunningStatusBarItem.show();
     statusBarItem.setToStopText(codeAnalysisRunningStatusBarItem);
 
-    customCommands.codeAnalysisWithReanalyze(
+    // Start code analysis and capture the monorepo root for server management
+    const monorepoRoot = await customCommands.codeAnalysisWithReanalyze(
       diagnosticsCollection,
       diagnosticsResultCodeActions,
       outputChannel,
       codeAnalysisRunningStatusBarItem,
     );
+    inCodeAnalysisState.currentMonorepoRoot = monorepoRoot;
   });
 
   commands.registerCommand("rescript-vscode.stop_code_analysis", () => {
     inCodeAnalysisState.active = false;
+
+    // Stop server if we started it for this project
+    customCommands.stopReanalyzeServer(
+      inCodeAnalysisState.currentMonorepoRoot,
+      outputChannel,
+    );
+    inCodeAnalysisState.currentMonorepoRoot = null;
 
     diagnosticsCollection.clear();
     diagnosticsResultCodeActions.clear();
@@ -462,8 +467,48 @@ export function activate(context: ExtensionContext) {
     codeAnalysisRunningStatusBarItem.hide();
   });
 
+  // Show reanalyze server log
+  commands.registerCommand(
+    "rescript-vscode.show_reanalyze_server_log",
+    async () => {
+      let currentDocument = window.activeTextEditor?.document;
+      let projectRootPath: string | null = null;
+
+      if (currentDocument) {
+        projectRootPath = findProjectRootOfFile(currentDocument.uri.fsPath);
+      }
+
+      return await customCommands.showReanalyzeServerLog(projectRootPath);
+    },
+  );
+
   commands.registerCommand("rescript-vscode.switch-impl-intf", () => {
     customCommands.switchImplIntf(client);
+  });
+
+  // Start build command
+  commands.registerCommand("rescript-vscode.start_build", async () => {
+    let currentDocument = window.activeTextEditor?.document;
+    if (!currentDocument) {
+      window.showErrorMessage("No active document found.");
+      return;
+    }
+
+    try {
+      const result = (await client.sendRequest("rescript/startBuild", {
+        uri: currentDocument.uri.toString(),
+      })) as { success: boolean };
+
+      if (result.success) {
+        window.showInformationMessage("Build watcher started.");
+      } else {
+        window.showErrorMessage(
+          "Failed to start build. Check that a ReScript project is open.",
+        );
+      }
+    } catch (e) {
+      window.showErrorMessage(`Failed to start build: ${String(e)}`);
+    }
   });
 
   commands.registerCommand("rescript-vscode.restart_language_server", () => {
@@ -514,6 +559,9 @@ export function activate(context: ExtensionContext) {
 }
 
 export function deactivate(): Thenable<void> | undefined {
+  // Stop all reanalyze servers we started
+  customCommands.stopAllReanalyzeServers();
+
   if (!client) {
     return undefined;
   }

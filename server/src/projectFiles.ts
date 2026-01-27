@@ -16,6 +16,9 @@ export interface projectFiles {
   namespaceName: string | null;
 
   bsbWatcherByEditor: null | cp.ChildProcess;
+  // The root path where the build watcher runs (could be monorepo root)
+  // Used for lock file cleanup when killing the watcher
+  buildRootPath: NormalizedPath | null;
 
   // This keeps track of whether we've prompted the user to start a build
   // automatically, if there's no build currently running for the project. We

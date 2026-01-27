@@ -25,3 +25,6 @@ _opam/
 _build/
 
 *.tsbuildinfo
+
+# VSCode test downloads
+.vscode-test/

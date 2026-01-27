@@ -74,8 +74,16 @@
         "title": "ReScript: Stop Code Analyzer"
       },
       {
+        "command": "rescript-vscode.show_reanalyze_server_log",
+        "title": "ReScript: Show Code Analyzer Server Log"
+      },
+      {
         "command": "rescript-vscode.restart_language_server",
         "title": "ReScript: Restart Language Server"
+      },
+      {
+        "command": "rescript-vscode.start_build",
+        "title": "ReScript: Start Build"
       },
       {
         "command": "rescript-vscode.switch-impl-intf",

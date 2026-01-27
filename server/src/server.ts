@@ -142,6 +142,13 @@ let openCompiledFileRequest = new v.RequestType<
   void
 >("textDocument/openCompiled");
 
+// Request to start the build watcher for a project
+let startBuildRequest = new v.RequestType<
+  p.TextDocumentIdentifier,
+  { success: boolean },
+  void
+>("rescript/startBuild");
+
 export let getCurrentCompilerDiagnosticsForFile = (
   fileUri: utils.FileURI,
 ): p.Diagnostic[] => {
@@ -436,6 +443,7 @@ let openedFile = async (fileUri: utils.FileURI, fileContent: string) => {
         rescriptVersion:
           await utils.findReScriptVersionForProjectRoot(projectRootPath),
         bsbWatcherByEditor: null,
+        buildRootPath: null,
         bscBinaryLocation: await utils.findBscExeBinary(projectRootPath),
         editorAnalysisLocation:
           await utils.findEditorAnalysisBinary(projectRootPath),
@@ -452,21 +460,37 @@ let openedFile = async (fileUri: utils.FileURI, fileContent: string) => {
     }
     let root = projectsFiles.get(projectRootPath)!;
     root.openFiles.add(filePath);
-    // check if .bsb.lock is still there. If not, start a bsb -w ourselves
+    // check if a lock file exists. If not, start a build watcher ourselves
     // because otherwise the diagnostics info we'll display might be stale
-    let bsbLockPath = path.join(projectRootPath, c.bsbLock);
+    // ReScript < 12: .bsb.lock in project root
+    // ReScript >= 12: lib/rescript.lock
+    // For monorepos, the lock file is at the monorepo root, not the subpackage
+    let rescriptBinaryPath = await findRescriptBinary(projectRootPath);
+    let buildRootPath = projectRootPath;
+    if (rescriptBinaryPath != null) {
+      const monorepoRootPath =
+        utils.getMonorepoRootFromBinaryPath(rescriptBinaryPath);
+      if (monorepoRootPath != null) {
+        buildRootPath = monorepoRootPath;
+      }
+    }
+    let bsbLockPath = path.join(buildRootPath, c.bsbLock);
+    let rescriptLockPath = path.join(buildRootPath, c.rescriptLockPartialPath);
+    let hasLockFile =
+      fs.existsSync(bsbLockPath) || fs.existsSync(rescriptLockPath);
     if (
       projectRootState.hasPromptedToStartBuild === false &&
       config.extensionConfiguration.askToStartBuild === true &&
-      !fs.existsSync(bsbLockPath)
+      !hasLockFile
     ) {
       // TODO: sometime stale .bsb.lock dangling. bsb -w knows .bsb.lock is
       // stale. Use that logic
       // TODO: close watcher when lang-server shuts down
-      if ((await findRescriptBinary(projectRootPath)) != null) {
+      if (rescriptBinaryPath != null) {
+        getLogger().info(`Prompting to start build for ${buildRootPath}`);
         let payload: clientSentBuildAction = {
           title: c.startBuildAction,
-          projectRootPath: projectRootPath,
+          projectRootPath: buildRootPath,
         };
         let params = {
           type: p.MessageType.Info,
@@ -510,6 +534,7 @@ let openedFile = async (fileUri: utils.FileURI, fileContent: string) => {
 
 let closedFile = async (fileUri: utils.FileURI) => {
   let filePath = utils.uriToNormalizedPath(fileUri);
+  getLogger().log(`Closing file ${filePath}`);
 
   if (config.extensionConfiguration.incrementalTypechecking?.enable) {
     ic.handleClosedFile(filePath);
@@ -522,15 +547,27 @@ let closedFile = async (fileUri: utils.FileURI) => {
     let root = projectsFiles.get(projectRootPath);
     if (root != null) {
       root.openFiles.delete(filePath);
+      getLogger().log(
+        `Open files remaining for ${projectRootPath}: ${root.openFiles.size}`,
+      );
       // clear diagnostics too if no open files open in said project
       if (root.openFiles.size === 0) {
         await deleteProjectConfigCache(projectRootPath);
         deleteProjectDiagnostics(projectRootPath);
         if (root.bsbWatcherByEditor !== null) {
-          root.bsbWatcherByEditor.kill();
+          getLogger().info(
+            `Killing build watcher for ${projectRootPath} (all files closed)`,
+          );
+          utils.killBuildWatcher(
+            root.bsbWatcherByEditor,
+            root.buildRootPath ?? undefined,
+          );
           root.bsbWatcherByEditor = null;
+          root.buildRootPath = null;
         }
       }
+    } else {
+      getLogger().log(`No project state found for ${projectRootPath}`);
     }
   }
 };
@@ -1229,6 +1266,106 @@ async function createInterface(msg: p.RequestMessage): Promise<p.Message> {
   }
 }
 
+// Shared function to start build watcher for a project
+// Returns true if watcher was started or already running, false on failure
+async function startBuildWatcher(
+  projectRootPath: utils.NormalizedPath,
+  rescriptBinaryPath: utils.NormalizedPath,
+  options?: {
+    createProjectStateIfMissing?: boolean;
+    monorepoRootPath?: utils.NormalizedPath | null;
+  },
+): Promise<boolean> {
+  let root = projectsFiles.get(projectRootPath);
+
+  // Create project state if missing and option is set
+  if (root == null && options?.createProjectStateIfMissing) {
+    const namespaceName = utils.getNamespaceNameFromConfigFile(projectRootPath);
+    root = {
+      openFiles: new Set(),
+      filesWithDiagnostics: new Set(),
+      filesDiagnostics: {},
+      namespaceName:
+        namespaceName.kind === "success" ? namespaceName.result : null,
+      rescriptVersion:
+        await utils.findReScriptVersionForProjectRoot(projectRootPath),
+      bsbWatcherByEditor: null,
+      buildRootPath: null,
+      bscBinaryLocation: await utils.findBscExeBinary(projectRootPath),
+      editorAnalysisLocation:
+        await utils.findEditorAnalysisBinary(projectRootPath),
+      hasPromptedToStartBuild: true, // Don't prompt since we're starting the build
+    };
+    projectsFiles.set(projectRootPath, root);
+  }
+
+  if (root == null) {
+    return false;
+  }
+
+  // If a build watcher is already running, return success
+  if (root.bsbWatcherByEditor != null) {
+    getLogger().info(`Build watcher already running for ${projectRootPath}`);
+    return true;
+  }
+
+  // Use monorepo root for cwd (monorepo support), fall back to project root
+  const buildCwd = options?.monorepoRootPath ?? projectRootPath;
+
+  getLogger().info(
+    `Starting build watcher for ${projectRootPath} in ${buildCwd} (ReScript ${root.rescriptVersion ?? "unknown"})`,
+  );
+  let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
+    rescriptBinaryPath,
+    buildCwd,
+    root.rescriptVersion,
+  );
+  root.bsbWatcherByEditor = bsbProcess;
+  root.buildRootPath = buildCwd;
+
+  return true;
+}
+
+async function handleStartBuildRequest(
+  msg: p.RequestMessage,
+): Promise<p.ResponseMessage> {
+  let params = msg.params as p.TextDocumentIdentifier;
+  let filePath = utils.uriToNormalizedPath(params.uri as utils.FileURI);
+  let projectRootPath = utils.findProjectRootOfFile(filePath);
+
+  if (projectRootPath == null) {
+    return {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: { success: false },
+    };
+  }
+
+  let rescriptBinaryPath = await findRescriptBinary(projectRootPath);
+  if (rescriptBinaryPath == null) {
+    return {
+      jsonrpc: c.jsonrpcVersion,
+      id: msg.id,
+      result: { success: false },
+    };
+  }
+
+  // Derive monorepo root from binary path for monorepo support
+  const monorepoRootPath =
+    utils.getMonorepoRootFromBinaryPath(rescriptBinaryPath);
+
+  const success = await startBuildWatcher(projectRootPath, rescriptBinaryPath, {
+    createProjectStateIfMissing: true,
+    monorepoRootPath,
+  });
+
+  return {
+    jsonrpc: c.jsonrpcVersion,
+    id: msg.id,
+    result: { success },
+  };
+}
+
 function openCompiledFile(msg: p.RequestMessage): p.Message {
   let params = msg.params as p.TextDocumentIdentifier;
   let filePath = utils.uriToNormalizedPath(params.uri as utils.FileURI);
@@ -1622,6 +1759,19 @@ async function onMessage(msg: p.Message) {
           clearInterval(pullConfigurationPeriodically);
         }
 
+        // Kill all build watchers on shutdown
+        for (const [projectPath, projectState] of projectsFiles) {
+          if (projectState.bsbWatcherByEditor != null) {
+            getLogger().info(`Killing build watcher for ${projectPath}`);
+            utils.killBuildWatcher(
+              projectState.bsbWatcherByEditor,
+              projectState.buildRootPath ?? undefined,
+            );
+            projectState.bsbWatcherByEditor = null;
+            projectState.buildRootPath = null;
+          }
+        }
+
         let response: p.ResponseMessage = {
           jsonrpc: c.jsonrpcVersion,
           id: msg.id,
@@ -1658,6 +1808,8 @@ async function onMessage(msg: p.Message) {
       send(await createInterface(msg));
     } else if (msg.method === openCompiledFileRequest.method) {
       send(openCompiledFile(msg));
+    } else if (msg.method === startBuildRequest.method) {
+      send(await handleStartBuildRequest(msg));
     } else if (msg.method === p.InlayHintRequest.method) {
       let params = msg.params as InlayHintParams;
       let extName = path.extname(params.textDocument.uri);
@@ -1739,19 +1891,22 @@ async function onMessage(msg: p.Message) {
         );
         return;
       }
-      // TODO: sometime stale .bsb.lock dangling
+      // TODO: sometime stale lock file dangling
       // TODO: close watcher when lang-server shuts down. However, by Node's
       // default, these subprocesses are automatically killed when this
       // language-server process exits
       let rescriptBinaryPath = await findRescriptBinary(projectRootPath);
       if (rescriptBinaryPath != null) {
-        let bsbProcess = utils.runBuildWatcherUsingValidBuildPath(
-          rescriptBinaryPath,
-          projectRootPath,
-        );
-        let root = projectsFiles.get(projectRootPath)!;
-        root.bsbWatcherByEditor = bsbProcess;
-        // bsbProcess.on("message", (a) => console.log(a));
+        // Derive monorepo root from binary path for monorepo support
+        const monorepoRootPath =
+          utils.getMonorepoRootFromBinaryPath(rescriptBinaryPath);
+        // Note: projectRootPath here might be the monorepo root (buildRootPath from prompt),
+        // which may not have project state if the file was opened from a subpackage.
+        // Use createProjectStateIfMissing to handle this case.
+        await startBuildWatcher(projectRootPath, rescriptBinaryPath, {
+          createProjectStateIfMissing: true,
+          monorepoRootPath,
+        });
       }
     }
   }

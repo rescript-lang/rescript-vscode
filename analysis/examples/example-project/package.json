@@ -2,12 +2,12 @@
   "name": "tryit",
   "dependencies": {
     "@rescript/react": "^0.14.0",
-    "rescript": "12.0.2"
+    "rescript": "12.1.0"
   },
   "scripts": {
-    "build": "rescript-legacy",
-    "start": "rescript-legacy build -w",
-    "clean": "rescript-legacy clean -with-deps",
+    "build": "rescript",
+    "start": "rescript build -w",
+    "clean": "rescript clean",
     "format": "rescript format"
   }
 }

@@ -1,0 +1,12 @@
+{
+  "name": "@monorepo/app",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "rescript build",
+    "clean": "rescript clean",
+    "watch": "rescript watch"
+  },
+  "dependencies": {
+    "@monorepo/lib": "*"
+  }
+}

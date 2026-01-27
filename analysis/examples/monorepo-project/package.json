@@ -1,0 +1,16 @@
+{
+  "name": "monorepo-project",
+  "private": true,
+  "workspaces": [
+    "packages/app",
+    "packages/lib"
+  ],
+  "dependencies": {
+    "rescript": "12.1.0"
+  },
+  "scripts": {
+    "build": "rescript build",
+    "watch": "rescript watch",
+    "clean": "rescript clean"
+  }
+}

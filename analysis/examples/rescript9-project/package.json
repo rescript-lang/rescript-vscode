@@ -1,0 +1,12 @@
+{
+  "name": "rescript9-project",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "rescript build",
+    "watch": "rescript build -w",
+    "clean": "rescript clean"
+  },
+  "dependencies": {
+    "rescript": "9.1.4"
+  }
+}

@@ -11,9 +11,11 @@ import fsAsync from "fs/promises";
 import * as os from "os";
 import semver from "semver";
 import { fileURLToPath, pathToFileURL } from "url";
+import { getLogger } from "./logger";
 
 import {
   findBinary as findSharedBinary,
+  getMonorepoRootFromBinaryPath as getMonorepoRootFromBinaryPathShared,
   type BinaryName,
 } from "../../shared/src/findBinary";
 import { findProjectRootOfFileInDir as findProjectRootOfFileInDirShared } from "../../shared/src/projectRoots";
@@ -217,6 +219,11 @@ let findBinary = async (
 
 export let findRescriptBinary = (projectRootPath: NormalizedPath | null) =>
   findBinary(projectRootPath, "rescript");
+
+export let getMonorepoRootFromBinaryPath = (
+  binaryPath: string | null,
+): NormalizedPath | null =>
+  normalizePath(getMonorepoRootFromBinaryPathShared(binaryPath));
 
 export let findBscExeBinary = (projectRootPath: NormalizedPath | null) =>
   findBinary(projectRootPath, "bsc.exe");
@@ -609,10 +616,23 @@ export let getCompiledFilePath = (
 export let runBuildWatcherUsingValidBuildPath = (
   buildPath: p.DocumentUri,
   projectRootPath: p.DocumentUri,
+  rescriptVersion?: string | null,
 ) => {
   let cwdEnv = {
     cwd: projectRootPath,
   };
+  // ReScript >= 12.0.0 uses "rescript watch" instead of "rescript build -w"
+  let useWatchCommand =
+    rescriptVersion != null &&
+    semver.valid(rescriptVersion) != null &&
+    semver.gte(rescriptVersion, "12.0.0");
+  let args = useWatchCommand ? ["watch"] : ["build", "-w"];
+
+  getLogger().info(
+    `Running build watcher: ${buildPath} ${args.join(" ")} in ${projectRootPath}`,
+  );
+
+  let proc: childProcess.ChildProcess;
   if (process.platform === "win32") {
     /*
       - a node.js script in node_modules/.bin on windows is wrapped in a
@@ -626,9 +646,86 @@ export let runBuildWatcherUsingValidBuildPath = (
         (since the path might have spaces), which `execFile` would have done
         for you under the hood
     */
-    return childProcess.exec(`"${buildPath}".cmd build -w`, cwdEnv);
+    proc = childProcess.exec(`"${buildPath}".cmd ${args.join(" ")}`, cwdEnv);
   } else {
-    return childProcess.execFile(buildPath, ["build", "-w"], cwdEnv);
+    // Use spawn with detached:true so we can kill the entire process group later
+    // This ensures child processes (like native rescript binary) are also killed
+    // Use "pipe" for stdin instead of "ignore" because older ReScript versions (9.x, 10.x, 11.x)
+    // have a handler that exits when stdin closes: `process.stdin.on("close", exitProcess)`
+    proc = childProcess.spawn(buildPath, args, {
+      ...cwdEnv,
+      detached: true,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+  }
+
+  proc.on("error", (err) => {
+    getLogger().error(`Build watcher error: ${err.message}`);
+  });
+
+  proc.on("exit", (code, signal) => {
+    getLogger().info(
+      `Build watcher exited with code ${code}, signal ${signal}`,
+    );
+  });
+
+  if (proc.stdout) {
+    proc.stdout.on("data", (data) => {
+      getLogger().log(`[build stdout] ${data.toString().trim()}`);
+    });
+  }
+
+  if (proc.stderr) {
+    proc.stderr.on("data", (data) => {
+      getLogger().log(`[build stderr] ${data.toString().trim()}`);
+    });
+  }
+
+  return proc;
+};
+
+/**
+ * Kill a build watcher process and all its children, and clean up the lock file.
+ * On Unix, kills the entire process group if the process was started with detached:true.
+ * Also removes the lock file since the rescript compiler doesn't clean it up on SIGTERM.
+ */
+export let killBuildWatcher = (
+  proc: childProcess.ChildProcess,
+  buildRootPath?: string,
+): void => {
+  if (proc.pid == null) {
+    return;
+  }
+  try {
+    if (process.platform !== "win32") {
+      // Kill the entire process group (negative PID)
+      // This ensures child processes spawned by the JS wrapper are also killed
+      process.kill(-proc.pid, "SIGTERM");
+    } else {
+      proc.kill();
+    }
+  } catch (e) {
+    // Process might already be dead
+    getLogger().log(`Error killing build watcher: ${e}`);
+  }
+
+  // Clean up lock files since the rescript compiler doesn't remove them on SIGTERM
+  // ReScript >= 12 uses lib/rescript.lock, older versions use .bsb.lock
+  if (buildRootPath != null) {
+    const lockFiles = [
+      path.join(buildRootPath, "lib", "rescript.lock"),
+      path.join(buildRootPath, ".bsb.lock"),
+    ];
+    for (const lockFilePath of lockFiles) {
+      try {
+        if (fs.existsSync(lockFilePath)) {
+          fs.unlinkSync(lockFilePath);
+          getLogger().log(`Removed lock file: ${lockFilePath}`);
+        }
+      } catch (e) {
+        getLogger().log(`Error removing lock file: ${e}`);
+      }
+    }
   }
 };
 

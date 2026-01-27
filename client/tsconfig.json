@@ -5,7 +5,8 @@
     "lib": ["ES2019"],
     "outDir": "out",
     "rootDirs": ["src", "../shared/src"],
-    "sourceMap": true
+    "sourceMap": true,
+    "skipLibCheck": true
   },
   "include": ["src", "../shared/src"],
   "exclude": ["node_modules"]
