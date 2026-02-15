@@ -646,7 +646,10 @@ async function inlayHint(msg: p.RequestMessage) {
   const filePath = utils.uriToNormalizedPath(
     params.textDocument.uri as utils.FileURI,
   );
-
+  let code = getOpenedFileContent(params.textDocument.uri as utils.FileURI);
+  let extension = path.extname(params.textDocument.uri);
+  let tmpname = utils.createFileInTempDir(extension);
+  fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   const response = await utils.runAnalysisCommand(
     filePath,
     [
@@ -655,9 +658,11 @@ async function inlayHint(msg: p.RequestMessage) {
       params.range.start.line,
       params.range.end.line,
       config.extensionConfiguration.inlayHints?.maxLength,
+      tmpname,
     ],
     msg,
   );
+  fs.unlink(tmpname, () => null);
   return response;
 }
 
