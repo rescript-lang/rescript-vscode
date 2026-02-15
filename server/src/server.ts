@@ -572,6 +572,7 @@ let closedFile = async (fileUri: utils.FileURI) => {
   }
 };
 
+let refreshTimeout: ReturnType<typeof setTimeout> | null = null;
 let updateOpenedFile = (fileUri: utils.FileURI, fileContent: string) => {
   getLogger().info(
     `Updating opened file ${fileUri}, incremental TC enabled: ${config.extensionConfiguration.incrementalTypechecking?.enable}`,
@@ -581,12 +582,18 @@ let updateOpenedFile = (fileUri: utils.FileURI, fileContent: string) => {
   stupidFileContentCache.set(filePath, fileContent);
   if (config.extensionConfiguration.incrementalTypechecking?.enable) {
     ic.handleUpdateOpenedFile(filePath, fileContent, send, () => {
-      if (config.extensionConfiguration.codeLens) {
-        sendCodeLensRefresh();
+      if (refreshTimeout != null) {
+        clearTimeout(refreshTimeout);
       }
-      if (config.extensionConfiguration.inlayHints) {
-        sendInlayHintsRefresh();
-      }
+      refreshTimeout = setTimeout(() => {
+        refreshTimeout = null;
+        if (config.extensionConfiguration.codeLens) {
+          sendCodeLensRefresh();
+        }
+        if (config.extensionConfiguration.inlayHints) {
+          sendInlayHintsRefresh();
+        }
+      }, 200);
     });
   }
 };
