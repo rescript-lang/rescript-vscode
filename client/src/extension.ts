@@ -91,10 +91,6 @@ export function activate(context: ExtensionContext) {
     "rescript",
   );
 
-  const useExperimentalServer = workspace
-    .getConfiguration("rescript")
-    .get<boolean>("useExperimentalServer", false);
-
   function createExperimentalLanguageClient() {
     const binaryPathFromNodeModules = Uri.joinPath(
       context.extensionUri,
@@ -133,34 +129,9 @@ export function activate(context: ExtensionContext) {
 
     const client = new LanguageClient(
       "ReScriptLSP",
-      "ReScript Experimental Language Server",
+      "Experimental ReScript Language Server",
       serverOptions,
       clientOptions,
-    );
-
-    // This sets up a listener that, if we're in code analysis mode, triggers
-    // code analysis as the LS server reports that ReScript compilation has
-    // finished. This is needed because code analysis must wait until
-    // compilation has finished, and the most reliable source for that is the LS
-    // server, that already keeps track of when the compiler finishes in order to
-    // other provide fresh diagnostics.
-    context.subscriptions.push(
-      client.onDidChangeState(({ newState }) => {
-        if (newState === State.Running) {
-          context.subscriptions.push(
-            client.onNotification("rescript/compilationFinished", () => {
-              if (inCodeAnalysisState.active === true) {
-                customCommands.codeAnalysisWithReanalyze(
-                  diagnosticsCollection,
-                  diagnosticsResultCodeActions,
-                  outputChannel,
-                  codeAnalysisRunningStatusBarItem,
-                );
-              }
-            }),
-          );
-        }
-      }),
     );
 
     return client;
@@ -219,38 +190,46 @@ export function activate(context: ExtensionContext) {
       clientOptions,
     );
 
-    // This sets up a listener that, if we're in code analysis mode, triggers
-    // code analysis as the LS server reports that ReScript compilation has
-    // finished. This is needed because code analysis must wait until
-    // compilation has finished, and the most reliable source for that is the LS
-    // server, that already keeps track of when the compiler finishes in order to
-    // other provide fresh diagnostics.
-    context.subscriptions.push(
-      client.onDidChangeState(({ newState }) => {
-        if (newState === State.Running) {
-          context.subscriptions.push(
-            client.onNotification("rescript/compilationFinished", () => {
-              if (inCodeAnalysisState.active === true) {
-                customCommands.codeAnalysisWithReanalyze(
-                  diagnosticsCollection,
-                  diagnosticsResultCodeActions,
-                  outputChannel,
-                  codeAnalysisRunningStatusBarItem,
-                );
-              }
-            }),
-          );
-        }
-      }),
-    );
-
     return client;
   }
 
+  function createClient() {
+    const useExperimentalServer = workspace
+      .getConfiguration("rescript")
+      .get<boolean>("useExperimentalServer", false);
+
+    return useExperimentalServer
+      ? createExperimentalLanguageClient()
+      : createLanguageClient();
+  }
+
   // Create the language client and start the client.
-  client = useExperimentalServer
-    ? createExperimentalLanguageClient()
-    : createLanguageClient();
+  client = createClient();
+
+  // This sets up a listener that, if we're in code analysis mode, triggers
+  // code analysis as the LS server reports that ReScript compilation has
+  // finished. This is needed because code analysis must wait until
+  // compilation has finished, and the most reliable source for that is the LS
+  // server, that already keeps track of when the compiler finishes in order to
+  // other provide fresh diagnostics.
+  context.subscriptions.push(
+    client.onDidChangeState(({ newState }) => {
+      if (newState === State.Running) {
+        context.subscriptions.push(
+          client.onNotification("rescript/compilationFinished", () => {
+            if (inCodeAnalysisState.active === true) {
+              customCommands.codeAnalysisWithReanalyze(
+                diagnosticsCollection,
+                diagnosticsResultCodeActions,
+                outputChannel,
+                codeAnalysisRunningStatusBarItem,
+              );
+            }
+          }),
+        );
+      }
+    }),
+  );
 
   // Create a custom diagnostics collection, for cases where we want to report
   // diagnostics programatically from inside of the extension. The reason this
@@ -591,9 +570,7 @@ export function activate(context: ExtensionContext) {
 
   commands.registerCommand("rescript-vscode.restart_language_server", () => {
     client.stop().then(() => {
-      client = useExperimentalServer
-        ? createExperimentalLanguageClient()
-        : createLanguageClient();
+      client = createClient();
       client.start();
     });
   });
@@ -628,8 +605,6 @@ export function activate(context: ExtensionContext) {
         }
         // Send a general message that configuration has updated. Clients
         // interested can then pull the new configuration as they see fit.
-        // The spec say params DidChangeConfigurationParams can contain the settings fields
-        // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#didChangeConfigurationParams
         client
           .sendNotification(DidChangeConfigurationNotification.type, {
             settings: null,
