@@ -23,7 +23,7 @@ import {
   ServerOptions,
   State,
   TransportKind,
-  DidChangeConfigurationNotification
+  DidChangeConfigurationNotification,
 } from "vscode-languageclient/node";
 
 import * as customCommands from "./commands";
@@ -91,7 +91,9 @@ export function activate(context: ExtensionContext) {
     "rescript",
   );
 
-  const useExperimentalServer = workspace.getConfiguration("rescript").get<boolean>("useExperimentalServer", false);
+  const useExperimentalServer = workspace
+    .getConfiguration("rescript")
+    .get<boolean>("useExperimentalServer", false);
 
   function createExperimentalLanguageClient() {
     const binaryPathFromNodeModules = Uri.joinPath(
@@ -101,9 +103,13 @@ export function activate(context: ExtensionContext) {
       "rescript-language-server",
     ).fsPath;
 
-    const userServerPath = workspace.getConfiguration("rescript").get<string | null>("experimentalServerPath", null);
+    const userServerPath = workspace
+      .getConfiguration("rescript")
+      .get<string | null>("experimentalServerPath", null);
 
-    const binaryPath = userServerPath ? userServerPath : binaryPathFromNodeModules;
+    const binaryPath = userServerPath
+      ? userServerPath
+      : binaryPathFromNodeModules;
 
     let serverOptions: ServerOptions = {
       run: {
@@ -242,7 +248,9 @@ export function activate(context: ExtensionContext) {
   }
 
   // Create the language client and start the client.
-  client = useExperimentalServer ? createExperimentalLanguageClient(): createLanguageClient();
+  client = useExperimentalServer
+    ? createExperimentalLanguageClient()
+    : createLanguageClient();
 
   // Create a custom diagnostics collection, for cases where we want to report
   // diagnostics programatically from inside of the extension. The reason this
@@ -583,7 +591,9 @@ export function activate(context: ExtensionContext) {
 
   commands.registerCommand("rescript-vscode.restart_language_server", () => {
     client.stop().then(() => {
-      client = useExperimentalServer ? createExperimentalLanguageClient(): createLanguageClient();;
+      client = useExperimentalServer
+        ? createExperimentalLanguageClient()
+        : createLanguageClient();
       client.start();
     });
   });
