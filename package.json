@@ -158,18 +158,13 @@
       "type": "object",
       "title": "ReScript",
       "properties": {
-        "rescript.useExperimentalServer": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether to use the experimental ReScript language server (OCaml implementation) instead of the stable one (Node.js implementation). You can switch back and forth without affecting your project or settings."
-        },
         "rescript.experimentalServerPath": {
           "type": [
             "string",
             "null"
           ],
           "default": null,
-          "description": "Path to the experimental ReScript language server binary. You can set this if you want to use a custom-built version of the experimental server or if the extension is unable to automatically locate the server binary in your system."
+          "description": "Path to the experimental ReScript language server binary."
         },
         "rescript.settings.askToStartBuild": {
           "scope": "language-overridable",

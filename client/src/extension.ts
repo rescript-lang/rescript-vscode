@@ -1,4 +1,5 @@
 import * as path from "path";
+import * as fs from "fs";
 import {
   workspace,
   ExtensionContext,
@@ -91,29 +92,26 @@ export function activate(context: ExtensionContext) {
     "rescript",
   );
 
-  function createExperimentalLanguageClient() {
-    const binaryPathFromNodeModules = Uri.joinPath(
-      context.extensionUri,
-      "node_modules",
-      ".bin",
-      "rescript-language-server",
-    ).fsPath;
+  const useExperimentalServer = workspace
+    .getConfiguration("rescript")
+    .get<string | null>("experimentalServerPath", null);
 
-    const userServerPath = workspace
-      .getConfiguration("rescript")
-      .get<string | null>("experimentalServerPath", null);
-
-    const binaryPath = userServerPath
-      ? userServerPath
-      : binaryPathFromNodeModules;
+  function createExperimentalLanguageClient(serverPath: string) {
+    if (!fs.existsSync(serverPath)) {
+      const message = `The experimental server is enabled with \`experimentalServerPath\`, but no language server was found at ${serverPath}. See the instructions for using the experimental server in [ADD_LINK_TO_DOCS_HERE].`;
+      outputChannel.appendLine(message);
+      window.showErrorMessage(message);
+      outputChannel.show();
+      throw new Error(message);
+    }
 
     let serverOptions: ServerOptions = {
       run: {
-        command: binaryPath,
+        command: serverPath,
         transport: TransportKind.stdio,
       },
       debug: {
-        command: binaryPath,
+        command: serverPath,
         transport: TransportKind.stdio,
       },
     };
@@ -194,12 +192,8 @@ export function activate(context: ExtensionContext) {
   }
 
   function createClient() {
-    const useExperimentalServer = workspace
-      .getConfiguration("rescript")
-      .get<boolean>("useExperimentalServer", false);
-
-    return useExperimentalServer
-      ? createExperimentalLanguageClient()
+    return useExperimentalServer != null
+      ? createExperimentalLanguageClient(useExperimentalServer)
       : createLanguageClient();
   }
 
