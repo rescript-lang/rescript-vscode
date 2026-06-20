@@ -123,6 +123,15 @@ export function activate(context: ExtensionContext) {
       markdown: {
         isTrusted: true,
       },
+      middleware: {
+        workspace: {
+          configuration: async (_params, _token, _next) => {
+            // For the experimental server, we don't want to send the full configuration
+            // We send only setting inside rescript.settings, i.e, server settings
+            return [workspace.getConfiguration("rescript.settings")]
+          },
+        },
+      },
     };
 
     const client = new LanguageClient(
