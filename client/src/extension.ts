@@ -128,7 +128,7 @@ export function activate(context: ExtensionContext) {
           configuration: async (_params, _token, _next) => {
             // For the experimental server, we don't want to send the full configuration
             // We send only setting inside rescript.settings, i.e, server settings
-            return [workspace.getConfiguration("rescript.settings")]
+            return [workspace.getConfiguration("rescript.settings")];
           },
         },
       },

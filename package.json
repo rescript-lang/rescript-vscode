@@ -158,14 +158,6 @@
       "type": "object",
       "title": "ReScript",
       "properties": {
-        "rescript.experimentalServerPath": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": null,
-          "description": "Path to the experimental ReScript language server binary."
-        },
         "rescript.settings.askToStartBuild": {
           "scope": "language-overridable",
           "type": "boolean",
@@ -255,6 +247,19 @@
           ],
           "default": "info",
           "description": "Verbosity of ReScript language server logs sent to the Output channel."
+        },
+        "rescript.experimentalServerPath": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Path to the experimental ReScript language server binary."
+        },
+        "rescript.settings.hover.supportMarkdownLinks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable markdown links in hover responses. Experimental server setting is required for this to work."
         }
       }
     },
