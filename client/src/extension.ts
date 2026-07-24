@@ -86,6 +86,25 @@ let client: LanguageClient;
 // 	}
 // });
 
+function getRescriptExecutablePath(): string | undefined {
+  const workspaceFolders = workspace.workspaceFolders;
+
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    return undefined;
+  }
+
+  const command = path.join("node_modules", ".bin", "rescript");
+
+  for (const ws of workspaceFolders) {
+    const commandPath = path.resolve(ws.uri.fsPath, command);
+    if (fs.existsSync(commandPath)) {
+      return commandPath;
+    }
+  }
+  return undefined;
+}
+
+
 export function activate(context: ExtensionContext) {
   let outputChannel = window.createOutputChannel(
     "ReScript Language Server",
@@ -94,24 +113,26 @@ export function activate(context: ExtensionContext) {
 
   const useExperimentalServer = workspace
     .getConfiguration("rescript")
-    .get<string | null>("experimentalServerPath", null);
+    .get<boolean>("useExperimentalServer", false);
 
-  function createExperimentalLanguageClient(serverPath: string) {
-    if (!fs.existsSync(serverPath)) {
-      const message = `The experimental server is enabled with \`experimentalServerPath\`, but no language server was found at ${serverPath}. See the instructions for using the experimental server in [ADD_LINK_TO_DOCS_HERE].`;
-      outputChannel.appendLine(message);
+  function createExperimentalLanguageClient() {
+    const binaryPath = getRescriptExecutablePath();
+
+    if (!binaryPath) {
+      const message = "Could not find the ReScript binary in the workspace.";
       window.showErrorMessage(message);
-      outputChannel.show();
       throw new Error(message);
     }
 
     let serverOptions: ServerOptions = {
       run: {
-        command: serverPath,
+        command: binaryPath,
+        args: ["lsp"],
         transport: TransportKind.stdio,
       },
       debug: {
-        command: serverPath,
+        command: binaryPath,
+        args: ["lsp"],
         transport: TransportKind.stdio,
       },
     };
@@ -202,7 +223,7 @@ export function activate(context: ExtensionContext) {
 
   function createClient() {
     return useExperimentalServer != null
-      ? createExperimentalLanguageClient(useExperimentalServer)
+      ? createExperimentalLanguageClient()
       : createLanguageClient();
   }
 

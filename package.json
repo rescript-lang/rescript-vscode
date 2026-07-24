@@ -248,18 +248,17 @@
           "default": "info",
           "description": "Verbosity of ReScript language server logs sent to the Output channel."
         },
-        "rescript.experimentalServerPath": {
+        "rescript.useExperimentalServer": {
           "type": [
-            "string",
-            "null"
+            "boolean"
           ],
-          "default": null,
-          "description": "Path to the experimental ReScript language server binary."
+          "default": false,
+          "description": "Use the experimental ReScript language server"
         },
         "rescript.settings.hover.supportMarkdownLinks": {
           "type": "boolean",
           "default": true,
-          "description": "Enable markdown links in hover responses. Experimental server setting is required for this to work."
+          "description": "Enable markdown links in hover responses. This is an feature only supported by the experimental ReScript language server."
         }
       }
     },
