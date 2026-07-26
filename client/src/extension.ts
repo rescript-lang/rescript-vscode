@@ -104,7 +104,6 @@ function getRescriptExecutablePath(): string | undefined {
   return undefined;
 }
 
-
 export function activate(context: ExtensionContext) {
   let outputChannel = window.createOutputChannel(
     "ReScript Language Server",
