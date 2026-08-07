@@ -82,6 +82,10 @@ export function uriToNormalizedPath(uri: FileURI): NormalizedPath {
 let tempFilePrefix = "rescript_format_file_" + process.pid + "_";
 let tempFileId = 0;
 
+export function getExtension(filePath: NormalizedPath): string {
+  return path.extname(filePath);
+}
+
 export let createFileInTempDir = (extension = ""): NormalizedPath => {
   let tempFileName = tempFilePrefix + tempFileId + extension;
   tempFileId = tempFileId + 1;

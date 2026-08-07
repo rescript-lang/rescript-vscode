@@ -623,7 +623,7 @@ async function hover(msg: p.RequestMessage) {
     params.textDocument.uri as utils.FileURI,
   );
   let code = getOpenedFileContent(params.textDocument.uri as utils.FileURI);
-  let tmpname = utils.createFileInTempDir();
+  let tmpname = utils.createFileInTempDir(utils.getExtension(filePath));
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = await utils.runAnalysisCommand(
     filePath,
@@ -699,7 +699,7 @@ async function signatureHelp(msg: p.RequestMessage) {
     params.textDocument.uri as utils.FileURI,
   );
   let code = getOpenedFileContent(params.textDocument.uri as utils.FileURI);
-  let tmpname = utils.createFileInTempDir();
+  let tmpname = utils.createFileInTempDir(utils.getExtension(filePath));
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = await utils.runAnalysisCommand(
     filePath,
@@ -871,9 +871,8 @@ async function documentSymbol(msg: p.RequestMessage) {
   let filePath = utils.uriToNormalizedPath(
     params.textDocument.uri as utils.FileURI,
   );
-  let extension = path.extname(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri as utils.FileURI);
-  let tmpname = utils.createFileInTempDir(extension);
+  let tmpname = utils.createFileInTempDir(utils.getExtension(filePath));
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = await utils.runAnalysisCommand(
     filePath,
@@ -909,9 +908,8 @@ async function semanticTokens(msg: p.RequestMessage) {
   let filePath = utils.uriToNormalizedPath(
     params.textDocument.uri as utils.FileURI,
   );
-  let extension = path.extname(params.textDocument.uri);
   let code = getOpenedFileContent(params.textDocument.uri as utils.FileURI);
-  let tmpname = utils.createFileInTempDir(extension);
+  let tmpname = utils.createFileInTempDir(utils.getExtension(filePath));
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = await utils.runAnalysisCommand(
     filePath,
@@ -930,7 +928,7 @@ async function completion(msg: p.RequestMessage) {
     params.textDocument.uri as utils.FileURI,
   );
   let code = getOpenedFileContent(params.textDocument.uri as utils.FileURI);
-  let tmpname = utils.createFileInTempDir();
+  let tmpname = utils.createFileInTempDir(utils.getExtension(filePath));
   fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
   let response = await utils.runAnalysisCommand(
     filePath,
@@ -978,8 +976,7 @@ async function codeAction(msg: p.RequestMessage): Promise<p.ResponseMessage> {
     params.textDocument.uri as utils.FileURI,
   );
   let code = getOpenedFileContent(params.textDocument.uri as utils.FileURI);
-  let extension = path.extname(params.textDocument.uri);
-  let tmpname = utils.createFileInTempDir(extension);
+  let tmpname = utils.createFileInTempDir(utils.getExtension(filePath));
 
   // Check local code actions coming from the diagnostics, or from incremental compilation.
   let localResults: v.CodeAction[] = [];
@@ -1102,8 +1099,7 @@ let updateDiagnosticSyntax = async (
     return;
   }
   let filePath = utils.uriToNormalizedPath(fileUri);
-  let extension = path.extname(filePath);
-  let tmpname = utils.createFileInTempDir(extension);
+  let tmpname = utils.createFileInTempDir(utils.getExtension(filePath));
   fs.writeFileSync(tmpname, fileContent, { encoding: "utf-8" });
 
   // We need to account for any existing diagnostics from the compiler for this
