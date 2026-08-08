@@ -1,18 +1,9 @@
-normalize_lf() {
-  node -e '
-const fs = require("fs");
-const file = process.argv[1];
-const text = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-fs.writeFileSync(file, text);
-' "$1"
-}
-
 for file in src/*.{res,resi}; do
   output="$(dirname $file)/expected/$(basename $file).txt"
   ../../rescript-editor-analysis.exe test $file &> $output
   # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
   if [ "$RUNNER_OS" == "Windows" ]; then
-    normalize_lf "$output"
+    node ../scripts/normalize-lf.js "$output"
   fi
 done
 
@@ -21,7 +12,7 @@ for file in not_compiled/*.{res,resi}; do
   ../../rescript-editor-analysis.exe test $file &> $output
   # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
   if [ "$RUNNER_OS" == "Windows" ]; then
-    normalize_lf "$output"
+    node ../scripts/normalize-lf.js "$output"
   fi
 done
 

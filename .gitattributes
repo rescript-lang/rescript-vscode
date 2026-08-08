@@ -2,3 +2,4 @@
 *.snap text eol=lf
 analysis/tests*/**/expected/*.res.txt text eol=lf
 analysis/tests*/**/expected/*.resi.txt text eol=lf
+analysis/reanalyze/examples/**/expected/*.txt text eol=lf
