@@ -21,6 +21,7 @@
 - Potential race condition in incremental compilation. https://github.com/rescript-lang/rescript-vscode/pull/1167
 - Fix extension crash triggered by incremental compilation. https://github.com/rescript-lang/rescript-vscode/pull/1169
 - Fix file watchers on Windows when using WSL. https://github.com/rescript-lang/rescript-vscode/pull/1178
+- Fix empty completion in rescript@13.0.0-alpha.5. https://github.com/rescript-lang/rescript-vscode/pull/1188
 
 #### :nail_care: Polish
 
