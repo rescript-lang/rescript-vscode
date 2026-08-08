@@ -14,6 +14,14 @@
 
 #### :bug: Bug fix
 
+#### :rocket: New Feature
+
+#### :house: Internal
+
+## 1.74.0
+
+#### :bug: Bug fix
+
 - Fix Code Analyzer cwd/binary lookup in monorepos (run from workspace root).
 - Fix monorepo build detection by only watching the workspace root `.compiler.log`.
 - Fix Start Build for ReScript v12+ projects by preferring `rescript.exe`.
