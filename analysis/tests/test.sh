@@ -3,7 +3,7 @@ for file in src/*.{res,resi}; do
   ../../rescript-editor-analysis.exe test $file &> $output
   # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
   if [ "$RUNNER_OS" == "Windows" ]; then
-    perl -pi -e 's/\r\n/\n/g' -- $output
+    node ../scripts/normalize-lf.js "$output"
   fi
 done
 
@@ -12,7 +12,7 @@ for file in not_compiled/*.{res,resi}; do
   ../../rescript-editor-analysis.exe test $file &> $output
   # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
   if [ "$RUNNER_OS" == "Windows" ]; then
-    perl -pi -e 's/\r\n/\n/g' -- $output
+    node ../scripts/normalize-lf.js "$output"
   fi
 done
 

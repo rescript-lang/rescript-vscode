@@ -2,7 +2,7 @@ output="expected/termination.txt"
 dune exec rescript-editor-analysis -- reanalyze -config -ci -debug > $output
 # CI. We use LF, and the CI OCaml fork prints CRLF. Convert.
 if [ "$RUNNER_OS" == "Windows" ]; then
-  perl -pi -e 's/\r\n/\n/g' -- $output
+  node ../../../scripts/normalize-lf.js "$output"
 fi
 
 warningYellow='\033[0;33m'
