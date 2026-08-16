@@ -1,5 +1,4 @@
-@raise(DecodeError)
-let testBsJson = x => Json_decode.string(x)
+open JsonCombinators
 
-@raise(DecodeError)
-let testBsJson2 = x => Json.Decode.string(x)
+@raise(JsonCombinators.DecodeError)
+let testBsJson2 = x => x->Json.decode(Json.Decode.string)

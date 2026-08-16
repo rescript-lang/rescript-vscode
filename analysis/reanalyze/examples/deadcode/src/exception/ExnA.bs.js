@@ -2,8 +2,8 @@
 
 import * as ExnB from "./ExnB.bs.js";
 
-function bar(param) {
-  return ExnB.foo(undefined);
+function bar() {
+  return ExnB.foo();
 }
 
 export {

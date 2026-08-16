@@ -5,7 +5,7 @@ let progress = {
   let counter = ref(Random.int(100))
   () => {
     if counter.contents < 0 {
-      assert false
+      assert(false)
     }
     counter := counter.contents - 1
   }
@@ -214,10 +214,10 @@ and parseExpression = (~x=4, p: Parser.t) =>
   }
 
 @progress
-and parseListExpression = p => parseList(p, ~f=parseExpression)
+and parseListExpression = p => parseList(p, ~f=parseExpression(_))
 
 @progress
-and parseListExpression2 = p => parseList(p, ~f=parseExpression(~x=7))
+and parseListExpression2 = p => parseList(p, ~f=parseExpression(~x=7, _))
 
 @progress
 and parseListIntTailRecursive = p => {
@@ -247,7 +247,7 @@ module UITermination = {
   let nothing: onClick = () => ()
 
   type div = (~text: string, ~onClick: onClick) => dom
-  let div: div = (~text, ~onClick) => assert false
+  let div: div = (~text, ~onClick) => assert(false)
 
   let initState = n => n == 0 ? Some(42) : None
   let increment = n => Some(n + 1)

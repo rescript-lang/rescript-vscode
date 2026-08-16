@@ -19,8 +19,12 @@ var M = {
 };
 
 var VariantUsedOnlyInImplementation = {
-  a: /* A */0
+  a: "A"
 };
+
+((function (x) {
+        return x;
+      })("A"));
 
 var UnderscoreInside = {};
 
@@ -33,9 +37,8 @@ console.log(55);
 
 console.log(DeadValueTest.valueAlive);
 
-function unusedRec(_param) {
+function unusedRec() {
   while(true) {
-    _param = undefined;
     continue ;
   };
 }
@@ -45,36 +48,32 @@ function split_map(l) {
   return /* [] */0;
 }
 
-function rec1(_param) {
+function rec1() {
   while(true) {
-    _param = undefined;
     continue ;
   };
 }
 
-function rec2(_param) {
+function rec2() {
   while(true) {
-    _param = undefined;
     continue ;
   };
 }
 
-function recWithCallback(_param) {
+function recWithCallback() {
   while(true) {
-    _param = undefined;
     continue ;
   };
 }
 
-function foo(_param) {
+function foo() {
   while(true) {
-    _param = undefined;
     continue ;
   };
 }
 
-function bar(param) {
-  return foo(undefined);
+function bar() {
+  return foo();
 }
 
 function withDefaultValue(paramWithDefaultOpt, y) {
@@ -84,7 +83,8 @@ function withDefaultValue(paramWithDefaultOpt, y) {
 
 var Ext_buffer = {};
 
-console.log(/* Root */{
+console.log({
+      TAG: "Root",
       _0: "xzz"
     });
 
@@ -145,9 +145,9 @@ var GloobLive = {
 
 var WithInclude = {};
 
-console.log(/* A */0);
+console.log("A");
 
-function funWithInnerVars(param) {
+function funWithInnerVars() {
   return 70;
 }
 
