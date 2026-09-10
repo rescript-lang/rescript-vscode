@@ -116,7 +116,9 @@ export const findBinary = async ({
       "..",
       `@rescript/${target}/bin.js`,
     );
-    const { binPaths } = await import(url.fileURLToPath(targetPackagePath));
+    const { binPaths } = await import(
+      url.pathToFileURL(targetPackagePath).href
+    );
 
     if (binary === "bsc.exe") {
       binaryPath = binPaths.bsc_exe;

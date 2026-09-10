@@ -14,6 +14,8 @@
 
 #### :bug: Bug fix
 
+- Fix language server crash (`ERR_INVALID_URL`) when resolving platform binaries for ReScript v12+ projects. https://github.com/rescript-lang/rescript-vscode/issues/1181
+
 #### :rocket: New Feature
 
 #### :house: Internal
