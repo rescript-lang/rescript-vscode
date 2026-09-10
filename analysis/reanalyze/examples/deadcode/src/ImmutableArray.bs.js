@@ -50,17 +50,17 @@ var rangeBy = Belt_Array.rangeBy;
 
 var makeByU = Belt_Array.makeByU;
 
-var makeBy = Belt_Array.makeBy;
+var makeBy = Belt_Array.makeByU;
 
 var makeByAndShuffleU = Belt_Array.makeByAndShuffleU;
 
-var makeByAndShuffle = Belt_Array.makeByAndShuffle;
+var makeByAndShuffle = Belt_Array.makeByAndShuffleU;
 
 var zip = Belt_Array.zip;
 
 var zipByU = Belt_Array.zipByU;
 
-var zipBy = Belt_Array.zipBy;
+var zipBy = Belt_Array.zipByU;
 
 var unzip = Belt_Array.unzip;
 
@@ -78,67 +78,67 @@ function copy(a) {
 
 var forEachU = Belt_Array.forEachU;
 
-var forEach = Belt_Array.forEach;
+var forEach = Belt_Array.forEachU;
 
 var mapU = Belt_Array.mapU;
 
-var map = Belt_Array.map;
+var map = Belt_Array.mapU;
 
 var keepWithIndexU = Belt_Array.keepWithIndexU;
 
-var keepWithIndex = Belt_Array.keepWithIndex;
+var keepWithIndex = Belt_Array.keepWithIndexU;
 
 var keepMapU = Belt_Array.keepMapU;
 
-var keepMap = Belt_Array.keepMap;
+var keepMap = Belt_Array.keepMapU;
 
 var forEachWithIndexU = Belt_Array.forEachWithIndexU;
 
-var forEachWithIndex = Belt_Array.forEachWithIndex;
+var forEachWithIndex = Belt_Array.forEachWithIndexU;
 
 var mapWithIndexU = Belt_Array.mapWithIndexU;
 
-var mapWithIndex = Belt_Array.mapWithIndex;
+var mapWithIndex = Belt_Array.mapWithIndexU;
 
 var partitionU = Belt_Array.partitionU;
 
-var partition = Belt_Array.partition;
+var partition = Belt_Array.partitionU;
 
 var reduceU = Belt_Array.reduceU;
 
-var reduce = Belt_Array.reduce;
+var reduce = Belt_Array.reduceU;
 
 var reduceReverseU = Belt_Array.reduceReverseU;
 
-var reduceReverse = Belt_Array.reduceReverse;
+var reduceReverse = Belt_Array.reduceReverseU;
 
 var reduceReverse2U = Belt_Array.reduceReverse2U;
 
-var reduceReverse2 = Belt_Array.reduceReverse2;
+var reduceReverse2 = Belt_Array.reduceReverse2U;
 
 var someU = Belt_Array.someU;
 
-var some = Belt_Array.some;
+var some = Belt_Array.someU;
 
 var everyU = Belt_Array.everyU;
 
-var every = Belt_Array.every;
+var every = Belt_Array.everyU;
 
 var every2U = Belt_Array.every2U;
 
-var every2 = Belt_Array.every2;
+var every2 = Belt_Array.every2U;
 
 var some2U = Belt_Array.some2U;
 
-var some2 = Belt_Array.some2;
+var some2 = Belt_Array.some2U;
 
 var cmpU = Belt_Array.cmpU;
 
-var cmp = Belt_Array.cmp;
+var cmp = Belt_Array.cmpU;
 
 var eqU = Belt_Array.eqU;
 
-var eq = Belt_Array.eq;
+var eq = Belt_Array.eqU;
 
 var $$Array$1 = {
   get: get

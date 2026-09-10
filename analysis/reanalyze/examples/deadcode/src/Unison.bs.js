@@ -2,7 +2,7 @@
 
 
 function group(breakOpt, doc) {
-  var $$break = breakOpt !== undefined ? breakOpt : /* IfNeed */0;
+  var $$break = breakOpt !== undefined ? breakOpt : "IfNeed";
   return {
           break: $$break,
           doc: doc
@@ -16,7 +16,7 @@ function fits(_w, _stack) {
     if (w < 0) {
       return false;
     }
-    if (!stack) {
+    if (typeof stack !== "object") {
       return true;
     }
     _stack = stack._1;
@@ -26,45 +26,47 @@ function fits(_w, _stack) {
 }
 
 function toString(width, stack) {
-  if (!stack) {
+  if (typeof stack !== "object") {
     return "";
   }
   var stack$1 = stack._1;
   var match = stack._0;
   var doc = match.doc;
   switch (match.break) {
-    case /* IfNeed */0 :
+    case "IfNeed" :
         return (
                 fits(width, stack$1) ? "fits " : "no "
               ) + toString(width - 1 | 0, stack$1);
-    case /* Never */1 :
+    case "Never" :
         return "never " + (doc + toString(width - 1 | 0, stack$1));
-    case /* Always */2 :
+    case "Always" :
         return "always " + (doc + toString(width - 1 | 0, stack$1));
     
   }
 }
 
-toString(80, /* Empty */0);
+toString(80, "Empty");
 
-var $$break = /* Never */1;
+var $$break = "Never";
 
-toString(80, /* Cons */{
+toString(80, {
+      TAG: "Cons",
       _0: {
         break: $$break,
         doc: "abc"
       },
-      _1: /* Empty */0
+      _1: "Empty"
     });
 
-var $$break$1 = /* Always */2;
+var $$break$1 = "Always";
 
-toString(80, /* Cons */{
+toString(80, {
+      TAG: "Cons",
       _0: {
         break: $$break$1,
         doc: "d"
       },
-      _1: /* Empty */0
+      _1: "Empty"
     });
 
 export {

@@ -2,7 +2,7 @@
 
 import * as Caml_js_exceptions from "rescript/lib/es6/caml_js_exceptions.js";
 
-function raises(param) {
+function raises() {
   throw {
         RE_EXN_ID: "Not_found",
         Error: new Error()
@@ -49,7 +49,7 @@ catch (exn$2){
   raiseAndCatch = undefined;
 }
 
-function raisesWithAnnotaion(param) {
+function raisesWithAnnotaion() {
   throw {
         RE_EXN_ID: "Not_found",
         Error: new Error()
