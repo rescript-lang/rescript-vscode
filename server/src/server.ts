@@ -572,6 +572,7 @@ let closedFile = async (fileUri: utils.FileURI) => {
   }
 };
 
+let refreshTimeout: ReturnType<typeof setTimeout> | null = null;
 let updateOpenedFile = (fileUri: utils.FileURI, fileContent: string) => {
   getLogger().info(
     `Updating opened file ${fileUri}, incremental TC enabled: ${config.extensionConfiguration.incrementalTypechecking?.enable}`,
@@ -581,12 +582,18 @@ let updateOpenedFile = (fileUri: utils.FileURI, fileContent: string) => {
   stupidFileContentCache.set(filePath, fileContent);
   if (config.extensionConfiguration.incrementalTypechecking?.enable) {
     ic.handleUpdateOpenedFile(filePath, fileContent, send, () => {
-      if (config.extensionConfiguration.codeLens) {
-        sendCodeLensRefresh();
+      if (refreshTimeout != null) {
+        clearTimeout(refreshTimeout);
       }
-      if (config.extensionConfiguration.inlayHints) {
-        sendInlayHintsRefresh();
-      }
+      refreshTimeout = setTimeout(() => {
+        refreshTimeout = null;
+        if (config.extensionConfiguration.codeLens) {
+          sendCodeLensRefresh();
+        }
+        if (config.extensionConfiguration.inlayHints) {
+          sendInlayHintsRefresh();
+        }
+      }, 200);
     });
   }
 };
@@ -646,18 +653,37 @@ async function inlayHint(msg: p.RequestMessage) {
   const filePath = utils.uriToNormalizedPath(
     params.textDocument.uri as utils.FileURI,
   );
-
-  const response = await utils.runAnalysisCommand(
+  let args: Array<any> = [
+    "inlayHint",
     filePath,
-    [
-      "inlayHint",
-      filePath,
-      params.range.start.line,
-      params.range.end.line,
-      config.extensionConfiguration.inlayHints?.maxLength,
-    ],
-    msg,
-  );
+    params.range.start.line,
+    params.range.end.line,
+    config.extensionConfiguration.inlayHints?.maxLength,
+  ];
+  let tmpname: string | null = null;
+  let projectRootPath = utils.findProjectRootOfFile(filePath);
+  let rescriptVersion = projectRootPath
+    ? projectsFiles.get(projectRootPath)?.rescriptVersion
+    : null;
+  let supportsCurrentFile =
+    rescriptVersion != null &&
+    semver.valid(rescriptVersion) != null &&
+    semver.gte(rescriptVersion, "12.0.0-alpha.5");
+  // The currentFile argument (passing unsaved buffer content via a temp file)
+  // is only supported by the analysis binary that ships with the compiler
+  // starting from 12.0.0-alpha.5. Older versions don't recognize the extra
+  // argument and would fail to match the CLI pattern.
+  if (supportsCurrentFile) {
+    let code = getOpenedFileContent(params.textDocument.uri as utils.FileURI);
+    let extension = path.extname(params.textDocument.uri);
+    tmpname = utils.createFileInTempDir(extension);
+    fs.writeFileSync(tmpname, code, { encoding: "utf-8" });
+    args.push(tmpname);
+  }
+  const response = await utils.runAnalysisCommand(filePath, args, msg);
+  if (tmpname != null) {
+    fs.unlink(tmpname, () => null);
+  }
   return response;
 }
 
