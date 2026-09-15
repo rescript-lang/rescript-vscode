@@ -1,4 +1,5 @@
 import * as path from "path";
+import * as fs from "fs";
 import {
   workspace,
   ExtensionContext,
@@ -23,6 +24,7 @@ import {
   ServerOptions,
   State,
   TransportKind,
+  DidChangeConfigurationNotification,
 } from "vscode-languageclient/node";
 
 import * as customCommands from "./commands";
@@ -84,11 +86,83 @@ let client: LanguageClient;
 // 	}
 // });
 
+function getRescriptExecutablePath(): string | undefined {
+  const workspaceFolders = workspace.workspaceFolders;
+
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    return undefined;
+  }
+
+  const command = path.join("node_modules", ".bin", "rescript");
+
+  for (const ws of workspaceFolders) {
+    const commandPath = path.resolve(ws.uri.fsPath, command);
+    if (fs.existsSync(commandPath)) {
+      return commandPath;
+    }
+  }
+  return undefined;
+}
+
 export function activate(context: ExtensionContext) {
   let outputChannel = window.createOutputChannel(
     "ReScript Language Server",
     "rescript",
   );
+
+  const useExperimentalServer = workspace
+    .getConfiguration("rescript")
+    .get<boolean>("useExperimentalServer", false);
+
+  function createExperimentalLanguageClient() {
+    const binaryPath = getRescriptExecutablePath();
+
+    if (!binaryPath) {
+      const message = "Could not find the ReScript binary in the workspace.";
+      window.showErrorMessage(message);
+      throw new Error(message);
+    }
+
+    let serverOptions: ServerOptions = {
+      run: {
+        command: binaryPath,
+        args: ["lsp"],
+        transport: TransportKind.stdio,
+      },
+      debug: {
+        command: binaryPath,
+        args: ["lsp"],
+        transport: TransportKind.stdio,
+      },
+    };
+
+    // Options to control the language client
+    let clientOptions: LanguageClientOptions = {
+      documentSelector: [{ scheme: "file", language: "rescript" }],
+      outputChannel,
+      markdown: {
+        isTrusted: true,
+      },
+      middleware: {
+        workspace: {
+          configuration: async (_params, _token, _next) => {
+            // For the experimental server, we don't want to send the full configuration
+            // We send only setting inside rescript.settings, i.e, server settings
+            return [workspace.getConfiguration("rescript.settings")];
+          },
+        },
+      },
+    };
+
+    const client = new LanguageClient(
+      "ReScriptLSP",
+      "Experimental ReScript Language Server",
+      serverOptions,
+      clientOptions,
+    );
+
+    return client;
+  }
 
   function createLanguageClient() {
     // The server is implemented in node
@@ -143,36 +217,42 @@ export function activate(context: ExtensionContext) {
       clientOptions,
     );
 
-    // This sets up a listener that, if we're in code analysis mode, triggers
-    // code analysis as the LS server reports that ReScript compilation has
-    // finished. This is needed because code analysis must wait until
-    // compilation has finished, and the most reliable source for that is the LS
-    // server, that already keeps track of when the compiler finishes in order to
-    // other provide fresh diagnostics.
-    context.subscriptions.push(
-      client.onDidChangeState(({ newState }) => {
-        if (newState === State.Running) {
-          context.subscriptions.push(
-            client.onNotification("rescript/compilationFinished", () => {
-              if (inCodeAnalysisState.active === true) {
-                customCommands.codeAnalysisWithReanalyze(
-                  diagnosticsCollection,
-                  diagnosticsResultCodeActions,
-                  outputChannel,
-                  codeAnalysisRunningStatusBarItem,
-                );
-              }
-            }),
-          );
-        }
-      }),
-    );
-
     return client;
   }
 
+  function createClient() {
+    return useExperimentalServer != null
+      ? createExperimentalLanguageClient()
+      : createLanguageClient();
+  }
+
   // Create the language client and start the client.
-  client = createLanguageClient();
+  client = createClient();
+
+  // This sets up a listener that, if we're in code analysis mode, triggers
+  // code analysis as the LS server reports that ReScript compilation has
+  // finished. This is needed because code analysis must wait until
+  // compilation has finished, and the most reliable source for that is the LS
+  // server, that already keeps track of when the compiler finishes in order to
+  // other provide fresh diagnostics.
+  context.subscriptions.push(
+    client.onDidChangeState(({ newState }) => {
+      if (newState === State.Running) {
+        context.subscriptions.push(
+          client.onNotification("rescript/compilationFinished", () => {
+            if (inCodeAnalysisState.active === true) {
+              customCommands.codeAnalysisWithReanalyze(
+                diagnosticsCollection,
+                diagnosticsResultCodeActions,
+                outputChannel,
+                codeAnalysisRunningStatusBarItem,
+              );
+            }
+          }),
+        );
+      }
+    }),
+  );
 
   // Create a custom diagnostics collection, for cases where we want to report
   // diagnostics programatically from inside of the extension. The reason this
@@ -263,7 +343,7 @@ export function activate(context: ExtensionContext) {
       // Compact success display: project label plus a green check emoji
       compilationStatusBarItem.text = `$(check) ReScript: Ok`;
       compilationStatusBarItem.backgroundColor = undefined;
-      compilationStatusBarItem.color = null;
+      compilationStatusBarItem.color = undefined;
       compilationStatusBarItem.command = undefined;
       const projects = successes.map((e) => e.project).join(", ");
       compilationStatusBarItem.tooltip = projects
@@ -333,7 +413,7 @@ export function activate(context: ExtensionContext) {
         const removeAllCodeAction = new CodeAction("Remove all unused in file");
         const edit = new WorkspaceEdit();
         allRemoveActionEdits.forEach((subEdit) => {
-          subEdit.codeAction.edit.entries().forEach(([uri, [textEdit]]) => {
+          subEdit.codeAction.edit?.entries().forEach(([uri, [textEdit]]) => {
             edit.replace(uri, textEdit.range, textEdit.newText);
           });
         });
@@ -361,7 +441,7 @@ export function activate(context: ExtensionContext) {
 
       const document = editor.document;
       const diagnostics = diagnosticsCollection.get(document.uri);
-      const newDiagnostics = diagnostics.filter((d) => d !== diagnostic);
+      const newDiagnostics = diagnostics?.filter((d) => d !== diagnostic);
       diagnosticsCollection.set(document.uri, newDiagnostics);
     },
   );
@@ -513,7 +593,7 @@ export function activate(context: ExtensionContext) {
 
   commands.registerCommand("rescript-vscode.restart_language_server", () => {
     client.stop().then(() => {
-      client = createLanguageClient();
+      client = createClient();
       client.start();
     });
   });
@@ -549,7 +629,9 @@ export function activate(context: ExtensionContext) {
         // Send a general message that configuration has updated. Clients
         // interested can then pull the new configuration as they see fit.
         client
-          .sendNotification("workspace/didChangeConfiguration")
+          .sendNotification(DidChangeConfigurationNotification.type, {
+            settings: null,
+          })
           .catch((err) => {
             window.showErrorMessage(String(err));
           });
