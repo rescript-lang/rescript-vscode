@@ -14,6 +14,8 @@
 
 #### :bug: Bug fix
 
+- Scope rescript.json completions to the current object and replace existing property quotes when completing keys. https://github.com/rescript-lang/rescript-vscode/pull/1131
+
 - Protect against trying to read non-existant `.compiler.log`. https://github.com/rescript-lang/rescript-vscode/pull/1116
 - Detected quoted paths in bsb arguments on Windows. https://github.com/rescript-lang/rescript-vscode/pull/1120
 

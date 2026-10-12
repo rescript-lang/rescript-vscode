@@ -287,23 +287,33 @@ export function getConfigCompletions(
 
   // Get the location at the cursor
   const location = jsoncParser.getLocation(content, offset);
+  if (!location.isAtPropertyKey) {
+    return [];
+  }
+  const keyNode = location.previousNode;
+  const editingKey =
+    keyNode?.type === "property" &&
+    keyNode.offset <= offset &&
+    offset <= keyNode.offset + keyNode.length
+      ? keyNode
+      : undefined;
 
   // Find the nearest object node that contains the cursor
   const currentObjectNode = findContainingObjectNode(root, offset);
   if (!currentObjectNode) {
-    return getTopLevelCompletions(schemaInfo);
+    return [];
   }
 
   // Get the JSON path to this object
   const path = getPathToNode(root, currentObjectNode);
   if (!path) {
-    return getTopLevelCompletions(schemaInfo);
+    return [];
   }
 
   // Resolve the schema for this path
   const schemaAtPath = resolveSchemaForPath(schemaInfo.schema, path);
   if (!schemaAtPath || !schemaAtPath.properties) {
-    return getTopLevelCompletions(schemaInfo);
+    return [];
   }
 
   // Get existing keys in the current object
@@ -311,7 +321,7 @@ export function getConfigCompletions(
 
   // Build completion items for available properties
   const completions = Object.entries(schemaAtPath.properties)
-    .filter(([key]) => !existingKeys.includes(key))
+    .filter(([key]) => key === editingKey?.value || !existingKeys.includes(key))
     .map(([key, prop]: [string, any]) => {
       const item: CompletionItem = {
         label: key,
@@ -328,12 +338,24 @@ export function getConfigCompletions(
         item.insertText = `"${key}": "${prop.default || prop.enum[0]}"`;
       }
 
+      if (editingKey) {
+        const hasValue = /^\s*:/.test(
+          content.slice(editingKey.offset + editingKey.length),
+        );
+        item.textEdit = {
+          range: {
+            start: document.positionAt(editingKey.offset),
+            end: document.positionAt(editingKey.offset + editingKey.length),
+          },
+          newText: hasValue ? JSON.stringify(key) : item.insertText!,
+        };
+        delete item.insertText;
+      }
+
       return item;
     });
 
-  return completions.length > 0
-    ? completions
-    : getTopLevelCompletions(schemaInfo);
+  return completions;
 }
 
 // Helper functions for jsonc-parser based completion
